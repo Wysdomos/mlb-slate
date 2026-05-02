@@ -796,13 +796,27 @@ body.filtering tr.row-match td { background: var(--accent-soft); }
   color: var(--text);
 }
 .book-link.dk { color: #53d337; border-color: rgba(83,211,55,0.40); }
+.book-link.fd { color: #1493ff; border-color: rgba(20,147,255,0.40); }
 .book-link.pp { color: #a855f7; border-color: rgba(168,85,247,0.40); }
 .book-link.ud { color: #fb923c; border-color: rgba(251,146,60,0.40); }
+.book-link.nv { color: #ec4899; border-color: rgba(236,72,153,0.40); }
 .book-link.ks { color: #60a5fa; border-color: rgba(96,165,250,0.40); }
 [data-theme="light"] .book-link.dk { color: #15803d; }
+[data-theme="light"] .book-link.fd { color: #0b6dc7; }
 [data-theme="light"] .book-link.pp { color: #7e22ce; }
 [data-theme="light"] .book-link.ud { color: #c2410c; }
+[data-theme="light"] .book-link.nv { color: #be185d; }
 [data-theme="light"] .book-link.ks { color: #1d4ed8; }
+.drawer-section-label {
+  margin: 14px 0 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--glass-border);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
 
 /* Footer */
 footer {
@@ -854,27 +868,6 @@ footer {
   <div id="howtoBody"></div>
 </div>
 
-<div class="filter-bar" id="filterBar">
-  <div class="filter-search" id="filterSearch">
-    <input type="search" id="searchInput" placeholder="🔍 Search players, teams, or props…" autocomplete="off">
-    <button class="clear-btn" id="clearSearch" aria-label="Clear">×</button>
-  </div>
-  <div class="chips" id="chipRow">
-    <button class="chip" data-filter="tier0">🟢 Tier 0</button>
-    <button class="chip" data-filter="tier1">🟡 Tier 1</button>
-    <button class="chip" data-filter="hot">🔥 Hot</button>
-    <button class="chip" data-filter="cold">❄️ Cold</button>
-    <button class="chip" data-filter="bad">⛔ Skip / Bad</button>
-    <button class="chip" data-filter="picks">⭐ My Picks</button>
-  </div>
-  <div class="book-bar">
-    <a class="book-link dk" href="https://sportsbook.draftkings.com/leagues/baseball/mlb" target="_blank" rel="noopener">DraftKings</a>
-    <a class="book-link pp" href="https://app.prizepicks.com/?league=mlb" target="_blank" rel="noopener">PrizePicks</a>
-    <a class="book-link ud" href="https://underdogfantasy.com/pick-em/higher-lower/all/mlb" target="_blank" rel="noopener">Underdog</a>
-    <a class="book-link ks" href="https://kalshi.com/markets?category=Sports" target="_blank" rel="noopener">Kalshi</a>
-  </div>
-</div>
-
 <button class="picks-fab" id="picksFab" aria-label="My Picks">⭐<span class="badge-count hidden" id="picksCount">0</span></button>
 
 <div class="picks-drawer" id="picksDrawer">
@@ -883,6 +876,15 @@ footer {
     <button class="clear" id="clearPicks">Clear all</button>
   </div>
   <div id="picksList"><div class="picks-empty">Tap any ☆ next to a player to add them here.</div></div>
+  <div class="drawer-section-label">Open in sportsbook</div>
+  <div class="book-bar">
+    <a class="book-link dk" href="https://sportsbook.draftkings.com/leagues/baseball/mlb" target="_blank" rel="noopener">DraftKings</a>
+    <a class="book-link fd" href="https://sportsbook.fanduel.com/navigation/mlb" target="_blank" rel="noopener">FanDuel</a>
+    <a class="book-link pp" href="https://app.prizepicks.com/?league=mlb" target="_blank" rel="noopener">PrizePicks</a>
+    <a class="book-link ud" href="https://underdogfantasy.com/pick-em/higher-lower/all/mlb" target="_blank" rel="noopener">Underdog</a>
+    <a class="book-link nv" href="https://novig.com/sports/baseball-mlb" target="_blank" rel="noopener">Novig</a>
+    <a class="book-link ks" href="https://kalshi.com/markets?category=Sports" target="_blank" rel="noopener">Kalshi</a>
+  </div>
 </div>
 
 <main>
@@ -1880,7 +1882,6 @@ footer {
     if (picks.length > 0) { picksCount.textContent = picks.length; picksCount.classList.remove('hidden'); }
     else { picksCount.classList.add('hidden'); }
     renderPicksDrawer();
-    if (picksFilterOn) applyFilters();
   }
   function togglePick(id, force) {
     const idx = picks.indexOf(id);
@@ -1919,86 +1920,9 @@ footer {
   });
   updatePicksUI();
 
-  // ---- Filter chips + search ----
-  const chipRow = document.getElementById('chipRow');
-  const searchInput = document.getElementById('searchInput');
-  const clearSearchBtn = document.getElementById('clearSearch');
-  const filterSearchEl = document.getElementById('filterSearch');
-  let activeFilters = new Set();
-  let searchText = '';
+  // (Filter chips + search bar removed per user request)
   let picksFilterOn = false;
-
-  function rowMatches(el) {
-    const text = el.textContent.toLowerCase();
-    // chip filters — ANY active filter must match (OR within filters group)
-    if (activeFilters.size > 0) {
-      let chipHit = false;
-      for (const f of activeFilters) {
-        if (f === 'picks') {
-          const id = el.getAttribute('data-pick-id');
-          if (id && picks.indexOf(id) !== -1) { chipHit = true; break; }
-          continue;
-        }
-        if (f === 'tier0' && el.querySelector('.b-tier0')) { chipHit = true; break; }
-        if (f === 'tier1' && el.querySelector('.b-tier1')) { chipHit = true; break; }
-        if (f === 'hot'  && el.querySelector('.b-hot'))  { chipHit = true; break; }
-        if (f === 'cold' && el.querySelector('.b-cold')) { chipHit = true; break; }
-        if (f === 'bad'  && el.querySelector('.b-bad'))  { chipHit = true; break; }
-      }
-      if (!chipHit) return false;
-    }
-    // search text — must match if present
-    if (searchText && text.indexOf(searchText) === -1) return false;
-    return true;
-  }
-
-  function applyFilters() {
-    const filtering = activeFilters.size > 0 || searchText.length > 0;
-    document.body.classList.toggle('filtering', filtering);
-
-    // Auto-open all games while filtering so matches are visible
-    document.querySelectorAll('.game').forEach(function(g) {
-      if (filtering) g.classList.add('open');
-    });
-
-    // Apply to table rows
-    document.querySelectorAll('section table tbody tr').forEach(function(row) {
-      row.classList.remove('row-match', 'row-hidden');
-      if (!filtering) return;
-      if (rowMatches(row)) row.classList.add('row-match');
-      else row.classList.add('row-hidden');
-    });
-
-    // Apply to flag-list / angle paragraphs (free text in game write-ups)
-    document.querySelectorAll('ul.flag-list li, .angle, p').forEach(function(el) {
-      el.classList.remove('row-match', 'row-hidden');
-      if (!filtering) return;
-      if (rowMatches(el)) el.classList.add('row-match');
-      else el.classList.add('row-hidden');
-    });
-  }
-
-  chipRow.querySelectorAll('.chip').forEach(function(chip) {
-    chip.addEventListener('click', function() {
-      const f = chip.dataset.filter;
-      if (activeFilters.has(f)) { activeFilters.delete(f); chip.removeAttribute('data-state'); }
-      else { activeFilters.add(f); chip.setAttribute('data-state', 'on'); }
-      picksFilterOn = activeFilters.has('picks');
-      applyFilters();
-    });
-  });
-
-  searchInput.addEventListener('input', function() {
-    searchText = searchInput.value.trim().toLowerCase();
-    filterSearchEl.classList.toggle('has-text', searchText.length > 0);
-    applyFilters();
-  });
-  clearSearchBtn.addEventListener('click', function() {
-    searchInput.value = '';
-    searchText = '';
-    filterSearchEl.classList.remove('has-text');
-    applyFilters();
-  });
+  function applyFilters() {}
 })();
 </script>
 
