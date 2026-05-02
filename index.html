@@ -151,25 +151,29 @@ header {
   margin-top: 2px;
   letter-spacing: 0.1px;
 }
-.theme-toggle {
+.theme-fab {
+  position: fixed;
+  bottom: 22px;
+  left: 14px;
+  z-index: 200;
   background: var(--glass-strong);
   border: 1px solid var(--glass-border-strong);
   color: var(--text);
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.18);
   transition: transform 0.2s, background 0.2s;
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.10);
+  font-family: inherit;
 }
-.theme-toggle:active { transform: scale(0.92); }
+.theme-fab:active { transform: scale(0.92); }
 main { padding: 0 14px; max-width: 880px; margin: 0 auto; }
 
 /* === Glass primitives === */
@@ -254,21 +258,6 @@ section h4 {
   letter-spacing: 1px;
 }
 section p { color: var(--text-soft); }
-.back-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 16px;
-  font-size: 12px;
-  color: var(--accent);
-  text-decoration: none;
-  padding: 7px 12px;
-  border: 1px solid var(--glass-border-strong);
-  background: var(--glass-elev);
-  border-radius: 999px;
-  font-weight: 500;
-}
-
 /* Tables — horizontally scrollable on mobile */
 .table-wrap {
   overflow-x: auto;
@@ -849,8 +838,9 @@ footer {
     <h1>✅ May 2 — Full Saturday Slate</h1>
     <div class="sub">Daily Format v3.0 · 15 Games · Day 36</div>
   </div>
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
 </header>
+
+<button class="theme-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>
 
 <div class="install-banner" id="installBanner">
   <span class="ib-icon">📲</span>
@@ -933,7 +923,6 @@ footer {
     <li><b>Brett Harris (ATH) ⚡26</b> — confirm active before betting any prop; no Dimers data.</li>
     <li><b>Connor Prielipp (MIN)</b> — only 9.79 outs projected; massive variance on all MIN batter K and OO.5 props.</li>
   </ul>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- ALIGNMENT -->
@@ -953,7 +942,6 @@ footer {
     </table>
   </div>
   <p style="font-size:13px; margin-top:12px;"><b>Confirmed Tier 0 bats:</b> Aaron Judge (23.52%, Score 70 vs Bradish VulnScore 50), Ben Rice (18.07%, Score 68 vs Bradish), Nick Kurtz (24.04%, Score 59 HOT ⚡4 vs Cecconi VulnScore 56 — borderline score met by bilateral game context).</p>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- GAMES -->
@@ -1376,7 +1364,6 @@ footer {
     </div></div>
   </div>
 
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- K BOARD -->
@@ -1416,7 +1403,6 @@ footer {
       </tbody>
     </table>
   </div>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- HR BOARD -->
@@ -1469,7 +1455,6 @@ footer {
       </tbody>
     </table>
   </div>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- OO5 BOARD -->
@@ -1534,7 +1519,6 @@ footer {
     </table>
   </div>
   <p style="font-size:12px; color:var(--text-dim); margin-top:10px;">TOR vs Prielipp = 5 of top 13 (9.79-outs amplifier). ATH vs Cecconi = 5 of top 24. Tier 0 trio (Judge, Rice, Kurtz) all ≥86% OO.5.</p>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- COMBOS -->
@@ -1558,7 +1542,6 @@ footer {
       </tbody>
     </table>
   </div>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- PARLAYS -->
@@ -1583,7 +1566,6 @@ footer {
     </table>
   </div>
   <p style="font-size:12px; color:var(--bad); margin-top:10px;"><b>⚠️ Avoid pairing:</b> Schwarber, Langeliers, Murakami, Montgomery, De La Cruz, Burger, Wood, Abrams, Halpin, Ramos. Hold all COL HR + ATL HR until starter confirmed.</p>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- CONVICTION -->
@@ -1616,7 +1598,6 @@ footer {
       </tbody>
     </table>
   </div>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 <!-- SKIP LIST -->
@@ -1635,7 +1616,6 @@ footer {
       </tbody>
     </table>
   </div>
-  <a href="#top" class="back-top">↑ Back to top</a>
 </section>
 
 </main>
