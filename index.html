@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08120f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="5/2 Slate">
+<meta name="mobile-web-app-capable" content="yes">
+<title>May 2 Full Slate — Daily Format v3.0</title>
+<style>
+/* === Liquid Glass theme — green=great, red=bad === */
+:root {
+  /* Dark mode (default) */
+  --bg: #08120f;
+  --bg-grad-1: #0a1a14;
+  --bg-grad-2: #0c1620;
+  --bg-grad-3: #14110a;
+  --glass: rgba(255,255,255,0.06);
+  --glass-strong: rgba(255,255,255,0.10);
+  --glass-elev: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.12);
+  --glass-border-strong: rgba(255,255,255,0.18);
+  --text: #ecf1ee;
+  --text-dim: #9fb0a8;
+  --text-soft: #c2cec8;
+
+  /* Semantic — green=great, red=bad */
+  --tier0: #22c55e;        /* GREEN = Tier 0 = great */
+  --tier0-bg: rgba(34,197,94,0.16);
+  --tier0-border: rgba(34,197,94,0.42);
+  --tier1: #84cc16;        /* lime = Tier 1 */
+  --tier1-bg: rgba(132,204,22,0.16);
+  --tier1-border: rgba(132,204,22,0.40);
+  --good: #22c55e;
+  --bad: #ef4444;          /* RED = bad / skip */
+  --bad-bg: rgba(239,68,68,0.14);
+  --bad-border: rgba(239,68,68,0.42);
+  --warn: #f59e0b;         /* amber = caution */
+  --warn-bg: rgba(245,158,11,0.14);
+  --hot: #fb923c;          /* warm orange (hot streak, not bad) */
+  --cold: #60a5fa;         /* cool blue (cold streak, neutral) */
+  --accent: #34d399;       /* mint accent */
+  --accent-soft: rgba(52,211,153,0.14);
+  --info: #60a5fa;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow: 0 8px 24px -8px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.25);
+  --shadow-lg: 0 20px 50px -16px rgba(0,0,0,0.7), 0 6px 18px rgba(0,0,0,0.35);
+  --header-bg: rgba(8,18,15,0.62);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+[data-theme="light"] {
+  --bg: #f1f5f3;
+  --bg-grad-1: #e8f3ed;
+  --bg-grad-2: #eef2f7;
+  --bg-grad-3: #f5f1e8;
+  --glass: rgba(255,255,255,0.62);
+  --glass-strong: rgba(255,255,255,0.78);
+  --glass-elev: rgba(255,255,255,0.50);
+  --glass-border: rgba(15,23,42,0.10);
+  --glass-border-strong: rgba(15,23,42,0.16);
+  --text: #0f1a16;
+  --text-dim: #5b6b65;
+  --text-soft: #2c3935;
+
+  --tier0: #16a34a;
+  --tier0-bg: rgba(22,163,74,0.14);
+  --tier0-border: rgba(22,163,74,0.45);
+  --tier1: #65a30d;
+  --tier1-bg: rgba(101,163,13,0.14);
+  --tier1-border: rgba(101,163,13,0.40);
+  --good: #15803d;
+  --bad: #dc2626;
+  --bad-bg: rgba(220,38,38,0.10);
+  --bad-border: rgba(220,38,38,0.45);
+  --warn: #d97706;
+  --warn-bg: rgba(217,119,6,0.12);
+  --hot: #ea580c;
+  --cold: #2563eb;
+  --accent: #059669;
+  --accent-soft: rgba(5,150,105,0.10);
+  --info: #2563eb;
+
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+  --shadow: 0 6px 20px -8px rgba(15,23,42,0.18), 0 1px 3px rgba(15,23,42,0.06);
+  --shadow-lg: 0 18px 40px -16px rgba(15,23,42,0.22), 0 4px 14px rgba(15,23,42,0.08);
+  --header-bg: rgba(241,245,243,0.70);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
+  padding-bottom: 100px;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+/* Ambient gradient backdrop (the “glass behind the glass”) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(900px 600px at 12% -10%, var(--bg-grad-1), transparent 60%),
+    radial-gradient(800px 700px at 110% 10%, var(--bg-grad-2), transparent 55%),
+    radial-gradient(700px 600px at 50% 110%, var(--bg-grad-3), transparent 60%),
+    var(--bg);
+  pointer-events: none;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--header-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.title-block h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.title-block .sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  letter-spacing: 0.1px;
+}
+.theme-toggle {
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.theme-toggle:active { transform: scale(0.92); }
+main { padding: 0 14px; max-width: 880px; margin: 0 auto; }
+
+/* === Glass primitives === */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* TOC */
+.toc {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.toc h2 {
+  margin: 0 0 12px 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.toc-grid { display: grid; gap: 6px; }
+.toc a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 11px 13px;
+  background: var(--glass-elev);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: -0.1px;
+  transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+.toc a:hover { background: var(--glass-strong); border-color: var(--glass-border-strong); }
+.toc a:active { background: var(--accent-soft); border-color: var(--accent); transform: scale(0.99); }
+.toc a .arrow { color: var(--text-dim); font-size: 14px; }
+
+/* Sections */
+section {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin: 16px 0;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+  scroll-margin-top: 78px;
+}
+section h2 {
+  margin: 0 0 14px 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+}
+section h3 {
+  margin: 20px 0 10px 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+}
+section h4 {
+  margin: 16px 0 8px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+section p { color: var(--text-soft); }
+.back-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 7px 12px;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--glass-elev);
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Tables — horizontally scrollable on mobile */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 10px -18px;
+  padding: 0 18px;
+}
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 13px;
+  min-width: 100%;
+}
+th, td {
+  text-align: left;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--glass-border);
+  white-space: nowrap;
+  color: var(--text);
+}
+th {
+  background: var(--glass-elev);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+tbody tr:hover td { background: var(--glass-elev); }
+tr:last-child td { border-bottom: none; }
+.wrap-cell { white-space: normal; min-width: 160px; }
+
+/* Row tinting by grade */
+tr.row-tier0 td:first-child { box-shadow: inset 3px 0 0 var(--tier0); }
+tr.row-tier1 td:first-child { box-shadow: inset 3px 0 0 var(--tier1); }
+tr.row-bad td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+tr.row-warn td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+
+/* Game accordion cards */
+.game {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  margin: 10px 0;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.game.open {
+  border-color: var(--glass-border-strong);
+  background: var(--glass);
+  box-shadow: var(--shadow-sm);
+}
+.game-header {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: inherit;
+}
+.game-header:active { background: var(--glass-strong); }
+.game-header-text { flex: 1; min-width: 0; }
+.game-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+.game-tag {
+  font-size: 11px;
+  color: var(--warn);
+  display: block;
+  line-height: 1.35;
+}
+.chevron {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 14px;
+  border-radius: 50%;
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s ease, color 0.2s;
+}
+.game.open .chevron { transform: rotate(180deg); color: var(--accent); border-color: var(--accent); }
+.game-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.game.open .game-body { max-height: 4000px; }
+.game-body-inner {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--glass-border);
+}
+.game-controls {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+.game-controls button {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s;
+}
+.game-controls button:hover { background: var(--glass-strong); }
+.game-controls button:active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.angle {
+  background: var(--glass-elev);
+  border-left: 3px solid var(--accent);
+  padding: 11px 13px;
+  margin-top: 10px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+.angle strong { color: var(--accent); font-weight: 650; }
+
+/* Badges — frosted pill style with semantic tinting */
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 650;
+  margin-right: 5px;
+  letter-spacing: 0.2px;
+  border: 1px solid transparent;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  vertical-align: 1px;
+}
+.b-tier0 { background: var(--tier0-bg); color: var(--tier0); border-color: var(--tier0-border); }
+.b-tier1 { background: var(--tier1-bg); color: var(--tier1); border-color: var(--tier1-border); }
+.b-hot   { background: rgba(251,146,60,0.16); color: var(--hot); border-color: rgba(251,146,60,0.40); }
+.b-cold  { background: rgba(96,165,250,0.16); color: var(--cold); border-color: rgba(96,165,250,0.40); }
+.b-good  { background: var(--tier0-bg); color: var(--good); border-color: var(--tier0-border); }
+.b-bad   { background: var(--bad-bg); color: var(--bad); border-color: var(--bad-border); }
+.b-warn  { background: var(--warn-bg); color: var(--warn); border-color: rgba(245,158,11,0.40); }
+.b-neutral { background: var(--glass-elev); color: var(--text-dim); border-color: var(--glass-border-strong); }
+[data-theme="light"] .b-tier0 { color: #15803d; }
+[data-theme="light"] .b-tier1 { color: #4d7c0f; }
+[data-theme="light"] .b-good { color: #15803d; }
+[data-theme="light"] .b-bad { color: #b91c1c; }
+[data-theme="light"] .b-warn { color: #b45309; }
+[data-theme="light"] .b-hot { color: #c2410c; }
+[data-theme="light"] .b-cold { color: #1d4ed8; }
+
+.flag-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.flag-row:last-child { border-bottom: none; }
+.flag-row .icon { flex-shrink: 0; width: 24px; }
+.flag-row strong { color: var(--text); font-weight: 600; }
+
+/* Lists */
+ul.flag-list { padding-left: 18px; margin: 8px 0; }
+ul.flag-list li { margin: 7px 0; font-size: 13px; line-height: 1.55; color: var(--text-soft); }
+ul.flag-list li strong { color: var(--text); }
+
+/* Floating back-to-top — frosted pill */
+.fab {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  z-index: 200;
+  background: var(--glass-strong);
+  color: var(--text);
+  border: 1px solid var(--glass-border-strong);
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  letter-spacing: -0.1px;
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.2,1), opacity 0.3s ease;
+  pointer-events: none;
+}
+.fab.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.fab:active { transform: translateX(-50%) translateY(0) scale(0.94); }
+
+/* Install banner — glass with green tint */
+.install-banner {
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+  margin: 10px 14px 0;
+  padding: 11px 13px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--glass));
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.install-banner.hidden { display: none; }
+.install-banner .ib-icon { font-size: 18px; flex-shrink: 0; }
+.install-banner .ib-text { flex: 1; line-height: 1.4; }
+.install-banner .ib-text strong { color: var(--accent); font-weight: 650; }
+.install-banner .ib-btn {
+  background: var(--accent);
+  color: #08120f;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(52,211,153,0.30);
+}
+[data-theme="light"] .install-banner .ib-btn { color: white; }
+.install-banner .ib-btn:active { transform: scale(0.96); }
+.install-banner .ib-close {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+}
+.install-howto {
+  margin: 10px 14px 0;
+  padding: 13px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.install-howto.hidden { display: none; }
+.install-howto h3 { margin: 0 0 8px; font-size: 13px; color: var(--accent); font-weight: 650; }
+.install-howto ol { margin: 4px 0 0 18px; padding: 0; }
+.install-howto kbd {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+/* === Interactive: Filter bar === */
+.filter-bar {
+  position: sticky;
+  top: 60px;
+  z-index: 85;
+  margin: 10px 14px 0;
+  padding: 10px 12px;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.filter-search input {
+  flex: 1;
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  padding: 9px 13px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.filter-search input::placeholder { color: var(--text-dim); }
+.filter-search input:focus { border-color: var(--accent); }
+.filter-search .clear-btn {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  display: none;
+}
+.filter-search.has-text .clear-btn { display: block; }
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -12px;
+  padding: 0 12px;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0;
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.chip[data-state="on"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chip[data-filter="tier0"][data-state="on"] { background: var(--tier0-bg); border-color: var(--tier0); color: var(--tier0); }
+.chip[data-filter="tier1"][data-state="on"] { background: var(--tier1-bg); border-color: var(--tier1); color: var(--tier1); }
+.chip[data-filter="bad"][data-state="on"] { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.chip[data-filter="hot"][data-state="on"] { background: rgba(251,146,60,0.18); border-color: var(--hot); color: var(--hot); }
+.chip[data-filter="cold"][data-state="on"] { background: rgba(96,165,250,0.18); border-color: var(--cold); color: var(--cold); }
+.chip[data-filter="picks"][data-state="on"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* Filter dimming — rows that don't match get faded */
+body.filtering tr.row-hidden td,
+body.filtering li.row-hidden,
+body.filtering p.row-hidden,
+body.filtering div.row-hidden {
+  opacity: 0.18;
+  filter: saturate(0.4);
+}
+body.filtering tr.row-match td { background: var(--accent-soft); }
+
+/* Star/pick toggle on rows */
+.pick-cell {
+  width: 32px;
+  text-align: center;
+  padding: 0 !important;
+}
+.pick-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 8px;
+  font-family: inherit;
+  transition: transform 0.15s, color 0.15s;
+}
+.pick-btn:active { transform: scale(1.4); }
+.pick-btn.picked { color: var(--accent); }
+.pick-btn.picked::before { content: "★"; }
+.pick-btn::before { content: "☆"; }
+
+/* My Picks drawer */
+.picks-drawer {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  width: calc(100% - 28px);
+  max-width: 720px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 14px;
+  max-height: 60vh;
+  overflow-y: auto;
+  display: none;
+}
+.picks-drawer.open { display: block; }
+.picks-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.picks-drawer-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.picks-drawer-header .clear { background: transparent; border: none; color: var(--bad); font-size: 12px; cursor: pointer; font-family: inherit; }
+.pick-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--glass-border);
+  font-size: 13px;
+}
+.pick-item:last-child { border-bottom: none; }
+.pick-item .label { flex: 1; color: var(--text); }
+.pick-item .meta { font-size: 11px; color: var(--text-dim); }
+.pick-item .remove {
+  background: transparent;
+  border: none;
+  color: var(--bad);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.picks-empty { color: var(--text-dim); font-size: 13px; text-align: center; padding: 14px 0; }
+.picks-fab {
+  position: fixed;
+  bottom: 22px;
+  right: 14px;
+  z-index: 200;
+  background: var(--accent);
+  color: #08120f;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.10);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+}
+.picks-fab .badge-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--bad);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--bg);
+}
+.picks-fab .badge-count.hidden { display: none; }
+[data-theme="light"] .picks-fab { color: white; }
+
+/* Sportsbook quick links */
+.book-bar {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 4px;
+  flex-wrap: wrap;
+}
+.book-link {
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text);
+}
+.book-link.dk { color: #53d337; border-color: rgba(83,211,55,0.40); }
+.book-link.pp { color: #a855f7; border-color: rgba(168,85,247,0.40); }
+.book-link.ud { color: #fb923c; border-color: rgba(251,146,60,0.40); }
+.book-link.ks { color: #60a5fa; border-color: rgba(96,165,250,0.40); }
+[data-theme="light"] .book-link.dk { color: #15803d; }
+[data-theme="light"] .book-link.pp { color: #7e22ce; }
+[data-theme="light"] .book-link.ud { color: #c2410c; }
+[data-theme="light"] .book-link.ks { color: #1d4ed8; }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  body { font-size: 14px; }
+  section { padding: 16px 14px; border-radius: 14px; }
+  table { font-size: 12px; }
+  th, td { padding: 7px 9px; }
+  .title-block h1 { font-size: 14px; }
+  .toc a { font-size: 13.5px; padding: 11px 12px; }
+}
+
+/* Subtle entrance for sections */
+@media (prefers-reduced-motion: no-preference) {
+  section, .toc, .game { animation: rise 0.5s cubic-bezier(0.2,0.8,0.2,1) both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-block">
+    <h1>✅ May 2 — Full Saturday Slate</h1>
+    <div class="sub">Daily Format v3.0 · 15 Games · Day 36</div>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+</header>
+
+<div class="install-banner" id="installBanner">
+  <span class="ib-icon">📲</span>
+  <span class="ib-text"><strong>Pin to Home Screen</strong> for one-tap access to today's slate.</span>
+  <button class="ib-btn" id="installBtn">Add</button>
+  <button class="ib-close" id="installClose" aria-label="Dismiss">×</button>
+</div>
+
+<div class="install-howto hidden" id="installHowto">
+  <h3 id="howtoTitle">How to add to Home Screen</h3>
+  <div id="howtoBody"></div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <div class="filter-search" id="filterSearch">
+    <input type="search" id="searchInput" placeholder="🔍 Search players, teams, or props…" autocomplete="off">
+    <button class="clear-btn" id="clearSearch" aria-label="Clear">×</button>
+  </div>
+  <div class="chips" id="chipRow">
+    <button class="chip" data-filter="tier0">🟢 Tier 0</button>
+    <button class="chip" data-filter="tier1">🟡 Tier 1</button>
+    <button class="chip" data-filter="hot">🔥 Hot</button>
+    <button class="chip" data-filter="cold">❄️ Cold</button>
+    <button class="chip" data-filter="bad">⛔ Skip / Bad</button>
+    <button class="chip" data-filter="picks">⭐ My Picks</button>
+  </div>
+  <div class="book-bar">
+    <a class="book-link dk" href="https://sportsbook.draftkings.com/leagues/baseball/mlb" target="_blank" rel="noopener">DraftKings</a>
+    <a class="book-link pp" href="https://app.prizepicks.com/?league=mlb" target="_blank" rel="noopener">PrizePicks</a>
+    <a class="book-link ud" href="https://underdogfantasy.com/pick-em/higher-lower/all/mlb" target="_blank" rel="noopener">Underdog</a>
+    <a class="book-link ks" href="https://kalshi.com/markets?category=Sports" target="_blank" rel="noopener">Kalshi</a>
+  </div>
+</div>
+
+<button class="picks-fab" id="picksFab" aria-label="My Picks">⭐<span class="badge-count hidden" id="picksCount">0</span></button>
+
+<div class="picks-drawer" id="picksDrawer">
+  <div class="picks-drawer-header">
+    <h3>⭐ My Picks</h3>
+    <button class="clear" id="clearPicks">Clear all</button>
+  </div>
+  <div id="picksList"><div class="picks-empty">Tap any ☆ next to a player to add them here.</div></div>
+</div>
+
+<main>
+
+<!-- TOC -->
+<div class="toc">
+  <h2>Jump to Section</h2>
+  <div class="toc-grid">
+    <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
+    <a href="#alignment">📊 5-File Alignment Tiers <span class="arrow">›</span></a>
+    <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
+    <a href="#k-board">⚡ Full K Tier Board <span class="arrow">›</span></a>
+    <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
+    <a href="#oo5-board">🎯 Top 50 H+R+RBI OO.5 Board <span class="arrow">›</span></a>
+    <a href="#combos">🎰 10 Lower Alt K+H+R+RBI Combos <span class="arrow">›</span></a>
+    <a href="#parlays">💣 10 Two-Leg HR Parlays <span class="arrow">›</span></a>
+    <a href="#conviction">🎯 Full Conviction Board <span class="arrow">›</span></a>
+    <a href="#skip">📋 Daily Skip List <span class="arrow">›</span></a>
+  </div>
+</div>
+
+<!-- HEADLINES -->
+<section id="headlines">
+  <h2>📅 Slate Headlines — Day 36</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Flag</th><th>Detail</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>🔥 Sasaki VulnScore 60</td><td class="wrap-cell">ERA 6.35 — today's most exposed arm; STL lineup fully open</td><td>MLBP + Slate</td></tr>
+        <tr><td>🏆 #1 HR Score</td><td class="wrap-cell"><b>Jordan Walker STL — Score 73 HOT ⚡5</b> vs Sasaki ERA 6.35 VulnScore 60</td><td>HR Board</td></tr>
+        <tr><td>🏆 #1 Dimers HR%</td><td class="wrap-cell"><b>Nick Kurtz ATH 24.04%</b> vs Cecconi ERA 6.23 VulnScore 56</td><td>MLBH</td></tr>
+        <tr><td>🏆 #1 K Projection</td><td class="wrap-cell"><b>Dylan Cease TOR 6.09 Ks</b> K9=14.2</td><td>MLBP</td></tr>
+        <tr><td>🏆 Most Outs</td><td class="wrap-cell"><b>Seth Lugo KC 16.79</b> — today's deepest starter</td><td>MLBP</td></tr>
+        <tr><td>⚡ Longest Zone Streak</td><td class="wrap-cell"><b>Brett Harris ATH ⚡26</b> — full slate longest</td><td>HR Board</td></tr>
+        <tr><td>🎯 Bilateral Explosion</td><td class="wrap-cell"><b>CLE vs ATH</b> — Cecconi 56 + Lopez 50</td><td>Slate</td></tr>
+        <tr><td>🎯 Worst ERA Today</td><td class="wrap-cell"><b>Ryne Nelson (ARI) 7.71</b></td><td>Slate</td></tr>
+        <tr><td>🎯 Most H Allowed</td><td class="wrap-cell"><b>Slade Cecconi (CLE) 7.26</b> — worst on slate</td><td>MLBP</td></tr>
+        <tr><td>🔥 Park Factors</td><td class="wrap-cell">Coors 1.38 🏆 / BAL-NYY 1.13 / HOU-BOS 1.01</td><td>Slate</td></tr>
+        <tr><td>⚠️ TBD Starters</td><td class="wrap-cell">COL unconfirmed — hold all COL batter HR props</td><td>Slate +1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>⚠️ Lineup Flags — Confirm Before Betting</h3>
+  <ul class="flag-list">
+    <li><b>ATL vs COL</b> — COL starter TBD. Hold ALL COL batter HR props (Goodman, Moniak, Rumfield) until confirmed. H+R+RBI OO.5 remains valid.</li>
+    <li><b>CLE vs ATH</b> — Bilateral explosion (Cecconi 56 + Lopez 50). Full bilateral run environment; all ATH and CLE batter OO.5 confirmed open.</li>
+    <li><b>LAD vs STL</b> — Roki Sasaki ERA 6.35 VulnScore 60 confirmed. Full STL lineup eligible H+R+RBI. HR props Tier 1 via Walker/Wetherholt scores.</li>
+    <li><b>Kyle Schwarber (PHI)</b> — BAD grade ⚡7 COLD. Skip HR prop entirely despite 18.69% Dimers HR%.</li>
+    <li><b>Shea Langeliers (ATH)</b> — BAD grade. Skip HR despite 22.23% Dimers HR%.</li>
+    <li><b>Elly De La Cruz (CIN)</b> — BAD grade ⚡7. Skip HR vs Mlodzinski.</li>
+    <li><b>Brett Harris (ATH) ⚡26</b> — confirm active before betting any prop; no Dimers data.</li>
+    <li><b>Connor Prielipp (MIN)</b> — only 9.79 outs projected; massive variance on all MIN batter K and OO.5 props.</li>
+  </ul>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- ALIGNMENT -->
+<section id="alignment">
+  <h2>📊 5-File Alignment Scoring — Today's Tiers</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Signal</th><th>Tier Weight</th></tr></thead>
+      <tbody>
+        <tr><td class="wrap-cell">Dimers HR% ≥ 18% + Score ≥ 60 + VulnScore ≥ 40</td><td><span class="badge b-tier0">TIER 0</span></td></tr>
+        <tr><td class="wrap-cell">Dimers HR% ≥ 14% + Score ≥ 55 + VulnScore ≥ 30</td><td><span class="badge b-tier1">TIER 1</span></td></tr>
+        <tr><td class="wrap-cell">VulnScore ≥ 50 = open game for all batter props</td><td><span class="badge b-good">CONFIRMED</span></td></tr>
+        <tr><td class="wrap-cell">HOT + ⚡5+ zone streak = power floor elevated</td><td><span class="badge b-hot">CONFIRMATION</span></td></tr>
+        <tr><td class="wrap-cell">BAD grade = suppress HR props regardless of HR%</td><td><span class="badge b-bad">SUPPRESSOR</span></td></tr>
+        <tr><td class="wrap-cell">TBD starter = amplify all batter OO.5 ceiling +3–5%</td><td><span class="badge b-warn">VARIANCE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13px; margin-top:12px;"><b>Confirmed Tier 0 bats:</b> Aaron Judge (23.52%, Score 70 vs Bradish VulnScore 50), Ben Rice (18.07%, Score 68 vs Bradish), Nick Kurtz (24.04%, Score 59 HOT ⚡4 vs Cecconi VulnScore 56 — borderline score met by bilateral game context).</p>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <h2>🎮 Game-by-Game Write-Ups</h2>
+  <div class="game-controls">
+    <button id="expandAll">⌄ Expand all</button>
+    <button id="collapseAll">⌃ Collapse all</button>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 1 — BAL @ NYY · Bradish vs Weathers</div>
+        <span class="game-tag">🏆🏆 PREMIER BILATERAL TIER 0 — Judge + Rice</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VulnScore</th></tr></thead>
+      <tbody>
+        <tr><td><b>Bradish (BAL)</b></td><td>2.21</td><td>14.06 ⬇️</td><td>5.00</td><td>4.73</td><td><span class="badge b-tier0">50</span></td></tr>
+        <tr><td><b>Weathers (NYY)</b></td><td>2.23</td><td>14.81</td><td>4.58</td><td>4.31</td><td>31</td></tr>
+      </tbody>
+    </table></div>
+    <h4>NYY vs Bradish (VS 50, ERA 4.20, Park 1.13)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td><b>Aaron Judge</b></td><td>58.31%</td><td>34.84%</td><td><b>23.52% 🏆</b></td><td><b>~88%</b></td><td>STRONG</td><td>⚡7</td></tr>
+        <tr><td><b>Ben Rice</b></td><td>56.61%</td><td>31.73%</td><td><b>18.07%</b></td><td>~86%</td><td>STRONG</td><td>⚡6</td></tr>
+        <tr><td>Jazz Chisholm</td><td>56.19%</td><td>30.84%</td><td>17.19%</td><td>~86%</td><td>MOD</td><td>⚡4</td></tr>
+        <tr><td>Austin Wells</td><td>55.41%</td><td>29.89%</td><td>15.59%</td><td>~84%</td><td>MOD</td><td>⚡3</td></tr>
+        <tr><td>Trent Grisham</td><td>53.23%</td><td>27.54%</td><td>16.08%</td><td>~82%</td><td>MOD</td><td>⚡3</td></tr>
+        <tr><td>Cody Bellinger</td><td>59.56%</td><td>31.16%</td><td>14.88%</td><td>~88%</td><td>MOD</td><td>⚡2</td></tr>
+      </tbody>
+    </table></div>
+    <h4>BAL vs Weathers (VS 31, ERA 3.21, Park 1.13)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td><b>Pete Alonso</b></td><td>54.89%</td><td>30.57%</td><td>17.28%</td><td>~84%</td><td>MOD</td><td>⚡5</td></tr>
+        <tr><td>Adley Rutschman</td><td>—</td><td>—</td><td>10.52%</td><td>—</td><td>STRONG</td><td>⚡4</td></tr>
+        <tr><td>Samuel Basallo</td><td>—</td><td>—</td><td>—</td><td>—</td><td>STRONG</td><td>⚡4</td></tr>
+        <tr><td>Gunnar Henderson</td><td>56.05%</td><td>27.03%</td><td>13.47%</td><td>~84%</td><td>MOD</td><td>⚡5</td></tr>
+        <tr><td>Jeremiah Jackson</td><td>—</td><td>—</td><td>10.83%</td><td>—</td><td>MOD</td><td>⚡4</td></tr>
+      </tbody>
+    </table></div>
+    <div class="angle"><strong>Angles:</strong> Cleanest Tier 0 game on the slate. Bradish's 14.06 outs (lowest today) gets NYY into the BAL pen by the 5th. Judge 23.52% + Score 70 + VulnScore 50 is the most aligned signal on the board. Rice (18.07%, Score 68) is the legit secondary. Weathers VS 31 opens Alonso (17.28%) and Henderson H+R+RBI. Park 1.13 boosts both. Bradish & Weathers K O4.5 = Tier 1.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 2 — CLE @ ATH · Cecconi vs Lopez</div>
+        <span class="game-tag">🔥🔥 BILATERAL EXPLOSION — VS 56 + 50</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Cecconi (CLE)</b></td><td>3.35</td><td>15.60</td><td>4.52</td><td><span class="badge b-bad">7.26</span></td><td><span class="badge b-tier0">56</span></td></tr>
+        <tr><td><b>Lopez (ATH)</b></td><td>2.67</td><td>15.89</td><td>5.49</td><td>5.40</td><td><span class="badge b-tier0">50</span></td></tr>
+      </tbody>
+    </table></div>
+    <h4>ATH vs Cecconi (VS 56, ERA 6.23, Park 0.88)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td><b>Nick Kurtz</b></td><td>62.08%</td><td>36.42%</td><td><b>24.04% 🏆</b></td><td>~91% 🔥</td><td>MOD</td><td>⚡4</td></tr>
+        <tr><td>Brett Harris</td><td>—</td><td>—</td><td>—</td><td>—</td><td>MOD</td><td><b>⚡26</b></td></tr>
+        <tr><td>Brent Rooker</td><td>63.22%</td><td>36.98%</td><td>20.82%</td><td>~91% 🔥</td><td>MOD</td><td>⚡3</td></tr>
+        <tr><td>Shea Langeliers</td><td>62.72%</td><td>36.97%</td><td>22.23%</td><td>~91% 🔥</td><td><span class="badge b-bad">BAD</span></td><td>⚡5</td></tr>
+        <tr><td>Tyler Soderstrom</td><td>63.45%</td><td>35.76%</td><td>18.67%</td><td>~91% 🔥</td><td>MOD</td><td>—</td></tr>
+        <tr><td>Lawrence Butler</td><td>61.87%</td><td>32.11%</td><td>15.76%</td><td>~90%</td><td>MOD</td><td>⚡2</td></tr>
+        <tr><td>Carlos Cortes</td><td>60.88%</td><td>30.90%</td><td>12.62%</td><td>~88%</td><td>STRONG</td><td>⚡3</td></tr>
+      </tbody>
+    </table></div>
+    <h4>CLE vs Lopez (VS 50, ERA 5.84, Park 0.88)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td>Petey Halpin</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="badge b-bad">BAD</span></td><td>⚡20</td></tr>
+        <tr><td>José Ramírez</td><td>57.56%</td><td>29.45%</td><td>14.18%</td><td>~86%</td><td><span class="badge b-bad">BAD</span></td><td>⚡4</td></tr>
+        <tr><td>Chase DeLauter</td><td>—</td><td>—</td><td>9.45%</td><td>—</td><td>BAD</td><td>⚡3</td></tr>
+        <tr><td>Daniel Schneemann</td><td>—</td><td>—</td><td>8.69%</td><td>—</td><td>BAD</td><td>⚡2</td></tr>
+        <tr><td>Rhys Hoskins</td><td>—</td><td>—</td><td>12.98%</td><td>—</td><td>MOD</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <div class="angle"><strong>Angles:</strong> Slate's only bilateral explosion — both pitchers carry top-pair VulnScore. Cecconi 7.26 H is worst on slate; every ATH bat 1-7 is OO.5 eligible. Kurtz 24.04% is the #1 Dimers HR% today. Langeliers great matchup but BAD grade — skip HR, take OO.5. Brett Harris ⚡26 = OO.5 if confirmed active. CLE side suppressed by BAD grades — OO.5 only. Lopez K O5 = Tier 1.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 3 — ATL @ COL · Sale vs TBD</div>
+        <span class="game-tag">⚠️ COL TBD — COORS PARK 1.38 🏆</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Sale (ATL)</b></td><td>—</td><td>—</td><td>~5.5</td><td>~4.0</td><td>34</td></tr>
+        <tr><td><b>TBD (COL)</b></td><td>—</td><td>—</td><td>—</td><td>—</td><td>11 ⚠️</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>COL vs Sale (Coors 1.38):</b> Hunter Goodman (STRONG ⚡6), Mickey Moniak (MOD ⚡5), TJ Rumfield (STRONG ⚡2). HR props HOLD until starter confirmed; OO.5 valid.</p>
+    <p style="font-size:13px;"><b>ATL vs TBD/COL:</b> Matt Olson (MOD ⚡8), Drake Baldwin (MOD ⚡5), Michael Harris II (MOD ⚡5), Ozzie Albies (MOD).</p>
+    <div class="angle"><strong>Angles:</strong> Highest-variance game today. Coors 1.38 is the slate's best park by a mile. Goodman Score 73 HOT ⚡6 — Coors floor is real. ATL HR props hold until COL starter confirms. Olson (Score 59, ⚡8) is the top ATL bat. Sale K O5 = Tier 1 estimate.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 4 — LAD @ STL · Sasaki vs McGreevy</div>
+        <span class="game-tag">🔥 SASAKI VS 60 — MOST EXPOSED ARM</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Sasaki (LAD)</b></td><td>2.33</td><td>16.49</td><td>4.94</td><td>4.80</td><td><span class="badge b-tier0">60</span></td></tr>
+        <tr><td><b>McGreevy (STL)</b></td><td>2.67</td><td>15.38</td><td><span class="badge b-bad">3.34 ❌</span></td><td><span class="badge b-bad">6.37</span></td><td>14</td></tr>
+      </tbody>
+    </table></div>
+    <h4>STL vs Sasaki (VS 60, ERA 6.35, Park 0.96)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td><b>Jordan Walker</b></td><td>53.66%</td><td>23.45%</td><td>7.64%</td><td>~82%</td><td>MOD</td><td>⚡5</td></tr>
+        <tr><td><b>JJ Wetherholt</b></td><td>54.01%</td><td>22.10%</td><td>5.99%</td><td>~82%</td><td>STRONG</td><td>⚡5</td></tr>
+        <tr><td>Nathan Church</td><td>55.09%</td><td>22.36%</td><td>4.66%</td><td>~82%</td><td>STRONG</td><td>⚡4</td></tr>
+        <tr><td>Nolan Gorman</td><td>51.04%</td><td>26.00%</td><td>11.70%</td><td>~80%</td><td>STRONG</td><td>⚡4</td></tr>
+        <tr><td>Alec Burleson</td><td>57.51%</td><td>26.57%</td><td>9.65%</td><td>~84%</td><td>MOD</td><td>⚡3</td></tr>
+      </tbody>
+    </table></div>
+    <h4>LAD vs McGreevy (VS 14, Park 0.96)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td>Max Muncy</td><td>56.44%</td><td>31.41%</td><td>15.24%</td><td>~86%</td><td>STRONG</td><td>⚡6</td></tr>
+        <tr><td>Shohei Ohtani</td><td>62.78%</td><td>35.96%</td><td>21.48%</td><td>~91%</td><td>MOD</td><td>⚡3</td></tr>
+        <tr><td>Kyle Tucker</td><td>62.02%</td><td>33.66%</td><td>16.17%</td><td>~90%</td><td>STRONG</td><td>⚡2</td></tr>
+        <tr><td>Teoscar Hernández</td><td>63.10%</td><td>33.88%</td><td>15.85%</td><td>~90%</td><td>MOD</td><td>⚡4</td></tr>
+        <tr><td>Andy Pages</td><td>62.69%</td><td>32.37%</td><td>13.83%</td><td>~91%</td><td>MOD</td><td>⚡3</td></tr>
+      </tbody>
+    </table></div>
+    <div class="angle"><strong>Angles:</strong> Sasaki VS 60 is today's highest single-pitcher reading. Walker (Score 73 HOT) and Wetherholt (Score 71) own the top two Sweet Spot reads, but Dimers HR% is modest (7-8%). Play STL OO.5 1-8, not direct HRs. Gorman 11.70% is the only legit STL HR. Ohtani 21.48% — H+R+RBI valid; HR only with score confirm. Muncy ⚡6 STRONG most underpriced LAD prop. Sasaki K O4.5 = Tier 1 strong.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 5 — ARI @ CHC · Nelson vs Imanaga</div>
+        <span class="game-tag">🚨 NELSON ERA 7.71 — WORST ERA TODAY</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Nelson (ARI)</b></td><td>2.70</td><td>17.31</td><td>4.71</td><td>5.95</td><td><span class="badge b-tier0">56</span></td></tr>
+        <tr><td><b>Imanaga (CHC)</b></td><td>2.16</td><td>16.11</td><td>4.54</td><td>4.60</td><td>14</td></tr>
+      </tbody>
+    </table></div>
+    <h4>CHC vs Nelson (VS 56, ERA 7.71)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td>Ian Happ</td><td>55.12%</td><td>27.16%</td><td>11.35%</td><td>~84%</td><td>STRONG</td><td>⚡5 COLD</td></tr>
+        <tr><td>Dansby Swanson</td><td>56.22%</td><td>26.81%</td><td>10.67%</td><td>~84%</td><td>MOD</td><td>⚡5</td></tr>
+        <tr><td>Seiya Suzuki</td><td>56.84%</td><td>29.44%</td><td>13.68%</td><td>~86%</td><td>MOD</td><td>⚡3 HOT</td></tr>
+        <tr><td>Michael Busch</td><td>56.01%</td><td>29.18%</td><td>14.54%</td><td>~85%</td><td>MOD</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <div class="angle"><strong>Angles:</strong> Nelson ERA 7.71 worst on slate but 17.31 outs = full lineup exposure. Skip Happ HR (11.35% below threshold). Focus: full CHC OO.5, Suzuki HR (13.68%, HOT) best individual. Imanaga VS 14 suppresses ARI HR. Nelson K O4.5 = Lean only.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 6 — SF @ TB · Roupp vs Jax</div>
+        <span class="game-tag">🔥 JAX VS 52 — SF BATS FULLY OPEN</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Roupp (SF)</b></td><td>2.09</td><td>15.18</td><td>4.80</td><td>4.60</td><td>11</td></tr>
+        <tr><td><b>Jax (TB)</b></td><td>—</td><td>~15.5</td><td>~4.8</td><td>~5.0</td><td><span class="badge b-tier0">52</span></td></tr>
+      </tbody>
+    </table></div>
+    <h4>SF vs Jax (VS 52, ERA 6.35)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th><th>Zone</th></tr></thead>
+      <tbody>
+        <tr><td>Casey Schmitt</td><td>54.04%</td><td>24.65%</td><td>8.86%</td><td>~82%</td><td>MOD</td><td>⚡3 HOT</td></tr>
+        <tr><td>Willy Adames</td><td>51.85%</td><td>25.09%</td><td>11.45%</td><td>~80%</td><td>STRONG</td><td>⚡3</td></tr>
+        <tr><td>Heliot Ramos</td><td>—</td><td>—</td><td>10.20%</td><td>—</td><td><span class="badge b-bad">BAD</span></td><td>⚡3 HOT</td></tr>
+        <tr><td>Rafael Devers</td><td>52.99%</td><td>27.05%</td><td>13.42%</td><td>~82%</td><td>STRONG</td><td>⚡2</td></tr>
+        <tr><td>Matt Chapman</td><td>—</td><td>—</td><td>11.34%</td><td>—</td><td>STRONG</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>TB vs Roupp (VS 11):</b> Junior Caminero (MOD ⚡5, 17.67% HR — OO.5 only).</p>
+    <div class="angle"><strong>Angles:</strong> Jax VS 52 opens SF lineup for OO.5 across the board. Schmitt (Score 65 HOT) and Adames (Score 64 STRONG) top SF bats. Devers 13.42% best individual HR option. Ramos BAD — OO.5 only. Caminero passes on HR (Roupp VS 11). Roupp K O4.5 = Lean.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 7 — PHI @ MIA · Painter vs Meyer</div>
+        <span class="game-tag">⚠️ DUAL K NEVER — Painter 3.61 / Meyer 3.90</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Painter (PHI)</b></td><td>2.49</td><td>12.99 ⬇️</td><td><span class="badge b-bad">3.61 ❌</span></td><td>4.87</td><td>46</td></tr>
+        <tr><td><b>Meyer (MIA)</b></td><td>2.13</td><td>13.21 ⬇️</td><td><span class="badge b-bad">3.90 ❌</span></td><td>4.61</td><td>17</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>PHI vs Meyer:</b> Schwarber 18.69% but <span class="badge b-bad">BAD COLD ⚡7</span> = HARD SKIP. Bryce Harper (MOD HOT ⚡4) — OO.5 play. MIA: Kyle Stowers 14.88%, MOD.</p>
+    <div class="angle"><strong>Angles:</strong> Both pitchers have lowest outs on slate — both pens arrive early. Schwarber HARD SKIP despite top HR%. Harper OO.5 vs Meyer VS 17 is the play. Skip both K props.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 8 — TOR @ MIN · Cease vs Prielipp</div>
+        <span class="game-tag">⚡ CEASE 6.09 Ks 🏆 / PRIELIPP 9.79 OUTS</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Cease (TOR)</b></td><td>2.08</td><td>15.99</td><td><b>6.09 🏆</b></td><td>4.30</td><td>17</td></tr>
+        <tr><td><b>Prielipp (MIN)</b></td><td>1.66</td><td><span class="badge b-bad">9.79 ⚠️</span></td><td>2.94 ❌</td><td>3.50</td><td>19</td></tr>
+      </tbody>
+    </table></div>
+    <h4>TOR vs Prielipp (9.79 outs — bullpen amplifier)</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Player</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Grade</th></tr></thead>
+      <tbody>
+        <tr><td><b>Vlad Jr.</b></td><td>68.40%</td><td>37.40%</td><td>19.45%</td><td><b>~94% 🔥</b></td><td>MOD</td></tr>
+        <tr><td>Kazuma Okamoto</td><td>64.08%</td><td>35.66%</td><td>17.20%</td><td>~91% 🔥</td><td>MOD</td></tr>
+        <tr><td>Daulton Varsho</td><td>61.98%</td><td>34.42%</td><td>18.55%</td><td>~90% 🔥</td><td>MOD</td></tr>
+        <tr><td>George Springer</td><td>64.60%</td><td>32.64%</td><td>16.67%</td><td>~91% 🔥</td><td>MOD</td></tr>
+        <tr><td>Davis Schneider</td><td>59.19%</td><td>31.23%</td><td>14.80%</td><td>~88%</td><td>MOD</td></tr>
+      </tbody>
+    </table></div>
+    <div class="angle"><strong>Angles:</strong> Two-sided story. Cease 6.09 Ks (K9=14.2) is the clearest Tier 0 K bet on slate — O5.5 if listed, O5 Mandatory. Prielipp 9.79 outs creates massive variance — TOR sees 2-3 innings then full pen. Vlad 19.45% HR + 68.40% 1+Hit and Springer 64.60% are elite OO.5 targets. Buxton HOT but BAD — suppress HR. Cease K O5 = Mandatory.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 9 — HOU @ BOS · Arrighetti vs Early</div>
+        <span class="game-tag">✅ MODERATE BILATERAL</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Arrighetti (HOU)</b></td><td>2.88</td><td>15.09</td><td>4.97</td><td>5.48</td><td>13</td></tr>
+        <tr><td><b>Early (BOS)</b></td><td>2.16</td><td>14.12 ⬇️</td><td>4.67</td><td>4.77</td><td>20</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>HOU vs Early:</b> Yordan Alvarez (MOD ⚡8, 15.99%), Christian Walker (MOD ⚡5, 13.55%), Carlos Correa (STRONG ⚡2 HOT).</p>
+    <div class="angle"><strong>Angles:</strong> Moderate game. Alvarez (Score 52, ⚡8) standout — Early 14.12 outs means pen by 5th. Walker solid secondary. Arrighetti K O4.5 = Tier 1.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 10 — NYM @ LAA · McLean vs Detmers</div>
+        <span class="game-tag">⚡ McLEAN 5.45 Ks — TIER 0 K PROP</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>McLean (NYM)</b></td><td>2.18</td><td>16.17</td><td><b>5.45</b></td><td>4.52</td><td>14</td></tr>
+        <tr><td><b>Detmers (LAA)</b></td><td>2.65</td><td>15.56</td><td>5.63</td><td>5.05</td><td>22</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>NYM vs Detmers:</b> Juan Soto 16.83% (MOD), Francisco Alvarez 14.44% (MOD ⚡3), Mark Vientos 14.07%.<br><b>LAA vs McLean:</b> Jo Adell 17.07%, Mike Trout 14.52%.</p>
+    <div class="angle"><strong>Angles:</strong> McLean K9 11.5, 5.45 Ks, 16.17 outs — Tier 0 K. O4.5 Mandatory. Soto NYM primary. McLean K O4.5 = Mandatory.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 11 — MIL @ WSH · Harrison vs Griffin</div>
+        <span class="game-tag">✅ Low VS both sides — contact game</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Harrison (MIL)</b></td><td>2.10</td><td>14.29 ⬇️</td><td>4.43</td><td>4.08</td><td>17</td></tr>
+        <tr><td><b>Griffin (WSH)</b></td><td>2.61</td><td>16.89</td><td>4.50</td><td>5.77</td><td>17</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;">Wood (BAD ⚡6) and Abrams (BAD HOT ⚡5) — suppress HR, OO.5 only. Sánchez 13.18% MOD.</p>
+    <div class="angle"><strong>Angles:</strong> Low VS both sides. Wood/Abrams BAD — OO.5 only. Griffin 5.77 H elevated; MIL has clean OO.5 access. Both K props lean only.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 12 — TEX @ DET · Rocker vs Montero</div>
+        <span class="game-tag">✅ Dual K Never — Seager / Greene contact</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Rocker (TEX)</b></td><td>2.30</td><td>12.73 ⬇️</td><td><span class="badge b-bad">3.72 ❌</span></td><td>4.90</td><td>20</td></tr>
+        <tr><td><b>Montero (DET)</b></td><td>2.69</td><td>17.12</td><td>4.39</td><td>5.49</td><td>22</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;"><b>DET vs Rocker:</b> Kerry Carpenter (MOD ⚡4, 16.66%), Riley Greene (STRONG ⚡4, 15.66%), Torkelson 15.18%. <b>TEX vs Montero:</b> Seager (STRONG ⚡3), Burger BAD — skip HR.</p>
+    <div class="angle"><strong>Angles:</strong> Skip both K props. Rocker 12.73 outs = pen early. Seager and Carpenter primary OO.5. Burger BAD — skip HR.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 13 — CIN @ PIT · Lowder vs Mlodzinski</div>
+        <span class="game-tag">✅ De La Cruz ⚡7 BUT BAD GRADE</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Lowder (CIN)</b></td><td>2.45</td><td>13.24 ⬇️</td><td><span class="badge b-bad">3.50 ❌</span></td><td>5.02</td><td>14</td></tr>
+        <tr><td><b>Mlodzinski (PIT)</b></td><td>2.10</td><td>16.06</td><td>4.67</td><td>4.92</td><td>25</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;">Brandon Lowe (MOD HOT ⚡4, 14.24%) top individual bet. Oneil Cruz STRONG ⚡5 COLD. De La Cruz ⚡7 BAD — skip HR.</p>
+    <div class="angle"><strong>Angles:</strong> De La Cruz BAD — skip HR, OO.5 only. Mlodzinski K O4 = Lean. Lowder hard skip K. Brandon Lowe top individual.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 14 — CWS @ SD · Burke vs King</div>
+        <span class="game-tag">✅ Tatis 15.87% / Park 0.85 SUPPRESSOR</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Burke (CWS)</b></td><td>2.75</td><td>16.24</td><td>4.87</td><td>5.12</td><td>14</td></tr>
+        <tr><td><b>King (SD)</b></td><td>2.04</td><td>15.72</td><td>5.25</td><td>4.40</td><td>14</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;">Tatis 15.87%, Machado 14.87%, Laureano (MOD ⚡4 HOT). Murakami/Montgomery BAD — skip HR.</p>
+    <div class="angle"><strong>Angles:</strong> Park 0.85 lowest today — suppresses HR ceilings both sides. Murakami/Montgomery BAD = skip. King K O5 = Tier 1. Burke K O4.5 = Lean.</div>
+    </div></div>
+  </div>
+
+  <div class="game">
+    <button class="game-header" aria-expanded="false">
+      <div class="game-header-text">
+        <div class="game-title">Game 15 — KC @ SEA · Lugo vs Hancock</div>
+        <span class="game-tag">🏆 LUGO 16.79 OUTS — DEEPEST STARTER</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+    <div class="game-body"><div class="game-body-inner">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pitcher</th><th>ER</th><th>Outs</th><th>Ks</th><th>H</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td><b>Lugo (KC)</b></td><td>2.54</td><td><b>16.79 🏆</b></td><td>4.95</td><td>5.36</td><td>14</td></tr>
+        <tr><td><b>Hancock (SEA)</b></td><td>2.08</td><td>15.55</td><td>4.30</td><td>4.36</td><td>18</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;">Cal Raleigh 19.03% top SEA HR but Lugo VS 14 caveat. Pasquantino (STRONG ⚡3, 13.13%), Salvador Perez (MOD ⚡5).</p>
+    <div class="angle"><strong>Angles:</strong> Lugo 16.79 outs most on slate — KC limited to 5+ innings of Lugo. Raleigh top SEA HR but VS 14. Lugo K O4.5 = Strong.</div>
+    </div></div>
+  </div>
+
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- K BOARD -->
+<section id="k-board">
+  <h2>⚡ Full K Prop Tier Board</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tier</th><th>Pitcher</th><th>Proj Ks</th><th>Outs</th><th>Best Line</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-tier0">TIER 0</span></td><td><b>Dylan Cease (TOR)</b></td><td><b>6.09 🏆</b></td><td>15.99</td><td><b>O5.5 Mandatory</b></td><td class="wrap-cell">K9=14.2 — slate leader</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Reid Detmers (LAA)</td><td>5.63</td><td>15.56</td><td>O5 Strong</td><td class="wrap-cell">K9=9.8</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Jacob Lopez (ATH)</td><td>5.49</td><td>15.89</td><td>O5 Strong</td><td class="wrap-cell">Bilateral context</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Nolan McLean (NYM)</td><td>5.45</td><td>16.17</td><td>O4.5 Mandatory</td><td class="wrap-cell">K9=11.5</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Michael King (SD)</td><td>5.25</td><td>15.72</td><td>O5 Strong</td><td class="wrap-cell">K9=9.2</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Kyle Bradish (BAL)</td><td>5.00</td><td>14.06</td><td>O4.5 Strong</td><td class="wrap-cell">VS 50 game</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Spencer Arrighetti (HOU)</td><td>4.97</td><td>15.09</td><td>O4.5 Strong</td><td class="wrap-cell">ERA 2.00</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Seth Lugo (KC)</td><td>4.95</td><td><b>16.79</b></td><td>O4.5 Strong</td><td class="wrap-cell">Deepest start</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Roki Sasaki (LAD)</td><td>4.94</td><td>16.49</td><td>O4.5 Strong</td><td class="wrap-cell">VS 60 — hitter context</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Sean Burke (CWS)</td><td>4.87</td><td>16.24</td><td>O4.5 Lean</td><td class="wrap-cell">ERA 3.21</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Landen Roupp (SF)</td><td>4.80</td><td>15.18</td><td>O4.5 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Ryne Nelson (ARI)</td><td>4.71</td><td>17.31</td><td>O4 Lean</td><td>ERA 7.71 ⚠️</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Mlodzinski (PIT)</td><td>4.67</td><td>16.06</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Connelly Early (BOS)</td><td>4.67</td><td>14.12</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Ryan Weathers (NYY)</td><td>4.58</td><td>14.81</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Shota Imanaga (CHC)</td><td>4.54</td><td>16.11</td><td>O4 Lean</td><td>K9=10.0</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Slade Cecconi (CLE)</td><td>4.52</td><td>15.60</td><td>O4 Lean</td><td>7.26 H risk</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Foster Griffin (WSH)</td><td>4.50</td><td>16.89</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Kyle Harrison (MIL)</td><td>4.43</td><td>14.29</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Keider Montero (DET)</td><td>4.39</td><td>17.12</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-neutral">T2</span></td><td>Emerson Hancock (SEA)</td><td>4.30</td><td>15.55</td><td>O4 Lean</td><td>—</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Max Meyer (MIA)</td><td>3.90</td><td>13.21</td><td><b>NEVER</b></td><td>Sub-4.15</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Kumar Rocker (TEX)</td><td>3.72</td><td>12.73</td><td><b>NEVER</b></td><td>Sub-4.15</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Andrew Painter (PHI)</td><td>3.61</td><td>12.99</td><td><b>NEVER</b></td><td>Sub-4.15</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Rhett Lowder (CIN)</td><td>3.50</td><td>13.24</td><td><b>NEVER</b></td><td>Sub-4.15</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Michael McGreevy (STL)</td><td>3.34</td><td>15.38</td><td><b>NEVER</b></td><td>Sub-4.15</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Connor Prielipp (MIN)</td><td>2.94</td><td>9.79</td><td><b>NEVER</b></td><td>Extreme short</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- HR BOARD -->
+<section id="hr-board">
+  <h2>🏆 Top 25 HR Targets — Full 5-File Ranking</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>HR%</th><th>Score</th><th>ISO</th><th>Grade</th><th>Zone</th><th>Pitcher</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Hunter Goodman</b></td><td>COL</td><td>—</td><td><b>73 HOT</b></td><td>.301</td><td>STRONG</td><td>⚡6</td><td>Sale</td></tr>
+        <tr><td>2</td><td><b>Jordan Walker</b></td><td>STL</td><td>7.64%</td><td><b>73 HOT</b></td><td>.275</td><td>MOD</td><td>⚡5</td><td>Sasaki</td></tr>
+        <tr><td>3</td><td><b>JJ Wetherholt</b></td><td>STL</td><td>5.99%</td><td>71</td><td>.213</td><td>STRONG</td><td>⚡5</td><td>Sasaki</td></tr>
+        <tr><td>4</td><td><b>Aaron Judge</b></td><td>NYY</td><td><b>23.52% 🏆</b></td><td>70</td><td>.455</td><td>STRONG</td><td>⚡7</td><td>Bradish</td></tr>
+        <tr><td>5</td><td><b>Brett Harris</b></td><td>ATH</td><td>—</td><td>69 HOT</td><td>—</td><td>MOD</td><td><b>⚡26</b></td><td>Cecconi</td></tr>
+        <tr><td>6</td><td><b>Ben Rice</b></td><td>NYY</td><td>18.07%</td><td>68</td><td>.446</td><td>STRONG</td><td>⚡6</td><td>Bradish</td></tr>
+        <tr><td>7</td><td>Ian Happ</td><td>CHC</td><td>11.35%</td><td>68 COLD</td><td>.328</td><td>STRONG</td><td>⚡5</td><td>Nelson</td></tr>
+        <tr><td>8</td><td>Nathan Church</td><td>STL</td><td>4.66%</td><td>67</td><td>—</td><td>STRONG</td><td>⚡4</td><td>Sasaki</td></tr>
+        <tr><td>9</td><td>Casey Schmitt</td><td>SF</td><td>8.86%</td><td>65 HOT</td><td>.370</td><td>MOD</td><td>⚡3</td><td>Jax</td></tr>
+        <tr><td>10</td><td>Willy Adames</td><td>SF</td><td>11.45%</td><td>64</td><td>.270</td><td>STRONG</td><td>⚡3</td><td>Jax</td></tr>
+        <tr><td>11</td><td>Dansby Swanson</td><td>CHC</td><td>10.67%</td><td>64</td><td>.352</td><td>MOD</td><td>⚡5</td><td>Nelson</td></tr>
+        <tr><td>12</td><td>Nolan Gorman</td><td>STL</td><td>11.70%</td><td>64</td><td>.279</td><td>STRONG</td><td>⚡4</td><td>Sasaki</td></tr>
+        <tr><td>13</td><td>Alec Burleson</td><td>STL</td><td>9.65%</td><td>64 HOT</td><td>.386</td><td>MOD</td><td>⚡3</td><td>Sasaki</td></tr>
+        <tr><td>14</td><td>Mickey Moniak</td><td>COL</td><td>—</td><td>62 HOT</td><td>—</td><td>MOD</td><td>⚡5</td><td>Sale</td></tr>
+        <tr><td>15</td><td>Matt Olson</td><td>ATL</td><td>—</td><td>59</td><td>.389</td><td>MOD</td><td>⚡8</td><td>TBD</td></tr>
+        <tr><td>16</td><td><b>Nick Kurtz</b></td><td>ATH</td><td><b>24.04% 🏆</b></td><td>59 HOT</td><td>.409</td><td>MOD</td><td>⚡4</td><td>Cecconi</td></tr>
+        <tr><td>17</td><td>Heliot Ramos</td><td>SF</td><td>10.20%</td><td>59 HOT</td><td>.333</td><td><span class="badge b-bad">BAD</span></td><td>⚡3</td><td>Jax</td></tr>
+        <tr><td>18</td><td>Matt Shaw</td><td>CHC</td><td>—</td><td>56 HOT</td><td>—</td><td>STRONG</td><td>⚡2</td><td>Nelson</td></tr>
+        <tr><td>19</td><td>Samuel Basallo</td><td>BAL</td><td>—</td><td>55 HOT</td><td>—</td><td>STRONG</td><td>⚡4</td><td>Weathers</td></tr>
+        <tr><td>20</td><td>Carlos Cortes</td><td>ATH</td><td>12.62%</td><td>55 HOT</td><td>—</td><td>STRONG</td><td>⚡3</td><td>Cecconi</td></tr>
+        <tr><td>21</td><td>Max Muncy</td><td>LAD</td><td>15.24%</td><td>55</td><td>.413</td><td>STRONG</td><td>⚡6</td><td>McGreevy</td></tr>
+        <tr><td>22</td><td>Lawrence Butler</td><td>ATH</td><td>15.76%</td><td>54 HOT</td><td>.305</td><td>MOD</td><td>⚡2</td><td>Cecconi</td></tr>
+        <tr><td>23</td><td>Petey Halpin</td><td>CLE</td><td>—</td><td>54</td><td>—</td><td><span class="badge b-bad">BAD</span></td><td>⚡20</td><td>Lopez</td></tr>
+        <tr><td>24</td><td>Drake Baldwin</td><td>ATL</td><td>—</td><td>53</td><td>.394</td><td>MOD</td><td>⚡5</td><td>TBD</td></tr>
+        <tr><td>25</td><td>Shea Langeliers</td><td>ATH</td><td>22.23%</td><td>53 COLD</td><td>.398</td><td><span class="badge b-bad">BAD</span></td><td>⚡5</td><td>Cecconi</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🚦 HR Target Grade Flags</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Flag</th><th>Players</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-tier0">TIER 0</span></td><td class="wrap-cell">Aaron Judge, Ben Rice, Nick Kurtz</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td class="wrap-cell">Gorman, Adames, Devers, Schmitt, Carpenter, Greene, Seager</td></tr>
+        <tr><td><span class="badge b-warn">OO.5 Only</span></td><td class="wrap-cell">Langeliers, De La Cruz, Ramos, Wood, Abrams, Buxton, Halpin</td></tr>
+        <tr><td><span class="badge b-neutral">No Dimers</span></td><td class="wrap-cell">Goodman, Moniak, Brett Harris, Olson, Baldwin, Harris II, Rumfield</td></tr>
+        <tr><td><span class="badge b-bad">SKIP HR</span></td><td class="wrap-cell">Schwarber, Murakami, Montgomery, Ramírez, Burger</td></tr>
+        <tr><td><span class="badge b-warn">COL HOLD</span></td><td class="wrap-cell">Goodman, Moniak, Rumfield + entire COL</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- OO5 BOARD -->
+<section id="oo5-board">
+  <h2>🎯 Top 50 H+R+RBI OO.5 Board</h2>
+  <p style="font-size:12px; color:var(--text-dim);">OO.5 = needs ONE hit, run, OR RBI. Combined probability across all 5 files.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>1+H%</th><th>RBI%</th><th>HR%</th><th>OO.5</th><th>Pitcher</th><th>VS</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Vlad Jr.</b></td><td>TOR</td><td>68.40%</td><td>37.40%</td><td>19.45%</td><td><b>~94% 🔥</b></td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>2</td><td>Lenyn Sosa</td><td>TOR</td><td>66.22%</td><td>33.15%</td><td>14.35%</td><td>~92% 🔥</td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>3</td><td>George Springer</td><td>TOR</td><td>64.60%</td><td>32.64%</td><td>16.67%</td><td>~91% 🔥</td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>4</td><td>Shohei Ohtani</td><td>LAD</td><td>62.78%</td><td>35.96%</td><td>21.48%</td><td>~91% 🔥</td><td>McGreevy</td><td>14</td></tr>
+        <tr><td>5</td><td>Brent Rooker</td><td>ATH</td><td>63.22%</td><td>36.98%</td><td>20.82%</td><td>~91% 🔥</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>6</td><td>Kazuma Okamoto</td><td>TOR</td><td>64.08%</td><td>35.66%</td><td>17.20%</td><td>~91% 🔥</td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>7</td><td>Shea Langeliers</td><td>ATH</td><td>62.72%</td><td>36.97%</td><td>22.23%</td><td>~91% 🔥</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>8</td><td>Tyler Soderstrom</td><td>ATH</td><td>63.45%</td><td>35.76%</td><td>18.67%</td><td>~91% 🔥</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>9</td><td>Andy Pages</td><td>LAD</td><td>62.69%</td><td>32.37%</td><td>13.83%</td><td>~91% 🔥</td><td>McGreevy</td><td>14</td></tr>
+        <tr><td>10</td><td><b>Nick Kurtz</b></td><td>ATH</td><td>62.08%</td><td>36.42%</td><td>24.04%</td><td>~91% 🔥</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>11</td><td>Teoscar Hernández</td><td>LAD</td><td>63.10%</td><td>33.88%</td><td>15.85%</td><td>~90% 🔥</td><td>McGreevy</td><td>14</td></tr>
+        <tr><td>12</td><td>Kyle Tucker</td><td>LAD</td><td>62.02%</td><td>33.66%</td><td>16.17%</td><td>~90% 🔥</td><td>McGreevy</td><td>14</td></tr>
+        <tr><td>13</td><td>Daulton Varsho</td><td>TOR</td><td>61.98%</td><td>34.42%</td><td>18.55%</td><td>~90% 🔥</td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>14</td><td><b>Aaron Judge</b></td><td>NYY</td><td>58.31%</td><td>34.84%</td><td>23.52%</td><td>~90% 🔥</td><td>Bradish</td><td>50</td></tr>
+        <tr><td>15</td><td>Kerry Carpenter</td><td>DET</td><td>61.01%</td><td>32.40%</td><td>16.66%</td><td>~90% 🔥</td><td>Rocker</td><td>20</td></tr>
+        <tr><td>16</td><td>Riley Greene</td><td>DET</td><td>61.68%</td><td>32.74%</td><td>15.66%</td><td>~90% 🔥</td><td>Rocker</td><td>20</td></tr>
+        <tr><td>17</td><td>Yordan Alvarez</td><td>HOU</td><td>60.90%</td><td>32.45%</td><td>15.99%</td><td>~90% 🔥</td><td>Early</td><td>20</td></tr>
+        <tr><td>18</td><td>Brandon Lowe</td><td>TB</td><td>61.33%</td><td>31.25%</td><td>14.24%</td><td>~90%</td><td>Lowder</td><td>14</td></tr>
+        <tr><td>19</td><td>Bryce Harper</td><td>PHI</td><td>60.32%</td><td>31.41%</td><td>13.66%</td><td>~89%</td><td>Meyer</td><td>17</td></tr>
+        <tr><td>20</td><td>Cody Bellinger</td><td>NYY</td><td>59.56%</td><td>31.16%</td><td>14.88%</td><td>~88%</td><td>Bradish</td><td>50</td></tr>
+        <tr><td>21</td><td>Manny Machado</td><td>SD</td><td>60.50%</td><td>31.39%</td><td>14.87%</td><td>~89%</td><td>Burke</td><td>14</td></tr>
+        <tr><td>22</td><td>Oneil Cruz</td><td>PIT</td><td>60.32%</td><td>30.26%</td><td>14.21%</td><td>~89%</td><td>Lowder</td><td>14</td></tr>
+        <tr><td>23</td><td>Lawrence Butler</td><td>ATH</td><td>61.87%</td><td>32.11%</td><td>15.76%</td><td>~90% 🔥</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>24</td><td>Carlos Cortes</td><td>ATH</td><td>60.88%</td><td>30.90%</td><td>12.62%</td><td>~88%</td><td>Cecconi</td><td>56</td></tr>
+        <tr><td>25</td><td>Fernando Tatis Jr.</td><td>SD</td><td>59.93%</td><td>29.74%</td><td>15.87%</td><td>~88%</td><td>Burke</td><td>14</td></tr>
+        <tr><td>26</td><td>Julio Rodriguez</td><td>SEA</td><td>58.98%</td><td>30.21%</td><td>14.90%</td><td>~88%</td><td>Lugo</td><td>14</td></tr>
+        <tr><td>27</td><td>Spencer Torkelson</td><td>DET</td><td>57.70%</td><td>31.21%</td><td>15.18%</td><td>~87%</td><td>Rocker</td><td>20</td></tr>
+        <tr><td>28</td><td>Adolis García</td><td>PHI</td><td>58.24%</td><td>31.25%</td><td>14.04%</td><td>~87%</td><td>Meyer</td><td>17</td></tr>
+        <tr><td>29</td><td>Kyle Stowers</td><td>MIA</td><td>61.14%</td><td>33.05%</td><td>14.88%</td><td>~90% 🔥</td><td>Painter</td><td>46</td></tr>
+        <tr><td>30</td><td>Pete Alonso</td><td>NYY</td><td>54.89%</td><td>30.57%</td><td>17.28%</td><td>~84%</td><td>Weathers</td><td>31</td></tr>
+        <tr><td>31</td><td>Junior Caminero</td><td>TB</td><td>58.15%</td><td>32.34%</td><td>17.67%</td><td>~88%</td><td>Roupp</td><td>11</td></tr>
+        <tr><td>32</td><td><b>Ben Rice</b></td><td>NYY</td><td>56.61%</td><td>31.73%</td><td>18.07%</td><td>~86%</td><td>Bradish</td><td>50</td></tr>
+        <tr><td>33</td><td>Jazz Chisholm</td><td>NYY</td><td>56.19%</td><td>30.84%</td><td>17.19%</td><td>~86%</td><td>Bradish</td><td>50</td></tr>
+        <tr><td>34</td><td>Davis Schneider</td><td>TOR</td><td>59.19%</td><td>31.23%</td><td>14.80%</td><td>~88%</td><td>Prielipp</td><td>19</td></tr>
+        <tr><td>35</td><td>Ramon Laureano</td><td>SD</td><td>57.79%</td><td>29.21%</td><td>13.42%</td><td>~86%</td><td>Burke</td><td>14</td></tr>
+        <tr><td>36</td><td>Seiya Suzuki</td><td>CHC</td><td>56.84%</td><td>29.44%</td><td>13.68%</td><td>~86%</td><td>Nelson</td><td>56</td></tr>
+        <tr><td>37</td><td>Gunnar Henderson</td><td>BAL</td><td>56.05%</td><td>27.03%</td><td>13.47%</td><td>~84%</td><td>Weathers</td><td>31</td></tr>
+        <tr><td>38</td><td>Michael Busch</td><td>CHC</td><td>56.01%</td><td>29.18%</td><td>14.54%</td><td>~85%</td><td>Nelson</td><td>56</td></tr>
+        <tr><td>39</td><td>Corey Seager</td><td>TEX</td><td>57.56%</td><td>29.69%</td><td>14.60%</td><td>~86%</td><td>Montero</td><td>22</td></tr>
+        <tr><td>40</td><td>Ballesteros</td><td>CHC</td><td>58.52%</td><td>26.85%</td><td>8.18%</td><td>~86%</td><td>Nelson</td><td>56</td></tr>
+        <tr><td>41</td><td>Alec Burleson</td><td>STL</td><td>57.51%</td><td>26.57%</td><td>9.65%</td><td>~84%</td><td>Sasaki</td><td>60</td></tr>
+        <tr><td>42</td><td>Austin Wells</td><td>NYY</td><td>55.41%</td><td>29.89%</td><td>15.59%</td><td>~84%</td><td>Bradish</td><td>50</td></tr>
+        <tr><td>43</td><td>Max Muncy</td><td>LAD</td><td>56.44%</td><td>31.41%</td><td>15.24%</td><td>~86%</td><td>McGreevy</td><td>14</td></tr>
+        <tr><td>44</td><td>Pasquantino</td><td>KC</td><td>55.04%</td><td>28.50%</td><td>13.13%</td><td>~83%</td><td>Hancock</td><td>18</td></tr>
+        <tr><td>45</td><td>Christian Walker</td><td>HOU</td><td>55.35%</td><td>29.27%</td><td>13.55%</td><td>~84%</td><td>Early</td><td>20</td></tr>
+        <tr><td>46</td><td>Ian Happ</td><td>CHC</td><td>55.12%</td><td>27.16%</td><td>11.35%</td><td>~84%</td><td>Nelson</td><td>56</td></tr>
+        <tr><td>47</td><td>Dansby Swanson</td><td>CHC</td><td>56.22%</td><td>26.81%</td><td>10.67%</td><td>~84%</td><td>Nelson</td><td>56</td></tr>
+        <tr><td>48</td><td>Nathaniel Lowe</td><td>CIN</td><td>55.19%</td><td>26.49%</td><td>8.96%</td><td>~83%</td><td>Mlodzinski</td><td>25</td></tr>
+        <tr><td>49</td><td>Casey Schmitt</td><td>SF</td><td>54.04%</td><td>24.65%</td><td>8.86%</td><td>~82%</td><td>Jax</td><td>52</td></tr>
+        <tr><td>50</td><td>Willy Adames</td><td>SF</td><td>51.85%</td><td>25.09%</td><td>11.45%</td><td>~80%</td><td>Jax</td><td>52</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--text-dim); margin-top:10px;">TOR vs Prielipp = 5 of top 13 (9.79-outs amplifier). ATH vs Cecconi = 5 of top 24. Tier 0 trio (Judge, Rice, Kurtz) all ≥86% OO.5.</p>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- COMBOS -->
+<section id="combos">
+  <h2>🎰 10 Lower Alt K + H+R+RBI Combo Parlays</h2>
+  <p style="font-size:12px; color:var(--text-dim);">Two-leg cards pairing Tier 0/1 K props with ~90%+ OO.5 bats.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Leg 1 (K)</th><th>Leg 2 (OO.5)</th><th>Conv</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Cease O5 Ks</b></td><td><b>Vlad Jr. OO.5</b></td><td>🔥🔥 ELITE</td><td class="wrap-cell">Same game, no conflict</td></tr>
+        <tr><td>2</td><td><b>McLean O4.5 Ks</b></td><td><b>Aaron Judge OO.5</b></td><td>🔥🔥 ELITE</td><td class="wrap-cell">Both Tier 0 alignment</td></tr>
+        <tr><td>3</td><td>Cease O5 Ks</td><td>Springer OO.5</td><td>🔥 STRONG</td><td class="wrap-cell">Stacked TOR</td></tr>
+        <tr><td>4</td><td>King O5 Ks</td><td>Ohtani OO.5</td><td>🔥 STRONG</td><td class="wrap-cell">Park 0.85 + clean matchup</td></tr>
+        <tr><td>5</td><td>Detmers O5 Ks</td><td>Nick Kurtz OO.5</td><td>🔥 STRONG</td><td class="wrap-cell">Different games</td></tr>
+        <tr><td>6</td><td>Lopez O5 Ks</td><td>Brent Rooker OO.5</td><td>🔥 STRONG</td><td class="wrap-cell">Same-game stack vs Cecconi</td></tr>
+        <tr><td>7</td><td>Bradish O4.5 Ks</td><td>Pete Alonso OO.5</td><td>✅ SOLID</td><td class="wrap-cell">Same game opposite sides</td></tr>
+        <tr><td>8</td><td>Lugo O4.5 Ks</td><td>Riley Greene OO.5</td><td>✅ SOLID</td><td class="wrap-cell">Greene vs Rocker 12.73 outs</td></tr>
+        <tr><td>9</td><td>Arrighetti O4.5 Ks</td><td>Yordan Alvarez OO.5</td><td>✅ SOLID</td><td class="wrap-cell">Same game opposite sides</td></tr>
+        <tr><td>10</td><td>Sasaki O4.5 Ks</td><td>Jordan Walker OO.5</td><td>✅ SOLID</td><td class="wrap-cell">Sasaki K independent of contact</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- PARLAYS -->
+<section id="parlays">
+  <h2>💣 10 Two-Leg HR Parlays</h2>
+  <p style="font-size:12px; color:var(--text-dim);">Tier 0 + Tier 1 only. No BAD-grade bats. No COL/ATL HR until starter confirmed.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Leg 1</th><th>Leg 2</th><th>Tier</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Aaron Judge HR</b></td><td><b>Nick Kurtz HR</b></td><td>🔥🔥 T0 STACK</td><td class="wrap-cell">#1 + #2 Dimers HR%</td></tr>
+        <tr><td>2</td><td><b>Aaron Judge HR</b></td><td><b>Ben Rice HR</b></td><td>🔥🔥 SAME-TEAM</td><td class="wrap-cell">NYY same-game vs Bradish — pure correlation</td></tr>
+        <tr><td>3</td><td><b>Nick Kurtz HR</b></td><td><b>Brent Rooker HR</b></td><td>🔥🔥 SAME-TEAM</td><td class="wrap-cell">ATH same-game vs Cecconi 7.26 H</td></tr>
+        <tr><td>4</td><td>Aaron Judge HR</td><td>Brent Rooker HR</td><td>🔥 ELITE</td><td class="wrap-cell">23.52% + 20.82%</td></tr>
+        <tr><td>5</td><td>Ben Rice HR</td><td>Nick Kurtz HR</td><td>🔥 ELITE</td><td class="wrap-cell">Both VS 50+</td></tr>
+        <tr><td>6</td><td>Aaron Judge HR</td><td>Nolan Gorman HR</td><td>✅ STRONG</td><td class="wrap-cell">Judge anchor + Gorman vs Sasaki VS 60</td></tr>
+        <tr><td>7</td><td>Nick Kurtz HR</td><td>Pete Alonso HR</td><td>✅ STRONG</td><td class="wrap-cell">Different games, both bilateral</td></tr>
+        <tr><td>8</td><td>Ben Rice HR</td><td>Junior Caminero HR</td><td>✅ STRONG</td><td class="wrap-cell">18.07% + 17.67%, both ⚡5+</td></tr>
+        <tr><td>9</td><td>Aaron Judge HR</td><td>Cal Raleigh HR</td><td>✅ MOD</td><td class="wrap-cell">Raleigh 19.03% (Lugo VS 14 caveat)</td></tr>
+        <tr><td>10</td><td>Brent Rooker HR</td><td>Tyler Soderstrom HR</td><td>✅ MOD</td><td class="wrap-cell">ATH stack #2, both 18%+</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--bad); margin-top:10px;"><b>⚠️ Avoid pairing:</b> Schwarber, Langeliers, Murakami, Montgomery, De La Cruz, Burger, Wood, Abrams, Halpin, Ramos. Hold all COL HR + ATL HR until starter confirmed.</p>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- CONVICTION -->
+<section id="conviction">
+  <h2>🎯 Full Conviction Board</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tier</th><th>Bet</th><th>Conv</th><th>5-File Alignment</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-tier0">MAND</span></td><td><b>Dylan Cease O5 Ks</b></td><td>TIER 0</td><td class="wrap-cell">6.09 / K9 14.2 / 15.99 outs</td></tr>
+        <tr><td><span class="badge b-tier0">MAND</span></td><td><b>Aaron Judge HR</b></td><td>TIER 0</td><td class="wrap-cell">23.52% + 70 + VS 50 + Park 1.13</td></tr>
+        <tr><td><span class="badge b-tier0">MAND</span></td><td><b>Nolan McLean O4.5 Ks</b></td><td>TIER 0</td><td class="wrap-cell">5.45 / K9 11.5 / 16.17 outs</td></tr>
+        <tr><td><span class="badge b-hot">STRONG</span></td><td><b>Nick Kurtz HR</b></td><td>T0 borderline</td><td class="wrap-cell">24.04% + 59 HOT + VS 56</td></tr>
+        <tr><td><span class="badge b-hot">STRONG</span></td><td><b>Ben Rice HR</b></td><td>TIER 0</td><td class="wrap-cell">18.07% + 68 + VS 50</td></tr>
+        <tr><td><span class="badge b-hot">STRONG</span></td><td><b>Vlad Jr. OO.5</b></td><td>TIER 0</td><td class="wrap-cell">~94% — slate leader</td></tr>
+        <tr><td><span class="badge b-hot">STRONG</span></td><td>Reid Detmers O5 Ks</td><td>TIER 1</td><td class="wrap-cell">5.63 / K9 9.8</td></tr>
+        <tr><td><span class="badge b-hot">STRONG</span></td><td>Jacob Lopez O5 Ks</td><td>TIER 1</td><td class="wrap-cell">5.49 / bilateral</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Michael King O5 Ks</td><td>TIER 1</td><td class="wrap-cell">5.25 / Park 0.85 boost</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Kyle Bradish O4.5 Ks</td><td>TIER 1</td><td class="wrap-cell">5.00 / VS 50 game</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Seth Lugo O4.5 Ks</td><td>TIER 1</td><td class="wrap-cell">Deepest start (16.79 outs)</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Sasaki O4.5 Ks</td><td>TIER 1</td><td class="wrap-cell">4.94 / hitter context fine</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Brent Rooker OO.5</td><td>TIER 1</td><td class="wrap-cell">91% vs Cecconi VS 56</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Ohtani OO.5</td><td>TIER 1</td><td class="wrap-cell">91% vs McGreevy</td></tr>
+        <tr><td><span class="badge b-good">CORE</span></td><td>Springer OO.5</td><td>TIER 1</td><td class="wrap-cell">91% vs Prielipp 9.79 outs</td></tr>
+        <tr><td><span class="badge b-tier1">LEAN</span></td><td>Nolan Gorman HR</td><td>TIER 1</td><td class="wrap-cell">11.70% + STRONG ⚡4 vs Sasaki</td></tr>
+        <tr><td><span class="badge b-tier1">LEAN</span></td><td>Max Muncy HR</td><td>TIER 1</td><td class="wrap-cell">15.24% + STRONG ⚡6</td></tr>
+        <tr><td><span class="badge b-tier1">LEAN</span></td><td>Kerry Carpenter OO.5</td><td>TIER 1</td><td class="wrap-cell">90% vs Rocker 12.73 outs</td></tr>
+        <tr><td><span class="badge b-tier1">LEAN</span></td><td>Riley Greene OO.5</td><td>TIER 1</td><td class="wrap-cell">90% + STRONG ⚡4</td></tr>
+        <tr><td><span class="badge b-tier1">LEAN</span></td><td>Brandon Lowe OO.5</td><td>TIER 1</td><td class="wrap-cell">90% HOT ⚡4 vs Lowder</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+<!-- SKIP LIST -->
+<section id="skip">
+  <h2>📋 Daily Skip List — Final</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Skip</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-bad">K NEVER</span></td><td class="wrap-cell">Meyer, Rocker, Painter, Lowder, McGreevy, Prielipp</td><td class="wrap-cell">Sub-4.15 Ks projected</td></tr>
+        <tr><td><span class="badge b-bad">HR BAD</span></td><td class="wrap-cell">Schwarber, Langeliers, Ramos, De La Cruz, Halpin, Wood, Abrams, Ramírez, Murakami, Montgomery, Burger, Buxton</td><td class="wrap-cell">Grade suppression confirmed</td></tr>
+        <tr><td><span class="badge b-warn">COL HOLD</span></td><td class="wrap-cell">Goodman, Moniak, Rumfield + entire COL</td><td class="wrap-cell">TBD COL starter</td></tr>
+        <tr><td><span class="badge b-warn">ATL HOLD</span></td><td class="wrap-cell">Olson, Baldwin, Harris II, Albies</td><td class="wrap-cell">TBD COL pitcher = Coors variance</td></tr>
+        <tr><td><span class="badge b-warn">VARIANCE</span></td><td class="wrap-cell">All MIN K + OO.5 props</td><td class="wrap-cell">Prielipp 9.79 outs / Cease K9 14.2</td></tr>
+        <tr><td><span class="badge b-warn">PARK</span></td><td class="wrap-cell">All CWS-SD HR props</td><td class="wrap-cell">Park 0.85 — slate-low</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <a href="#top" class="back-top">↑ Back to top</a>
+</section>
+
+</main>
+
+<button class="fab" id="fab" aria-label="Back to top">↑ Top</button>
+
+<footer>
+  <p>✅ All 9 sections delivered · Daily Format v3.0 · May 2 · Day 36</p>
+  <p>Lineups not final — confirm before betting</p>
+</footer>
+
+<script>
+(function() {
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  function setIcon() {
+    btn.textContent = root.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+  }
+  setIcon();
+  btn.addEventListener('click', function() {
+    const cur = root.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    setIcon();
+  });
+  // Add id="top" anchor target
+  if (!document.getElementById('top')) {
+    const a = document.createElement('a');
+    a.id = 'top';
+    document.body.insertBefore(a, document.body.firstChild);
+  }
+
+  // Game accordion toggles
+  document.querySelectorAll('.game-header').forEach(function(hdr) {
+    hdr.addEventListener('click', function() {
+      const game = hdr.parentElement;
+      const isOpen = game.classList.toggle('open');
+      hdr.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+
+  // Expand / collapse all
+  const expandBtn = document.getElementById('expandAll');
+  const collapseBtn = document.getElementById('collapseAll');
+  if (expandBtn) expandBtn.addEventListener('click', function() {
+    document.querySelectorAll('.game').forEach(function(g) {
+      g.classList.add('open');
+      const h = g.querySelector('.game-header');
+      if (h) h.setAttribute('aria-expanded', 'true');
+    });
+  });
+  if (collapseBtn) collapseBtn.addEventListener('click', function() {
+    document.querySelectorAll('.game').forEach(function(g) {
+      g.classList.remove('open');
+      const h = g.querySelector('.game-header');
+      if (h) h.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Floating back-to-top FAB
+  const fab = document.getElementById('fab');
+  function onScroll() {
+    if (window.scrollY > 600) fab.classList.add('visible');
+    else fab.classList.remove('visible');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  fab.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  onScroll();
+
+  // ---- Add to Home Screen ----
+  const banner = document.getElementById('installBanner');
+  const installBtn = document.getElementById('installBtn');
+  const installClose = document.getElementById('installClose');
+  const howto = document.getElementById('installHowto');
+  const howtoTitle = document.getElementById('howtoTitle');
+  const howtoBody = document.getElementById('howtoBody');
+
+  // Detect if already running as installed PWA
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  if (isStandalone) {
+    banner.classList.add('hidden');
+  }
+
+  // Capture native install prompt (Android/Chrome)
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  function detectPlatform() {
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /Android/.test(ua);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    return { isIOS, isAndroid, isSafari };
+  }
+
+  function showHowto() {
+    const { isIOS, isAndroid, isSafari } = detectPlatform();
+    let title, body;
+    if (isIOS) {
+      title = 'Add to Home Screen — iPhone / iPad';
+      body = '<ol>'
+        + '<li>Tap the <strong>Share</strong> button <kbd>⬆</kbd> at the bottom of Safari.</li>'
+        + '<li>Scroll and tap <strong>Add to Home Screen</strong>.</li>'
+        + '<li>Tap <strong>Add</strong> in the top-right.</li>'
+        + '</ol>'
+        + '<p style="margin-top:8px;color:var(--text-dim);font-size:11px;">Tip: this only works in Safari, not Chrome on iOS.</p>';
+    } else if (isAndroid) {
+      title = 'Add to Home Screen — Android';
+      body = '<ol>'
+        + '<li>Tap the <strong>⋮ menu</strong> in Chrome (top-right).</li>'
+        + '<li>Tap <strong>Add to Home screen</strong> or <strong>Install app</strong>.</li>'
+        + '<li>Tap <strong>Add</strong> / <strong>Install</strong> to confirm.</li>'
+        + '</ol>';
+    } else {
+      title = 'Add to Home Screen';
+      body = '<ol>'
+        + '<li>Open this page on your phone’s browser (Safari on iOS, Chrome on Android).</li>'
+        + '<li>Use the browser menu to choose <strong>Add to Home Screen</strong> or <strong>Install</strong>.</li>'
+        + '</ol>';
+    }
+    howtoTitle.textContent = title;
+    howtoBody.innerHTML = body;
+    howto.classList.remove('hidden');
+    howto.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  installBtn.addEventListener('click', async function() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        const choice = await deferredPrompt.userChoice;
+        if (choice.outcome === 'accepted') {
+          banner.classList.add('hidden');
+        }
+      } catch (e) {}
+      deferredPrompt = null;
+    } else {
+      showHowto();
+    }
+  });
+
+  installClose.addEventListener('click', function() {
+    banner.classList.add('hidden');
+    howto.classList.add('hidden');
+  });
+
+  window.addEventListener('appinstalled', function() {
+    banner.classList.add('hidden');
+    howto.classList.add('hidden');
+  });
+
+  // ============================================================
+  // INTERACTIVE LAYER — picks, search, filter chips
+  // ============================================================
+
+  // ---- Persisted picks (sessionStorage fallback to in-memory) ----
+  let memStore = {};
+  function safeGet(k) {
+    try { return JSON.parse(localStorage.getItem(k) || 'null'); }
+    catch(e) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch(e2) { return memStore[k] || null; } }
+  }
+  function safeSet(k, v) {
+    const s = JSON.stringify(v);
+    try { localStorage.setItem(k, s); return; } catch(e) {}
+    try { sessionStorage.setItem(k, s); return; } catch(e2) {}
+    memStore[k] = v;
+  }
+
+  let picks = safeGet('mlb_picks_v1') || [];
+
+  // ---- Inject star buttons + data-id into every table row ----
+  function rowSignature(row) {
+    // Use textContent of first non-empty cell + row index for stable id
+    const cells = row.querySelectorAll('td');
+    if (!cells.length) return null;
+    const txt = Array.from(cells).slice(0, 3).map(c => c.textContent.trim()).join(' | ').slice(0, 120);
+    return txt;
+  }
+
+  document.querySelectorAll('section table tbody tr').forEach(function(row) {
+    if (row.querySelector('.pick-cell')) return;
+    const sig = rowSignature(row);
+    if (!sig) return;
+    row.setAttribute('data-pick-id', sig);
+    // Add a star cell at the end
+    const td = document.createElement('td');
+    td.className = 'pick-cell';
+    const btn = document.createElement('button');
+    btn.className = 'pick-btn';
+    btn.setAttribute('aria-label', 'Toggle pick');
+    btn.dataset.pickId = sig;
+    if (picks.indexOf(sig) !== -1) btn.classList.add('picked');
+    td.appendChild(btn);
+    row.appendChild(td);
+  });
+
+  // Add header cell to keep alignment
+  document.querySelectorAll('section table thead tr').forEach(function(tr) {
+    if (tr.querySelector('.pick-th')) return;
+    const th = document.createElement('th');
+    th.className = 'pick-th';
+    th.style.width = '32px';
+    th.textContent = '';
+    tr.appendChild(th);
+  });
+
+  // ---- Picks state ----
+  const picksFab = document.getElementById('picksFab');
+  const picksCount = document.getElementById('picksCount');
+  const picksDrawer = document.getElementById('picksDrawer');
+  const picksList = document.getElementById('picksList');
+  const clearPicksBtn = document.getElementById('clearPicks');
+
+  function renderPicksDrawer() {
+    if (!picks.length) {
+      picksList.innerHTML = '<div class="picks-empty">Tap any ☆ next to a player to add them here.</div>';
+    } else {
+      picksList.innerHTML = picks.map(function(p) {
+        const safe = p.replace(/</g, '&lt;');
+        return '<div class="pick-item"><span class="label">' + safe + '</span><button class="remove" data-remove="' + safe.replace(/"/g,'&quot;') + '" aria-label="Remove">×</button></div>';
+      }).join('');
+    }
+    picksList.querySelectorAll('.remove').forEach(function(b) {
+      b.addEventListener('click', function() {
+        const id = b.getAttribute('data-remove');
+        togglePick(id, false);
+      });
+    });
+  }
+  function updatePicksUI() {
+    if (picks.length > 0) { picksCount.textContent = picks.length; picksCount.classList.remove('hidden'); }
+    else { picksCount.classList.add('hidden'); }
+    renderPicksDrawer();
+    if (picksFilterOn) applyFilters();
+  }
+  function togglePick(id, force) {
+    const idx = picks.indexOf(id);
+    const willAdd = (force === true) || (force === undefined && idx === -1);
+    if (willAdd && idx === -1) picks.push(id);
+    else if (!willAdd && idx !== -1) picks.splice(idx, 1);
+    safeSet('mlb_picks_v1', picks);
+    // sync star UI
+    document.querySelectorAll('.pick-btn[data-pick-id="' + CSS.escape(id) + '"]').forEach(function(b) {
+      if (picks.indexOf(id) !== -1) b.classList.add('picked');
+      else b.classList.remove('picked');
+    });
+    updatePicksUI();
+  }
+
+  document.addEventListener('click', function(e) {
+    if (e.target.classList && e.target.classList.contains('pick-btn')) {
+      e.stopPropagation();
+      togglePick(e.target.dataset.pickId);
+    }
+  });
+
+  picksFab.addEventListener('click', function() {
+    picksDrawer.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (!picksDrawer.classList.contains('open')) return;
+    if (picksDrawer.contains(e.target) || picksFab.contains(e.target)) return;
+    picksDrawer.classList.remove('open');
+  });
+  clearPicksBtn.addEventListener('click', function() {
+    picks = [];
+    safeSet('mlb_picks_v1', picks);
+    document.querySelectorAll('.pick-btn.picked').forEach(function(b){ b.classList.remove('picked'); });
+    updatePicksUI();
+  });
+  updatePicksUI();
+
+  // ---- Filter chips + search ----
+  const chipRow = document.getElementById('chipRow');
+  const searchInput = document.getElementById('searchInput');
+  const clearSearchBtn = document.getElementById('clearSearch');
+  const filterSearchEl = document.getElementById('filterSearch');
+  let activeFilters = new Set();
+  let searchText = '';
+  let picksFilterOn = false;
+
+  function rowMatches(el) {
+    const text = el.textContent.toLowerCase();
+    // chip filters — ANY active filter must match (OR within filters group)
+    if (activeFilters.size > 0) {
+      let chipHit = false;
+      for (const f of activeFilters) {
+        if (f === 'picks') {
+          const id = el.getAttribute('data-pick-id');
+          if (id && picks.indexOf(id) !== -1) { chipHit = true; break; }
+          continue;
+        }
+        if (f === 'tier0' && el.querySelector('.b-tier0')) { chipHit = true; break; }
+        if (f === 'tier1' && el.querySelector('.b-tier1')) { chipHit = true; break; }
+        if (f === 'hot'  && el.querySelector('.b-hot'))  { chipHit = true; break; }
+        if (f === 'cold' && el.querySelector('.b-cold')) { chipHit = true; break; }
+        if (f === 'bad'  && el.querySelector('.b-bad'))  { chipHit = true; break; }
+      }
+      if (!chipHit) return false;
+    }
+    // search text — must match if present
+    if (searchText && text.indexOf(searchText) === -1) return false;
+    return true;
+  }
+
+  function applyFilters() {
+    const filtering = activeFilters.size > 0 || searchText.length > 0;
+    document.body.classList.toggle('filtering', filtering);
+
+    // Auto-open all games while filtering so matches are visible
+    document.querySelectorAll('.game').forEach(function(g) {
+      if (filtering) g.classList.add('open');
+    });
+
+    // Apply to table rows
+    document.querySelectorAll('section table tbody tr').forEach(function(row) {
+      row.classList.remove('row-match', 'row-hidden');
+      if (!filtering) return;
+      if (rowMatches(row)) row.classList.add('row-match');
+      else row.classList.add('row-hidden');
+    });
+
+    // Apply to flag-list / angle paragraphs (free text in game write-ups)
+    document.querySelectorAll('ul.flag-list li, .angle, p').forEach(function(el) {
+      el.classList.remove('row-match', 'row-hidden');
+      if (!filtering) return;
+      if (rowMatches(el)) el.classList.add('row-match');
+      else el.classList.add('row-hidden');
+    });
+  }
+
+  chipRow.querySelectorAll('.chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      const f = chip.dataset.filter;
+      if (activeFilters.has(f)) { activeFilters.delete(f); chip.removeAttribute('data-state'); }
+      else { activeFilters.add(f); chip.setAttribute('data-state', 'on'); }
+      picksFilterOn = activeFilters.has('picks');
+      applyFilters();
+    });
+  });
+
+  searchInput.addEventListener('input', function() {
+    searchText = searchInput.value.trim().toLowerCase();
+    filterSearchEl.classList.toggle('has-text', searchText.length > 0);
+    applyFilters();
+  });
+  clearSearchBtn.addEventListener('click', function() {
+    searchInput.value = '';
+    searchText = '';
+    filterSearchEl.classList.remove('has-text');
+    applyFilters();
+  });
+})();
+</script>
+
+</body>
+</html>
