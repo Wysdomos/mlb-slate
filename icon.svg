@@ -1,14 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b0d10"/>
-      <stop offset="1" stop-color="#1a1f25"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="96" fill="url(#g)"/>
-  <circle cx="256" cy="256" r="150" fill="none" stroke="#ff3b30" stroke-width="14"/>
-  <path d="M 130 256 Q 256 150 382 256" fill="none" stroke="#ff3b30" stroke-width="6" opacity="0.6"/>
-  <path d="M 130 256 Q 256 362 382 256" fill="none" stroke="#ff3b30" stroke-width="6" opacity="0.6"/>
-  <text x="256" y="240" font-family="-apple-system,system-ui,sans-serif" font-size="120" font-weight="800" fill="#e8eaed" text-anchor="middle">5/2</text>
-  <text x="256" y="330" font-family="-apple-system,system-ui,sans-serif" font-size="58" font-weight="700" fill="#ffcc00" text-anchor="middle">SLATE</text>
+  <rect width="512" height="512" rx="112" fill="#0b0d10"/>
+  <circle cx="256" cy="256" r="158" fill="#f8f8f6" stroke="#dcdcda" stroke-width="2"/>
+  <path d="M 175 158 Q 205 256 175 354" fill="none" stroke="#c02026" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 337 158 Q 307 256 337 354" fill="none" stroke="#c02026" stroke-width="9" stroke-linecap="round"/>
+  <g stroke="#c02026" stroke-width="6" stroke-linecap="round">
+    <line x1="165" y1="180" x2="185" y2="184"/>
+    <line x1="160" y1="210" x2="180" y2="214"/>
+    <line x1="158" y1="240" x2="178" y2="242"/>
+    <line x1="158" y1="270" x2="178" y2="272"/>
+    <line x1="160" y1="300" x2="180" y2="302"/>
+    <line x1="165" y1="330" x2="185" y2="332"/>
+    <line x1="327" y1="180" x2="347" y2="184"/>
+    <line x1="332" y1="210" x2="352" y2="214"/>
+    <line x1="334" y1="240" x2="354" y2="242"/>
+    <line x1="334" y1="270" x2="354" y2="272"/>
+    <line x1="332" y1="300" x2="352" y2="302"/>
+    <line x1="327" y1="330" x2="347" y2="332"/>
+  </g>
 </svg>
