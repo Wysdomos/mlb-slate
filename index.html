@@ -134,11 +134,12 @@ header {
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border-bottom: 1px solid var(--glass-border);
   padding: 11px 16px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
 }
+.title-block { justify-self: start; }
 .title-block h1 {
   margin: 0;
   font-size: 16px;
@@ -146,12 +147,20 @@ header {
   letter-spacing: -0.3px;
   color: var(--text);
 }
-.title-block .sub {
-  font-size: 11px;
-  color: var(--text-dim);
-  margin-top: 2px;
-  letter-spacing: 0.1px;
+.brand-block {
+  justify-self: center;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text);
+  white-space: nowrap;
 }
+.brand-block .ball {
+  display: inline-block;
+  margin-left: 4px;
+  filter: saturate(1.1);
+}
+.header-spacer { justify-self: end; }
 .theme-fab {
   position: fixed;
   bottom: 22px;
@@ -818,7 +827,9 @@ footer {
   section { padding: 16px 14px; border-radius: 14px; }
   table { font-size: 12px; }
   th, td { padding: 7px 9px; }
-  .title-block h1 { font-size: 14px; }
+  .title-block h1 { font-size: 13px; }
+  .brand-block { font-size: 13px; }
+  header { padding: 9px 12px; gap: 8px; }
   .toc a { font-size: 13.5px; padding: 11px 12px; }
 }
 
@@ -837,8 +848,9 @@ footer {
 <header>
   <div class="title-block">
     <h1>✅ May 3 — Full Sunday Slate</h1>
-    <div class="sub">Daily Format v3.0 · 15 Games · Day 37 · Sweet Spot Tiered</div>
   </div>
+  <div class="brand-block">The Daily Slate <span class="ball">⚾</span></div>
+  <div class="header-spacer"></div>
 </header>
 
 <button class="theme-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>
