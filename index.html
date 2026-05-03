@@ -857,6 +857,190 @@ footer {
   .toc a { font-size: 13.5px; padding: 11px 12px; }
 }
 
+/* === Methodology section === */
+.method-intro {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+  margin: 6px 0 18px;
+}
+.method-intro strong { color: var(--text); }
+
+.split-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+@media (max-width: 560px) { .split-cards { grid-template-columns: 1fr; } }
+.split-card {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+}
+.split-card h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.split-card .pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text-dim);
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+.split-card p { margin: 6px 0; font-size: 12.5px; color: var(--text-soft); line-height: 1.55; }
+.split-card ul { margin: 6px 0 0; padding-left: 18px; }
+.split-card li { font-size: 12.5px; color: var(--text-soft); margin: 4px 0; line-height: 1.5; }
+.split-card li strong { color: var(--text); }
+
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 20px;
+}
+.flow-step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--good);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.flow-step.gate { border-left-color: var(--bad); }
+.flow-step.support { border-left-color: var(--warn); }
+.flow-step.confirm { border-left-color: var(--cold); }
+.flow-step.price { border-left-color: var(--hot); }
+.flow-step .num {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+  color: var(--text);
+}
+.flow-step h5 {
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  color: var(--text);
+  font-weight: 700;
+}
+.flow-step .req {
+  font-size: 12px;
+  color: var(--text-soft);
+  line-height: 1.55;
+  margin: 2px 0;
+}
+.flow-step .req code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  background: var(--glass-strong);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text);
+}
+.flow-step .why {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 12px 0 8px;
+  font-size: 12.5px;
+}
+.matrix-table th, .matrix-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--glass-border);
+  vertical-align: top;
+}
+.matrix-table th {
+  background: var(--glass-elev);
+  font-weight: 700;
+  color: var(--text);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.matrix-table .verdict { font-weight: 650; }
+.matrix-table .v-play { color: var(--good); }
+.matrix-table .v-trap { color: var(--bad); }
+.matrix-table .v-value { color: var(--hot); }
+.matrix-table .v-skip { color: var(--text-dim); }
+
+.tldr-box {
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(96,165,250,0.06));
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 18px 0 6px;
+}
+.tldr-box h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.tldr-box p {
+  margin: 4px 0;
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+.tldr-box .formula {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  margin-top: 8px;
+  color: var(--text-soft);
+}
+
+.example-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0 0;
+}
+@media (max-width: 560px) { .example-row { grid-template-columns: 1fr; } }
+.example-card {
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-border);
+}
+.example-card.good { background: var(--tier0-bg); border-color: var(--tier0-border); }
+.example-card.bad { background: var(--bad-bg); border-color: var(--bad-border); }
+.example-card .label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+.example-card.good .label { color: var(--good); }
+.example-card.bad .label { color: var(--bad); }
+.example-card .name { font-weight: 700; color: var(--text); font-size: 13.5px; margin-bottom: 4px; }
+.example-card .detail { font-size: 12px; color: var(--text-soft); line-height: 1.5; }
+
 /* Subtle entrance for sections */
 @media (prefers-reduced-motion: no-preference) {
   section, .toc, .game { animation: rise 0.5s cubic-bezier(0.2,0.8,0.2,1) both; }
@@ -915,6 +1099,7 @@ footer {
   <h2>Jump to Section</h2>
   <div class="toc-grid">
     <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
+    <a href="#methodology">🧪 How We Grade — Sweet Spot × Dimers <span class="arrow">›</span></a>
     <a href="#alignment">📊 5-File Alignment Tiers <span class="arrow">›</span></a>
     <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
     <a href="#k-board">⚡ Full K Tier Board <span class="arrow">›</span></a>
@@ -961,6 +1146,129 @@ footer {
     <li><b>Yordan Alvarez (HOU)</b> — ZONE ⚡8 ELITE ISO .354 vs Suarez (Vuln 17). Vuln below 50 = fails Tier 1 must-have. Skip HR / OO.5 only.</li>
     <li><b>Jhonny Pereda (SEA) ⚡22</b> — longest zone but no Dimers HR%, no career HR data. OO.5 only.</li>
   </ul>
+</section>
+
+<!-- METHODOLOGY -->
+<section id="methodology">
+  <h2>🧪 How We Grade — Sweet Spot × Dimers</h2>
+  <p class="method-intro">
+    Every play on this site goes through a two-input filter. <strong>Sweet Spot</strong> answers “is this a great HR environment for this hitter, right now?” — it doesn't care about price. <strong>Dimers</strong> answers “what does the market think the chance is?” — it doesn't care about quality. The app uses one to validate the other. Sweet Spot is the <strong>gate</strong>; Dimers is the <strong>ranker</strong>.
+  </p>
+
+  <h3 style="font-size:14px; margin-top:6px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;">The two inputs do different jobs</h3>
+  <div class="split-cards">
+    <div class="split-card">
+      <h4>🎯 Sweet Spot <span class="pill">QUALITY</span></h4>
+      <p>How good the HR environment is for this hitter, built from data that <em>doesn't have a public line</em>:</p>
+      <ul>
+        <li><strong>Pitcher Vuln</strong> 0–100 (70+ TARGET, 50–69 STRONG, 32–49 MODERATE, &lt;32 TOUGH)</li>
+        <li><strong>Batter ZONE</strong> 1–7 ⚡ (premium = 5+)</li>
+        <li><strong>ELITE ISO</strong> tier (≥ .250)</li>
+        <li><strong>Park factor + wind</strong>, platoon edge, hot/cold streak</li>
+        <li><strong>Tier 3 confirmers:</strong> Barrel%, xwOBA, Exit Velo, Adj HR Factor</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Output:</strong> a tier (0/1/2/3) + ZONE rating + pass/fail on must-haves.</p>
+    </div>
+    <div class="split-card">
+      <h4>💰 Dimers <span class="pill">PRICE</span></h4>
+      <p>The market's implied probability that a counting stat happens at all, blended from books and projections:</p>
+      <ul>
+        <li><strong>1+H%</strong> — chance of a hit</li>
+        <li><strong>RBI%</strong> — chance of an RBI</li>
+        <li><strong>HR%</strong> — chance of a HR</li>
+        <li>Pitcher props — Ks, Outs, ER, Hits allowed</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Output:</strong> a single % per prop. Tells you how the books see it; tells you nothing about <em>why</em>.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px; margin-top:18px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;">The formula — a 4-step gate</h3>
+  <p style="font-size:12.5px; color:var(--text-dim); margin:6px 0 8px;">Run in order. The first three steps are quality. Dimers only enters at step four.</p>
+  <div class="flow-steps">
+    <div class="flow-step gate">
+      <div class="num">1</div>
+      <div>
+        <h5>SWEET SPOT MUST-HAVES <span class="badge b-bad" style="margin-left:6px;">GATE</span></h5>
+        <div class="req"><code>ZONE ≥ 3⚡</code> <strong>AND</strong> <code>ELITE ISO ≥ .250</code> <strong>AND</strong> <code>Pitcher Vuln ≥ 50</code></div>
+        <div class="why">All three required for Tier 0 / Tier 1. Fail any one → drop to Tier 2/3 or skip pile, regardless of how juicy the Dimers number is.</div>
+      </div>
+    </div>
+    <div class="flow-step support">
+      <div class="num">2</div>
+      <div>
+        <h5>TIER 2 SUPPORT <span class="badge b-warn" style="margin-left:6px;">PROMOTE</span></h5>
+        <div class="req">Any one of: <code>HOT BAT</code> (HR last 7d) · <code>Score ≥ 55</code> · <code>Park ≥ 1.05 + wind out</code> · <code>Platoon edge + ISO ≥ .180</code></div>
+        <div class="why">A near-miss on the gate can climb back if the surrounding context is strong enough.</div>
+      </div>
+    </div>
+    <div class="flow-step confirm">
+      <div class="num">3</div>
+      <div>
+        <h5>TIER 3 CONFIRMERS <span class="badge b-cold" style="margin-left:6px;">STACK</span></h5>
+        <div class="req"><code>Barrel% ≥ 8%</code> · <code>xwOBA ≥ .330</code> · <code>Exit Velo ≥ 90</code> · <code>Adj HR Factor ≥ +10%</code> · CRUSHER badge</div>
+        <div class="why">Stack these on top of a passing gate to convert a Tier 1 play into a CONVICTION pick.</div>
+      </div>
+    </div>
+    <div class="flow-step price">
+      <div class="num">4</div>
+      <div>
+        <h5>DIMERS PRICE CHECK <span class="badge b-hot" style="margin-left:6px;">RANK</span></h5>
+        <div class="req">Only after the gate passes. Use Dimers HR% / 1+H% / RBI% to <strong>rank survivors</strong>, not to qualify them.</div>
+        <div class="why">Sweet Spot decides who plays. Dimers decides who plays first.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px; margin-top:6px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;">When the two inputs disagree</h3>
+  <p style="font-size:12.5px; color:var(--text-dim); margin:6px 0 4px;">This is the most important part. The app <strong>always</strong> sides with Sweet Spot when they conflict.</p>
+  <div class="table-wrap">
+    <table class="matrix-table">
+      <thead><tr><th>Sweet Spot</th><th>Dimers %</th><th>Verdict</th><th>Where it lands</th></tr></thead>
+      <tbody>
+        <tr><td>Tier 0 / 1 (gate passed)</td><td>High</td><td class="verdict v-play">CONVICTION</td><td>HR Board top, Conviction Board, Parlay anchor</td></tr>
+        <tr><td>Tier 0 / 1 (gate passed)</td><td>Low</td><td class="verdict v-value">VALUE / LIVE</td><td>HR Board mid-tier, live-bet candidate</td></tr>
+        <tr><td>Gate failed</td><td>High</td><td class="verdict v-trap">TRAP</td><td>Skip List — the public is mispriced</td></tr>
+        <tr><td>Gate failed</td><td>Low</td><td class="verdict v-skip">IGNORE</td><td>Doesn't make any board</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:14px; margin-top:18px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;">Today's slate — both sides of the disagreement</h3>
+  <div class="example-row">
+    <div class="example-card good">
+      <div class="label">✅ Both inputs agree — CONVICTION</div>
+      <div class="name">Aaron Judge (NYY @ BAL)</div>
+      <div class="detail">ZONE ⚡7 · ISO .351 · vs Gibson Vuln 64 · Park 1.13 → <strong>gate passes</strong>. Dimers HR% = 23.95% confirms. Tier 0 stack.</div>
+    </div>
+    <div class="example-card bad">
+      <div class="label">⛔ Inputs disagree — TRAP</div>
+      <div class="name">Nick Kurtz (CLE @ ATH)</div>
+      <div class="detail">Dimers HR% = <strong>25.09%</strong> (juicy). But pitcher Civale Vuln = 11 (TOUGH) → <strong>gate fails</strong>. Routes to Skip pile despite the elite Dimers number.</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px; margin-top:22px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.4px;">How it shows up across the boards</h3>
+  <div class="table-wrap">
+    <table class="matrix-table">
+      <thead><tr><th>Section</th><th>How the formula is applied</th></tr></thead>
+      <tbody>
+        <tr><td><strong>HR Board</strong></td><td>Sorted by Sweet Spot tier first (0 → 3); Dimers HR% is the tiebreaker within each tier.</td></tr>
+        <tr><td><strong>K Board / OO5 Board</strong></td><td>Sweet Spot is HR-only — doesn't apply here. Dimers props ranked, filtered by pitcher K9 / outs depth from CSV.</td></tr>
+        <tr><td><strong>Combos</strong></td><td>Must clear the Sweet Spot gate; Dimers % is shown as the market check.</td></tr>
+        <tr><td><strong>Parlays</strong></td><td>HR parlay rule = 3 legs / 3 separate games <strong>and</strong> anchor must be Tier 0 (ZONE 5+ + ELITE ISO + TARGET-tier pitcher). Dimers shown for transparency only.</td></tr>
+        <tr><td><strong>Conviction</strong></td><td>Both inputs must agree — Sweet Spot Tier 0/1 <strong>and</strong> Dimers in the upper band for that prop type.</td></tr>
+        <tr><td><strong>Skip / Trap</strong></td><td>Where Dimers looks great but the Sweet Spot gate fails (the Kurtz pattern).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tldr-box">
+    <h4>TL;DR</h4>
+    <p><strong>Sweet Spot is the gate. Dimers is the ranker.</strong></p>
+    <p>Pass the gate first → then sort by Dimers % within each tier → then publish to the right board.</p>
+    <p>When the two disagree and Dimers is hot but Sweet Spot is cold, it goes to the <strong>Skip pile</strong>, not the play pile.</p>
+    <p class="formula">play = passes_gate(Sweet Spot) × rank_by(Dimers %)</p>
+  </div>
 </section>
 
 <!-- ALIGNMENT -->
