@@ -1021,6 +1021,23 @@ body.filtering tr.row-match td { background: var(--accent-soft); }
 .suggest-status.ok { color: var(--good); font-weight: 600; }
 .suggest-status.err { color: var(--bad); font-weight: 600; }
 
+/* === Footer legal === */
+footer .legal {
+  margin-top: 14px;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  letter-spacing: 0.1px;
+}
+footer .legal.disclaimer {
+  margin-top: 6px;
+  font-style: italic;
+  opacity: 0.85;
+}
+
 /* === Support callout (above footer) === */
 .support-callout {
   max-width: 540px;
@@ -1479,10 +1496,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <a href="#alignment">📊 Alignment — Sweet Spot Tier Logic <span class="arrow">›</span></a>
     <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
     <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
-    <a href="#k-board">⚡ Full K Tier Board <span class="arrow">›</span></a>
+    <a href="#k-board">⚡ Full K’s Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
     <a href="#oo5-board">🎯 Top 50 H+R+RBI OO.5 Board <span class="arrow">›</span></a>
-    <a href="#combos">🎰 10 Lower Alt K H+R+RBI Combos <span class="arrow">›</span></a>
+    <a href="#combos">🎰 10 Lower Alt K’s &amp; H+R+RBI Combos <span class="arrow">›</span></a>
     <a href="#parlays">💣 10 Two-Leg HR Parlays <span class="arrow">›</span></a>
     <a href="#conviction">✅ Full Conviction Board <span class="arrow">›</span></a>
     <a href="#skip">📋 Daily Skip List <span class="arrow">›</span></a>
@@ -2179,8 +2196,15 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </section>
 
 <!-- K BOARD -->
-<section id="k-board">
-  <h2>⚡ Full K Prop Tier Board</h2>
+<section id="k-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">⚡ Full K’s Prop Tier Board</div>
+      <span class="game-tag">Tap to expand · every starter ranked T0→Skip</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
   <p style="font-size:12px; color:var(--text-dim);">Sourced from MLBP-5.3.26.csv. Tier 0 = mandatory; Tier 1 = strong; T2 = lean; NEVER = sub-4.15 Ks.</p>
   <div class="table-wrap">
     <table>
@@ -2214,11 +2238,19 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </tbody>
     </table>
   </div>
+  </div></div>
 </section>
 
 <!-- HR BOARD -->
-<section id="hr-board">
-  <h2>🏆 Top 25 HR Targets — Sweet Spot Tiered</h2>
+<section id="hr-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🏆 Top 25 HR Targets — Sweet Spot Tiered</div>
+      <span class="game-tag">Tap to expand · ranked by gate-pass + Dimers HR%</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
   <p style="font-size:12px; color:var(--text-dim);">Tier 0 ✅ = passes all 3 Sweet Spot must-haves (ZONE ≥ 3, ELITE ISO ≥ .250, pitcher Vuln ≥ 50). Tier 1 = ≥2 must-haves with strong support. OO.5 / SKIP HR = fails one or more must-haves.</p>
   <div class="table-wrap">
     <table>
@@ -2267,11 +2299,19 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </tbody>
     </table>
   </div>
+  </div></div>
 </section>
 
 <!-- OO5 BOARD -->
-<section id="oo5-board">
-  <h2>🎯 Top 50 H+R+RBI OO.5 Board</h2>
+<section id="oo5-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🎯 Top 50 H+R+RBI OO.5 Board</div>
+      <span class="game-tag">Tap to expand · ranked by Dimers % × Sweet Spot grade</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
   <p style="font-size:12px; color:var(--text-dim);">OO.5 = needs ONE hit, run, OR RBI. Combined probability across all 5 files. Independent of HR Tier — many "skip HR" bats are still elite OO.5 plays.</p>
   <div class="table-wrap">
     <table>
@@ -2331,11 +2371,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     </table>
   </div>
   <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>ATL vs Freeland = 8 of top 8 (Coors amplifier)</b>. ATH vs Messick = 5 of top 13 (Dimers HR%, but skip HR per Vuln). Tier 0 trio (Judge, Rice, Olson) all ≥86% OO.5.</p>
+  </div></div>
 </section>
 
 <!-- COMBOS -->
 <section id="combos">
-  <h2>🎰 10 Lower Alt K H+R+RBI Combo Parlays</h2>
+  <h2>🎰 10 Lower Alt K’s &amp; H+R+RBI Combo Parlays</h2>
   <p style="font-size:12px; color:var(--text-dim);">Two-leg cards pairing Tier 0/1 K props with ~88%+ OO.5 bats from independent games where possible.</p>
   <div class="table-wrap">
     <table>
@@ -2450,6 +2491,8 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 <footer>
   <p>✅ All 9 sections delivered · May 3 · Day 37 · Sweet Spot HR methodology</p>
   <p>Lineups not final — confirm before betting</p>
+  <p class="legal">© 2026 The Daily Slate. All rights reserved. Content, methodology, branding, and code are the intellectual property of The Daily Slate. No part of this site may be reproduced, distributed, or republished without written permission.</p>
+  <p class="legal disclaimer">For entertainment and informational purposes only. 21+. If you or someone you know has a gambling problem, call 1-800-GAMBLER.</p>
 </footer>
 
 <script>
