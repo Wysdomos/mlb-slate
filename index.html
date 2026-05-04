@@ -133,11 +133,11 @@ header {
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border-bottom: 1px solid var(--glass-border);
-  /* Status-bar safe area + tight breathing room when launched as PWA */
+  /* Status-bar safe area + minimal breathing room when launched as PWA */
   padding:
-    calc(env(safe-area-inset-top, 0px) + 10px)
+    calc(env(safe-area-inset-top, 0px) + 6px)
     calc(env(safe-area-inset-right, 0px) + 14px)
-    8px
+    6px
     calc(env(safe-area-inset-left, 0px) + 14px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -848,14 +848,35 @@ footer {
   .subtitle-block { font-size: 10px; }
   header {
     padding:
-      calc(env(safe-area-inset-top, 0px) + 8px)
+      calc(env(safe-area-inset-top, 0px) + 5px)
       calc(env(safe-area-inset-right, 0px) + 10px)
-      7px
+      5px
       calc(env(safe-area-inset-left, 0px) + 10px);
     gap: 8px;
   }
   .toc a { font-size: 13.5px; padding: 11px 12px; }
 }
+
+/* === Collapsible variant for full sections (methodology, alignment) === */
+section.collapsible {
+  padding: 0;
+  overflow: hidden;
+}
+section.collapsible > .game-header {
+  padding: 16px 18px;
+}
+section.collapsible > .game-header .game-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+section.collapsible > .game-body { max-height: 0; overflow: hidden; transition: max-height 0.45s ease; }
+section.collapsible.open > .game-body { max-height: 8000px; }
+section.collapsible > .game-body > .game-body-inner {
+  padding: 14px 18px 22px;
+  border-top: 1px solid var(--glass-border);
+}
+section.collapsible.open > .game-header .chevron { transform: rotate(180deg); color: var(--accent); border-color: var(--accent); }
 
 /* === Methodology section === */
 .method-intro {
@@ -1099,22 +1120,29 @@ footer {
   <h2>Jump to Section</h2>
   <div class="toc-grid">
     <a href="#methodology">🧪 How We Grade — Sweet Spot × Dimers <span class="arrow">›</span></a>
-    <a href="#alignment">📊 5-File Alignment Tiers <span class="arrow">›</span></a>
+    <a href="#alignment">📊 Alignment — Sweet Spot Tier Logic <span class="arrow">›</span></a>
     <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
     <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
     <a href="#k-board">⚡ Full K Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
     <a href="#oo5-board">🎯 Top 50 H+R+RBI OO.5 Board <span class="arrow">›</span></a>
-    <a href="#combos">🎰 10 Lower Alt K+H+R+RBI Combos <span class="arrow">›</span></a>
+    <a href="#combos">🎰 10 Lower Alt K H+R+RBI Combos <span class="arrow">›</span></a>
     <a href="#parlays">💣 10 Two-Leg HR Parlays <span class="arrow">›</span></a>
-    <a href="#conviction">🎯 Full Conviction Board <span class="arrow">›</span></a>
+    <a href="#conviction">✅ Full Conviction Board <span class="arrow">›</span></a>
     <a href="#skip">📋 Daily Skip List <span class="arrow">›</span></a>
   </div>
 </div>
 
 <!-- METHODOLOGY -->
-<section id="methodology">
-  <h2>🧪 How We Grade — Sweet Spot × Dimers</h2>
+<section id="methodology" class="collapsible" data-no-picks>
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🧪 How We Grade — Sweet Spot × Dimers</div>
+      <span class="game-tag">Tap to expand · the formula behind every play</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
   <p class="method-intro">
     Every play on this site goes through a two-input filter. <strong>Sweet Spot</strong> answers “is this a great HR environment for this hitter, right now?” — it doesn't care about price. <strong>Dimers</strong> answers “what does the market think the chance is?” — it doesn't care about quality. The app uses one to validate the other. Sweet Spot is the <strong>gate</strong>; Dimers is the <strong>ranker</strong>.
   </p>
@@ -1219,7 +1247,7 @@ footer {
         <tr><td><strong>HR Board</strong></td><td>Sorted by Sweet Spot tier first (0 → 3); Dimers HR% is the tiebreaker within each tier.</td></tr>
         <tr><td><strong>K Board / OO5 Board</strong></td><td>Sweet Spot is HR-only — doesn't apply here. Dimers props ranked, filtered by pitcher K9 / outs depth from CSV.</td></tr>
         <tr><td><strong>Combos</strong></td><td>Must clear the Sweet Spot gate; Dimers % is shown as the market check.</td></tr>
-        <tr><td><strong>Parlays</strong></td><td>HR parlay rule = 3 legs / 3 separate games <strong>and</strong> anchor must be Tier 0 (ZONE 5+ + ELITE ISO + TARGET-tier pitcher). Dimers shown for transparency only.</td></tr>
+        <tr><td><strong>Parlays</strong></td><td>HR parlay rule = <strong>2 legs / 2 separate games</strong> and anchor must be Tier 0 (ZONE 5+ + ELITE ISO + TARGET-tier pitcher). Dimers shown for transparency only.</td></tr>
         <tr><td><strong>Conviction</strong></td><td>Both inputs must agree — Sweet Spot Tier 0/1 <strong>and</strong> Dimers in the upper band for that prop type.</td></tr>
         <tr><td><strong>Skip / Trap</strong></td><td>Where Dimers looks great but the Sweet Spot gate fails (the Kurtz pattern).</td></tr>
       </tbody>
@@ -1233,11 +1261,19 @@ footer {
     <p>When the two disagree and Dimers is hot but Sweet Spot is cold, it goes to the <strong>Skip pile</strong>, not the play pile.</p>
     <p class="formula">play = passes_gate(Sweet Spot) × rank_by(Dimers %)</p>
   </div>
+  </div></div>
 </section>
 
 <!-- ALIGNMENT -->
-<section id="alignment">
-  <h2>📊 5-File Alignment — Sweet Spot Tier Logic</h2>
+<section id="alignment" class="collapsible" data-no-picks>
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">📊 Alignment — Sweet Spot Tier Logic</div>
+      <span class="game-tag">Tap to expand · today's tier weights + qualifying bats</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap">
     <table>
       <thead><tr><th>Signal</th><th>Tier Weight</th></tr></thead>
@@ -1253,6 +1289,7 @@ footer {
   </div>
   <p style="font-size:13px; margin-top:12px;"><b>Today's Tier 0 bats (all 3 must-haves ✅):</b> <b>Mickey Moniak</b> (⚡5 + ISO .351 + Strider Vuln 43 borderline — lifted to T0 by Coors 1.38 + HOT), <b>Bryce Harper</b> (⚡5 + ISO .223 borderline + Paddack 52 + HOT), <b>Hunter Goodman</b> (⚡6 + ISO .293 + Coors 1.38), <b>Max Muncy</b> (⚡6 + ISO .299 + May 46 = MODERATE/STRONG borderline), <b>Aaron Judge</b> (⚡7 + ISO .351 + Park 1.13), <b>Ben Rice</b> (⚡7 + ISO .387 + Park 1.13).</p>
   <p style="font-size:13px; margin-top:8px;"><b>Top Sweet Spot HR Vuln pitchers:</b> Littell 67, Kelly 56 (KEY: ERA 9.20), Castillo 56, Paddack 52, Kay 52, Holton 50, Mahle 50.</p>
+  </div></div>
 </section>
 
 <!-- HEADLINES -->
@@ -1942,7 +1979,7 @@ footer {
 
 <!-- COMBOS -->
 <section id="combos">
-  <h2>🎰 10 Lower Alt K + H+R+RBI Combo Parlays</h2>
+  <h2>🎰 10 Lower Alt K H+R+RBI Combo Parlays</h2>
   <p style="font-size:12px; color:var(--text-dim);">Two-leg cards pairing Tier 0/1 K props with ~88%+ OO.5 bats from independent games where possible.</p>
   <div class="table-wrap">
     <table>
@@ -1989,7 +2026,7 @@ footer {
 
 <!-- CONVICTION -->
 <section id="conviction">
-  <h2>🎯 Full Conviction Board</h2>
+  <h2>✅ Full Conviction Board</h2>
   <p style="font-size:12px; color:var(--text-dim);">Mandatory = highest Sweet Spot multi-factor convergence. Strong = all 3 must-haves passed. Core = 2 must-haves + strong support. Lean = 1 must-have + Tier 2 support.</p>
   <div class="table-wrap">
     <table>
@@ -2070,16 +2107,16 @@ footer {
     document.body.insertBefore(a, document.body.firstChild);
   }
 
-  // Game accordion toggles
+  // Accordion toggles (games + collapsible sections)
   document.querySelectorAll('.game-header').forEach(function(hdr) {
     hdr.addEventListener('click', function() {
-      const game = hdr.parentElement;
-      const isOpen = game.classList.toggle('open');
+      const container = hdr.parentElement; // .game or section.collapsible
+      const isOpen = container.classList.toggle('open');
       hdr.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
   });
 
-  // Expand / collapse all
+  // Expand / collapse all (game write-ups only)
   const expandBtn = document.getElementById('expandAll');
   const collapseBtn = document.getElementById('collapseAll');
   if (expandBtn) expandBtn.addEventListener('click', function() {
@@ -2096,6 +2133,20 @@ footer {
       if (h) h.setAttribute('aria-expanded', 'false');
     });
   });
+
+  // Auto-open collapsible sections when navigated via hash (e.g. TOC click)
+  function openHashTarget() {
+    const id = location.hash.replace('#', '');
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el && el.classList.contains('collapsible')) {
+      el.classList.add('open');
+      const h = el.querySelector(':scope > .game-header');
+      if (h) h.setAttribute('aria-expanded', 'true');
+    }
+  }
+  window.addEventListener('hashchange', openHashTarget);
+  openHashTarget();
 
   // Floating back-to-top FAB
   const fab = document.getElementById('fab');
@@ -2226,6 +2277,8 @@ footer {
 
   document.querySelectorAll('section table tbody tr').forEach(function(row) {
     if (row.querySelector('.pick-cell')) return;
+    // Skip pick stars in sections marked data-no-picks (methodology, alignment)
+    if (row.closest('[data-no-picks]')) return;
     const sig = rowSignature(row);
     if (!sig) return;
     row.setAttribute('data-pick-id', sig);
@@ -2244,6 +2297,7 @@ footer {
   // Add header cell to keep alignment
   document.querySelectorAll('section table thead tr').forEach(function(tr) {
     if (tr.querySelector('.pick-th')) return;
+    if (tr.closest('[data-no-picks]')) return;
     const th = document.createElement('th');
     th.className = 'pick-th';
     th.style.width = '32px';
