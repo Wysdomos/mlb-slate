@@ -133,12 +133,12 @@ header {
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border-bottom: 1px solid var(--glass-border);
-  /* Add status-bar safe area + extra breathing room when launched as PWA */
+  /* Status-bar safe area + tight breathing room when launched as PWA */
   padding:
-    calc(env(safe-area-inset-top, 0px) + 44px)
-    calc(env(safe-area-inset-right, 0px) + 16px)
-    11px
-    calc(env(safe-area-inset-left, 0px) + 16px);
+    calc(env(safe-area-inset-top, 0px) + 10px)
+    calc(env(safe-area-inset-right, 0px) + 14px)
+    8px
+    calc(env(safe-area-inset-left, 0px) + 14px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: end;
@@ -848,10 +848,10 @@ footer {
   .subtitle-block { font-size: 10px; }
   header {
     padding:
-      calc(env(safe-area-inset-top, 0px) + 44px)
-      calc(env(safe-area-inset-right, 0px) + 12px)
-      9px
-      calc(env(safe-area-inset-left, 0px) + 12px);
+      calc(env(safe-area-inset-top, 0px) + 8px)
+      calc(env(safe-area-inset-right, 0px) + 10px)
+      7px
+      calc(env(safe-area-inset-left, 0px) + 10px);
     gap: 8px;
   }
   .toc a { font-size: 13.5px; padding: 11px 12px; }
@@ -1098,9 +1098,9 @@ footer {
 <div class="toc">
   <h2>Jump to Section</h2>
   <div class="toc-grid">
-    <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
     <a href="#methodology">🧪 How We Grade — Sweet Spot × Dimers <span class="arrow">›</span></a>
     <a href="#alignment">📊 5-File Alignment Tiers <span class="arrow">›</span></a>
+    <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
     <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
     <a href="#k-board">⚡ Full K Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
@@ -1111,42 +1111,6 @@ footer {
     <a href="#skip">📋 Daily Skip List <span class="arrow">›</span></a>
   </div>
 </div>
-
-<!-- HEADLINES -->
-<section id="headlines">
-  <h2>📅 Slate Headlines — Day 37 · Sunday May 3</h2>
-  <p style="font-size:12px; color:var(--text-dim); margin-bottom:14px;">Tiering follows Sweet Spot HR methodology: Tier 1 must-haves — ZONE ≥ 3 (⚡5+ premium), ELITE ISO (≥.250), pitcher Vuln ≥ 50.</p>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Flag</th><th>Detail</th><th>Source</th></tr></thead>
-      <tbody>
-        <tr><td>🔥 Top Vuln (TARGET tier)</td><td class="wrap-cell"><b>Zack Littell (WSH) 67 STRONG</b> — ERA 7.85 / WHIP 1.74 / today's most exposed arm</td><td>Sweet Spot Slate</td></tr>
-        <tr><td>🏆 #1 HR Score</td><td class="wrap-cell"><b>Mickey Moniak COL — Score 75 HOT ⚡5 ELITE ISO .351</b> vs Strider · Coors 1.38</td><td>HR Board</td></tr>
-        <tr><td>🏆 #1 Dimers HR%</td><td class="wrap-cell"><b>Nick Kurtz ATH 25.09%</b> vs Civale · ATH lineup explosion bait</td><td>MLBH</td></tr>
-        <tr><td>🏆 #1 K Projection</td><td class="wrap-cell"><b>Jesús Luzardo PHI 5.79 Ks</b> — K9=10.8 vs MIA</td><td>MLBP</td></tr>
-        <tr><td>🏆 Most Outs</td><td class="wrap-cell"><b>Braxton Ashcraft PIT 18.60</b> — deepest starter today</td><td>MLBP</td></tr>
-        <tr><td>⚡ Longest Zone Streak</td><td class="wrap-cell"><b>Jhonny Pereda SEA ⚡22</b> vs Bubic (no Dimers — OO.5 only)</td><td>HR Board</td></tr>
-        <tr><td>🎯 Bilateral Risk Game</td><td class="wrap-cell"><b>PHI vs MIA</b> — Paddack 52 + Luzardo 39 · Schwarber + Hicks both bad-park rebounds</td><td>Slate</td></tr>
-        <tr><td>🚨 Worst ERA Today</td><td class="wrap-cell"><b>Merrill Kelly (AZ) 9.20</b> — followed by Littell 7.85, Boyd 7.00, Castillo 6.35</td><td>Slate</td></tr>
-        <tr><td>🎯 Most H Allowed</td><td class="wrap-cell"><b>Kyle Freeland (COL) 7.57</b> — Coors amp · ATL bats fully open</td><td>MLBP</td></tr>
-        <tr><td>🔥 Park Factors</td><td class="wrap-cell">Coors 1.38 🏆 / BAL-NYY 1.13 / HOU-BOS 1.01 · CWS-SD 0.85 ⒢ · PHI-MIA 0.88 ⒢</td><td>Slate</td></tr>
-        <tr><td>⚠️ TBD Starters</td><td class="wrap-cell"><b>BAL Trey Gibson</b> + <b>NYY ATL ALL TBD listings vs CHC/BAL</b> — confirm before betting MIL bats vs WSH (TBD MIL)</td><td>Slate</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>⚠️ Lineup Flags — Confirm Before Betting</h3>
-  <ul class="flag-list">
-    <li><b>ATL vs COL (Coors 1.38)</b> — Strider listed but NO ERA data yet; treat both pitchers as unconfirmed. ATL bats vs Freeland (Olson ⚡6 ELITE ISO .346, Harris II ⚡4, Albies ⚡5) are slate's best cluster of HR threats. COL bats vs Strider (Moniak ⚡5 ELITE .351, Goodman ⚡6 ELITE .293, Rumfield ⚡3) are #1+#3 HR Scores — Coors floor real but Strider VulnScore is only 43 (MODERATE).</li>
-    <li><b>WSH @ MIL (TBD MIL)</b> — Hold MIL HR props until starter confirmed. WSH bats vs Littell 67 STRONG fully open: James Wood ⚡6, CJ Abrams ⚡5 HOT, Daylen Lile ⚡3 HOT.</li>
-    <li><b>NYY @ BAL</b> — Trey Gibson (BAL) listed but no stats; Park 1.13 confirmed. Judge ⚡7 ELITE .351 + Ben Rice ⚡7 ELITE .387 are Tier 0 anchors regardless. Max Fried (NYY 2.09 ERA, VS 25) suppresses BAL.</li>
-    <li><b>Kyle Schwarber (PHI)</b> — MODERATE ⚡7 COLD vs Paddack 52. Sweet Spot would dock for COLD form, but ELITE ISO .345 + Vuln 52 + ZONE 7 still meets all 3 Tier 1 must-haves — PLAYABLE HR.</li>
-    <li><b>Junior Caminero (TB)</b> — BAD grade vs Mahle but ZONE ⚡6 + ELITE ISO .244 borderline + Vuln 50. Sweet Spot says BAD grade is a suppressor — OO.5 only.</li>
-    <li><b>Drew Romo (CWS) ISO .857 / Munetaka Murakami ISO .333</b> — Sample size flag; Park 0.85 suppresses both even with Canning unconfirmed.</li>
-    <li><b>Yordan Alvarez (HOU)</b> — ZONE ⚡8 ELITE ISO .354 vs Suarez (Vuln 17). Vuln below 50 = fails Tier 1 must-have. Skip HR / OO.5 only.</li>
-    <li><b>Jhonny Pereda (SEA) ⚡22</b> — longest zone but no Dimers HR%, no career HR data. OO.5 only.</li>
-  </ul>
-</section>
 
 <!-- METHODOLOGY -->
 <section id="methodology">
@@ -1289,6 +1253,42 @@ footer {
   </div>
   <p style="font-size:13px; margin-top:12px;"><b>Today's Tier 0 bats (all 3 must-haves ✅):</b> <b>Mickey Moniak</b> (⚡5 + ISO .351 + Strider Vuln 43 borderline — lifted to T0 by Coors 1.38 + HOT), <b>Bryce Harper</b> (⚡5 + ISO .223 borderline + Paddack 52 + HOT), <b>Hunter Goodman</b> (⚡6 + ISO .293 + Coors 1.38), <b>Max Muncy</b> (⚡6 + ISO .299 + May 46 = MODERATE/STRONG borderline), <b>Aaron Judge</b> (⚡7 + ISO .351 + Park 1.13), <b>Ben Rice</b> (⚡7 + ISO .387 + Park 1.13).</p>
   <p style="font-size:13px; margin-top:8px;"><b>Top Sweet Spot HR Vuln pitchers:</b> Littell 67, Kelly 56 (KEY: ERA 9.20), Castillo 56, Paddack 52, Kay 52, Holton 50, Mahle 50.</p>
+</section>
+
+<!-- HEADLINES -->
+<section id="headlines">
+  <h2>📅 Slate Headlines — Day 37 · Sunday May 3</h2>
+  <p style="font-size:12px; color:var(--text-dim); margin-bottom:14px;">Tiering follows Sweet Spot HR methodology: Tier 1 must-haves — ZONE ≥ 3 (⚡5+ premium), ELITE ISO (≥.250), pitcher Vuln ≥ 50.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Flag</th><th>Detail</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>🔥 Top Vuln (TARGET tier)</td><td class="wrap-cell"><b>Zack Littell (WSH) 67 STRONG</b> — ERA 7.85 / WHIP 1.74 / today's most exposed arm</td><td>Sweet Spot Slate</td></tr>
+        <tr><td>🏆 #1 HR Score</td><td class="wrap-cell"><b>Mickey Moniak COL — Score 75 HOT ⚡5 ELITE ISO .351</b> vs Strider · Coors 1.38</td><td>HR Board</td></tr>
+        <tr><td>🏆 #1 Dimers HR%</td><td class="wrap-cell"><b>Nick Kurtz ATH 25.09%</b> vs Civale · ATH lineup explosion bait</td><td>MLBH</td></tr>
+        <tr><td>🏆 #1 K Projection</td><td class="wrap-cell"><b>Jesús Luzardo PHI 5.79 Ks</b> — K9=10.8 vs MIA</td><td>MLBP</td></tr>
+        <tr><td>🏆 Most Outs</td><td class="wrap-cell"><b>Braxton Ashcraft PIT 18.60</b> — deepest starter today</td><td>MLBP</td></tr>
+        <tr><td>⚡ Longest Zone Streak</td><td class="wrap-cell"><b>Jhonny Pereda SEA ⚡22</b> vs Bubic (no Dimers — OO.5 only)</td><td>HR Board</td></tr>
+        <tr><td>🎯 Bilateral Risk Game</td><td class="wrap-cell"><b>PHI vs MIA</b> — Paddack 52 + Luzardo 39 · Schwarber + Hicks both bad-park rebounds</td><td>Slate</td></tr>
+        <tr><td>🚨 Worst ERA Today</td><td class="wrap-cell"><b>Merrill Kelly (AZ) 9.20</b> — followed by Littell 7.85, Boyd 7.00, Castillo 6.35</td><td>Slate</td></tr>
+        <tr><td>🎯 Most H Allowed</td><td class="wrap-cell"><b>Kyle Freeland (COL) 7.57</b> — Coors amp · ATL bats fully open</td><td>MLBP</td></tr>
+        <tr><td>🔥 Park Factors</td><td class="wrap-cell">Coors 1.38 🏆 / BAL-NYY 1.13 / HOU-BOS 1.01 · CWS-SD 0.85 ⒢ · PHI-MIA 0.88 ⒢</td><td>Slate</td></tr>
+        <tr><td>⚠️ TBD Starters</td><td class="wrap-cell"><b>BAL Trey Gibson</b> + <b>NYY ATL ALL TBD listings vs CHC/BAL</b> — confirm before betting MIL bats vs WSH (TBD MIL)</td><td>Slate</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>⚠️ Lineup Flags — Confirm Before Betting</h3>
+  <ul class="flag-list">
+    <li><b>ATL vs COL (Coors 1.38)</b> — Strider listed but NO ERA data yet; treat both pitchers as unconfirmed. ATL bats vs Freeland (Olson ⚡6 ELITE ISO .346, Harris II ⚡4, Albies ⚡5) are slate's best cluster of HR threats. COL bats vs Strider (Moniak ⚡5 ELITE .351, Goodman ⚡6 ELITE .293, Rumfield ⚡3) are #1+#3 HR Scores — Coors floor real but Strider VulnScore is only 43 (MODERATE).</li>
+    <li><b>WSH @ MIL (TBD MIL)</b> — Hold MIL HR props until starter confirmed. WSH bats vs Littell 67 STRONG fully open: James Wood ⚡6, CJ Abrams ⚡5 HOT, Daylen Lile ⚡3 HOT.</li>
+    <li><b>NYY @ BAL</b> — Trey Gibson (BAL) listed but no stats; Park 1.13 confirmed. Judge ⚡7 ELITE .351 + Ben Rice ⚡7 ELITE .387 are Tier 0 anchors regardless. Max Fried (NYY 2.09 ERA, VS 25) suppresses BAL.</li>
+    <li><b>Kyle Schwarber (PHI)</b> — MODERATE ⚡7 COLD vs Paddack 52. Sweet Spot would dock for COLD form, but ELITE ISO .345 + Vuln 52 + ZONE 7 still meets all 3 Tier 1 must-haves — PLAYABLE HR.</li>
+    <li><b>Junior Caminero (TB)</b> — BAD grade vs Mahle but ZONE ⚡6 + ELITE ISO .244 borderline + Vuln 50. Sweet Spot says BAD grade is a suppressor — OO.5 only.</li>
+    <li><b>Drew Romo (CWS) ISO .857 / Munetaka Murakami ISO .333</b> — Sample size flag; Park 0.85 suppresses both even with Canning unconfirmed.</li>
+    <li><b>Yordan Alvarez (HOU)</b> — ZONE ⚡8 ELITE ISO .354 vs Suarez (Vuln 17). Vuln below 50 = fails Tier 1 must-have. Skip HR / OO.5 only.</li>
+    <li><b>Jhonny Pereda (SEA) ⚡22</b> — longest zone but no Dimers HR%, no career HR data. OO.5 only.</li>
+  </ul>
 </section>
 
 <!-- GAMES -->
