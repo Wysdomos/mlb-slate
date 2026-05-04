@@ -1021,6 +1021,73 @@ body.filtering tr.row-match td { background: var(--accent-soft); }
 .suggest-status.ok { color: var(--good); font-weight: 600; }
 .suggest-status.err { color: var(--bad); font-weight: 600; }
 
+/* === Support callout (above footer) === */
+.support-callout {
+  max-width: 540px;
+  margin: 28px auto 18px;
+  padding: 22px 22px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(96,165,250,0.06));
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.support-callout h3 {
+  margin: 12px 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.support-callout p {
+  margin: 0 auto;
+  max-width: 460px;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+.support-tip-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  transition: transform 0.16s ease;
+}
+.support-tip-btn:hover { transform: translateY(-2px); }
+.support-tip-btn:active { transform: scale(0.96); }
+.support-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #08120f;
+  font-size: 26px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.20), 0 0 0 1px rgba(255,255,255,0.06);
+}
+[data-theme="light"] .support-icon { color: white; }
+.support-icon-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+}
+@media (max-width: 560px) {
+  .support-callout { margin: 22px 12px 16px; padding: 20px 16px 18px; }
+  .support-callout h3 { font-size: 15px; }
+  .support-callout p { font-size: 12.5px; }
+}
+
 /* Sportsbook quick links */
 .book-bar {
   display: flex;
@@ -1337,12 +1404,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     </div>
     <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Pick an amount, then tap PayPal or Venmo. Buttons open the app pre-filled.</div>
     <div class="tip-amounts" id="tipAmounts">
-      <button class="tip-amount-btn active" data-amt="1">$1</button>
+      <button class="tip-amount-btn" data-amt="1">$1</button>
       <button class="tip-amount-btn" data-amt="5">$5</button>
       <button class="tip-amount-btn" data-amt="10">$10</button>
-      <button class="tip-amount-btn" data-amt="custom">Custom</button>
+      <button class="tip-amount-btn active" data-amt="custom">Custom</button>
     </div>
-    <input type="number" id="tipCustomAmt" placeholder="Enter amount in $" min="1" step="1" style="display:none; background:var(--glass); border:1px solid var(--glass-border); color:var(--text); border-radius:10px; padding:9px 12px; font-size:13.5px; font-family:inherit; width:100%; box-sizing:border-box; margin-bottom:10px;">
+    <input type="number" id="tipCustomAmt" placeholder="Enter amount in $" min="1" step="1" style="background:var(--glass); border:1px solid var(--glass-border); color:var(--text); border-radius:10px; padding:9px 12px; font-size:13.5px; font-family:inherit; width:100%; box-sizing:border-box; margin-bottom:10px;">
     <div class="tip-actions">
       <a id="tipPaypal" class="tip-btn paypal" target="_blank" rel="noopener" href="https://paypal.me/mrwright9/1"><span class="lbl">PayPal</span></a>
       <a id="tipVenmo" class="tip-btn venmo" target="_blank" rel="noopener" href="https://venmo.com/u/TheDailySlate"><span class="lbl">Venmo</span></a>
@@ -1369,7 +1436,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       <h3 id="suggestModalTitle">💡 Send a Suggestion</h3>
       <button class="close" id="suggestModalClose" aria-label="Close">✕</button>
     </div>
-    <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">Goes straight to mrwwright9@gmail.com. Anonymous is fine — name and email are optional.</div>
+    <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">Goes straight to the creators of The Daily Slate. Anonymous is fine — name and email are optional, and your email is never shared with anyone.</div>
     <form class="suggest-form" id="suggestForm">
       <input type="hidden" name="access_key" value="91d553ea-ce3e-41d1-8026-88161a5163e1">
       <input type="hidden" name="subject" value="The Daily Slate — New Suggestion">
@@ -2370,8 +2437,18 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 
 <button class="fab" id="fab" aria-label="Back to top">↑ Top</button>
 
+<!-- Support callout -->
+<div class="support-callout">
+  <button class="support-tip-btn" id="supportTipBtn" type="button" aria-label="Open tip jar">
+    <span class="support-icon">☕</span>
+    <span class="support-icon-label">Tip The Slate</span>
+  </button>
+  <h3>Show support for The Daily Slate</h3>
+  <p>Anything you can spare helps keep the site live, the data flowing, and the slate dropping every day. We're in this together — let's go beat the books.</p>
+</div>
+
 <footer>
-  <p>✅ All 9 sections delivered · Daily Format v3.0 · May 3 · Day 37 · Sweet Spot HR methodology</p>
+  <p>✅ All 9 sections delivered · May 3 · Day 37 · Sweet Spot HR methodology</p>
   <p>Lineups not final — confirm before betting</p>
 </footer>
 
@@ -2686,7 +2763,14 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   }
   buildTipLinks(1);
 
-  if (tipFab) tipFab.addEventListener('click', () => tipModal.classList.add('open'));
+  function openTipJar() {
+    tipModal.classList.add('open');
+    // Custom is the default — focus the input so the user can type immediately
+    setTimeout(() => { try { tipCustomAmt.focus({ preventScroll: true }); tipCustomAmt.select(); } catch(_){} }, 80);
+  }
+  if (tipFab) tipFab.addEventListener('click', openTipJar);
+  const supportTipBtn = document.getElementById('supportTipBtn');
+  if (supportTipBtn) supportTipBtn.addEventListener('click', openTipJar);
   if (tipModalClose) tipModalClose.addEventListener('click', () => tipModal.classList.remove('open'));
   tipModal.addEventListener('click', (e) => { if (e.target === tipModal) tipModal.classList.remove('open'); });
 
@@ -2704,6 +2788,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       buildTipLinks(v);
     } else {
       tipCustomAmt.style.display = 'none';
+      tipCustomAmt.value = '';
       currentTipAmt = Number(amt);
       buildTipLinks(currentTipAmt);
     }
@@ -2758,7 +2843,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       }
     } catch (err) {
       sgStatus.className = 'suggest-status err';
-      sgStatus.textContent = 'Could not send. Try again or email mrwwright9@gmail.com';
+      sgStatus.textContent = 'Could not send. Please try again in a moment.';
     } finally {
       sgSubmit.disabled = false;
     }
