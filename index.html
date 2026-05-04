@@ -793,6 +793,234 @@ body.filtering tr.row-match td { background: var(--accent-soft); }
 .picks-fab .badge-count.hidden { display: none; }
 [data-theme="light"] .picks-fab { color: white; }
 
+/* === Tip Jar + Suggestion FABs === */
+.mini-fab {
+  position: fixed;
+  right: 14px;
+  z-index: 200;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.06);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.16s ease, background 0.18s;
+}
+.mini-fab:hover { background: var(--glass-elev); }
+.mini-fab:active { transform: scale(0.92); }
+.tip-fab { bottom: 80px; }
+.suggest-fab { bottom: 132px; }
+
+/* Modal scaffold (shared by tip-modal + suggest-modal) */
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px;
+  animation: appModalFade 0.18s ease both;
+}
+.app-modal.open { display: flex; }
+@keyframes appModalFade { from { opacity: 0; } to { opacity: 1; } }
+.app-modal-card {
+  background: var(--glass-elev);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 380px;
+  padding: 18px 18px 16px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,0.05);
+  animation: appModalRise 0.22s cubic-bezier(0.2,0.8,0.2,1) both;
+}
+@keyframes appModalRise { from { transform: translateY(14px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+.app-modal-card .head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.app-modal-card .head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.app-modal-card .head .close {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.app-modal-card .head .close:hover { background: var(--glass); color: var(--text); }
+
+/* Tip jar modal */
+.tip-amounts {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 4px 0 12px;
+}
+.tip-amount-btn {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.16s;
+}
+.tip-amount-btn:hover { background: var(--glass-elev); }
+.tip-amount-btn.active {
+  background: var(--accent);
+  color: #08120f;
+  border-color: var(--accent);
+}
+[data-theme="light"] .tip-amount-btn.active { color: white; }
+.tip-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tip-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13.5px;
+  border: 1px solid var(--glass-border-strong);
+  transition: transform 0.14s, box-shadow 0.14s;
+}
+.tip-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+.tip-btn.paypal { background: #003087; color: white; }
+.tip-btn.venmo { background: #008CFF; color: white; }
+.tip-btn .lbl { letter-spacing: 0.2px; }
+.tip-qr-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px;
+  background: transparent;
+  border: 1px dashed var(--glass-border-strong);
+  color: var(--text-dim);
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tip-qr-toggle:hover { color: var(--text); border-color: var(--accent); }
+.tip-qr-grid {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.tip-qr-grid.open { display: grid; }
+.tip-qr-cell {
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+}
+.tip-qr-cell img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+}
+.tip-qr-cell .name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0b0d10;
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.tip-qr-hint {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Suggestion modal */
+.suggest-form { display: flex; flex-direction: column; gap: 10px; }
+.suggest-form label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: -6px;
+}
+.suggest-form input,
+.suggest-form textarea {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  resize: vertical;
+}
+.suggest-form input:focus,
+.suggest-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.suggest-form textarea { min-height: 100px; }
+.suggest-submit {
+  background: var(--accent);
+  color: #08120f;
+  border: none;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.14s, opacity 0.14s;
+  margin-top: 4px;
+}
+[data-theme="light"] .suggest-submit { color: white; }
+.suggest-submit:hover { transform: translateY(-1px); }
+.suggest-submit:disabled { opacity: 0.55; cursor: wait; transform: none; }
+.suggest-status {
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 0;
+  min-height: 18px;
+}
+.suggest-status.ok { color: var(--good); font-weight: 600; }
+.suggest-status.err { color: var(--bad); font-weight: 600; }
+
 /* Sportsbook quick links */
 .book-bar {
   display: flex;
@@ -1097,6 +1325,67 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </div>
 
 <button class="picks-fab" id="picksFab" aria-label="My Picks">⭐<span class="badge-count hidden" id="picksCount">0</span></button>
+<button class="mini-fab tip-fab" id="tipFab" aria-label="Tip the slate" title="Tip the Slate">☕</button>
+<button class="mini-fab suggest-fab" id="suggestFab" aria-label="Send a suggestion" title="Send a suggestion">💡</button>
+
+<!-- Tip Jar Modal -->
+<div class="app-modal" id="tipModal" role="dialog" aria-modal="true" aria-labelledby="tipModalTitle">
+  <div class="app-modal-card">
+    <div class="head">
+      <h3 id="tipModalTitle">☕ Tip The Slate</h3>
+      <button class="close" id="tipModalClose" aria-label="Close">✕</button>
+    </div>
+    <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Pick an amount, then tap PayPal or Venmo. Buttons open the app pre-filled.</div>
+    <div class="tip-amounts" id="tipAmounts">
+      <button class="tip-amount-btn active" data-amt="1">$1</button>
+      <button class="tip-amount-btn" data-amt="5">$5</button>
+      <button class="tip-amount-btn" data-amt="10">$10</button>
+      <button class="tip-amount-btn" data-amt="custom">Custom</button>
+    </div>
+    <input type="number" id="tipCustomAmt" placeholder="Enter amount in $" min="1" step="1" style="display:none; background:var(--glass); border:1px solid var(--glass-border); color:var(--text); border-radius:10px; padding:9px 12px; font-size:13.5px; font-family:inherit; width:100%; box-sizing:border-box; margin-bottom:10px;">
+    <div class="tip-actions">
+      <a id="tipPaypal" class="tip-btn paypal" target="_blank" rel="noopener" href="https://paypal.me/mrwright9/1"><span class="lbl">PayPal</span></a>
+      <a id="tipVenmo" class="tip-btn venmo" target="_blank" rel="noopener" href="https://venmo.com/u/TheDailySlate"><span class="lbl">Venmo</span></a>
+    </div>
+    <button class="tip-qr-toggle" id="tipQrToggle">—  Show QR codes  —</button>
+    <div class="tip-qr-grid" id="tipQrGrid">
+      <div class="tip-qr-cell">
+        <img src="qr-paypal.png" alt="PayPal QR code" loading="lazy">
+        <div class="name">PayPal</div>
+      </div>
+      <div class="tip-qr-cell">
+        <img src="qr-venmo.png" alt="Venmo QR code" loading="lazy">
+        <div class="name">Venmo</div>
+      </div>
+    </div>
+    <div class="tip-qr-hint" id="tipQrHint" style="display:none;">Long-press a QR code to save it to your camera roll</div>
+  </div>
+</div>
+
+<!-- Suggestion Modal -->
+<div class="app-modal" id="suggestModal" role="dialog" aria-modal="true" aria-labelledby="suggestModalTitle">
+  <div class="app-modal-card">
+    <div class="head">
+      <h3 id="suggestModalTitle">💡 Send a Suggestion</h3>
+      <button class="close" id="suggestModalClose" aria-label="Close">✕</button>
+    </div>
+    <div style="font-size:12px; color:var(--text-dim); margin-bottom:10px;">Goes straight to mrwwright9@gmail.com. Anonymous is fine — name and email are optional.</div>
+    <form class="suggest-form" id="suggestForm">
+      <input type="hidden" name="access_key" value="91d553ea-ce3e-41d1-8026-88161a5163e1">
+      <input type="hidden" name="subject" value="The Daily Slate — New Suggestion">
+      <input type="hidden" name="from_name" value="The Daily Slate">
+      <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off">
+      <label for="sgName">Name (optional)</label>
+      <input type="text" id="sgName" name="name" autocomplete="name" placeholder="Your name">
+      <label for="sgEmail">Email (optional, if you want a reply)</label>
+      <input type="email" id="sgEmail" name="email" autocomplete="email" placeholder="you@example.com">
+      <label for="sgMsg">Suggestion</label>
+      <textarea id="sgMsg" name="message" required placeholder="What would make the slate better?"></textarea>
+      <button type="submit" class="suggest-submit" id="sgSubmit">Send</button>
+      <div class="suggest-status" id="sgStatus"></div>
+    </form>
+  </div>
+</div>
 
 <div class="picks-drawer" id="picksDrawer">
   <div class="picks-drawer-header">
@@ -2373,6 +2662,115 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   // (Filter chips + search bar removed per user request)
   let picksFilterOn = false;
   function applyFilters() {}
+
+  // ===== Tip Jar =====
+  const tipFab = document.getElementById('tipFab');
+  const tipModal = document.getElementById('tipModal');
+  const tipModalClose = document.getElementById('tipModalClose');
+  const tipAmounts = document.getElementById('tipAmounts');
+  const tipCustomAmt = document.getElementById('tipCustomAmt');
+  const tipPaypal = document.getElementById('tipPaypal');
+  const tipVenmo = document.getElementById('tipVenmo');
+  const tipQrToggle = document.getElementById('tipQrToggle');
+  const tipQrGrid = document.getElementById('tipQrGrid');
+  const tipQrHint = document.getElementById('tipQrHint');
+  let currentTipAmt = 1;
+
+  function buildTipLinks(amt) {
+    // PayPal.Me supports /amount syntax for pre-fill
+    const a = Math.max(1, Math.round(Number(amt) || 1));
+    tipPaypal.href = 'https://paypal.me/mrwright9/' + a;
+    // Venmo profile link (Venmo doesn't support reliable amount pre-fill via web URL,
+    // so we just open the profile and the user picks the amount)
+    tipVenmo.href = 'https://venmo.com/u/TheDailySlate';
+  }
+  buildTipLinks(1);
+
+  if (tipFab) tipFab.addEventListener('click', () => tipModal.classList.add('open'));
+  if (tipModalClose) tipModalClose.addEventListener('click', () => tipModal.classList.remove('open'));
+  tipModal.addEventListener('click', (e) => { if (e.target === tipModal) tipModal.classList.remove('open'); });
+
+  if (tipAmounts) tipAmounts.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tip-amount-btn');
+    if (!btn) return;
+    tipAmounts.querySelectorAll('.tip-amount-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const amt = btn.dataset.amt;
+    if (amt === 'custom') {
+      tipCustomAmt.style.display = 'block';
+      tipCustomAmt.focus();
+      const v = Number(tipCustomAmt.value) || 1;
+      currentTipAmt = v;
+      buildTipLinks(v);
+    } else {
+      tipCustomAmt.style.display = 'none';
+      currentTipAmt = Number(amt);
+      buildTipLinks(currentTipAmt);
+    }
+  });
+
+  if (tipCustomAmt) tipCustomAmt.addEventListener('input', () => {
+    currentTipAmt = Math.max(1, Number(tipCustomAmt.value) || 1);
+    buildTipLinks(currentTipAmt);
+  });
+
+  if (tipQrToggle) tipQrToggle.addEventListener('click', () => {
+    const isOpen = tipQrGrid.classList.toggle('open');
+    tipQrToggle.textContent = isOpen ? '—  Hide QR codes  —' : '—  Show QR codes  —';
+    tipQrHint.style.display = isOpen ? 'block' : 'none';
+  });
+
+  // ===== Suggestion form =====
+  const suggestFab = document.getElementById('suggestFab');
+  const suggestModal = document.getElementById('suggestModal');
+  const suggestModalClose = document.getElementById('suggestModalClose');
+  const suggestForm = document.getElementById('suggestForm');
+  const sgSubmit = document.getElementById('sgSubmit');
+  const sgStatus = document.getElementById('sgStatus');
+
+  if (suggestFab) suggestFab.addEventListener('click', () => suggestModal.classList.add('open'));
+  if (suggestModalClose) suggestModalClose.addEventListener('click', () => suggestModal.classList.remove('open'));
+  suggestModal.addEventListener('click', (e) => { if (e.target === suggestModal) suggestModal.classList.remove('open'); });
+
+  if (suggestForm) suggestForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    sgStatus.className = 'suggest-status';
+    sgStatus.textContent = 'Sending\u2026';
+    sgSubmit.disabled = true;
+    try {
+      const formData = new FormData(suggestForm);
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: formData
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        sgStatus.className = 'suggest-status ok';
+        sgStatus.textContent = 'Sent! Thanks for the feedback.';
+        suggestForm.reset();
+        setTimeout(() => {
+          suggestModal.classList.remove('open');
+          sgStatus.textContent = '';
+        }, 1600);
+      } else {
+        throw new Error(data && data.message ? data.message : 'Send failed');
+      }
+    } catch (err) {
+      sgStatus.className = 'suggest-status err';
+      sgStatus.textContent = 'Could not send. Try again or email mrwwright9@gmail.com';
+    } finally {
+      sgSubmit.disabled = false;
+    }
+  });
+
+  // Esc closes either modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      tipModal.classList.remove('open');
+      suggestModal.classList.remove('open');
+    }
+  });
 })();
 </script>
 
