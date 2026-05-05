@@ -225,13 +225,30 @@ main { padding: 0 14px; max-width: 880px; margin: 0 auto; }
   box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .toc h2 {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1.2px;
   color: var(--text-dim);
   font-weight: 600;
 }
+.toc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px 0;
+  flex-wrap: wrap;
+}
+.toc-updated {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.toc-updated b { color: var(--accent); font-weight: 700; }
 .toc-grid { display: grid; gap: 6px; }
 .toc a {
   color: var(--text);
@@ -1492,12 +1509,15 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 
 <!-- TOC -->
 <div class="toc">
-  <h2>Jump to Section</h2>
+  <div class="toc-head">
+    <h2>Jump to Section</h2>
+    <span class="toc-updated">Last Updated · <b>May 5 · 5:01 PM EDT</b> (PM Refresh)</span>
+  </div>
   <div class="toc-grid">
     <a href="#methodology">🧪 How We Grade — Sweet Spot × Dimers <span class="arrow">›</span></a>
     <a href="#alignment">📊 Alignment — Sweet Spot Tier Logic <span class="arrow">›</span></a>
     <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
-    <a href="#games">🎮 All 12 Game Write-Ups <span class="arrow">›</span></a>
+    <a href="#games">🎮 All 14 Game Write-Ups <span class="arrow">›</span></a>
     <a href="#k-board">⚡ Full K’s Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
     <a href="#oo5-board">🎯 Top 50 H+R+RBI O 0.5 Board <span class="arrow">›</span></a>
