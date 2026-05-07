@@ -1504,7 +1504,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 
 <main>
 
-<div class="last-updated">Last Updated · <b>May 7 · 10:37 AM EDT</b> · Morning Refresh</div>
+<div class="last-updated">Last Updated · <b>May 7 · 11:46 AM EDT</b> · BallparkPal Integration</div>
 
 <!-- TOC -->
 <div class="toc">
@@ -1517,6 +1517,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <a href="#k-board">⚡ Full K’s Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
     <a href="#oo5-board">🎯 Top 50 H+R+RBI Ov 0.5 Board <span class="arrow">›</span></a>
+    <a href="#totals-board">📈 Game Totals &amp; F5 Board <span class="arrow">›</span></a>
+    <a href="#nrfi-board">🥶 NRFI / YRFI Watch <span class="arrow">›</span></a>
+    <a href="#sb-board">🏃 Stolen Base Targets <span class="arrow">›</span></a>
+    <a href="#dfs-board">💎 DFS Points Leaderboard <span class="arrow">›</span></a>
     <a href="#combos">🎰 10 Lower Alt K’s &amp; H+R+RBI Combos <span class="arrow">›</span></a>
     <a href="#parlays">💣 10 Two-Leg HR Parlays <span class="arrow">›</span></a>
     <a href="#conviction">✅ Full Conviction Board <span class="arrow">›</span></a>
@@ -1701,6 +1705,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
         <tr><td>🚨 Worst ERAs</td><td class="wrap-cell"><b>Cecconi 6.56</b> · Woods Rich 6.49 · Painter 5.28 · Jax 5.14 · Lowder 5.09</td><td>Slate</td></tr>
         <tr><td>🔥 Park Factors</td><td class="wrap-cell">Coors 1.38 🏆 (NYM @ COL) · TEX-NYY 1.13 · PHI 1.10 · PIT-ARI 1.07 (TB 1.01) · SD-STL 0.85 🔻 (lower today)</td><td>Slate</td></tr>
         <tr><td>✅ Confirmed Starters</td><td class="wrap-cell">All 10 games confirmed — no TBDs. Woods Rich V63 = Wood/Abrams T0 double-stack; Gore V50 = Judge T0; Quintana 7.58 H 🏆 = NYM blowup; Painter V54 = T1S group.</td><td>Slate</td></tr>
+        <tr><td>🆕 BallparkPal</td><td class="wrap-cell">BallparkPal data added — independent Monte Carlo confirms all 3 T0s (Judge BPP 32.2% — slate-high; Soto 29.7%; Wood 20.7%; Buxton 23.5% T1L gets BPP boost). NYM-COL Coors total 12.59 = slate-high. Imanaga BPP 6.32 K + Meyer 6.00 (vs Sweet Spot 4.86 / 3.95) = K-Board divergence to monitor.</td><td>BPP</td></tr>
       </tbody>
     </table>
   </div>
@@ -1733,7 +1738,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 1 — MIN vs WSH · Woods Richardson vs Irvin</div>
-        <span class="game-tag">🔥🔥 WOOD T0 (Score 84 + ⚡8 + .420 xwOBA) + ABRAMS T0 (HOT + ⚡5 + .381) vs WOODS RICH V63</span>
+        <span class="game-tag">📊 Total: 10.42 | F5: 5.86 · 🔥🔥 WOOD T0 (Score 84 + ⚡8 + .420 xwOBA) + ABRAMS T0 (HOT + ⚡5 + .381) vs WOODS RICH V63</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1778,7 +1783,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 2 — TEX vs NYY · Gore vs Weathers/Blackburn</div>
-        <span class="game-tag">🔥 JUDGE T0 (⚡8 + .386 ELITE + .454 xwOBA 🏆) vs GORE V50 · 5.83 K top slate</span>
+        <span class="game-tag">📊 Total: 10.07 | F5: 6.05 · 🔥 JUDGE T0 (⚡8 + .386 ELITE + .454 xwOBA 🏆) vs GORE V50 · 5.83 K top slate</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1821,7 +1826,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 3 — NYM @ COL · Scott vs Quintana</div>
-        <span class="game-tag">🏆🏆 QUINTANA 7.58 H 🔴 SLATE-HIGH + COORS 1.38 = NYM T2 PWR BLOWUP</span>
+        <span class="game-tag">📊 Total: 12.59 | F5: 7.36 · 🏆🏆 QUINTANA 7.58 H 🔴 SLATE-HIGH + COORS 1.38 = NYM T2 PWR BLOWUP</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1866,7 +1871,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 4 — ATH @ PHI · Ginn vs Painter</div>
-        <span class="game-tag">🔥 PAINTER V54 ✅ + SODERSTROM/KURTZ/ROOKER T1S | Schwarber/Harper T1L (V33)</span>
+        <span class="game-tag">📊 Total: 9.87 | F5: 5.42 · 🔥 PAINTER V54 ✅ + SODERSTROM/KURTZ/ROOKER T1S | Schwarber/Harper T1L (V33)</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1909,7 +1914,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 5 — CIN vs CHC · Lowder vs Imanaga</div>
-        <span class="game-tag">⚠️ Imanaga K play (V14 ✅) | CHC bats vs Lowder T1L (V39 cap)</span>
+        <span class="game-tag">📊 Total: 10.39 | F5: 5.82 · ⚠️ Imanaga K play (V14 ✅) | CHC bats vs Lowder T1L (V39 cap)</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1951,7 +1956,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 6 — CLE vs KC · Cecconi vs Lugo</div>
-        <span class="game-tag">✅ SAL PEREZ T1S (⚡4 + V56) | CLE bats vs Lugo V14 SKIP HR</span>
+        <span class="game-tag">📊 Total: 10.64 | F5: 6.32 · ✅ SAL PEREZ T1S (⚡4 + V56) | CLE bats vs Lugo V14 SKIP HR</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1992,7 +1997,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 7 — PIT @ ARI · Keller vs Gallen</div>
-        <span class="game-tag">🎯 Gallen 16.90 outs deepest | Lowe PIT T1L (⚡6 + V40 fails)</span>
+        <span class="game-tag">📊 Total: 10.21 | F5: 5.75 · 🎯 Gallen 16.90 outs deepest | Lowe PIT T1L (⚡6 + V40 fails)</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -2034,7 +2039,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 8 — BAL vs MIA · Povich vs Meyer</div>
-        <span class="game-tag">⚠️ BAL bats T2 LEAN (V25 just below 30) | MIA bats SKIP HR (Meyer V14)</span>
+        <span class="game-tag">📊 Total: 8.39 | F5: 4.79 · ⚠️ BAL bats T2 LEAN (V25 just below 30) | MIA bats SKIP HR (Meyer V14)</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -2075,7 +2080,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 9 — TB vs BOS · Jax vs Bennett</div>
-        <span class="game-tag">⚠️ CONTRERAS T1 STRONG (⚡5 + .415 xwOBA + Jax V49 — just under 50) | TB bats SKIP (Bennett V20)</span>
+        <span class="game-tag">📊 Total: 10.00 | F5: 5.67 · ⚠️ CONTRERAS T1 STRONG (⚡5 + .415 xwOBA + Jax V49 — just under 50) | TB bats SKIP (Bennett V20)</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -2116,7 +2121,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">Game 10 — STL vs SD · Liberatore vs King</div>
-        <span class="game-tag">⚠️ STL bats vs King V14 SKIP HR (Walker/Wetherholt O 0.5 only) | Liberatore 4.32 K moderate</span>
+        <span class="game-tag">📊 Total: 9.72 | F5: 5.87 · ⚠️ STL bats vs King V14 SKIP HR (Walker/Wetherholt O 0.5 only) | Liberatore 4.32 K moderate</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -2167,29 +2172,29 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:12px; color:var(--text-dim);">Sourced from MLBP-5.7.26.csv (Morning refresh). <b>Gore 5.83 🏆 = slate's only K above 5 — ULTRA K-LIGHT today.</b> Tier 0 = mandatory; Tier 1 = strong; T2 = lean; NEVER = sub-4.0 Ks or HR-target pitchers. <b>Pitcher H Projected:</b> Quintana 7.58 🔴 🏆 slate-high · Cecconi 6.00 🔴 · Weathers 4.31 ✅ + Painter 4.32 ✅ slate-lows.</p>
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from MLBP-5.7.26.csv (Morning refresh). <b>Gore 5.83 🏆 = slate's only K above 5 — ULTRA K-LIGHT today.</b> Tier 0 = mandatory; Tier 1 = strong; T2 = lean; NEVER = sub-4.0 Ks or HR-target pitchers. <b>Pitcher H Projected:</b> Quintana 7.58 🔴 🏆 slate-high · Cecconi 6.00 🔴 · Weathers 4.31 ✅ + Painter 4.32 ✅ slate-lows. 🆕 BPP cross-check: Imanaga 6.32 + Meyer 6.00 are BPP's top Ks but Sweet Spot rates them lower (4.86 / 3.95) — divergence to monitor. Imanaga QS% 53.1 = highest QS% on slate.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>Tier</th><th>Pitcher</th><th>Proj Ks</th><th>Outs</th><th>Best Line</th><th>Note</th></tr></thead>
+      <thead><tr><th>Tier</th><th>Pitcher</th><th>Proj Ks</th><th>BPP Ks</th><th>QS%</th><th>W%</th><th>HRA</th><th>Outs</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
-        <tr><td><span class="badge b-tier0">TIER 0</span></td><td><b>MacKenzie Gore (TEX)</b> ★</td><td><b>5.83 🏆</b></td><td>15.14</td><td><b>O5+ Mandatory ★</b></td><td class="wrap-cell">ERA 4.67 · vs NYY V50 (bat side Judge T0) · ONLY K over 5 today · H proj 5.07</td></tr>
-        <tr><td><span class="badge b-tier0">TIER 0</span></td><td><b>Michael King (SD)</b></td><td>5.07</td><td>15.53</td><td><b>O5+ Mandatory</b></td><td class="wrap-cell">ERA 2.14 · WHIP 1.04 · vs STL V14 (bat side SKIP HR, K side strong) · H proj 4.63 ✅</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Zac Gallen (ARI)</td><td>4.88</td><td><b>16.90 🏆</b></td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.62 · vs PIT V40 · deepest outs on slate 🏆 · H proj 5.46</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Shota Imanaga (CHC)</td><td>4.86</td><td>16.00</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.23 · WHIP 1.08 · vs CIN V14 (K side strong — bat side SKIP HR) · H proj 4.74</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Cade Povich (BAL)</td><td>4.66</td><td>14.82</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.51 · vs MIA V14 (low bat Vuln) · H proj 5.39</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>JT Ginn (ATH)</td><td>4.53</td><td>14.18</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.57 · vs PHI V33 · H proj 5.25</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Ryan Weathers (NYY)</td><td>4.52</td><td>14.81</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.23 · vs TEX V50 · H proj 4.31 ✅ slate-low · note: Blackburn V31 in slate CSV</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Matthew Liberatore (STL)</td><td>4.32</td><td>15.66</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.51 · vs SD V44 · H proj 5.41 · moderate K profile</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Seth Lugo (KC)</td><td>4.32</td><td><b>16.79</b></td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.77 · vs CLE V56 (HR target side) · deep outs · H proj 5.76</td></tr>
-        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Mitch Keller (PIT)</td><td>4.18</td><td>16.11</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.56 · vs ARI V19 (low bat Vuln) · H proj 5.35</td></tr>
-        <tr><td><span class="badge b-hot">T2 LEAN</span></td><td>Slade Cecconi (CLE)</td><td>4.24</td><td>16.32</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 6.56 + V56 = HR target (KC bats live); K side T2 LEAN · H proj 6.00 🔴</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Simeon Woods Richardson (MIN)</b> 🔥</td><td>3.98</td><td>14.44</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 6.49 + V63 = HR target (Wood/Abrams T0) · H proj 5.37 · K sub-floor</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td>Max Meyer (MIA)</td><td>3.95</td><td>13.24</td><td><b>NEVER</b></td><td class="wrap-cell">Sub-floor Ks · V14 = SKIP HR bat side · H proj 4.57</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td>Christian Scott (NYM)</td><td>3.74</td><td>13.09</td><td><b>NEVER</b></td><td class="wrap-cell">Sub-floor Ks · Coors park caps further · H proj 4.57</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Andrew Painter (PHI)</b> ✅</td><td>3.69</td><td>13.30</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 5.28 + V54 = HR target (ATH T1S stack) · H proj 4.32 ✅ low · K sub-floor</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td>Jake Irvin (WSH)</td><td>3.55</td><td>15.57</td><td><b>NEVER</b></td><td class="wrap-cell">V39 = moderate bat Vuln · Sub-floor K9 · H proj 5.55</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Rhett Lowder (CIN)</b></td><td>3.44</td><td>13.23</td><td><b>NEVER</b></td><td class="wrap-cell">V39 = CHC bat side (T1 LEAN HR, T1S Ov 0.5) · K sub-floor · H proj 4.95</td></tr>
-        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Jose Quintana (COL)</b> 🔴</td><td>3.17</td><td>14.64</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 3.89 + V48 + Coors = NYM blowup target · H proj 7.58 🔴 🏆 slate-high · K floor</td></tr>
+        <tr><td><span class="badge b-tier0">TIER 0</span></td><td><b>MacKenzie Gore (TEX)</b> ★</td><td><b>5.83 🏆</b></td><td>4.92</td><td>17.2%</td><td>12.4%</td><td><span style="color:#dc2626">0.87</span></td><td>15.14</td><td><b>O5+ Mandatory ★</b></td><td class="wrap-cell">ERA 4.67 · vs NYY V50 (bat side Judge T0) · ONLY K over 5 today · H proj 5.07</td></tr>
+        <tr><td><span class="badge b-tier0">TIER 0</span></td><td><b>Michael King (SD)</b></td><td>5.07</td><td><b style="color:#dc2626">5.63</b></td><td>31.4%</td><td>35.1%</td><td>0.68</td><td>15.53</td><td><b>O5+ Mandatory</b></td><td class="wrap-cell">ERA 2.14 · WHIP 1.04 · vs STL V14 (bat side SKIP HR, K side strong) · H proj 4.63 ✅</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Zac Gallen (ARI)</td><td>4.88</td><td>4.26</td><td><b style="color:#16a34a">35.9%</b></td><td>31.2%</td><td>0.75</td><td><b>16.90 🏆</b></td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.62 · vs PIT V40 · deepest outs on slate 🏆 · H proj 5.46</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Shota Imanaga (CHC)</td><td>4.86</td><td><b style="color:#dc2626">6.32</b></td><td><b style="color:#16a34a">53.1%</b></td><td>47.0%</td><td><span style="color:#dc2626">0.91</span></td><td>16.00</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.23 · WHIP 1.08 · vs CIN V14 (K side strong — bat side SKIP HR) · H proj 4.74</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Cade Povich (BAL)</td><td>4.66</td><td>4.10</td><td><b style="color:#16a34a">36.0%</b></td><td>18.9%</td><td>0.58</td><td>14.82</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.51 · vs MIA V14 (low bat Vuln) · H proj 5.39</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>JT Ginn (ATH)</td><td>4.53</td><td><span style="color:#16a34a">3.80</span></td><td>27.7%</td><td>18.5%</td><td>0.48</td><td>14.18</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.57 · vs PHI V33 · H proj 5.25</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Ryan Weathers (NYY)</td><td>4.52</td><td><span style="color:#16a34a">3.71</span></td><td>12.4%</td><td>23.8%</td><td>0.58</td><td>14.81</td><td>O3.5 Strong</td><td class="wrap-cell">ERA 2.23 · vs TEX V50 · H proj 4.31 ✅ slate-low · note: Blackburn V31 in slate CSV</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Matthew Liberatore (STL)</td><td>4.32</td><td><span style="color:#16a34a">3.50</span></td><td>20.4%</td><td>14.1%</td><td><span style="color:#dc2626">0.86</span></td><td>15.66</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.51 · vs SD V44 · H proj 5.41 · moderate K profile</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Seth Lugo (KC)</td><td>4.32</td><td><span style="color:#16a34a">3.57</span></td><td><b style="color:#16a34a">41.0%</b></td><td>33.0%</td><td>0.74</td><td><b>16.79</b></td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.77 · vs CLE V56 (HR target side) · deep outs · H proj 5.76</td></tr>
+        <tr><td><span class="badge b-tier1">TIER 1</span></td><td>Mitch Keller (PIT)</td><td>4.18</td><td><span style="color:#16a34a">3.39</span></td><td>23.6%</td><td>16.0%</td><td>0.61</td><td>16.11</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 2.56 · vs ARI V19 (low bat Vuln) · H proj 5.35</td></tr>
+        <tr><td><span class="badge b-hot">T2 LEAN</span></td><td>Slade Cecconi (CLE)</td><td>4.24</td><td><span style="color:#16a34a">3.00</span></td><td>22.5%</td><td>17.1%</td><td><span style="color:#dc2626">0.90</span></td><td>16.32</td><td>O2.5 Lean</td><td class="wrap-cell">ERA 6.56 + V56 = HR target (KC bats live); K side T2 LEAN · H proj 6.00 🔴</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Simeon Woods Richardson (MIN)</b> 🔥</td><td>3.98</td><td><span style="color:#16a34a">3.46</span></td><td>28.7%</td><td>21.6%</td><td>0.71</td><td>14.44</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 6.49 + V63 = HR target (Wood/Abrams T0) · H proj 5.37 · K sub-floor</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Max Meyer (MIA)</td><td>3.95</td><td><b style="color:#dc2626">6.00</b></td><td><b style="color:#16a34a">41.2%</b></td><td>32.4%</td><td>0.58</td><td>13.24</td><td><b>NEVER</b></td><td class="wrap-cell">Sub-floor Ks · V14 = SKIP HR bat side · H proj 4.57</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Christian Scott (NYM)</td><td>3.74</td><td>4.71</td><td>19.1%</td><td>17.8%</td><td>0.83</td><td>13.09</td><td><b>NEVER</b></td><td class="wrap-cell">Sub-floor Ks · Coors park caps further · H proj 4.57</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Andrew Painter (PHI)</b> ✅</td><td>3.69</td><td>4.63</td><td>31.5%</td><td>24.9%</td><td>0.69</td><td>13.30</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 5.28 + V54 = HR target (ATH T1S stack) · H proj 4.32 ✅ low · K sub-floor</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td>Jake Irvin (WSH)</td><td>3.55</td><td>5.47</td><td>30.7%</td><td>23.3%</td><td><span style="color:#dc2626">0.97</span></td><td>15.57</td><td><b>NEVER</b></td><td class="wrap-cell">V39 = moderate bat Vuln · Sub-floor K9 · H proj 5.55</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Rhett Lowder (CIN)</b></td><td>3.44</td><td><span style="color:#16a34a">3.41</span></td><td>18.5%</td><td>9.8%</td><td>0.70</td><td>13.23</td><td><b>NEVER</b></td><td class="wrap-cell">V39 = CHC bat side (T1 LEAN HR, T1S Ov 0.5) · K sub-floor · H proj 4.95</td></tr>
+        <tr><td><span class="badge b-bad">NEVER</span></td><td><b>Jose Quintana (COL)</b> 🔴</td><td>3.17</td><td><span style="color:#16a34a">2.17</span></td><td>19.7%</td><td>20.9%</td><td><span style="color:#dc2626">0.91</span></td><td>14.64</td><td><b>NEVER</b></td><td class="wrap-cell">ERA 3.89 + V48 + Coors = NYM blowup target · H proj 7.58 🔴 🏆 slate-high · K floor</td></tr>
       </tbody>
     </table>
   </div>
@@ -2207,37 +2212,37 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:12px; color:var(--text-dim);">Sourced from MLBH-5.7.26.csv + MLBP-5.7.26.csv + hr-leaderboard-2026-05-07.csv. Tier 0 ✅ = passes all 3 Sweet Spot must-haves (ZONE ≥ 3, ELITE ISO ≥ .250, pitcher Vuln ≥ 50). <b>🆕 3 TIER 0 plays today (vs 5 yesterday, vs 1 two days ago)</b>: Wood/Abrams/Judge — WSH T0 double-stack + TEX-NYY T0 anchor.</p>
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from MLBH-5.7.26.csv + MLBP-5.7.26.csv + hr-leaderboard-2026-05-07.csv. Tier 0 ✅ = passes all 3 Sweet Spot must-haves (ZONE ≥ 3, ELITE ISO ≥ .250, pitcher Vuln ≥ 50). <b>🆕 3 TIER 0 plays today (vs 5 yesterday, vs 1 two days ago)</b>: Wood/Abrams/Judge — WSH T0 double-stack + TEX-NYY T0 anchor. 🆕 BPP HR% column added — independent Monte Carlo cross-check. <b>All 3 T0s confirmed</b> (Judge BPP 32.2% 🏆, Wood 20.7%, Abrams 15.9%). Strong agreement on Soto/Kurtz/Rooker. Buxton T1L gets BPP boost (23.5%).</p>
   <p style="font-size:12px; color:var(--warn); margin-bottom:10px; border-left:3px solid var(--warn); padding-left:8px;">⚠️ STL bats vs King V14 TRAP: Walker/Wetherholt/Gorman all top Ov 0.5 but King V14 vetoes every STL HR bet. KC bats vs Lugo V14: same rule — Sal Pérez is the only exception (via Cecconi V56 on the other arm). Caminero TB vs Bennett V20 = HR trap.</p>
   <div class="table-wrap">
     <table>
-      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>HR%</th><th>Score</th><th>Zone</th><th>ISO/xwOBA</th><th>Vuln</th><th>Pitcher</th><th>Tier</th></tr></thead>
+      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>Dimers HR%</th><th>BPP HR%</th><th>Score</th><th>Zone</th><th>ISO/xwOBA</th><th>Vuln</th><th>Pitcher</th><th>Tier</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td><b>James Wood</b> ⭐</td><td>WSH</td><td>12.02%</td><td><b>84 🏆 STRONG</b></td><td><b>⚡8</b></td><td><b>.420 xwOBA ELITE</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier0">T0 ✅✅✅ #1</span></td></tr>
-        <tr><td>2</td><td><b>CJ Abrams</b> ⭐</td><td>WSH</td><td>9.27%</td><td><b>80 HOT</b></td><td><b>⚡5</b></td><td><b>.381 xwOBA ELITE</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier0">T0 ✅</span></td></tr>
-        <tr><td>3</td><td><b>Aaron Judge</b> ⭐</td><td>NYY</td><td><b>22.37% 🏆</b></td><td>67 MODERATE</td><td><b>⚡8</b></td><td><b>.386 ISO ELITE + .454 xwOBA 🏆</b></td><td>50</td><td>Gore</td><td><span class="badge b-tier0">T0 ✅</span></td></tr>
-        <tr><td>4</td><td><b>Tyler Soderstrom</b></td><td>ATH</td><td>15.57%</td><td>68 STRONG</td><td>⚡4</td><td><b>.334 xwOBA</b></td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
-        <tr><td>5</td><td><b>Nick Kurtz</b></td><td>ATH</td><td>19.38%</td><td>66 HOT</td><td>⚡4</td><td><b>.386 xwOBA</b></td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
-        <tr><td>6</td><td><b>Brent Rooker</b></td><td>ATH</td><td>17.13%</td><td>52 STRONG</td><td>⚡3</td><td>—</td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
-        <tr><td>7</td><td><b>Salvador Pérez</b></td><td>KC</td><td>12.32%</td><td>67 STRONG</td><td>⚡4</td><td><b>.276 xwOBA</b></td><td>56</td><td>Cecconi</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
-        <tr><td>8</td><td><b>Willson Contreras</b></td><td>BOS</td><td>11.23%</td><td>67 STRONG</td><td>⚡5</td><td><b>.415 xwOBA ELITE</b></td><td>49</td><td>Jax</td><td><span class="badge b-tier1">T1 STRONG (V49 — 1 under)</span></td></tr>
-        <tr><td>9</td><td><b>Shea Langeliers</b></td><td>ATH</td><td>18.25%</td><td>— STRONG</td><td>—</td><td>—</td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1</span></td></tr>
-        <tr><td>10</td><td><b>Brady House</b></td><td>WSH</td><td>8.45%</td><td>71 STRONG</td><td>⚡4</td><td><b>.305 xwOBA</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier1">T1 STRONG (⚡4)</span></td></tr>
-        <tr><td>11</td><td><b>Byron Buxton</b></td><td>MIN</td><td>18.51%</td><td>67 HOT</td><td><b>⚡7</b></td><td><b>.279 ISO</b></td><td>39</td><td>Irvin</td><td><span class="badge b-tier1">T1 LEAN (V39 fails)</span></td></tr>
-        <tr><td>12</td><td><b>Brandon Lowe</b></td><td>PIT</td><td>11.99%</td><td>70 HOT</td><td>⚡6</td><td><b>.367 xwOBA</b></td><td>40</td><td>Gallen</td><td><span class="badge b-tier1">T1 LEAN (V40 fails)</span></td></tr>
-        <tr><td>13</td><td><b>Ben Rice</b></td><td>NYY</td><td>17.01%</td><td>— STRONG</td><td>—</td><td><b>.416 ISO ELITE</b></td><td>50</td><td>Gore</td><td><span class="badge b-tier1">T1 (verify Zone)</span></td></tr>
-        <tr><td>14</td><td><b>Royce Lewis</b></td><td>MIN</td><td>15.10%</td><td>— STRONG</td><td>—</td><td>—</td><td>39</td><td>Irvin</td><td><span class="badge b-tier1">T1 LEAN (V39)</span></td></tr>
-        <tr><td>15</td><td><b>Vinnie Pasquantino</b></td><td>KC</td><td>12.41%</td><td>— STRONG</td><td>—</td><td>—</td><td>56</td><td>Cecconi</td><td><span class="badge b-tier1">T1 (V56 ✅)</span></td></tr>
-        <tr><td>16</td><td><b>Juan Soto</b></td><td>NYM</td><td><b>22.99%</b></td><td>— HOT</td><td>⚡4</td><td>.207</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR (V48 + Coors)</span></td></tr>
-        <tr><td>17</td><td><b>Francisco Alvarez</b></td><td>NYM</td><td>20.63%</td><td>— STRONG</td><td>⚡3</td><td>—</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR</span></td></tr>
-        <tr><td>18</td><td><b>Mark Vientos</b></td><td>NYM</td><td>18.99%</td><td>— STRONG</td><td>⚡4</td><td>.174</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR</span></td></tr>
-        <tr><td>19</td><td><b>Hunter Goodman</b></td><td>COL</td><td>16.54%</td><td>73 HOT</td><td>⚡4</td><td>.312</td><td>42</td><td>Scott</td><td><span class="badge b-warn">T2 (V42 + Coors)</span></td></tr>
-        <tr><td>20</td><td><b>Mickey Moniak</b></td><td>COL</td><td>14.42%</td><td><b>80 HOT</b></td><td>⚡6</td><td>—</td><td>42</td><td>Scott</td><td><span class="badge b-warn">T2 (V42 fails)</span></td></tr>
-        <tr><td>21</td><td><b>Kyle Schwarber</b></td><td>PHI</td><td>22.24%</td><td>— COLD</td><td>⚡5</td><td><b>.312 ELITE</b></td><td>33</td><td>Ginn</td><td><span class="badge b-warn">T1 LEAN (V33 fails)</span></td></tr>
-        <tr><td>22</td><td><b>Bryce Harper</b></td><td>PHI</td><td>16.17%</td><td>— HOT</td><td>⚡5</td><td><b>xwOBA .396</b></td><td>33</td><td>Ginn</td><td><span class="badge b-warn">T1 LEAN (V33 fails)</span></td></tr>
-        <tr><td>23</td><td><b>Junior Caminero</b> ⚠️</td><td>TB</td><td>16.65%</td><td>— STRONG</td><td>⚡6</td><td>.222</td><td>20</td><td>Bennett</td><td><span class="badge b-bad">SKIP HR (V20)</span></td></tr>
-        <tr><td>24</td><td><b>Pete Alonso</b> ⚠️</td><td>BAL</td><td>16.98%</td><td>— STRONG</td><td>—</td><td>.224</td><td>14</td><td>Meyer</td><td><span class="badge b-bad">SKIP HR (V14)</span></td></tr>
-        <tr><td>25</td><td><b>Jordan Walker</b> ⚠️ STL</td><td>STL</td><td>7.93%</td><td>— STRONG</td><td>—</td><td>—</td><td>14</td><td>King</td><td><span class="badge b-bad">SKIP HR (V14) — Ov 0.5 only</span></td></tr>
+        <tr><td>1</td><td><b>James Wood</b> ⭐</td><td>WSH</td><td>12.02%</td><td><b style="color:#16a34a">20.7%</b></td><td><b>84 🏆 STRONG</b></td><td><b>⚡8</b></td><td><b>.420 xwOBA ELITE</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier0">T0 ✅✅✅ #1</span></td></tr>
+        <tr><td>2</td><td><b>CJ Abrams</b> ⭐</td><td>WSH</td><td>9.27%</td><td>15.9%</td><td><b>80 HOT</b></td><td><b>⚡5</b></td><td><b>.381 xwOBA ELITE</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier0">T0 ✅</span></td></tr>
+        <tr><td>3</td><td><b>Aaron Judge</b> ⭐</td><td>NYY</td><td><b>22.37% 🏆</b></td><td><b style="color:#dc2626">32.2%</b></td><td>67 MODERATE</td><td><b>⚡8</b></td><td><b>.386 ISO ELITE + .454 xwOBA 🏆</b></td><td>50</td><td>Gore</td><td><span class="badge b-tier0">T0 ✅</span></td></tr>
+        <tr><td>4</td><td><b>Tyler Soderstrom</b></td><td>ATH</td><td>15.57%</td><td>12.8%</td><td>68 STRONG</td><td>⚡4</td><td><b>.334 xwOBA</b></td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
+        <tr><td>5</td><td><b>Nick Kurtz</b></td><td>ATH</td><td>19.38%</td><td>19.8%</td><td>66 HOT</td><td>⚡4</td><td><b>.386 xwOBA</b></td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
+        <tr><td>6</td><td><b>Brent Rooker</b></td><td>ATH</td><td>17.13%</td><td>17.7%</td><td>52 STRONG</td><td>⚡3</td><td>—</td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
+        <tr><td>7</td><td><b>Salvador Pérez</b></td><td>KC</td><td>12.32%</td><td>19.6%</td><td>67 STRONG</td><td>⚡4</td><td><b>.276 xwOBA</b></td><td>56</td><td>Cecconi</td><td><span class="badge b-tier1">T1 STRONG</span></td></tr>
+        <tr><td>8</td><td><b>Willson Contreras</b></td><td>BOS</td><td>11.23%</td><td>17.9%</td><td>67 STRONG</td><td>⚡5</td><td><b>.415 xwOBA ELITE</b></td><td>49</td><td>Jax</td><td><span class="badge b-tier1">T1 STRONG (V49 — 1 under)</span></td></tr>
+        <tr><td>9</td><td><b>Shea Langeliers</b></td><td>ATH</td><td>18.25%</td><td><span style="color:var(--text-dim)">—</span></td><td>— STRONG</td><td>—</td><td>—</td><td>54</td><td>Painter</td><td><span class="badge b-tier1">T1</span></td></tr>
+        <tr><td>10</td><td><b>Brady House</b></td><td>WSH</td><td>8.45%</td><td>12.5%</td><td>71 STRONG</td><td>⚡4</td><td><b>.305 xwOBA</b></td><td>63</td><td>Woods Rich</td><td><span class="badge b-tier1">T1 STRONG (⚡4)</span></td></tr>
+        <tr><td>11</td><td><b>Byron Buxton</b></td><td>MIN</td><td>18.51%</td><td><b style="color:#16a34a">23.5%</b></td><td>67 HOT</td><td><b>⚡7</b></td><td><b>.279 ISO</b></td><td>39</td><td>Irvin</td><td><span class="badge b-tier1">T1 LEAN (V39 fails)</span></td></tr>
+        <tr><td>12</td><td><b>Brandon Lowe</b></td><td>PIT</td><td>11.99%</td><td>16.2%</td><td>70 HOT</td><td>⚡6</td><td><b>.367 xwOBA</b></td><td>40</td><td>Gallen</td><td><span class="badge b-tier1">T1 LEAN (V40 fails)</span></td></tr>
+        <tr><td>13</td><td><b>Ben Rice</b></td><td>NYY</td><td>17.01%</td><td><span style="color:var(--text-dim)">—</span></td><td>— STRONG</td><td>—</td><td><b>.416 ISO ELITE</b></td><td>50</td><td>Gore</td><td><span class="badge b-tier1">T1 (verify Zone)</span></td></tr>
+        <tr><td>14</td><td><b>Royce Lewis</b></td><td>MIN</td><td>15.10%</td><td><span style="color:var(--text-dim)">—</span></td><td>— STRONG</td><td>—</td><td>—</td><td>39</td><td>Irvin</td><td><span class="badge b-tier1">T1 LEAN (V39)</span></td></tr>
+        <tr><td>15</td><td><b>Vinnie Pasquantino</b></td><td>KC</td><td>12.41%</td><td>18.6%</td><td>— STRONG</td><td>—</td><td>—</td><td>56</td><td>Cecconi</td><td><span class="badge b-tier1">T1 (V56 ✅)</span></td></tr>
+        <tr><td>16</td><td><b>Juan Soto</b></td><td>NYM</td><td><b>22.99%</b></td><td><b style="color:#dc2626">29.7%</b></td><td>— HOT</td><td>⚡4</td><td>.207</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR (V48 + Coors)</span></td></tr>
+        <tr><td>17</td><td><b>Francisco Alvarez</b></td><td>NYM</td><td>20.63%</td><td>17.8%</td><td>— STRONG</td><td>⚡3</td><td>—</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR</span></td></tr>
+        <tr><td>18</td><td><b>Mark Vientos</b></td><td>NYM</td><td>18.99%</td><td>17.8%</td><td>— STRONG</td><td>⚡4</td><td>.174</td><td>48</td><td>Quintana</td><td><span class="badge b-warn">T2 PWR</span></td></tr>
+        <tr><td>19</td><td><b>Hunter Goodman</b></td><td>COL</td><td>16.54%</td><td><b style="color:#16a34a">20.0%</b></td><td>73 HOT</td><td>⚡4</td><td>.312</td><td>42</td><td>Scott</td><td><span class="badge b-warn">T2 (V42 + Coors)</span></td></tr>
+        <tr><td>20</td><td><b>Mickey Moniak</b></td><td>COL</td><td>14.42%</td><td><b style="color:#16a34a">22.0%</b></td><td><b>80 HOT</b></td><td>⚡6</td><td>—</td><td>42</td><td>Scott</td><td><span class="badge b-warn">T2 (V42 fails)</span></td></tr>
+        <tr><td>21</td><td><b>Kyle Schwarber</b></td><td>PHI</td><td>22.24%</td><td>16.7%</td><td>— COLD</td><td>⚡5</td><td><b>.312 ELITE</b></td><td>33</td><td>Ginn</td><td><span class="badge b-warn">T1 LEAN (V33 fails)</span></td></tr>
+        <tr><td>22</td><td><b>Bryce Harper</b></td><td>PHI</td><td>16.17%</td><td>14.4%</td><td>— HOT</td><td>⚡5</td><td><b>xwOBA .396</b></td><td>33</td><td>Ginn</td><td><span class="badge b-warn">T1 LEAN (V33 fails)</span></td></tr>
+        <tr><td>23</td><td><b>Junior Caminero</b> ⚠️</td><td>TB</td><td>16.65%</td><td>13.0%</td><td>— STRONG</td><td>⚡6</td><td>.222</td><td>20</td><td>Bennett</td><td><span class="badge b-bad">SKIP HR (V20)</span></td></tr>
+        <tr><td>24</td><td><b>Pete Alonso</b> ⚠️</td><td>BAL</td><td>16.98%</td><td>15.3%</td><td>— STRONG</td><td>—</td><td>.224</td><td>14</td><td>Meyer</td><td><span class="badge b-bad">SKIP HR (V14)</span></td></tr>
+        <tr><td>25</td><td><b>Jordan Walker</b> ⚠️ STL</td><td>STL</td><td>7.93%</td><td>14.8%</td><td>— STRONG</td><td>—</td><td>—</td><td>14</td><td>King</td><td><span class="badge b-bad">SKIP HR (V14) — Ov 0.5 only</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -2254,6 +2259,24 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
         <tr><td><span class="badge b-warn">T1 LEAN</span></td><td class="wrap-cell">Schwarber PHI (Ginn V33 fails) · Harper PHI (V33 fails) · Goodman/Moniak COL vs Scott V42</td></tr>
         <tr><td><span class="badge b-bad">SKIP HR — King V14 TRAP</span></td><td class="wrap-cell"><b>Walker STL / Wetherholt STL / Gorman STL</b> — all strong Ov 0.5 but King V14 vetoes every STL HR bet</td></tr>
         <tr><td><span class="badge b-bad">SKIP HR (low Vuln)</span></td><td class="wrap-cell">Caminero TB (V20), Alonso BAL (V14), all MIA bats (V14), all CLE bats vs Lugo V14, all STL bats vs King V14</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🎯 Team HR Totals — BPP O 1.5 Probabilities</h3>
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from BallparkPal_Teams.xlsx — full HR distribution. Top 8 teams shown. Use for Team HR Over 1.5 props (DK/FD).</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Team</th><th>Proj HR</th><th>O 0.5%</th><th>O 1.5%</th><th>Proj Runs</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>NYM</b></td><td><b>1.57 🏆</b></td><td>78.3%</td><td><b style="color:#16a34a">46.1%</b></td><td>6.61</td><td class="wrap-cell">Coors blowup — slate-high runs (6.61) + Quintana V48</td></tr>
+        <tr><td>2</td><td><b>NYY</b></td><td>1.54</td><td>79.0%</td><td><b style="color:#16a34a">45.6%</b></td><td>5.57</td><td class="wrap-cell">Judge T0 anchor + Bellinger / Goldschmidt support</td></tr>
+        <tr><td>3</td><td><b>MIN</b></td><td>1.51</td><td>77.8%</td><td><b style="color:#16a34a">44.9%</b></td><td>5.57</td><td class="wrap-cell">Buxton/Wallner/Clemens vs Irvin V39 + Irvin HRA 0.97 slate-high</td></tr>
+        <tr><td>4</td><td><b>COL</b></td><td>1.44</td><td>75.1%</td><td><b style="color:#16a34a">42.3%</b></td><td>5.98</td><td class="wrap-cell">Moniak/Goodman at Coors vs Scott V42</td></tr>
+        <tr><td>5</td><td>CIN</td><td>1.40</td><td>74.5%</td><td>41.2%</td><td>4.11</td><td class="wrap-cell">Steer/De La Cruz vs Imanaga V14 — capped</td></tr>
+        <tr><td>6</td><td>KC</td><td>1.38</td><td>75.3%</td><td>39.8%</td><td>5.49</td><td class="wrap-cell">Pérez/Pasquantino vs Cecconi V56 ✅</td></tr>
+        <tr><td>7</td><td>CHC</td><td>1.33</td><td>73.9%</td><td>38.6%</td><td>6.28</td><td class="wrap-cell">CHC bats vs Lowder V39</td></tr>
+        <tr><td>8</td><td>SD</td><td>1.31</td><td>72.5%</td><td>37.8%</td><td>5.44</td><td class="wrap-cell">Merrill/Tatis vs Liberatore V44</td></tr>
       </tbody>
     </table>
   </div>
@@ -2340,6 +2363,160 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     </table>
   </div>
   <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>NYM vs Quintana V48 + Coors = top group</b> (Vientos/Baty/Soto ~66-68% 1+H + Bichette 72.90% = elite Ov 0.5 cluster). CHC vs Lowder V39 (Ballesteros 64.73% / PCA 63.50%) = strong group 2. WSH T0 stack #15-19 (Wood/Abrams/House/Lile/Mead ~56-58% — lower raw % but Wood/Abrams are T0 HR anchors too). MIN Ov 0.5 #20-24 strong (Buxton/Lewis/Clemens ~61-64%). <b>Group 9 BAL bats #46-48 are elite Ov 0.5 but zero HR — Meyer V14 is absolute HR veto. Total: exactly 50 entries ✅</b></p>
+  </div></div>
+</section>
+
+<!-- TOTALS BOARD -->
+<section id="totals-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">📈 Game Totals & F5 Board — BallparkPal</div>
+      <span class="game-tag">Tap to expand · 10 games · projected totals + F5 splits + ML / F5 ML</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from BallparkPal_Games.xlsx (Monte Carlo simulations). <b>NYM @ COL 12.59 = slate-high total</b> 🏆 · <b>BAL vs MIA 8.39 = slate-low</b> ✅ pitcher's duel. F5 totals isolate the starter window before bullpens.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Game</th><th>Away Runs</th><th>Home Runs</th><th>Total</th><th>F5 Total</th><th>Away ML</th><th>Home ML</th><th>F5 Away</th><th>F5 Home</th></tr></thead>
+      <tbody>
+        <tr><td><b>NYM @ COL</b> 🏆</td><td>6.61 🏆</td><td>5.98</td><td><b style="color:#dc2626">12.59 🏆</b></td><td><b style="color:#dc2626">7.36 🏆</b></td><td>53.4%</td><td>46.6%</td><td>47.2%</td><td>41.1%</td></tr>
+        <tr><td>CLE vs KC</td><td>5.16</td><td>5.49</td><td><b style="color:#dc2626">10.64</b></td><td><b style="color:#dc2626">6.32</b></td><td>46.0%</td><td>54.0%</td><td>38.9%</td><td>48.6%</td></tr>
+        <tr><td>MIN vs WSH</td><td>5.57</td><td>4.85</td><td><b style="color:#dc2626">10.42</b></td><td>5.86</td><td>54.3%</td><td>45.7%</td><td>45.4%</td><td>41.1%</td></tr>
+        <tr><td>CIN vs CHC</td><td>4.11</td><td>6.28</td><td><b style="color:#dc2626">10.39</b></td><td>5.82</td><td>30.4%</td><td>69.6%</td><td>26.0%</td><td>61.7%</td></tr>
+        <tr><td>PIT @ ARI</td><td>4.90</td><td>5.31</td><td>10.21</td><td>5.75</td><td>43.8%</td><td>56.2%</td><td>40.3%</td><td>45.9%</td></tr>
+        <tr><td>TEX vs NYY</td><td>4.50</td><td>5.57</td><td>10.07</td><td>6.05</td><td>37.5%</td><td>62.5%</td><td>35.5%</td><td>52.1%</td></tr>
+        <tr><td>TB vs BOS</td><td>5.14</td><td>4.86</td><td>10.00</td><td>5.67</td><td>49.0%</td><td>51.0%</td><td>45.5%</td><td>43.0%</td></tr>
+        <tr><td>ATH @ PHI</td><td>4.92</td><td>4.96</td><td>9.87</td><td>5.42</td><td>46.3%</td><td>53.7%</td><td>46.0%</td><td>40.1%</td></tr>
+        <tr><td>STL vs SD</td><td>4.28</td><td>5.44</td><td>9.72</td><td>5.87</td><td>35.7%</td><td>64.3%</td><td>33.0%</td><td>53.3%</td></tr>
+        <tr><td><b>BAL vs MIA</b> ✅</td><td>4.14</td><td>4.25</td><td><b style="color:#16a34a">8.39 ✅</b></td><td><b style="color:#16a34a">4.79 ✅</b></td><td>45.3%</td><td>54.7%</td><td>36.7%</td><td>48.2%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>Best plays:</b> NYM @ COL F5 OVER 7.0 (BPP 7.36 = generous edge); BAL vs MIA F5 UNDER 5.0 (BPP 4.79); CLE vs KC F5 OVER 6.0 (deepest F5 on slate); CIN vs CHC F5 split = CHC F5 ML strong (61.7%) given Imanaga QS 53.1%.</p>
+  </div></div>
+</section>
+
+<!-- NRFI BOARD -->
+<section id="nrfi-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🥶 NRFI / YRFI Watch — Day 41</div>
+      <span class="game-tag">Tap to expand · 10 games ranked by 1st-inning scoring probability</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from BallparkPal_Games.xlsx (RunsFirstInningPct). NRFI = No Run First Inning. <b>NYM @ COL 61.4% YRFI = slate-high</b> (Coors + both leadoff packages). <b>BAL vs MIA 50.8% NRFI 🏆</b> = best NRFI play.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Game</th><th>YRFI %</th><th>NRFI %</th><th>Best Play</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>NYM @ COL</b></td><td><b style="color:#dc2626">61.4%</b></td><td>38.6%</td><td><b style="color:#dc2626">YRFI</b> — Coors + Quintana V48</td></tr>
+        <tr><td>2</td><td>CLE vs KC</td><td><b style="color:#dc2626">58.0%</b></td><td>42.0%</td><td><b>YRFI</b> — Cecconi 6.49 ERA + Lugo HRA 0.74</td></tr>
+        <tr><td>3</td><td>PIT @ ARI</td><td>56.5%</td><td>43.5%</td><td>YRFI lean</td></tr>
+        <tr><td>4</td><td>STL vs SD</td><td>55.9%</td><td>44.1%</td><td>YRFI lean — SD home 1st</td></tr>
+        <tr><td>5</td><td>TEX vs NYY</td><td>55.4%</td><td>44.6%</td><td>YRFI — Judge in 2-hole</td></tr>
+        <tr><td>6</td><td>MIN vs WSH</td><td>54.1%</td><td>45.9%</td><td>YRFI lean — Buxton leadoff</td></tr>
+        <tr><td>7</td><td>ATH @ PHI</td><td>51.7%</td><td>48.3%</td><td>Coin flip</td></tr>
+        <tr><td>8</td><td>TB vs BOS</td><td>50.7%</td><td>49.3%</td><td>Coin flip</td></tr>
+        <tr><td>9</td><td>CIN vs CHC</td><td>50.1%</td><td>49.9%</td><td>Coin flip — Imanaga QS 53%</td></tr>
+        <tr><td>10</td><td><b>BAL vs MIA</b> 🏆</td><td>49.2%</td><td><b style="color:#16a34a">50.8% 🏆</b></td><td><b style="color:#16a34a">NRFI</b> — Povich + Meyer both K6.0+ BPP</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>Top picks:</b> YRFI NYM @ COL (61.4%), YRFI CLE vs KC (58.0%) · NRFI BAL vs MIA (50.8% — only NRFI lean on slate).</p>
+  </div></div>
+</section>
+
+<!-- SB BOARD -->
+<section id="sb-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🏃 Stolen Base Targets — Day 41</div>
+      <span class="game-tag">Tap to expand · top 15 SB% (BPP) for PrizePicks / Underdog</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from BallparkPal_Batters.xlsx (StolenBaseProbability). <b>Simpson TB 36.4% = slate-high 🏆</b> (and 0.30% HR = pure speed play). 9 players above 20% — strong SB slate. Most SB props on PrizePicks/Underdog set at 0.5.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>SB%</th><th>Att</th><th>HR%</th><th>Tier</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Simpson</b> 🏆</td><td>TB</td><td><b style="color:#dc2626">36.4% 🏆</b></td><td>0.53</td><td>0.30%</td><td><span class="badge b-tier0">T0 — pure speed</span></td></tr>
+        <tr><td>2</td><td><b>Trea Turner</b></td><td>PHI</td><td><b style="color:#dc2626">25.5%</b></td><td>0.34</td><td>8.40%</td><td><span class="badge b-tier0">T0</span></td></tr>
+        <tr><td>3</td><td><b>Maikel Garcia</b></td><td>KC</td><td><b style="color:#dc2626">25.0%</b></td><td>0.34</td><td>9.40%</td><td><span class="badge b-tier0">T0</span></td></tr>
+        <tr><td>4</td><td><b>Crow-Armstrong</b></td><td>CHC</td><td><b style="color:#dc2626">24.3%</b></td><td>0.35</td><td>13.80%</td><td><span class="badge b-tier0">T0 + HR upside</span></td></tr>
+        <tr><td>5</td><td><b>Esteban Ruiz</b></td><td>MIA</td><td><b style="color:#dc2626">24.2%</b></td><td>0.34</td><td>10.20%</td><td><span class="badge b-tier1">T1</span></td></tr>
+        <tr><td>6</td><td><b>Tatis Jr.</b></td><td>SD</td><td><b style="color:#dc2626">24.0%</b></td><td>0.32</td><td>14.20%</td><td><span class="badge b-tier1">T1 + HR</span></td></tr>
+        <tr><td>7</td><td><b>Nasim Nuñez</b></td><td>WSH</td><td><b style="color:#dc2626">23.8%</b></td><td>0.33</td><td>9.10%</td><td><span class="badge b-tier1">T1</span></td></tr>
+        <tr><td>8</td><td><b>Witt Jr.</b> ⭐</td><td>KC</td><td><b style="color:#dc2626">23.8%</b></td><td>0.33</td><td>18.60%</td><td><span class="badge b-tier1">T1 + HR ELITE</span></td></tr>
+        <tr><td>9</td><td><b>Chisholm</b></td><td>NYY</td><td><b style="color:#dc2626">21.8%</b></td><td>0.30</td><td>14.90%</td><td><span class="badge b-tier1">T1 + HR</span></td></tr>
+        <tr><td>10</td><td><b>De La Cruz</b></td><td>CIN</td><td><b style="color:#dc2626">21.7%</b></td><td>0.30</td><td>18.00%</td><td><span class="badge b-tier1">T1 + HR ELITE — Imanaga V14 cap on HR</span></td></tr>
+        <tr><td>11</td><td>Edwards</td><td>MIA</td><td>20.0%</td><td>0.27</td><td>6.80%</td><td><span class="badge b-tier1">T1</span></td></tr>
+        <tr><td>12</td><td>Keaschall</td><td>MIN</td><td>19.8%</td><td>0.26</td><td>11.20%</td><td><span class="badge b-warn">T2</span></td></tr>
+        <tr><td>13</td><td>Duran</td><td>BOS</td><td>19.8%</td><td>0.24</td><td>12.20%</td><td><span class="badge b-warn">T2</span></td></tr>
+        <tr><td>14</td><td>Cruz</td><td>PIT</td><td>19.4%</td><td>0.27</td><td>15.90%</td><td><span class="badge b-warn">T2 + HR</span></td></tr>
+        <tr><td>15</td><td>Carroll</td><td>ARI</td><td>19.2%</td><td>0.25</td><td>14.40%</td><td><span class="badge b-warn">T2 + HR</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>Best plays:</b> Simpson TB SB 0.5 (lock at 36.4%), Witt Jr. KC SB 0.5 (also T1+HR ELITE — combo candidate), Trea Turner PHI SB 0.5, Crow-Armstrong CHC SB 0.5.</p>
+  </div></div>
+</section>
+
+<!-- DFS BOARD -->
+<section id="dfs-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">💎 DFS Points Leaderboard — Day 41</div>
+      <span class="game-tag">Tap to expand · top 15 batters + top 5 pitchers · DK / FD scoring</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:12px; color:var(--text-dim);">Sourced from BallparkPal_Batters.xlsx + Pitchers.xlsx (PointsDK / PointsFD). Use for DraftKings / FanDuel cash + GPP lineups. <b>Soto NYM 12.61 DK = #1 batter</b> 🏆 (Coors). <b>Imanaga 20.03 DK = #1 pitcher</b>.</p>
+
+  <h3>🥎 Top 15 Batters (DraftKings)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>DK Pts</th><th>FD Pts</th><th>Hits</th><th>HR</th><th>SB</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Soto</b> 🏆</td><td>NYM</td><td><b style="color:#dc2626">12.61 🏆</b></td><td><b>16.94</b></td><td>1.31</td><td>0.34</td><td>0.08</td></tr>
+        <tr><td>2</td><td><b>Judge</b> ⭐</td><td>NYY</td><td><b style="color:#dc2626">11.82</b></td><td><b>16.00</b></td><td>1.11</td><td>0.38</td><td>0.07</td></tr>
+        <tr><td>3</td><td><b>Witt Jr.</b></td><td>KC</td><td><b style="color:#dc2626">10.54</b></td><td>13.74</td><td>1.20</td><td>0.20</td><td>0.27</td></tr>
+        <tr><td>4</td><td><b>Moniak</b></td><td>COL</td><td><b style="color:#dc2626">10.17</b></td><td>13.41</td><td>1.20</td><td>0.25</td><td>0.09</td></tr>
+        <tr><td>5</td><td>Alvarez</td><td>NYM</td><td>9.80</td><td>13.09</td><td>1.20</td><td>0.19</td><td>0.03</td></tr>
+        <tr><td>6</td><td>Buxton</td><td>MIN</td><td>9.76</td><td>12.79</td><td>1.07</td><td>0.26</td><td>0.16</td></tr>
+        <tr><td>7</td><td>Happ</td><td>CHC</td><td>9.65</td><td>13.25</td><td>0.90</td><td>0.18</td><td>0.06</td></tr>
+        <tr><td>8</td><td>Semien</td><td>NYM</td><td>9.61</td><td>12.71</td><td>1.19</td><td>0.15</td><td>0.11</td></tr>
+        <tr><td>9</td><td>Hoerner</td><td>CHC</td><td>9.61</td><td>12.37</td><td>1.32</td><td>0.09</td><td>0.20</td></tr>
+        <tr><td>10</td><td>Tatis Jr.</td><td>SD</td><td>9.60</td><td>12.45</td><td>1.14</td><td>0.15</td><td>0.27</td></tr>
+        <tr><td>11</td><td>Bichette</td><td>NYM</td><td>9.59</td><td>12.40</td><td>1.41</td><td>0.10</td><td>0.10</td></tr>
+        <tr><td>12</td><td>Perdomo</td><td>ARI</td><td>9.58</td><td>12.54</td><td>1.16</td><td>0.13</td><td>0.16</td></tr>
+        <tr><td>13</td><td>Wood ⭐</td><td>WSH</td><td>9.55</td><td>12.73</td><td>1.00</td><td>0.22</td><td>0.12</td></tr>
+        <tr><td>14</td><td>Ramirez</td><td>CLE</td><td>9.36</td><td>12.30</td><td>1.09</td><td>0.15</td><td>0.19</td></tr>
+        <tr><td>15</td><td>Merrill</td><td>SD</td><td>9.35</td><td>12.30</td><td>1.13</td><td>0.20</td><td>0.11</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:14px;">⚾ Top 5 Pitchers (DraftKings)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Pitcher</th><th>Tm</th><th>DK Pts</th><th>FD Pts</th><th>Ks</th><th>Innings</th><th>QS%</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>Imanaga</b> 🏆</td><td>CHC</td><td><b style="color:#dc2626">20.03 🏆</b></td><td><b>35.35</b></td><td>6.32</td><td>6.04</td><td><b style="color:#16a34a">53.1%</b></td></tr>
+        <tr><td>2</td><td><b>Meyer</b></td><td>MIA</td><td><b style="color:#dc2626">17.41</b></td><td>31.82</td><td>6.00</td><td>5.60</td><td>41.2%</td></tr>
+        <tr><td>3</td><td><b>King</b></td><td>SD</td><td>15.48</td><td>28.75</td><td>5.63</td><td>5.15</td><td>31.4%</td></tr>
+        <tr><td>4</td><td>Irvin</td><td>WSH</td><td>13.42</td><td>26.11</td><td>5.47</td><td>5.24</td><td>30.7%</td></tr>
+        <tr><td>5</td><td>Gallen</td><td>ARI</td><td>12.41</td><td>24.41</td><td>4.26</td><td>5.39</td><td>35.9%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px; color:var(--text-dim); margin-top:10px;"><b>Stack candidates:</b> NYM (Soto/Alvarez/Semien/Bichette = 4 in top 11), NYY (Judge), CHC (Happ/Hoerner + Imanaga). <b>Avoid stacking:</b> STL/MIA/BAL (no players in top 15).</p>
   </div></div>
 </section>
 
