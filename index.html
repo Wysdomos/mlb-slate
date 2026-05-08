@@ -957,7 +957,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <table class="matrix-table">
+  <div class="table-wrap"><table class="matrix-table">
     <thead><tr><th>Tier</th><th>SS Score</th><th>⚡ Zone</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
     <tbody>
       <tr><td><strong>T0</strong></td><td>≥75</td><td>≥7⚡</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
@@ -965,7 +965,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       <tr><td><strong>T2</strong></td><td>50–64</td><td>3–4⚡</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
       <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;3</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
     </tbody>
-  </table>
+  </table></div>
   <div class="tldr-box">
     <h4>May 8 Park Summary</h4>
     <p><strong>11 of 15 parks are HR-suppressing today.</strong> Only 4 boosters: LAD +9%, KC +8%, MIL +6%, GABP +5%. Camden -17% and Oracle -20% are the worst. Citizens Bank -24% weather penalty (COL@PHI). Any HR play in a sub-0% park needs elite ISO + V60+ to survive the downgrade.</p>
@@ -2241,6 +2241,26 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     th.style.width = '32px';
     th.textContent = '';
     tr.appendChild(th);
+  });
+
+  // ---- Inject star buttons into combos-k + combos-hrr flag-row cards ----
+  document.querySelectorAll('#combos-k .flag-row, #combos-hrr .flag-row').forEach(function(row) {
+    if (row.querySelector('.pick-btn')) return;
+    // Build pick id from the bold strong text (player + prop description)
+    const strong = row.querySelector('strong');
+    if (!strong) return;
+    const sectionEl = row.closest('section');
+    const sectionTag = sectionEl && sectionEl.id === 'combos-hrr' ? 'HRR' : 'AltK';
+    const sig = sectionTag + ' • ' + strong.textContent.trim().slice(0, 110);
+    row.setAttribute('data-pick-id', sig);
+    const btn = document.createElement('button');
+    btn.className = 'pick-btn';
+    btn.setAttribute('aria-label', 'Toggle pick');
+    btn.dataset.pickId = sig;
+    btn.style.marginLeft = 'auto';
+    btn.style.alignSelf = 'flex-start';
+    if (picks.indexOf(sig) !== -1) btn.classList.add('picked');
+    row.appendChild(btn);
   });
 
   // ---- Picks state ----
