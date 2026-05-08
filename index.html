@@ -189,6 +189,36 @@ header {
   font-family: inherit;
 }
 .theme-fab:active { transform: scale(0.92); }
+.glossary-fab {
+  position: fixed;
+  bottom: 80px; /* sits above the theme-fab (theme-fab is at bottom:22) */
+  left: 14px;
+  z-index: 200;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-border-strong);
+  color: var(--text);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.18);
+  transition: transform 0.2s, background 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+.glossary-fab:active { transform: scale(0.92); }
+.glossary-fab:hover { background: var(--glass); }
+
+/* Glossary table specific styling */
+.glossary-table td:first-child { white-space: nowrap; }
+.glossary-table td:nth-child(2),
+.glossary-table td:nth-child(3) { font-size: 12px; line-height: 1.45; }
 main { padding: 0 14px; max-width: 880px; margin: 0 auto; }
 .glass {
   background: var(--glass);
@@ -723,6 +753,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </header>
 
 <button class="theme-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>
+<a class="glossary-fab" href="#glossary" id="glossaryFab" aria-label="Open glossary" title="Glossary — all abbreviations">📖</a>
 
 <div class="install-banner" id="installBanner">
   <span class="ib-icon">📲</span>
@@ -816,19 +847,20 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 <div class="toc">
   <h2>Jump to Section</h2>
   <div class="toc-grid">
-    <a href="#methodology">🧪 How We Grade — Sweet Spot × Dimers <span class="arrow">›</span></a>
+    <a href="#methodology"><strong>🧪 How We Grade — MUST READ 📖</strong> <span class="arrow">›</span></a>
     <a href="#alignment">📊 Alignment — Sweet Spot Tier Logic <span class="arrow">›</span></a>
     <a href="#headlines">📅 Slate Headlines + Flags <span class="arrow">›</span></a>
+    <a href="#park-board">🏟 Park Factors Board <span class="arrow">›</span></a>
     <a href="#games">🎮 All 15 Game Write-Ups <span class="arrow">›</span></a>
     <a href="#k-board">⚡ Full K's Tier Board <span class="arrow">›</span></a>
     <a href="#hr-board">🏆 Top 25 HR Board <span class="arrow">›</span></a>
     <a href="#oo5-board">🎯 Top 50 Ov 0.5 Hits <span class="arrow">›</span></a>
-    <a href="#park-board">🏟 Park Factors Board <span class="arrow">›</span></a>
     <a href="#totals-board">📈 Game Totals &amp; F5 Board <span class="arrow">›</span></a>
     <a href="#nrfi-board">🥶 NRFI / YRFI Watch <span class="arrow">›</span></a>
     <a href="#sb-board">🏃 Stolen Base Targets <span class="arrow">›</span></a>
     <a href="#dfs-board">💎 DFS Points Leaderboard <span class="arrow">›</span></a>
-    <a href="#combos">🎰 10 Lower Alt K's &amp; H+R+RBI Combos <span class="arrow">›</span></a>
+    <a href="#combos-k">⚡ Alt K Combos <span class="arrow">›</span></a>
+    <a href="#combos-hrr">🎯 H+R+RBI Combos <span class="arrow">›</span></a>
     <a href="#parlays">💣 Parlay Anchors <span class="arrow">›</span></a>
     <a href="#conviction">✅ Full Conviction Board <span class="arrow">›</span></a>
     <a href="#skip">📋 Daily Skip List <span class="arrow">›</span></a>
@@ -839,7 +871,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 <section id="methodology" class="collapsible" data-no-picks>
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">🧪 How We Grade — Sweet Spot × Dimers</div>
+      <div class="game-title">🧪 How We Grade — <strong>MUST READ 📖</strong></div>
       <span class="game-tag">Tap to expand · the formula behind every play</span>
     </div>
     <span class="chevron">▾</span>
@@ -870,11 +902,48 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     </div>
   </div>
   <div class="flow-steps">
-    <div class="flow-step gate"><div class="num">1</div><div><h5>SWEET SPOT MUST-HAVES <span class="badge b-bad" style="margin-left:6px;">GATE</span></h5><div class="req"><code>ZONE ≥ 3⚡</code> AND <code>ELITE ISO ≥ .250</code> AND <code>Pitcher Vuln ≥ 50</code></div><div class="why">All three required for T0/T1. Fail any one → T2/3 or skip, regardless of Dimers.</div></div></div>
+    <div class="flow-step gate"><div class="num">1</div><div><h5>SWEET SPOT MUST-HAVES <span class="badge b-bad" style="margin-left:6px;">GATE</span></h5><div class="req"><code>⚡ ZONE ≥ 3</code> AND <code>ELITE ISO ≥ .250</code> AND <code>Pitcher Vuln ≥ 50</code></div><div class="why">All three required for T0/T1. Fail any one → T2/3 or skip, regardless of Dimers.</div></div></div>
     <div class="flow-step support"><div class="num">2</div><div><h5>PARK FACTOR OVERLAY <span class="badge b-warn" style="margin-left:6px;">NEW</span></h5><div class="req">HR% from ParkFactors_2026 includes stadium history + day-of weather. ≥+5% boosts; ≤-10% downgrades; ≤-17% skip Camden/Oracle-tier penalty.</div><div class="why">Schwarber, Henderson, Rutschman, Cruz, Lowe all carry park penalties today.</div></div></div>
     <div class="flow-step confirm"><div class="num">3</div><div><h5>TIER 3 CONFIRMERS <span class="badge b-cold" style="margin-left:6px;">STACK</span></h5><div class="req"><code>Barrel% ≥ 8%</code> · <code>xwOBA ≥ .330</code> · <code>Exit Velo ≥ 90</code> · <code>BPP HR% ≥ 20%</code></div></div></div>
     <div class="flow-step price"><div class="num">4</div><div><h5>DIMERS CONFIRM <span class="badge b-hot" style="margin-left:6px;">PRICE</span></h5><div class="req">Cross-check Dimers HR% and 1+H% to rank within tier. T0 requires Dimers HR ≥ 12% AND BPP HR ≥ 10%.</div></div></div>
   </div>
+
+  <!-- GLOSSARY -->
+  <h3 id="glossary" style="margin-top:24px; padding-top:16px; border-top:1px solid var(--glass-border); display:flex; align-items:center; gap:8px;">📖 Glossary — All Abbreviations</h3>
+  <p style="font-size:12px; color:var(--text-dim); margin-bottom:14px;">Tap the floating 📖 icon (lower-left, above the theme toggle) anywhere on the site to jump back here.</p>
+  <div class="table-wrap"><table class="glossary-table">
+    <thead><tr><th>Abbrev</th><th>Meaning</th><th>Source / Use</th></tr></thead>
+    <tbody>
+      <tr><td><strong>T0 / T1 / T2 / T3</strong></td><td>Tier 0 / 1 / 2 / 3 — confidence tiers</td><td>Internal grading. T0 = passes all 3 floors; T1 = 2 of 3; T2 = blowup ride; T3 = skip.</td></tr>
+      <tr><td><strong>⚡ ZONE</strong> (1–8)</td><td>Sweet Spot batter heat zone vs today's pitcher</td><td>Sweet Spot. ⚡5+ = premium. ⚡3 = T0/T1 floor.</td></tr>
+      <tr><td><strong>SS</strong></td><td>Sweet Spot — internal HR/K projection model</td><td>Quality input (how good the spot is, before market price).</td></tr>
+      <tr><td><strong>BPP</strong></td><td>BallparkPal — Monte Carlo simulation model</td><td>Independent cross-check on HR%, K%, SB%, DK/FD points.</td></tr>
+      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>Sweet Spot. 70+ TARGET, 50–69 STRONG, 32–49 MODERATE.</td></tr>
+      <tr><td><strong>ELITE ISO</strong></td><td>Isolated Power ≥ .250</td><td>HR floor requirement.</td></tr>
+      <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Quality of contact metric. ≥ .330 = T3 confirmer.</td></tr>
+      <tr><td><strong>Barrel%</strong></td><td>Percentage of batted balls hit at “barrel” quality</td><td>Statcast. ≥ 8% = T3 confirmer.</td></tr>
+      <tr><td><strong>HH%</strong></td><td>Hard-Hit % (exit velo ≥ 95 mph)</td><td>Statcast.</td></tr>
+      <tr><td><strong>Exit Velo / EV</strong></td><td>Average exit velocity in mph</td><td>Statcast. ≥ 90 = T3 confirmer.</td></tr>
+      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>Dimers (market) or BPP (model).</td></tr>
+      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥ 1 hit</td><td>Dimers.</td></tr>
+      <tr><td><strong>Ov 0.5 / O 0.5</strong></td><td>Over 0.5 — prop bet line (≥ 1 of stat)</td><td>Used for Hits, RBIs, HR, SB props.</td></tr>
+      <tr><td><strong>HRR / H+R+RBI</strong></td><td>Hits + Runs + RBIs combined prop</td><td>PrizePicks/Underdog “Fantasy Score”-style stat.</td></tr>
+      <tr><td><strong>Alt K</strong></td><td>Alternate strikeout line</td><td>Lower line for safer pricing. Rules: ≥5 SS → O 5+; 4.5–4.99 → O 3.5; 4.0–4.49 → O 2.5; &lt;4 → SKIP.</td></tr>
+      <tr><td><strong>QS%</strong></td><td>Quality Start probability (≥ 6 IP, ≤ 3 ER)</td><td>BPP.</td></tr>
+      <tr><td><strong>HRA</strong></td><td>Home Runs Allowed (projected)</td><td>BPP. ≥ 0.85 = red flag.</td></tr>
+      <tr><td><strong>NRFI / YRFI</strong></td><td>No Run First Inning / Yes Run First Inning</td><td>BPP RunsFirstInningPct.</td></tr>
+      <tr><td><strong>F5</strong></td><td>First 5 innings (totals + ML)</td><td>Isolates starter window before bullpens.</td></tr>
+      <tr><td><strong>SB%</strong></td><td>Stolen Base probability</td><td>BPP.</td></tr>
+      <tr><td><strong>DK / FD</strong></td><td>DraftKings / FanDuel — daily fantasy scoring</td><td>BPP PointsDK / PointsFD.</td></tr>
+      <tr><td><strong>Park%</strong></td><td>Park HR% (combined stadium history + day-of weather)</td><td>ParkFactors_2026 daily file. ≥ +5 booster, ≤ -10 suppressor, ≤ -17 avoid.</td></tr>
+      <tr><td><strong>Score</strong></td><td>Sweet Spot composite HR score 0–100</td><td>Sweet Spot Analyzer. 70+ = elite floor.</td></tr>
+      <tr><td><strong>WHIP</strong></td><td>Walks + Hits per Inning Pitched</td><td>Standard. ≤ 1.10 = elite.</td></tr>
+      <tr><td><strong>K9 / BB9</strong></td><td>Strikeouts / Walks per 9 IP</td><td>Standard.</td></tr>
+      <tr><td><strong>ML / F5 ML</strong></td><td>Moneyline / First-5 Moneyline</td><td>BPP win probabilities.</td></tr>
+      <tr><td><strong>O / U</strong></td><td>Over / Under</td><td>Standard prop terminology.</td></tr>
+      <tr><td><strong>R/L Splits</strong></td><td>Right- / Left-handed pitcher splits</td><td>Platoon edge factor.</td></tr>
+    </tbody>
+  </table></div>
   </div></div>
 </section>
 
@@ -889,7 +958,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   </button>
   <div class="game-body"><div class="game-body-inner">
   <table class="matrix-table">
-    <thead><tr><th>Tier</th><th>SS Score</th><th>Zone</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Tier</th><th>SS Score</th><th>⚡ Zone</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
     <tbody>
       <tr><td><strong>T0</strong></td><td>≥75</td><td>≥7⚡</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
       <tr><td><strong>T1</strong></td><td>65–74</td><td>5–6⚡</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
@@ -908,7 +977,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 <section id="headlines">
   <h2>📅 May 8 Slate Headlines + Flags</h2>
   <div class="flag-row"><div class="icon">🏆</div><div><strong>Park Factors fully integrated.</strong> Only 4 parks boost HRs today (LAD +9%, KC +8%, MIL +6%, GABP +5%). Camden -17% and Oracle -20% gut HR boards — Henderson, Rutschman, Alonso, Cruz, Lowe all downgraded to SKIP-tier.</div></div>
-  <div class="flag-row"><div class="icon">🏆</div><div><strong>Elly De La Cruz is the sole T0 HR play.</strong> Score 80, ZN·8, .370 xwOBA, 16.8% Barrel%, vs Burrows V70 (5.97 ERA) + GABP +5% park boost. BPP: 14.0% HR / 29.1% SB / 8.83 DK. The anchor of the slate.</div></div>
+  <div class="flag-row"><div class="icon">🏆</div><div><strong>Elly De La Cruz is the sole T0 HR play.</strong> Score 80, ⚡8, .370 xwOBA, 16.8% Barrel%, vs Burrows V70 (5.97 ERA) + GABP +5% park boost. BPP: 14.0% HR / 29.1% SB / 8.83 DK. The anchor of the slate.</div></div>
   <div class="flag-row"><div class="icon">⚡</div><div><strong>K-Slate of the week.</strong> Misiorowski leads at 8.91 BPP Ks (slate-high). Luzardo 8.27 BPP / QS 61.9% (also slate-high). Cease 8.20 BPP / 6.20 SS. Brown 6.74 SS (divergence: BPP only 3.44). Five elite strikeout arms on one card — best K-slate of the week.</div></div>
   <div class="flag-row"><div class="icon">⚠</div><div><strong>Schwarber DOWNGRADED despite Dimers 22.83% HR.</strong> Citizens Bank today carries -9% stadium HR + -24% weather penalty. Rain and wind forecasted for COL@PHI. Schwarber drops from lock to hit-only. Do NOT play HR at Citizens Bank today.</div></div>
   <div class="flag-row"><div class="icon">🥶</div><div><strong>MIN @ CLE NRFI 59.8% — slate-best.</strong> Prielipp and Messick (QS 58%) combine for lowest BPP total (7.88) + lowest YRFI on board. Best pure NRFI spot of the day. Also stack with COL@PHI NRFI (Luzardo + park weather).</div></div>
@@ -916,6 +985,41 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </section>
 
 <!-- GAMES SECTION -->
+<!-- PARK FACTORS BOARD (moved above games) -->
+<section id="park-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🏟 Park Factors Board — Day 42</div>
+      <span class="game-tag">Tap to expand · 15 venues · HR%/Runs%/Weather adjustments</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:12px;">Sourced from ParkFactors_2026-05-08. Combines stadium history + day-of weather. <strong>Slate is HR-suppressing</strong> — only 4 boosters today (LAD, KC, MIL, GABP). All other parks are neutral-to-heavy suppress.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Game</th><th>Venue</th><th>HR%</th><th>Runs%</th><th>Weather HR%</th><th>Stadium HR%</th><th>Lean</th></tr></thead>
+    <tbody>
+      <tr class="row-tier0"><td>ATL @ LAD</td><td>Dodger Stadium</td><td><strong style="color:var(--good)">+9%</strong></td><td>-4%</td><td style="color:var(--bad)">-7%</td><td style="color:var(--good)">+17%</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
+      <tr class="row-tier0"><td>DET @ KC</td><td>Kauffman Stadium</td><td><strong style="color:var(--good)">+8%</strong></td><td>+1%</td><td style="color:var(--bad)">-4%</td><td style="color:var(--good)">+12%</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
+      <tr class="row-tier1"><td>NYY @ MIL</td><td>American Family Fld</td><td><strong style="color:var(--good)">+6%</strong></td><td>-5%</td><td style="color:var(--bad)">-4%</td><td style="color:var(--good)">+10%</td><td><span class="badge b-tier1">HR-Friendly</span></td></tr>
+      <tr class="row-tier1"><td>HOU @ CIN</td><td>Great American BP</td><td><strong style="color:var(--good)">+5%</strong></td><td>+1%</td><td style="color:var(--bad)">-8%</td><td style="color:var(--good)">+13%</td><td><span class="badge b-tier1">HR-Friendly</span></td></tr>
+      <tr><td>LAA @ TOR</td><td>Rogers Centre</td><td>+1%</td><td>-6%</td><td>-4%</td><td>+5%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
+      <tr><td>NYM @ ARI</td><td>Chase Field</td><td><span style="color:var(--bad)">-8%</span></td><td>+1%</td><td>0%</td><td>-8%</td><td><span class="badge b-warn">HR-Suppress</span></td></tr>
+      <tr><td>STL @ SD</td><td>Petco Park</td><td><span style="color:var(--bad)">-8%</span></td><td>-11%</td><td>-4%</td><td>-4%</td><td><span class="badge b-warn">HR-Suppress</span></td></tr>
+      <tr><td>MIN @ CLE</td><td>Progressive Field</td><td><span style="color:var(--bad)">-4%</span></td><td>-3%</td><td>+1%</td><td>-5%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
+      <tr><td>SEA @ CHW</td><td>Rate Field</td><td><span style="color:var(--bad)">-4%</span></td><td>-4%</td><td>-6%</td><td>+2%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
+      <tr><td>COL @ PHI</td><td>Citizens Bank Park</td><td><strong style="color:var(--bad)">-9%</strong></td><td>0%</td><td><strong style="color:var(--bad)">-24%</strong></td><td style="color:var(--good)">+15%</td><td><span class="badge b-bad">HR-Suppress ⛈</span></td></tr>
+      <tr><td>CHC @ TEX</td><td>Globe Life Field</td><td><strong style="color:var(--bad)">-11%</strong></td><td>-8%</td><td>-1%</td><td>-10%</td><td><span class="badge b-bad">HR-Suppress</span></td></tr>
+      <tr><td>TB @ BOS</td><td>Fenway Park</td><td><strong style="color:var(--bad)">-13%</strong></td><td>+8%</td><td>-7%</td><td>-6%</td><td><span class="badge b-bad">HR-Suppress +2B/3B</span></td></tr>
+      <tr><td>WAS @ MIA</td><td>LoanDepot Park</td><td><strong style="color:var(--bad)">-15%</strong></td><td>-6%</td><td>0%</td><td>-15%</td><td><span class="badge b-bad" style="color:var(--bad)">Heavy Suppress</span></td></tr>
+      <tr><td>ATH @ BAL</td><td>Oriole Park</td><td><strong style="color:#dc2626">-17%</strong></td><td>0%</td><td><strong style="color:var(--bad)">-11%</strong></td><td>-6%</td><td><span class="badge b-bad" style="background:rgba(220,38,38,0.18);color:#dc2626;border-color:#dc2626">HEAVY Suppress</span></td></tr>
+      <tr><td>PIT @ SF</td><td>Oracle Park</td><td><strong style="color:#dc2626">-20%</strong></td><td>-9%</td><td style="color:var(--bad)">-5%</td><td>-15%</td><td><span class="badge b-bad" style="background:rgba(220,38,38,0.18);color:#dc2626;border-color:#dc2626">SLATE-WORST</span></td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">Combined HR% = stadium history + day-of weather. Green = ≥+5% (HR booster). Red = ≤-10% (HR suppressor). Dark red = ≤-15% (avoid HR plays). Citizens Bank: weather alone -24% today despite stadium +15%.</p>
+  </div></div>
+</section>
+
 <section id="games">
   <h2>🎮 All 15 Game Write-Ups — Ordered by Start Time</h2>
   <p style="font-size:12px; color:var(--text-dim); margin:0 0 12px;">Times shown are ET. Tap any game to expand pitchers, HR targets, and park notes.</p>
@@ -940,13 +1044,13 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-tier0"><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>80</td><td>ZN·8</td><td>13.76%</td><td>14.0%</td><td>60.45%</td><td><span class="badge b-tier0">T0</span></td></tr>
-          <tr class="row-tier1"><td>Sal Stewart</td><td>CIN</td><td>74</td><td>ZN·7</td><td>13.45%</td><td>19.2%</td><td>61.26%</td><td><span class="badge b-tier1">T1</span></td></tr>
-          <tr class="row-tier1"><td>JJ Bleday</td><td>CIN</td><td>—</td><td>ZN·4</td><td>15.35%</td><td>17.5%</td><td>56.80%</td><td><span class="badge b-tier1">T1</span></td></tr>
-          <tr><td>Yordan Alvarez</td><td>HOU</td><td>61</td><td>ZN·8</td><td>17.61%</td><td>18.8%</td><td>59.95%</td><td><span class="badge b-warn">T2</span></td></tr>
-          <tr><td>Christian Walker</td><td>HOU</td><td>65</td><td>ZN·6</td><td>14.89%</td><td>14.3%</td><td>54.66%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr class="row-tier0"><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>80</td><td>⚡8</td><td>13.76%</td><td>14.0%</td><td>60.45%</td><td><span class="badge b-tier0">T0</span></td></tr>
+          <tr class="row-tier1"><td>Sal Stewart</td><td>CIN</td><td>74</td><td>⚡7</td><td>13.45%</td><td>19.2%</td><td>61.26%</td><td><span class="badge b-tier1">T1</span></td></tr>
+          <tr class="row-tier1"><td>JJ Bleday</td><td>CIN</td><td>—</td><td>⚡4</td><td>15.35%</td><td>17.5%</td><td>56.80%</td><td><span class="badge b-tier1">T1</span></td></tr>
+          <tr><td>Yordan Alvarez</td><td>HOU</td><td>61</td><td>⚡8</td><td>17.61%</td><td>18.8%</td><td>59.95%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr><td>Christian Walker</td><td>HOU</td><td>65</td><td>⚡6</td><td>14.89%</td><td>14.3%</td><td>54.66%</td><td><span class="badge b-warn">T2</span></td></tr>
         </tbody>
       </table></div>
       <h3>Park Factor</h3>
@@ -975,12 +1079,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-tier1"><td>Bryce Harper</td><td>PHI</td><td>64</td><td>ZN·6</td><td>16.79%</td><td>15.1%</td><td>62.16%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
-          <tr class="row-warn"><td><s>Kyle Schwarber</s> <span style="color:var(--bad)">(SKIP HR)</span></td><td>PHI</td><td>—</td><td>ZN·7</td><td>22.83%</td><td>20.7%</td><td>56.81%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
-          <tr><td>Hunter Goodman</td><td>COL</td><td>73</td><td>ZN·7</td><td>—</td><td>13.1%</td><td>57.0%</td><td><span class="badge b-warn">T2</span></td></tr>
-          <tr><td>Mickey Moniak</td><td>COL</td><td>71</td><td>ZN·7</td><td>—</td><td>8.8%</td><td>60.6%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr class="row-tier1"><td>Bryce Harper</td><td>PHI</td><td>64</td><td>⚡6</td><td>16.79%</td><td>15.1%</td><td>62.16%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
+          <tr class="row-warn"><td><s>Kyle Schwarber</s> <span style="color:var(--bad)">(SKIP HR)</span></td><td>PHI</td><td>—</td><td>⚡7</td><td>22.83%</td><td>20.7%</td><td>56.81%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+          <tr><td>Hunter Goodman</td><td>COL</td><td>73</td><td>⚡7</td><td>—</td><td>13.1%</td><td>57.0%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr><td>Mickey Moniak</td><td>COL</td><td>71</td><td>⚡7</td><td>—</td><td>8.8%</td><td>60.6%</td><td><span class="badge b-warn">T2</span></td></tr>
         </tbody>
       </table></div>
       <h3>Park Factor</h3>
@@ -1009,11 +1113,11 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-bad"><td><s>Gunnar Henderson</s></td><td>BAL</td><td>70</td><td>ZN·5</td><td>14.01%</td><td>13.1%</td><td>60.17%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
-          <tr class="row-bad"><td><s>Pete Alonso</s></td><td>BAL</td><td>73</td><td>ZN·4</td><td>17.52%</td><td>13.4%</td><td>58.93%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
-          <tr class="row-bad"><td><s>Brent Rooker</s></td><td>ATH</td><td>57</td><td>ZN·3</td><td>16.24%</td><td>12.4%</td><td>57.83%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+          <tr class="row-bad"><td><s>Gunnar Henderson</s></td><td>BAL</td><td>70</td><td>⚡5</td><td>14.01%</td><td>13.1%</td><td>60.17%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+          <tr class="row-bad"><td><s>Pete Alonso</s></td><td>BAL</td><td>73</td><td>⚡4</td><td>17.52%</td><td>13.4%</td><td>58.93%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+          <tr class="row-bad"><td><s>Brent Rooker</s></td><td>ATH</td><td>57</td><td>⚡3</td><td>16.24%</td><td>12.4%</td><td>57.83%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
           <tr><td>Tyler O'Neill</td><td>BAL</td><td>—</td><td>—</td><td>14.96%</td><td>13.8%</td><td>56.16%</td><td><span class="badge b-warn">Hit only</span></td></tr>
           <tr><td>Nick Kurtz</td><td>ATH</td><td>—</td><td>—</td><td>18.47%</td><td>13.0%</td><td>56.68%</td><td><span class="badge b-warn">Hit only</span></td></tr>
         </tbody>
@@ -1044,7 +1148,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>Mike Trout</td><td>LAA</td><td>—</td><td>—</td><td>—</td><td>17.9%</td><td>59.7%</td><td><span class="badge b-tier1">T1</span></td></tr>
           <tr><td>Zach Neto</td><td>LAA</td><td>—</td><td>—</td><td>—</td><td>14.7%</td><td>61.1%</td><td><span class="badge b-warn">T2</span></td></tr>
@@ -1078,7 +1182,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>Jarren Duran</td><td>BOS</td><td>—</td><td>—</td><td>—</td><td>15.3%</td><td>73.8%</td><td><span class="badge b-tier1">T1 — DFS #1</span></td></tr>
           <tr class="row-tier1"><td>Willson Contreras</td><td>BOS</td><td>—</td><td>—</td><td>—</td><td>16.7%</td><td>69.3%</td><td><span class="badge b-tier1">T1</span></td></tr>
@@ -1112,7 +1216,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>James Wood</td><td>WAS</td><td>—</td><td>—</td><td>—</td><td>15.5%</td><td>67.1%</td><td><span class="badge b-tier1">T1</span></td></tr>
           <tr><td>Luis Garcia</td><td>WAS</td><td>—</td><td>—</td><td>—</td><td>13.2%</td><td>71.7%</td><td><span class="badge b-warn">T2</span></td></tr>
@@ -1145,7 +1249,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>José Ramírez</td><td>CLE</td><td>—</td><td>—</td><td>16.37%</td><td>12.2%</td><td>65.70%</td><td><span class="badge b-tier1">T1 + SB 20.7%</span></td></tr>
           <tr><td>Byron Buxton</td><td>MIN</td><td>—</td><td>—</td><td>14.58%</td><td>14.7%</td><td>56.1%</td><td><span class="badge b-warn">T2</span></td></tr>
@@ -1178,7 +1282,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>Vinnie Pasquantino</td><td>KC</td><td>—</td><td>—</td><td>—</td><td>16.5%</td><td>63.2%</td><td><span class="badge b-tier1">T1 + Park</span></td></tr>
           <tr class="row-tier1"><td>Bobby Witt Jr.</td><td>KC</td><td>—</td><td>—</td><td>—</td><td>13.5%</td><td>70.4%</td><td><span class="badge b-tier1">T1 + SB 20%</span></td></tr>
@@ -1212,7 +1316,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td><strong>Aaron Judge</strong></td><td>NYY</td><td>—</td><td>—</td><td>17.70%</td><td style="color:var(--bad); font-weight:700">28.3%</td><td>53.32%</td><td><span class="badge b-tier1">T1 ⚠ K-arm</span></td></tr>
           <tr><td>Ben Rice</td><td>NYY</td><td>—</td><td>—</td><td>13.47%</td><td>16.3%</td><td>51.79%</td><td><span class="badge b-warn">T2</span></td></tr>
@@ -1246,12 +1350,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>Cal Raleigh</td><td>SEA</td><td>—</td><td>—</td><td>18.21%</td><td>21.4%</td><td>60.1%</td><td><span class="badge b-tier1">T1</span></td></tr>
           <tr class="row-tier1"><td>Julio Rodriguez</td><td>SEA</td><td>—</td><td>—</td><td>14.17%</td><td>15.4%</td><td>69.4%</td><td><span class="badge b-tier1">T1 + SB</span></td></tr>
-          <tr><td>Colson Montgomery</td><td>CHW</td><td>57</td><td>ZN·8</td><td>13.03%</td><td>15.6%</td><td>59.7%</td><td><span class="badge b-warn">T2</span></td></tr>
-          <tr><td>Munetaka Murakami</td><td>CHW</td><td>55</td><td>ZN·8</td><td>14.89%</td><td>15.2%</td><td>54.9%</td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
+          <tr><td>Colson Montgomery</td><td>CHW</td><td>57</td><td>⚡8</td><td>13.03%</td><td>15.6%</td><td>59.7%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr><td>Munetaka Murakami</td><td>CHW</td><td>55</td><td>⚡8</td><td>14.89%</td><td>15.2%</td><td>54.9%</td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
         </tbody>
       </table></div>
       <h3>Park Factor</h3>
@@ -1280,9 +1384,9 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-tier1"><td>Corey Seager</td><td>TEX</td><td>52</td><td>ZN·4</td><td>—</td><td>16.8%</td><td>67.2%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
+          <tr class="row-tier1"><td>Corey Seager</td><td>TEX</td><td>52</td><td>⚡4</td><td>—</td><td>16.8%</td><td>67.2%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
           <tr><td>Michael Busch</td><td>CHC</td><td>—</td><td>—</td><td>16.87%</td><td>13.1%</td><td>62.0%</td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
           <tr><td>Pete Crow-Armstrong</td><td>CHC</td><td>—</td><td>—</td><td>15.31%</td><td>11.9%</td><td>61.82%</td><td><span class="badge b-warn">T2 + SB</span></td></tr>
           <tr><td>Jake Burger</td><td>TEX</td><td>—</td><td>—</td><td>13.26%</td><td>15.1%</td><td>51.98%</td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
@@ -1314,11 +1418,11 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-tier1"><td>Juan Soto</td><td>NYM</td><td>66</td><td>ZN·3</td><td>16.05%</td><td>18.3%</td><td>71.1%</td><td><span class="badge b-tier1">T1</span></td></tr>
-          <tr><td>Francisco Alvarez</td><td>NYM</td><td>68</td><td>ZN·4</td><td>14.59%</td><td>13.3%</td><td>64.7%</td><td><span class="badge b-warn">T2</span></td></tr>
-          <tr><td>Mark Vientos</td><td>NYM</td><td>64</td><td>ZN·3</td><td>13.77%</td><td>13.3%</td><td>66.0%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr class="row-tier1"><td>Juan Soto</td><td>NYM</td><td>66</td><td>⚡3</td><td>16.05%</td><td>18.3%</td><td>71.1%</td><td><span class="badge b-tier1">T1</span></td></tr>
+          <tr><td>Francisco Alvarez</td><td>NYM</td><td>68</td><td>⚡4</td><td>14.59%</td><td>13.3%</td><td>64.7%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr><td>Mark Vientos</td><td>NYM</td><td>64</td><td>⚡3</td><td>13.77%</td><td>13.3%</td><td>66.0%</td><td><span class="badge b-warn">T2</span></td></tr>
           <tr><td>Ketel Marte</td><td>ARI</td><td>—</td><td>—</td><td>—</td><td>13.9%</td><td>70.3%</td><td><span class="badge b-warn">T2</span></td></tr>
         </tbody>
       </table></div>
@@ -1348,7 +1452,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-tier1"><td>Jackson Merrill</td><td>SD</td><td>—</td><td>—</td><td>14.73%</td><td>20.2%</td><td>72.9%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
           <tr class="row-tier1"><td>Manny Machado</td><td>SD</td><td>—</td><td>—</td><td>16.17%</td><td>19.2%</td><td>71.6%</td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
@@ -1382,12 +1486,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
-          <tr class="row-tier1"><td><strong>Matt Olson</strong></td><td>ATL</td><td>70</td><td>ZN·8</td><td>14.88%</td><td>19.1%</td><td>58.3%</td><td><span class="badge b-tier1">T1 + Park</span></td></tr>
+          <tr class="row-tier1"><td><strong>Matt Olson</strong></td><td>ATL</td><td>70</td><td>⚡8</td><td>14.88%</td><td>19.1%</td><td>58.3%</td><td><span class="badge b-tier1">T1 + Park</span></td></tr>
           <tr class="row-tier1"><td>Shohei Ohtani</td><td>LAD</td><td>—</td><td>—</td><td>18.10%</td><td>24.4%</td><td>62.9%</td><td><span class="badge b-tier1">T1 + Park</span></td></tr>
           <tr class="row-tier1"><td>Freddie Freeman</td><td>LAD</td><td>—</td><td>—</td><td>—</td><td>20.0%</td><td>64.7%</td><td><span class="badge b-tier1">T1 + Park</span></td></tr>
-          <tr><td>Drake Baldwin</td><td>ATL</td><td>64</td><td>ZN·5</td><td>—</td><td>15.6%</td><td>65.1%</td><td><span class="badge b-warn">T2</span></td></tr>
+          <tr><td>Drake Baldwin</td><td>ATL</td><td>64</td><td>⚡5</td><td>—</td><td>15.6%</td><td>65.1%</td><td><span class="badge b-warn">T2</span></td></tr>
           <tr><td>Austin Riley</td><td>ATL</td><td>—</td><td>—</td><td>14.33%</td><td>16.3%</td><td>57.6%</td><td><span class="badge b-warn">T2</span></td></tr>
         </tbody>
       </table></div>
@@ -1417,10 +1521,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       </table></div>
       <h3>HR / Hit Targets</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
+        <thead><tr><th>Player</th><th>Tm</th><th>Score</th><th>⚡ Zone</th><th>Dimer HR%</th><th>BPP HR%</th><th>1+ Hit %</th><th>Tier</th></tr></thead>
         <tbody>
           <tr class="row-bad"><td><s>Oneil Cruz HR</s> <span style="color:var(--bad)">(SKIP)</span></td><td>PIT</td><td>—</td><td>—</td><td>—</td><td>17.4%</td><td>60.9%</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
-          <tr class="row-bad"><td><s>Brandon Lowe HR</s> <span style="color:var(--bad)">(SKIP)</span></td><td>PIT</td><td>61</td><td>ZN·6</td><td>—</td><td>—</td><td>—</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+          <tr class="row-bad"><td><s>Brandon Lowe HR</s> <span style="color:var(--bad)">(SKIP)</span></td><td>PIT</td><td>61</td><td>⚡6</td><td>—</td><td>—</td><td>—</td><td><span class="badge b-bad">SKIP HR</span></td></tr>
           <tr><td>Cruz 1+Hit</td><td>PIT</td><td>—</td><td>—</td><td>—</td><td>—</td><td>60.9%</td><td><span class="badge b-warn">Hit only</span></td></tr>
           <tr><td>Rafael Devers</td><td>SF</td><td>—</td><td>—</td><td>—</td><td>14.9%</td><td>65.9%</td><td><span class="badge b-warn">T2 Hit only</span></td></tr>
         </tbody>
@@ -1489,33 +1593,33 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table>
-    <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>Dimer HR%</th><th>BPP HR%</th><th>Score</th><th>Zone</th><th>ISO/xwOBA</th><th>Vuln</th><th>Pitcher</th><th>Park</th><th>Tier</th></tr></thead>
+    <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>Dimer HR%</th><th>BPP HR%</th><th>Score</th><th>⚡ Zone</th><th>ISO/xwOBA</th><th>Vuln</th><th>Pitcher</th><th>Park</th><th>Tier</th></tr></thead>
     <tbody>
-      <tr class="row-tier0"><td>1</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>13.76%</td><td>14.0%</td><td>80</td><td>ZN·8</td><td>.370 xwOBA</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier0">T0</span></td></tr>
+      <tr class="row-tier0"><td>1</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>13.76%</td><td>14.0%</td><td>80</td><td>⚡8</td><td>.370 xwOBA</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier0">T0</span></td></tr>
       <tr class="row-tier1"><td>2</td><td>Aaron Judge</td><td>NYY</td><td>17.70%</td><td style="color:var(--bad); font-weight:700">28.3%</td><td>—</td><td>—</td><td>—</td><td>V14</td><td>Misiorowski</td><td><span class="pf-good">+6%</span></td><td><span class="badge b-tier1">T1 ⚠ K-arm</span></td></tr>
-      <tr class="row-tier1"><td>3</td><td>Matt Olson</td><td>ATL</td><td>14.88%</td><td>19.1%</td><td>70</td><td>ZN·8</td><td>.416 xwOBA</td><td>V46</td><td>Sheehan</td><td><span class="pf-good">+9%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>4</td><td>Sal Stewart</td><td>CIN</td><td>13.45%</td><td>19.2%</td><td>74</td><td>ZN·7</td><td>.380 xwOBA</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>5</td><td>Christian Walker</td><td>HOU</td><td>14.89%</td><td>14.3%</td><td>65</td><td>ZN·6</td><td>.362 xwOBA</td><td>V43</td><td>Lodolo</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>3</td><td>Matt Olson</td><td>ATL</td><td>14.88%</td><td>19.1%</td><td>70</td><td>⚡8</td><td>.416 xwOBA</td><td>V46</td><td>Sheehan</td><td><span class="pf-good">+9%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>4</td><td>Sal Stewart</td><td>CIN</td><td>13.45%</td><td>19.2%</td><td>74</td><td>⚡7</td><td>.380 xwOBA</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>5</td><td>Christian Walker</td><td>HOU</td><td>14.89%</td><td>14.3%</td><td>65</td><td>⚡6</td><td>.362 xwOBA</td><td>V43</td><td>Lodolo</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
       <tr class="row-tier1"><td>6</td><td>Shohei Ohtani</td><td>LAD</td><td>18.10%</td><td>24.4%</td><td>—</td><td>—</td><td>—</td><td>V46</td><td>Sale</td><td><span class="pf-good">+9%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>7</td><td>Bryce Harper</td><td>PHI</td><td>16.79%</td><td>15.1%</td><td>64</td><td>ZN·6</td><td>.405 xwOBA</td><td>V25</td><td>Dollander</td><td><span class="pf-bad">-9%</span></td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
+      <tr class="row-tier1"><td>7</td><td>Bryce Harper</td><td>PHI</td><td>16.79%</td><td>15.1%</td><td>64</td><td>⚡6</td><td>.405 xwOBA</td><td>V25</td><td>Dollander</td><td><span class="pf-bad">-9%</span></td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
       <tr class="row-tier1"><td>8</td><td>Freddie Freeman</td><td>LAD</td><td>—</td><td>20.0%</td><td>—</td><td>—</td><td>—</td><td>V46</td><td>Sale</td><td><span class="pf-good">+9%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>9</td><td>JJ Bleday</td><td>CIN</td><td>15.35%</td><td>17.5%</td><td>—</td><td>ZN·4</td><td>—</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>9</td><td>JJ Bleday</td><td>CIN</td><td>15.35%</td><td>17.5%</td><td>—</td><td>⚡4</td><td>—</td><td>V70</td><td>Burrows</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
       <tr class="row-tier1"><td>10</td><td>Jackson Merrill</td><td>SD</td><td>14.73%</td><td style="color:var(--good); font-weight:700">20.2%</td><td>—</td><td>—</td><td>—</td><td>V14</td><td>Canning</td><td><span class="pf-bad">-8%</span></td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
       <tr class="row-tier1"><td>11</td><td>Manny Machado</td><td>SD</td><td>16.17%</td><td>19.2%</td><td>—</td><td>—</td><td>—</td><td>V14</td><td>Canning</td><td><span class="pf-bad">-8%</span></td><td><span class="badge b-tier1">T1 ⚠ Park</span></td></tr>
       <tr><td>12</td><td>Cal Raleigh</td><td>SEA</td><td>18.21%</td><td>21.4%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Burke</td><td><span class="pf-neutral">-4%</span></td><td><span class="badge b-warn">T2</span></td></tr>
       <tr><td>13</td><td>Vinnie Pasquantino</td><td>KC</td><td>—</td><td>16.5%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Montero</td><td><span class="pf-good">+8%</span></td><td><span class="badge b-warn">T2 Park+</span></td></tr>
-      <tr><td>14</td><td>Yordan Alvarez</td><td>HOU</td><td>17.61%</td><td>18.8%</td><td>61</td><td>ZN·8</td><td>.501 xwOBA</td><td>V43</td><td>Lodolo</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>14</td><td>Yordan Alvarez</td><td>HOU</td><td>17.61%</td><td>18.8%</td><td>61</td><td>⚡8</td><td>.501 xwOBA</td><td>V43</td><td>Lodolo</td><td><span class="pf-good">+5%</span></td><td><span class="badge b-warn">T2</span></td></tr>
       <tr><td>15</td><td>Mike Trout</td><td>LAA</td><td>—</td><td>17.9%</td><td>—</td><td>—</td><td>—</td><td>V17</td><td>Cease</td><td><span class="pf-neutral">+1%</span></td><td><span class="badge b-warn">T2</span></td></tr>
       <tr><td>16</td><td>Julio Rodriguez</td><td>SEA</td><td>14.17%</td><td>15.4%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Burke</td><td><span class="pf-neutral">-4%</span></td><td><span class="badge b-warn">T2 + SB</span></td></tr>
       <tr><td>17</td><td>Austin Riley</td><td>ATL</td><td>14.33%</td><td>16.3%</td><td>—</td><td>—</td><td>—</td><td>V46</td><td>Sheehan</td><td><span class="pf-good">+9%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>18</td><td>Juan Soto</td><td>NYM</td><td>16.05%</td><td>18.3%</td><td>66</td><td>ZN·3</td><td>—</td><td>V60</td><td>Nelson</td><td><span class="pf-bad">-8%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
+      <tr><td>18</td><td>Juan Soto</td><td>NYM</td><td>16.05%</td><td>18.3%</td><td>66</td><td>⚡3</td><td>—</td><td>V60</td><td>Nelson</td><td><span class="pf-bad">-8%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
       <tr><td>19</td><td>George Springer</td><td>TOR</td><td>—</td><td>19.2%</td><td>—</td><td>—</td><td>—</td><td>V17</td><td>Detmers</td><td><span class="pf-neutral">+1%</span></td><td><span class="badge b-warn">T2</span></td></tr>
       <tr><td>20</td><td>Bobby Witt Jr.</td><td>KC</td><td>—</td><td>13.5%</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Montero</td><td><span class="pf-good">+8%</span></td><td><span class="badge b-warn">T2 Park+</span></td></tr>
       <tr><td>21</td><td>Willson Contreras</td><td>BOS</td><td>—</td><td>16.7%</td><td>—</td><td>—</td><td>—</td><td>V26</td><td>Scholtens</td><td><span class="pf-bad">-13%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
       <tr><td>22</td><td>Jarren Duran</td><td>BOS</td><td>—</td><td>15.3%</td><td>—</td><td>—</td><td>—</td><td>V26</td><td>Scholtens</td><td><span class="pf-bad">-13%</span></td><td><span class="badge b-warn">T2 Hit only</span></td></tr>
-      <tr class="row-bad"><td>23</td><td><s>Gunnar Henderson</s></td><td>BAL</td><td>14.01%</td><td>13.1%</td><td>70</td><td>ZN·5</td><td>—</td><td>V74</td><td>Lopez</td><td><span class="pf-darkred">-17%</span></td><td><span class="badge b-bad">SKIP</span></td></tr>
-      <tr class="row-bad"><td>24</td><td><s>Pete Alonso</s></td><td>BAL</td><td>17.52%</td><td>13.4%</td><td>73</td><td>ZN·4</td><td>—</td><td>V74</td><td>Lopez</td><td><span class="pf-darkred">-17%</span></td><td><span class="badge b-bad">SKIP</span></td></tr>
-      <tr class="row-bad"><td>25</td><td><s>Kyle Schwarber</s></td><td>PHI</td><td>22.83%</td><td>20.7%</td><td>—</td><td>ZN·7</td><td>—</td><td>V25</td><td>Dollander</td><td><span class="pf-darkred">-24% Weather</span></td><td><span class="badge b-bad">SKIP HR</span></td></tr>
+      <tr class="row-bad"><td>23</td><td><s>Gunnar Henderson</s></td><td>BAL</td><td>14.01%</td><td>13.1%</td><td>70</td><td>⚡5</td><td>—</td><td>V74</td><td>Lopez</td><td><span class="pf-darkred">-17%</span></td><td><span class="badge b-bad">SKIP</span></td></tr>
+      <tr class="row-bad"><td>24</td><td><s>Pete Alonso</s></td><td>BAL</td><td>17.52%</td><td>13.4%</td><td>73</td><td>⚡4</td><td>—</td><td>V74</td><td>Lopez</td><td><span class="pf-darkred">-17%</span></td><td><span class="badge b-bad">SKIP</span></td></tr>
+      <tr class="row-bad"><td>25</td><td><s>Kyle Schwarber</s></td><td>PHI</td><td>22.83%</td><td>20.7%</td><td>—</td><td>⚡7</td><td>—</td><td>V25</td><td>Dollander</td><td><span class="pf-darkred">-24% Weather</span></td><td><span class="badge b-bad">SKIP HR</span></td></tr>
     </tbody>
   </table></div>
   <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">BPP HR% ≥25% shown bold red. BPP ≥20% shown bold green. Park ≥+5% shown green. Park ≤-10% shown red. Park ≤-15% shown dark red.</p>
@@ -1536,39 +1640,6 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </section>
 
 <!-- PARK FACTORS BOARD — NEW -->
-<section id="park-board" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">🏟 Park Factors Board — Day 42</div>
-      <span class="game-tag">Tap to expand · 15 venues · HR%/Runs%/Weather adjustments</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:12px;">Sourced from ParkFactors_2026-05-08. Combines stadium history + day-of weather. <strong>Slate is HR-suppressing</strong> — only 4 boosters today (LAD, KC, MIL, GABP). All other parks are neutral-to-heavy suppress.</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Game</th><th>Venue</th><th>HR%</th><th>Runs%</th><th>Weather HR%</th><th>Stadium HR%</th><th>Lean</th></tr></thead>
-    <tbody>
-      <tr class="row-tier0"><td>ATL @ LAD</td><td>Dodger Stadium</td><td><strong style="color:var(--good)">+9%</strong></td><td>-4%</td><td style="color:var(--bad)">-7%</td><td style="color:var(--good)">+17%</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
-      <tr class="row-tier0"><td>DET @ KC</td><td>Kauffman Stadium</td><td><strong style="color:var(--good)">+8%</strong></td><td>+1%</td><td style="color:var(--bad)">-4%</td><td style="color:var(--good)">+12%</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
-      <tr class="row-tier1"><td>NYY @ MIL</td><td>American Family Fld</td><td><strong style="color:var(--good)">+6%</strong></td><td>-5%</td><td style="color:var(--bad)">-4%</td><td style="color:var(--good)">+10%</td><td><span class="badge b-tier1">HR-Friendly</span></td></tr>
-      <tr class="row-tier1"><td>HOU @ CIN</td><td>Great American BP</td><td><strong style="color:var(--good)">+5%</strong></td><td>+1%</td><td style="color:var(--bad)">-8%</td><td style="color:var(--good)">+13%</td><td><span class="badge b-tier1">HR-Friendly</span></td></tr>
-      <tr><td>LAA @ TOR</td><td>Rogers Centre</td><td>+1%</td><td>-6%</td><td>-4%</td><td>+5%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
-      <tr><td>NYM @ ARI</td><td>Chase Field</td><td><span style="color:var(--bad)">-8%</span></td><td>+1%</td><td>0%</td><td>-8%</td><td><span class="badge b-warn">HR-Suppress</span></td></tr>
-      <tr><td>STL @ SD</td><td>Petco Park</td><td><span style="color:var(--bad)">-8%</span></td><td>-11%</td><td>-4%</td><td>-4%</td><td><span class="badge b-warn">HR-Suppress</span></td></tr>
-      <tr><td>MIN @ CLE</td><td>Progressive Field</td><td><span style="color:var(--bad)">-4%</span></td><td>-3%</td><td>+1%</td><td>-5%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
-      <tr><td>SEA @ CHW</td><td>Rate Field</td><td><span style="color:var(--bad)">-4%</span></td><td>-4%</td><td>-6%</td><td>+2%</td><td><span class="badge b-neutral">Neutral</span></td></tr>
-      <tr><td>COL @ PHI</td><td>Citizens Bank Park</td><td><strong style="color:var(--bad)">-9%</strong></td><td>0%</td><td><strong style="color:var(--bad)">-24%</strong></td><td style="color:var(--good)">+15%</td><td><span class="badge b-bad">HR-Suppress ⛈</span></td></tr>
-      <tr><td>CHC @ TEX</td><td>Globe Life Field</td><td><strong style="color:var(--bad)">-11%</strong></td><td>-8%</td><td>-1%</td><td>-10%</td><td><span class="badge b-bad">HR-Suppress</span></td></tr>
-      <tr><td>TB @ BOS</td><td>Fenway Park</td><td><strong style="color:var(--bad)">-13%</strong></td><td>+8%</td><td>-7%</td><td>-6%</td><td><span class="badge b-bad">HR-Suppress +2B/3B</span></td></tr>
-      <tr><td>WAS @ MIA</td><td>LoanDepot Park</td><td><strong style="color:var(--bad)">-15%</strong></td><td>-6%</td><td>0%</td><td>-15%</td><td><span class="badge b-bad" style="color:var(--bad)">Heavy Suppress</span></td></tr>
-      <tr><td>ATH @ BAL</td><td>Oriole Park</td><td><strong style="color:#dc2626">-17%</strong></td><td>0%</td><td><strong style="color:var(--bad)">-11%</strong></td><td>-6%</td><td><span class="badge b-bad" style="background:rgba(220,38,38,0.18);color:#dc2626;border-color:#dc2626">HEAVY Suppress</span></td></tr>
-      <tr><td>PIT @ SF</td><td>Oracle Park</td><td><strong style="color:#dc2626">-20%</strong></td><td>-9%</td><td style="color:var(--bad)">-5%</td><td>-15%</td><td><span class="badge b-bad" style="background:rgba(220,38,38,0.18);color:#dc2626;border-color:#dc2626">SLATE-WORST</span></td></tr>
-    </tbody>
-  </table></div>
-  <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">Combined HR% = stadium history + day-of weather. Green = ≥+5% (HR booster). Red = ≤-10% (HR suppressor). Dark red = ≤-15% (avoid HR plays). Citizens Bank: weather alone -24% today despite stadium +15%.</p>
-  </div></div>
-</section>
 
 <!-- OV 0.5 BOARD -->
 <section id="oo5-board" class="collapsible">
@@ -1790,26 +1861,51 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 </section>
 
 <!-- COMBOS -->
-<section id="combos" class="collapsible">
+<!-- ALT K COMBOS (K-only) -->
+<section id="combos-k" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">🎰 Alt K's &amp; H+R+RBI Combos — Day 42</div>
-      <span class="game-tag">Tap to expand · 10 combos · lower alt K's and multi-stat combos</span>
+      <div class="game-title">⚡ Alt K Combos — Day 42</div>
+      <span class="game-tag">Tap to expand · 10 K-only combos · lower alt K stacks (no hit/HR mixing)</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">10 combo cards. Focus on K-slates and hit combos. Anchor T0 plays first.</p>
-  <div class="flag-row"><div class="icon">1️⃣</div><div><strong>Luzardo O 5.5 K + Elly De La Cruz 1+ Hit</strong> — Luzardo T0 (8.27 BPP K, 5.90 SS) vs COL weak offense. Elly 60.5% 1+Hit vs V70 Burrows. Different games. Cross-prop synergy with PHI under environment.</div></div>
-  <div class="flag-row"><div class="icon">2️⃣</div><div><strong>Misiorowski O 5.5 K + Judge 1+ Hit</strong> — Same game (NYY@MIL). High-variance game: either Misiorowski dominates (8.91 BPP K) or Judge HR. Both have ceiling. Use as same-game parlay with caution.</div></div>
-  <div class="flag-row"><div class="icon">3️⃣</div><div><strong>Cease O 5.5 K + Trea Turner 1+ Hit</strong> — Cease T0 K (8.20 BPP, 6.20 SS) different game from Turner PHI (64.87% 1+Hit). Park neutral for Cease (+1% Rogers), Luzardo park -9% (but weather kills HR not Ks).</div></div>
-  <div class="flag-row"><div class="icon">4️⃣</div><div><strong>Sale O 4.5 K + Olson 1+ Hit</strong> — Same game ATL@LAD. Sale T0 K (5.77 BPP, 6.46 SS). Olson 53.6% 1+Hit, park LAD +9%. Sale HRA 0.90 is risk but K prop is different. Alt 4.5 safer.</div></div>
-  <div class="flag-row"><div class="icon">5️⃣</div><div><strong>Brown O 5.5 K + Seager 1+ Hit</strong> — Brown T0 K (6.74 SS, 3.44 BPP diverge). SS signals high K. Seager TEX 67.2% 1+Hit vs Brown — same game but divergent props. Use SS K + Dimer hit separately.</div></div>
-  <div class="flag-row"><div class="icon">6️⃣</div><div><strong>MIN@CLE NRFI + Elly De La Cruz 1+ Hit</strong> — Best NRFI (59.8%) + best 1+Hit on slate combo. Different games. Diversified. NRFI pays well if Prielipp/Messick hold 1st inning.</div></div>
-  <div class="flag-row"><div class="icon">7️⃣</div><div><strong>Kwan 1+ Hit + Ramírez 1+ Hit</strong> — Same game CLE stacked combo. Kwan 66.1% + Ramírez 65.7% — both top-2 on slate. CLE vs Prielipp (3.01 SS K, very hittable). High-confidence same-game stack.</div></div>
-  <div class="flag-row"><div class="icon">8️⃣</div><div><strong>Luzardo O 5.5 K + COL@PHI NRFI</strong> — Cross-market combo. Luzardo K + NRFI in same game (56.6% NRFI). If Luzardo dominates 1st inning (likely), both legs hit simultaneously. Parlay these.</div></div>
-  <div class="flag-row"><div class="icon">9️⃣</div><div><strong>Merrill 1+ Hit + Machado 1+ Hit</strong> — SD stack vs McGreevy. Merrill 64.5% + Machado 63.7%. Petco -8% caps HR but 1+Hit unaffected. McGreevy weak K (3.51 SS). Best same-game stack non-PHI.</div></div>
-  <div class="flag-row"><div class="icon">🔟</div><div><strong>Burke O 4.5 K + Raleigh 1+ Hit</strong> — SEA@CHW. Burke BPP 6.07 (T1 per BPP, supports O 4.5). Raleigh 60.1% Hit%. Rate Field -4% minor penalty. Use as value play.</div></div>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">10 K-only combo cards. <strong>Every leg is a strikeout prop.</strong> Use lower alt K's per the alt-K rules (≥5 SS → O5+; 4.5–4.99 → O3.5; 4.0–4.49 → O2.5; &lt;4 → SKIP).</p>
+  <div class="flag-row"><div class="icon">1️⃣</div><div><strong>Luzardo O 5+ K + Cease O 5+ K</strong> — Both T0 K, both 8+ BPP K. Different games (PHI / TOR). Diversified L+R. <span class="badge b-tier0">2-leg T0</span></div></div>
+  <div class="flag-row"><div class="icon">2️⃣</div><div><strong>Misiorowski O 5+ K + Luzardo O 5+ K</strong> — Slate's top-2 BPP K (8.91 / 8.27). NYY@MIL + COL@PHI. Both LH-killers vs RH-heavy lineups. <span class="badge b-tier0">2-leg T0</span></div></div>
+  <div class="flag-row"><div class="icon">3️⃣</div><div><strong>Brown O 5+ K + Cease O 5+ K</strong> — Brown SS slate-high 6.74 (BPP diverges 3.44 — lean SS). Cease 8.20 BPP. Different games. <span class="badge b-tier0">2-leg T0</span></div></div>
+  <div class="flag-row"><div class="icon">4️⃣</div><div><strong>Misiorowski O 5+ K + Cease O 5+ K + Luzardo O 5+ K</strong> — The 3-headed K monster. All BPP 8+. Diversified games. <span class="badge b-tier0">3-leg T0 stack</span></div></div>
+  <div class="flag-row"><div class="icon">5️⃣</div><div><strong>Sale O 5+ K + Detmers O 5+ K</strong> — Sale T0 (6.46 SS / 5.77 BPP). Detmers T1 (5.26 SS / 5.52 BPP). Both ATL@LAD / LAA@TOR are different games. <span class="badge b-tier1">2-leg T0+T1</span></div></div>
+  <div class="flag-row"><div class="icon">6️⃣</div><div><strong>Burke O 4.5 K + Sheehan O 5+ K</strong> — Burke BPP 6.07 (says O 4.5 strong). Sheehan T1 (5.25 SS / 5.28 BPP). Different games. <span class="badge b-tier1">T1 alt-K</span></div></div>
+  <div class="flag-row"><div class="icon">7️⃣</div><div><strong>Fried O 4.5 K + Lopez O 4.5 K</strong> — Fried 5.52 SS / 4.98 BPP (use 4.5 alt). Lopez 5.61 SS / 3.91 BPP (BPP says caution → stick to O 4.5). Same alt level. <span class="badge b-warn">2-leg alt-K (4.5)</span></div></div>
+  <div class="flag-row"><div class="icon">8️⃣</div><div><strong>Bradish O 3.5 K + Bubic O 3.5 K + Burrows O 3.5 K</strong> — All three SS 4.5–4.99 → alt-K rule = O 3.5. 3-leg stack of safe lower alts. <span class="badge b-warn">3-leg O 3.5</span></div></div>
+  <div class="flag-row"><div class="icon">9️⃣</div><div><strong>Griffin O 3.5 K + McLean O 3.5 K + Early O 3.5 K</strong> — All SS 4.55–4.76 → O 3.5 lock. 3-leg different games. <span class="badge b-warn">3-leg O 3.5</span></div></div>
+  <div class="flag-row"><div class="icon">🔟</div><div><strong>Nelson O 2.5 K + Messick O 2.5 K + Mlodzinski O 2.5 K + Montero O 2.5 K</strong> — All SS 4.0–4.49 → O 2.5 alt rule. 4-leg high-volume safe stack. <span class="badge b-neutral">4-leg O 2.5</span></div></div>
+  </div></div>
+</section>
+
+<!-- HRR COMBOS (H+R+RBI only) -->
+<section id="combos-hrr" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">🎯 H+R+RBI Combos — Day 42</div>
+      <span class="game-tag">Tap to expand · 10 HRR-only combos · every leg is an Ov 0.5 H+R+RBI</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">10 H+R+RBI-only combos. <strong>Every leg is an Ov 0.5 HRR.</strong> Sourced from BPP HRR proxy (Hits + Runs + RBIs). All 10 cards use top-25 BPP HRR projections (≥2.15 HRR = strong O 0.5 confidence).</p>
+  <div class="flag-row"><div class="icon">1️⃣</div><div><strong>Merrill HRR + Duran HRR</strong> — Top-2 slate HRR (both 2.53). Different games SD / BOS. Lock 2-leg. <span class="badge b-tier0">2-leg T0 HRR</span></div></div>
+  <div class="flag-row"><div class="icon">2️⃣</div><div><strong>Soto HRR + Judge HRR</strong> — Soto NYM 2.44 + Judge NYY 2.26. Different games. Both anchor bats. <span class="badge b-tier0">2-leg T0 HRR</span></div></div>
+  <div class="flag-row"><div class="icon">3️⃣</div><div><strong>Machado HRR + Henderson HRR</strong> — Machado SD 2.46 + Henderson BAL 2.27. Different games. <span class="badge b-tier0">2-leg T0 HRR</span></div></div>
+  <div class="flag-row"><div class="icon">4️⃣</div><div><strong>Merrill + Machado HRR</strong> — SD stack same game (2.53 + 2.46 = highest combined HRR pair on slate). vs McGreevy weak K (3.51 SS). <span class="badge b-tier0">2-leg same-game stack</span></div></div>
+  <div class="flag-row"><div class="icon">5️⃣</div><div><strong>Duran + Abreu + Contreras HRR</strong> — BOS stack same game vs Scholtens. Duran 2.53 + Abreu 2.40 + Contreras 2.38. Fenway +8% Runs. <span class="badge b-tier0">3-leg BOS stack</span></div></div>
+  <div class="flag-row"><div class="icon">6️⃣</div><div><strong>Soto + Bichette + Marte HRR</strong> — Soto NYM 2.44 + Bichette NYM 2.28 (same game) + Marte ARI 2.23 (opponent in same game). 3-leg NYM@ARI total saturation. <span class="badge b-tier1">3-leg game-saturate</span></div></div>
+  <div class="flag-row"><div class="icon">7️⃣</div><div><strong>Witt Jr. + Seager + Henderson + Judge HRR</strong> — 4-leg "shortstop&amp;middle" stack: Witt KC 2.24 + Seager TEX 2.24 + Henderson BAL 2.27 + Judge NYY 2.26. All different games. <span class="badge b-tier1">4-leg T1 HRR</span></div></div>
+  <div class="flag-row"><div class="icon">8️⃣</div><div><strong>Garcia + Wood + Lopez HRR</strong> — Garcia WAS 2.29 + Wood WAS 2.20 (same game) + Lopez MIA 2.22 (opponent). WAS@MIA full-game HRR ride. <span class="badge b-tier1">3-leg game-saturate</span></div></div>
+  <div class="flag-row"><div class="icon">9️⃣</div><div><strong>Ohtani + Caminero + Diaz HRR</strong> — Ohtani LAD 2.22 + Caminero TB 2.18 + Diaz TB 2.20. Different games. <span class="badge b-tier1">3-leg T1 HRR</span></div></div>
+  <div class="flag-row"><div class="icon">🔟</div><div><strong>Yoshida + Story + Rafaela + Dingler HRR</strong> — 4-leg deep value: Yoshida BOS 2.27 + Story BOS 2.16 + Rafaela BOS 2.15 + Dingler DET 2.18. BOS triple stack + Dingler different game. All ≥2.15 HRR floor. <span class="badge b-neutral">4-leg deep value</span></div></div>
   </div></div>
 </section>
 
@@ -1818,7 +1914,7 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">💣 Parlay Anchors — Day 42</div>
-      <span class="game-tag">Tap to expand · 5 anchors · T0 legs only · max 2× same player · alts ≤5 per parlay</span>
+      <span class="game-tag">Tap to expand · 10 anchors · T0 legs only · max 2× same player · alts ≤5 per parlay</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -1829,6 +1925,11 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   <div class="flag-row"><div class="icon">🥶</div><div><strong>NRFI 2-Leg: MIN@CLE NRFI + COL@PHI NRFI</strong><br>Leg 1: MIN@CLE NRFI 59.8% — Prielipp + Messick both solid 1st-inning arms (Game 7, 7:15 ET)<br>Leg 2: COL@PHI NRFI 56.6% — Luzardo dominates first, Dollander struggles but not in 1st (Game 2, 6:40 ET)<br><em>Different games, different parks, park weather further suppresses run-scoring. Best NRFI combo on slate.</em></div></div>
   <div class="flag-row"><div class="icon">🔥</div><div><strong>3-Leg Value Combo: Sale O 4.5 K + Elly DLC 1+ Hit + Kwan 1+ Hit</strong><br>Leg 1: Sale O 4.5 K (5.77 BPP, 6.46 SS, T0 K) — Game 14 ATL@LAD (10:10 ET)<br>Leg 2: Elly De La Cruz 1+ Hit 60.5% (vs V70 Burrows) — Game 1 HOU@CIN (6:10 ET)<br>Leg 3: Steven Kwan 1+ Hit 66.1% (vs Prielipp) — Game 7 MIN@CLE (7:15 ET)<br><em>3 different games. Mix of K prop + hit props. Kwan #1 overall hit prop on slate.</em></div></div>
   <div class="flag-row"><div class="icon">📉</div><div><strong>2-Leg Under Parlay: COL@PHI Under 7.5 + PIT@SF Under 7.5</strong><br>Leg 1: COL@PHI Under 7.5 — BPP 7.79, park -9%/-24% weather → adj ~7.5. Luzardo elite. (Game 2, 6:40 ET)<br>Leg 2: PIT@SF Under 7.5 — BPP 8.36, Oracle -20%/-9% Runs → adj ~7.6. Slate-worst HR/run environment. (Game 15, 10:15 ET)<br><em>Both parks strongly suppress scoring. Best 2-leg under combo on slate.</em></div></div>
+  <div class="flag-row"><div class="icon">⚾</div><div><strong>2-Leg HR Parlay #2: Aaron Judge HR + Christian Walker HR</strong><br>Leg 1: Judge HR (T1, MIL +6%, vs Misiorowski R, BPP 28.30% slate-high, Dimers 17.70%) — Game 9 (7:40 ET)<br>Leg 2: Walker HR (T1, vs Lodolo V43, GABP +5%, BPP 14.3%, Dimers 14.89%, Score 65 ⚡6 .362 xwOBA) — Game 1 (6:10 ET)<br><em>Different games. Both parks are HR-boosters today. Both vs vulnerable starters. Diversified L/R matchups.</em></div></div>
+  <div class="flag-row"><div class="icon">💥</div><div><strong>2-Leg HR Parlay #3: Elly De La Cruz HR + Sal Stewart HR</strong><br>Leg 1: Elly DLC HR (T0, GABP +5%, vs V70 Burrows, BPP 14.0%, Dimers 13.76%) — Game 1 (6:10 ET)<br>Leg 2: Sal Stewart HR (T1, GABP +5%, vs V70 Burrows, BPP 19.2% slate-2nd, Dimers 13.45%, Score 74 ⚡7 .380 xwOBA) — Game 1 (6:10 ET)<br><em>Same-game CIN stack. BPP rates Stewart's HR% HIGHER than Elly's. Both at GABP. Park + Vuln synergy. Aggressive same-game HR ride.</em></div></div>
+  <div class="flag-row"><div class="icon">🎯</div><div><strong>4-Leg Hits Parlay: Kwan + Ramírez + Hoerner + Trea Turner all 1+ Hit</strong><br>Leg 1: Kwan CLE 66.06% 1+ Hit (slate-high) — Game 7 MIN@CLE (7:15 ET)<br>Leg 2: José Ramírez CLE 65.70% 1+ Hit (slate-2nd) — Game 7 MIN@CLE (7:15 ET)<br>Leg 3: Nico Hoerner CHC 64.95% 1+ Hit — Game 11 CHC@TEX (8:05 ET)<br>Leg 4: Trea Turner PHI 64.87% 1+ Hit — Game 2 COL@PHI (6:40 ET)<br><em>4 different teams across 3 different games. All Top 4 1+H% on the slate (60%+ each). Mix of L/R hitters. Volume-driven.</em></div></div>
+  <div class="flag-row"><div class="icon">🔥</div><div><strong>4-Leg HRR Parlay: Merrill + Duran + Soto + Judge all Ov 0.5 H+R+RBI</strong><br>Leg 1: Merrill SD HRR 2.53 (slate-high) — Game 12 STL@SD (9:45 ET)<br>Leg 2: Duran BOS HRR 2.53 (slate-tied-high) — Game 5 TB@BOS (7:10 ET)<br>Leg 3: Soto NYM HRR 2.44 — Game 12 NYM@ARI (9:40 ET)<br>Leg 4: Judge NYY HRR 2.26 — Game 9 NYY@MIL (7:40 ET)<br><em>4 different games. Top-4 BPP HRR projections on slate. Each ≥ 2.26 HRR → strong O 0.5 floor. The HRR "Mt. Rushmore" of the day.</em></div></div>
+  <div class="flag-row"><div class="icon">⚡</div><div><strong>3-Leg K Anchor #2: Misiorowski O 5+ K + Brown O 5+ K + Sale O 4.5 K</strong><br>Leg 1: Misiorowski O 5+ K (T0, BPP 8.91 slate-high) — Game 9 (7:40 ET)<br>Leg 2: Brown O 5+ K (T0, SS 6.74 slate-high) — Game 11 (8:05 ET)<br>Leg 3: Sale O 4.5 K (T0, 6.46 SS / 5.77 BPP, alt 4.5 to absorb HRA risk) — Game 14 (10:10 ET)<br><em>3 different games. Sale dropped to 4.5 alt because LAD park boost (+9%) flagged HRA 0.90 — K prop separate from HR but conservative alt protects bankroll.</em></div></div>
   </div></div>
 </section>
 
@@ -1843,12 +1944,12 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   </button>
   <div class="game-body"><div class="game-body-inner">
   <ul class="flag-list">
-    <li><strong>Elly De La Cruz HR / 2+ TB / SB</strong> — Score 80, ZN·8, V70 Burrows, GABP +5%, BPP 14.0% HR / 29.1% SB. Only true T0 on slate. PrizePicks anchor: HR Yes OR Total Bases 1.5 + SB 0.5 combo. <span class="badge b-tier0">T0 CONVICTION</span></li>
+    <li><strong>Elly De La Cruz HR / 2+ TB / SB</strong> — Score 80, ⚡8, V70 Burrows, GABP +5%, BPP 14.0% HR / 29.1% SB. Only true T0 on slate. PrizePicks anchor: HR Yes OR Total Bases 1.5 + SB 0.5 combo. <span class="badge b-tier0">T0 CONVICTION</span></li>
     <li><strong>Luzardo O 5.5 K + COL@PHI Under 7.5</strong> — BPP 8.27 K (2nd highest), QS 61.9% slate-high, 5.90 SS. Park -9%/-24% weather further suppresses scoring. Cross-prop conviction: K plays separate from run environment. <span class="badge b-tier0">T0 K CONVICTION</span></li>
     <li><strong>Misiorowski O 5.5 K</strong> — BPP 8.91 K (slate-high), 5.79 SS. T0 K leader. Use O 5.5 or O 6.5 on DK/FD. Warning: Judge 28.3% HR BPP = volatility in same game. K prop independent. <span class="badge b-tier0">T0 K CONVICTION</span></li>
     <li><strong>MIN @ CLE NRFI</strong> — 59.8% NRFI, best on slate. Prielipp + Messick both strong 1st-inning arms. Progressive Field -4% park further suppresses. Best single-market play on slate. <span class="badge b-tier0">NRFI CONVICTION</span></li>
     <li><strong>PIT @ SF Under 7.5</strong> — BPP 8.36 → Oracle -20%/-9% adj ~7.6. Slate-worst hitting environment. Mlodzinski solid (4.24 SS, 0.32 HRA best). SF bats suppressed by park. Strong lean. <span class="badge b-tier1">T1 UNDER CONVICTION</span></li>
-    <li><strong>Matt Olson HR</strong> — T1, LAD +9% park (slate-high booster), vs Sheehan V46, BPP 19.1%, Dimers 14.9%, Score 70 ZN·8, .416 xwOBA. Park-driven T1 case. Best HR play after Elly if park factors hold. <span class="badge b-tier1">T1 HR CONVICTION</span></li>
+    <li><strong>Matt Olson HR</strong> — T1, LAD +9% park (slate-high booster), vs Sheehan V46, BPP 19.1%, Dimers 14.9%, Score 70 ⚡8, .416 xwOBA. Park-driven T1 case. Best HR play after Elly if park factors hold. <span class="badge b-tier1">T1 HR CONVICTION</span></li>
     <li><strong>Cease O 5.5 K</strong> — BPP 8.20 K, 6.20 SS (highest SS K on slate). Rogers +1% park neutral. vs LAA manageable. Clean T0 K play. <span class="badge b-tier0">T0 K CONVICTION</span></li>
   </ul>
   </div></div>
@@ -1928,6 +2029,57 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     });
   }
   document.querySelectorAll('.collapsible, .game').forEach(initCollapsible);
+
+  // ---- TOC click → auto-open target collapsible ----
+  function openTarget(targetId) {
+    if (!targetId) return;
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    // Open the target itself if it's collapsible
+    if (target.classList && (target.classList.contains('collapsible') || target.classList.contains('game'))) {
+      if (!target.classList.contains('open')) {
+        target.classList.add('open');
+        const btn = target.querySelector(':scope > .game-header');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+    // Also open any collapsible ancestor (e.g., a glossary anchor inside methodology)
+    let parent = target.parentElement;
+    while (parent && parent !== document.body) {
+      if (parent.classList && (parent.classList.contains('collapsible') || parent.classList.contains('game'))) {
+        if (!parent.classList.contains('open')) {
+          parent.classList.add('open');
+          const btn = parent.querySelector(':scope > .game-header');
+          if (btn) btn.setAttribute('aria-expanded', 'true');
+        }
+      }
+      parent = parent.parentElement;
+    }
+  }
+  // Hook all in-page anchor links (#xxx)
+  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      const href = a.getAttribute('href');
+      if (!href || href === '#') return;
+      const id = href.slice(1);
+      // Open before letting the browser scroll. Use a tiny delay so the section
+      // is expanded by the time the browser scrolls to the anchor.
+      openTarget(id);
+      // After opening, re-scroll precisely (the natural anchor jump can land mid-section)
+      setTimeout(function() {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    });
+  });
+  // Handle direct page-load with a hash (e.g., refresh on #glossary)
+  if (window.location.hash && window.location.hash.length > 1) {
+    setTimeout(function() {
+      openTarget(window.location.hash.slice(1));
+      const el = document.getElementById(window.location.hash.slice(1));
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
 
   // ---- Back-to-top FAB ----
   const fab = document.getElementById('backTop');
