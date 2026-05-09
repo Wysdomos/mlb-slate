@@ -738,7 +738,32 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 .top-bats { background: var(--glass-elev); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 10px 13px; margin-top: 12px; font-size: 12.5px; color: var(--text-soft); line-height: 1.6; }
 .top-bats strong { color: var(--accent); }
 .top-bats .tb-note { font-size: 12px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
-</style>
+
+    /* Sticky table headers for the three big boards (vertical scroll only) */
+    section#k-board .table-wrap,
+    section#hr-board .table-wrap,
+    section#oo5-board .table-wrap {
+      max-height: 70vh;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+    section#k-board .table-wrap thead th,
+    section#hr-board .table-wrap thead th,
+    section#oo5-board .table-wrap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--surface, #1a1a2e);
+      box-shadow: 0 2px 0 rgba(255,255,255,0.08);
+    }
+    /* Light mode fallback */
+    body.light section#k-board .table-wrap thead th,
+    body.light section#hr-board .table-wrap thead th,
+    body.light section#oo5-board .table-wrap thead th {
+      background: var(--surface-light, #ffffff);
+    }
+    /* end sticky-board-header */
+  </style>
 </head>
 <body>
 
@@ -944,6 +969,9 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
       <tr><td><strong>ML / F5 ML</strong></td><td>Moneyline / First-5 Moneyline</td><td>BPP win probabilities.</td></tr>
       <tr><td><strong>O / U</strong></td><td>Over / Under</td><td>Standard prop terminology.</td></tr>
       <tr><td><strong>R/L Splits</strong></td><td>Right- / Left-handed pitcher splits</td><td>Platoon edge factor.</td></tr>
+      <tr><td><strong>(L1) – (L9)</strong></td><td>Lineup spot — batting order position 1 through 9</td><td>Shown next to each batter in Top Bats lines (e.g. <strong>Trea Turner</strong> (L1) = leadoff). L1–L4 = top of order, L5–L7 = middle, L8–L9 = bottom.</td></tr>
+      <tr><td><strong>B</strong> column / chip</td><td>Batting hand — <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> Left, <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span> Right, <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span> Switch</td><td>Hits Board, HR Board, and Top Bats lines. Source: BP_Batters.</td></tr>
+      <tr><td><strong>P</strong> column / chip</td><td>Pitcher throwing hand — <span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span> Left (LHP), <span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span> Right (RHP)</td><td>K Board, HR Board, per-game Pitcher tables. Use for L-vs-R platoon edges. Source: BP_Pitchers.</td></tr>
     </tbody>
   </table></div>
   </div></div>
@@ -1038,10 +1066,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Jack Kochanowicz</td><td>LAA</td><td>3.05</td><td>1.21</td><td>6.6</td><td>3.17</td><td>16.1</td><td style="color:var(--hot)">🔺 5.41</td><td>37%</td><td>0.61</td><td>V17</td><td>Skip K alts — low BPP K</td></tr>
-          <tr class="row-tier0"><td><strong>Trey Yesavage</strong></td><td>TOR</td><td>0.96</td><td>1.29</td><td>8.9</td><td style="color:var(--bad); font-weight:700">7.28</td><td>16.3</td><td>3.96</td><td>39%</td><td>0.73</td><td>V14</td><td>T0 K — elite BPP, low ERA. TOR home advantage</td></tr>
+          <tr><td>NoneJack KochanowiczNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA</td><td>3.05</td><td>1.21</td><td>6.6</td><td>3.17</td><td>16.1</td><td style="color:var(--hot)">🔺 5.41</td><td>37%</td><td>0.61</td><td>V17</td><td>Skip K alts — low BPP K</td></tr>
+          <tr class="row-tier0"><td><strong>Trey Yesavage</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TOR</td><td>0.96</td><td>1.29</td><td>8.9</td><td style="color:var(--bad); font-weight:700">7.28</td><td>16.3</td><td>3.96</td><td>39%</td><td>0.73</td><td>V14</td><td>T0 K — elite BPP, low ERA. TOR home advantage</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1075,10 +1103,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Aaron Civale</td><td>ATH</td><td>2.95</td><td>1.34</td><td>6.7</td><td>4.15</td><td>15.9</td><td style="color:var(--hot)">🔺 5.14</td><td>34%</td><td>0.77</td><td>V34</td><td>T2 borderline — skip K alts</td></tr>
-          <tr class="row-bad"><td>Shane Baz</td><td>BAL</td><td>4.99</td><td>1.54</td><td>7.6</td><td>4.22</td><td>32%</td><td>0.61</td><td style="color:var(--bad)">V54</td><td>V54 = ATH bat target, park -13% caps HR</td></tr>
+          <tr><td>NoneAaron CivaleNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ATH</td><td>2.95</td><td>1.34</td><td>6.7</td><td>4.15</td><td>15.9</td><td style="color:var(--hot)">🔺 5.14</td><td>34%</td><td>0.77</td><td>V34</td><td>T2 borderline — skip K alts</td></tr>
+          <tr class="row-bad"><td>NoneShane BazNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>BAL</td><td>4.99</td><td>1.54</td><td>7.6</td><td>4.22</td><td>32%</td><td>0.61</td><td style="color:var(--bad)">V54</td><td>V54 = ATH bat target, park -13% caps HR</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1112,10 +1140,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Nick Martinez</td><td>TB</td><td>1.71</td><td>1.02</td><td>6.0</td><td>2.43</td><td style="color:var(--bad)">🔻 13.3</td><td>4.80</td><td>8%</td><td>0.50</td><td>V17</td><td>Skip K alts. Low HRA — but short outing expected</td></tr>
-          <tr><td>Payton Tolle</td><td>BOS</td><td>2.04</td><td>0.74</td><td>12.0</td><td>5.31</td><td>16.8</td><td><strong style="color:var(--bad)">🔺 5.54</strong></td><td>32%</td><td>0.43</td><td>V14</td><td>T1 K — high K9. TB bats limited. Fenway run boost may cap efficiency</td></tr>
+          <tr><td>NoneNick MartinezNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TB</td><td>1.71</td><td>1.02</td><td>6.0</td><td>2.43</td><td style="color:var(--bad)">🔻 13.3</td><td>4.80</td><td>8%</td><td>0.50</td><td>V17</td><td>Skip K alts. Low HRA — but short outing expected</td></tr>
+          <tr><td>NonePayton TolleNone</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>BOS</td><td>2.04</td><td>0.74</td><td>12.0</td><td>5.31</td><td>16.8</td><td><strong style="color:var(--bad)">🔺 5.54</strong></td><td>32%</td><td>0.43</td><td>V14</td><td>T1 K — high K9. TB bats limited. Fenway run boost may cap efficiency</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit / 2B Targets</h3>
@@ -1152,10 +1180,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Spencer Arrighetti</td><td>HOU</td><td>1.96</td><td>1.30</td><td>9.8</td><td>4.86</td><td>20%</td><td style="color:var(--bad)">0.86</td><td>V37</td><td>High HRA + GABP +12% = CIN HR target</td></tr>
-          <tr class="row-bad"><td>Chase Burns</td><td>CIN</td><td>2.20</td><td>1.02</td><td>10.1</td><td>5.71</td><td>19%</td><td>0.64</td><td style="color:var(--bad)">V34</td><td>T2 K — GABP boosts Alvarez/Walker threat</td></tr>
+          <tr><td>NoneSpencer ArrighettiNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>HOU</td><td>1.96</td><td>1.30</td><td>9.8</td><td>4.86</td><td>20%</td><td style="color:var(--bad)">0.86</td><td>V37</td><td>High HRA + GABP +12% = CIN HR target</td></tr>
+          <tr class="row-bad"><td>NoneChase BurnsNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CIN</td><td>2.20</td><td>1.02</td><td>10.1</td><td>5.71</td><td>19%</td><td>0.64</td><td style="color:var(--bad)">V34</td><td>T2 K — GABP boosts Alvarez/Walker threat</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1190,10 +1218,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="row-bad"><td>Zack Littell</td><td>WAS</td><td>7.24</td><td>1.61</td><td>4.8</td><td>2.54</td><td>21%</td><td>0.70</td><td style="color:var(--bad)">V60</td><td>V60 but park -15% caps HR. MIA hit props T1</td></tr>
-          <tr><td>Janson Junk</td><td>MIA</td><td>2.82</td><td>1.04</td><td>6.4</td><td>3.98</td><td style="color:var(--good)">🟢 17.8</td><td style="color:var(--hot)">🔺 5.28</td><td>52%</td><td>0.50</td><td>V14</td><td>Skip K alts — low BPP/SS combo</td></tr>
+          <tr class="row-bad"><td>NoneZack LittellNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>WAS</td><td>7.24</td><td>1.61</td><td>4.8</td><td>2.54</td><td>21%</td><td>0.70</td><td style="color:var(--bad)">V60</td><td>V60 but park -15% caps HR. MIA hit props T1</td></tr>
+          <tr><td>NoneJanson JunkNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIA</td><td>2.82</td><td>1.04</td><td>6.4</td><td>3.98</td><td style="color:var(--good)">🟢 17.8</td><td style="color:var(--hot)">🔺 5.28</td><td>52%</td><td>0.50</td><td>V14</td><td>Skip K alts — low BPP/SS combo</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1228,10 +1256,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="row-bad"><td>Kyle Freeland</td><td>COL</td><td>5.04</td><td>1.36</td><td>8.6</td><td>4.38</td><td>31%</td><td>0.92</td><td style="color:var(--bad)">V50</td><td>V50 + HRA 0.92 + Citizens Bank +10% = PHI HR target</td></tr>
-          <tr class="row-tier0"><td><strong>Aaron Nola</strong></td><td>PHI</td><td>5.06</td><td>1.45</td><td>9.7</td><td style="color:var(--bad); font-weight:700">6.88</td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>4.97</td><td>49%</td><td>0.94</td><td>V54</td><td>T0 K — 6.88 BPP, V54 vs COL lineup</td></tr>
+          <tr class="row-bad"><td>NoneKyle FreelandNone</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>COL</td><td>5.04</td><td>1.36</td><td>8.6</td><td>4.38</td><td>31%</td><td>0.92</td><td style="color:var(--bad)">V50</td><td>V50 + HRA 0.92 + Citizens Bank +10% = PHI HR target</td></tr>
+          <tr class="row-tier0"><td><strong>Aaron Nola</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>PHI</td><td>5.06</td><td>1.45</td><td>9.7</td><td style="color:var(--bad); font-weight:700">6.88</td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>4.97</td><td>49%</td><td>0.94</td><td>V54</td><td>T0 K — 6.88 BPP, V54 vs COL lineup</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1266,10 +1294,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Joe Ryan</td><td>MIN</td><td>3.72</td><td>1.06</td><td>9.4</td><td>4.57</td><td>16.2</td><td>4.88</td><td>36%</td><td>0.88</td><td>V17</td><td>HRA 0.88 + park +4% = CLE HR opportunity</td></tr>
-          <tr class="row-bad"><td>Tanner Bibee</td><td>CLE</td><td>4.58</td><td>1.47</td><td>8.3</td><td>4.93</td><td>37%</td><td>0.76</td><td style="color:var(--bad)">V40</td><td>V40 — MIN bats T2 ride. Skip K alts (sub-5 BPP)</td></tr>
+          <tr><td>NoneJoe RyanNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIN</td><td>3.72</td><td>1.06</td><td>9.4</td><td>4.57</td><td>16.2</td><td>4.88</td><td>36%</td><td>0.88</td><td>V17</td><td>HRA 0.88 + park +4% = CLE HR opportunity</td></tr>
+          <tr class="row-bad"><td>NoneTanner BibeeNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CLE</td><td>4.58</td><td>1.47</td><td>8.3</td><td>4.93</td><td>37%</td><td>0.76</td><td style="color:var(--bad)">V40</td><td>V40 — MIN bats T2 ride. Skip K alts (sub-5 BPP)</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1303,10 +1331,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Edward Cabrera</td><td>CHC</td><td>3.27</td><td>1.28</td><td>8.1</td><td>5.21</td><td>15.9</td><td>4.86</td><td>36%</td><td>0.59</td><td>V31</td><td>T2 K — use O 4.5 K cautiously</td></tr>
-          <tr class="row-tier0"><td><strong>Jack Leiter</strong></td><td>TEX</td><td>5.45</td><td>1.37</td><td>10.2</td><td style="color:var(--bad); font-weight:700">6.14</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td style="color:var(--hot)">🔺 5.09</td><td>49%</td><td>0.79</td><td>V60</td><td>T0 K — 6.14 BPP. CHC Happ/Suzuki danger bats</td></tr>
+          <tr><td>NoneEdward CabreraNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CHC</td><td>3.27</td><td>1.28</td><td>8.1</td><td>5.21</td><td>15.9</td><td>4.86</td><td>36%</td><td>0.59</td><td>V31</td><td>T2 K — use O 4.5 K cautiously</td></tr>
+          <tr class="row-tier0"><td><strong>Jack Leiter</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX</td><td>5.45</td><td>1.37</td><td>10.2</td><td style="color:var(--bad); font-weight:700">6.14</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td style="color:var(--hot)">🔺 5.09</td><td>49%</td><td>0.79</td><td>V60</td><td>T0 K — 6.14 BPP. CHC Happ/Suzuki danger bats</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1340,10 +1368,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Burch Smith</td><td>DET</td><td>1.59</td><td>1.15</td><td>13.0</td><td>1.52</td><td style="color:var(--bad)">🔻 5.1</td><td style="color:var(--good)">🟢 1.64</td><td>0%</td><td>0.24</td><td>V14</td><td>Skip K alts — very short outing projected</td></tr>
-          <tr class="row-bad"><td>Michael Wacha</td><td>KC</td><td>3.05</td><td>1.06</td><td>7.3</td><td>3.95</td><td>42%</td><td style="color:var(--bad)">1.00</td><td>V14</td><td>HRA 1.00 + KC +10% = DET HR target despite low Vuln</td></tr>
+          <tr><td>NoneBurch SmithNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>DET</td><td>1.59</td><td>1.15</td><td>13.0</td><td>1.52</td><td style="color:var(--bad)">🔻 5.1</td><td style="color:var(--good)">🟢 1.64</td><td>0%</td><td>0.24</td><td>V14</td><td>Skip K alts — very short outing projected</td></tr>
+          <tr class="row-bad"><td>NoneMichael WachaNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>KC</td><td>3.05</td><td>1.06</td><td>7.3</td><td>3.95</td><td>42%</td><td style="color:var(--bad)">1.00</td><td>V14</td><td>HRA 1.00 + KC +10% = DET HR target despite low Vuln</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1377,10 +1405,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="row-bad"><td>Luis Castillo</td><td>SEA</td><td>6.29</td><td>1.66</td><td>8.2</td><td>4.14</td><td>21%</td><td style="color:var(--bad)">0.83</td><td style="color:var(--bad)">V60</td><td>V60 + HRA 0.83 = CHW HR stack target</td></tr>
-          <tr><td>Anthony Kay</td><td>CWS</td><td>5.70</td><td>1.67</td><td>6.0</td><td>3.19</td><td style="color:var(--bad)">🔻 12.5</td><td>4.14</td><td>7%</td><td>0.82</td><td>V58</td><td>Skip K alts. V58 = SEA bat target. Second YRFI</td></tr>
+          <tr class="row-bad"><td>NoneLuis CastilloNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA</td><td>6.29</td><td>1.66</td><td>8.2</td><td>4.14</td><td>21%</td><td style="color:var(--bad)">0.83</td><td style="color:var(--bad)">V60</td><td>V60 + HRA 0.83 = CHW HR stack target</td></tr>
+          <tr><td>NoneAnthony KayNone</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CWS</td><td>5.70</td><td>1.67</td><td>6.0</td><td>3.19</td><td style="color:var(--bad)">🔻 12.5</td><td>4.14</td><td>7%</td><td>0.82</td><td>V58</td><td>Skip K alts. V58 = SEA bat target. Second YRFI</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1415,10 +1443,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="row-tier0"><td><strong>Cam Schlittler</strong></td><td>NYY</td><td>1.52</td><td>0.87</td><td>10.1</td><td style="color:var(--good)">6.13</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td>4.60</td><td>55%</td><td>0.59</td><td>V11</td><td>T0 K — elite ERA/WHIP. MIL bats limited vs elite arm</td></tr>
-          <tr class="row-tier0"><td><strong>Kyle Harrison</strong></td><td>MIL</td><td>2.12</td><td>1.11</td><td>10.8</td><td style="color:var(--bad); font-weight:700">6.04</td><td>15.6</td><td>4.51</td><td>32%</td><td>0.83</td><td>V14</td><td>T0 K — 6.04 BPP. Judge danger bat. HRA 0.83 flag</td></tr>
+          <tr class="row-tier0"><td><strong>Cam Schlittler</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYY</td><td>1.52</td><td>0.87</td><td>10.1</td><td style="color:var(--good)">6.13</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td>4.60</td><td>55%</td><td>0.59</td><td>V11</td><td>T0 K — elite ERA/WHIP. MIL bats limited vs elite arm</td></tr>
+          <tr class="row-tier0"><td><strong>Kyle Harrison</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>MIL</td><td>2.12</td><td>1.11</td><td>10.8</td><td style="color:var(--bad); font-weight:700">6.04</td><td>15.6</td><td>4.51</td><td>32%</td><td>0.83</td><td>V14</td><td>T0 K — 6.04 BPP. Judge danger bat. HRA 0.83 flag</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1452,10 +1480,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Clay Holmes</td><td>NYM</td><td>1.69</td><td>0.98</td><td>6.6</td><td>3.45</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 5.59</strong></td><td>33%</td><td>0.48</td><td>V22</td><td>Skip K alts. NYM will score runs on Kelly</td></tr>
-          <tr class="row-bad"><td>Merrill Kelly</td><td>ARI</td><td>9.95</td><td>2.32</td><td>6.6</td><td>3.81</td><td>30%</td><td>0.79</td><td style="color:var(--bad)">V68</td><td>V68 blowup — NYM bats feast. Chase +10% 2B boosts</td></tr>
+          <tr><td>NoneClay HolmesNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYM</td><td>1.69</td><td>0.98</td><td>6.6</td><td>3.45</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 5.59</strong></td><td>33%</td><td>0.48</td><td>V22</td><td>Skip K alts. NYM will score runs on Kelly</td></tr>
+          <tr class="row-bad"><td>NoneMerrill KellyNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ARI</td><td>9.95</td><td>2.32</td><td>6.6</td><td>3.81</td><td>30%</td><td>0.79</td><td style="color:var(--bad)">V68</td><td>V68 blowup — NYM bats feast. Chase +10% 2B boosts</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit / 2B Targets</h3>
@@ -1491,10 +1519,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Dustin May</td><td>STL</td><td>5.15</td><td>1.53</td><td>6.2</td><td>3.49</td><td>14.6</td><td style="color:var(--hot)">🔺 5.23</td><td>23%</td><td>0.67</td><td>V46</td><td>Skip K alts. SD bats vs May — T2 ride</td></tr>
-          <tr><td>Randy Vasquez</td><td>SD</td><td>3.20</td><td>1.17</td><td>8.3</td><td>0.00</td><td>16.9</td><td>4.62</td><td>0%</td><td>0.00</td><td>V17</td><td>Skip all props — BPP 0.00 projection suggests TBD confirm needed</td></tr>
+          <tr><td>NoneDustin MayNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL</td><td>5.15</td><td>1.53</td><td>6.2</td><td>3.49</td><td>14.6</td><td style="color:var(--hot)">🔺 5.23</td><td>23%</td><td>0.67</td><td>V46</td><td>Skip K alts. SD bats vs May — T2 ride</td></tr>
+          <tr><td>NoneRandy VasquezNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SD</td><td>3.20</td><td>1.17</td><td>8.3</td><td>0.00</td><td>16.9</td><td>4.62</td><td>0%</td><td>0.00</td><td>V17</td><td>Skip all props — BPP 0.00 projection suggests TBD confirm needed</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1528,10 +1556,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Braxton Ashcraft</td><td>PIT</td><td>3.02</td><td>1.08</td><td>9.8</td><td>5.00</td><td style="color:var(--good)">🟢 17.0</td><td>4.71</td><td>48%</td><td>0.39</td><td>V14</td><td>Low HRA — SF bats capped. T2 K borderline</td></tr>
-          <tr class="row-tier1"><td>Landen Roupp</td><td>SF</td><td>3.18</td><td>1.06</td><td>9.9</td><td>5.82</td><td>16.2</td><td>4.22</td><td>39%</td><td>0.39</td><td>V11</td><td>T1 K — both arms low HRA = NRFI heaven</td></tr>
+          <tr><td>NoneBraxton AshcraftNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>PIT</td><td>3.02</td><td>1.08</td><td>9.8</td><td>5.00</td><td style="color:var(--good)">🟢 17.0</td><td>4.71</td><td>48%</td><td>0.39</td><td>V14</td><td>Low HRA — SF bats capped. T2 K borderline</td></tr>
+          <tr class="row-tier1"><td>NoneLanden RouppNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SF</td><td>3.18</td><td>1.06</td><td>9.9</td><td>5.82</td><td>16.2</td><td>4.22</td><td>39%</td><td>0.39</td><td>V11</td><td>T1 K — both arms low HRA = NRFI heaven</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1566,10 +1594,10 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
       <div class="table-wrap"><table>
-        <thead><tr><th>Pitcher</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
+        <thead><tr><th>Pitcher</th><th>B</th><th>Tm</th><th>ERA</th><th>WHIP</th><th>K9</th><th>BPP K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="row-bad"><td>Spencer Strider</td><td>ATL</td><td>8.10</td><td>2.70</td><td>17.4</td><td>4.30</td><td>14.5</td><td style="color:var(--hot)">🔺 5.04</td><td>21%</td><td>1.04</td><td>V53</td><td>V53 + HRA 1.04 — avoid K props. Target LAD bats heavily</td></tr>
-          <tr class="row-tier0"><td><strong>Blake Snell</strong></td><td>LAD</td><td>—</td><td>—</td><td>—</td><td>7.43</td><td>16.3</td><td>3.72</td><td>42%</td><td>0.60</td><td>V11</td><td>T0 K — BPP 7.43 slate-#1 new pitcher, Vuln 11. Prime K target</td></tr>
+          <tr class="row-bad"><td>NoneSpencer StriderNone</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ATL</td><td>8.10</td><td>2.70</td><td>17.4</td><td>4.30</td><td>14.5</td><td style="color:var(--hot)">🔺 5.04</td><td>21%</td><td>1.04</td><td>V53</td><td>V53 + HRA 1.04 — avoid K props. Target LAD bats heavily</td></tr>
+          <tr class="row-tier0"><td><strong>Blake Snell</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>LAD</td><td>—</td><td>—</td><td>—</td><td>7.43</td><td>16.3</td><td>3.72</td><td>42%</td><td>0.60</td><td>V11</td><td>T0 K — BPP 7.43 slate-#1 new pitcher, Vuln 11. Prime K target</td></tr>
         </tbody>
       </table></div>
       <h3>HR / Hit Targets</h3>
@@ -1606,38 +1634,38 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table>
-    <thead><tr><th>Tier</th><th>Pitcher</th><th>Tm</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
+    <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
     <tbody>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Blake Snell</strong></td><td>LAD</td><td style="color:var(--tier0); font-weight:700">—</td><td style="color:var(--bad); font-weight:700">7.43</td><td>16.3</td><td>3.72</td><td>—</td><td>42%</td><td>0.60</td><td>V11</td><td>O 5+ K</td><td>Slate #1 BPP K — new pitcher, elite projection vs ATL bats</td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Trey Yesavage</strong></td><td>TOR</td><td style="color:var(--tier0); font-weight:700">4.59</td><td style="color:var(--bad); font-weight:700">7.28</td><td>16.3</td><td>3.96</td><td>0.96</td><td>39%</td><td>0.73</td><td>V14</td><td>O 5+ K</td><td>ERA 0.96 elite — BPP 7.28 confirms. T0 vs LAA</td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Aaron Nola</strong></td><td>PHI</td><td style="color:var(--tier0); font-weight:700">5.33</td><td style="color:var(--bad); font-weight:700">6.88</td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>4.97</td><td>5.06</td><td>49%</td><td>0.94</td><td>V54</td><td>O 5+ K</td><td>V54 Freeland — PHI park +10% HR but Nola K still elite</td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Jack Leiter</strong></td><td>TEX</td><td style="color:var(--tier0); font-weight:700">4.68</td><td style="color:var(--bad); font-weight:700">6.14</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td style="color:var(--hot)">🔺 5.09</td><td>5.45</td><td>49%</td><td>0.79</td><td>V60</td><td>O 5+ K</td><td>V60 CHC lineup — Globe Life -11% helps K play</td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Cam Schlittler</strong></td><td>NYY</td><td style="color:var(--tier0); font-weight:700">4.93</td><td style="color:var(--bad); font-weight:700">6.13</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td>4.60</td><td>1.52</td><td>55%</td><td>0.59</td><td>V11</td><td>O 5+ K</td><td>ERA 1.52 elite — BPP 6.13, V11 = K ceiling solid</td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Kyle Harrison</td><td>MIL</td><td>5.10</td><td>6.04</td><td>15.6</td><td>4.51</td><td>2.12</td><td>32%</td><td>0.83</td><td>V14</td><td>O 5+ K</td><td>T1 — MIL home, ERA 2.12 solid vs NYY bats</td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Landen Roupp</td><td>SF</td><td>4.55</td><td>5.82</td><td>16.2</td><td>4.22</td><td>3.18</td><td>39%</td><td>0.39</td><td>V11</td><td>O 5+ K</td><td>T1 K — Oracle neutral park. Low HRA = NRFI gem</td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Chase Burns</td><td>CIN</td><td>5.55</td><td>5.71</td><td>14.7</td><td>3.62</td><td>2.20</td><td>19%</td><td>0.64</td><td>V34</td><td>O 5+ K</td><td>T1 — GABP +12% HR risk but K prop independent</td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Payton Tolle</td><td>BOS</td><td>4.66</td><td>5.31</td><td>16.8</td><td><strong style="color:var(--bad)">🔺 5.54</strong></td><td>2.04</td><td>32%</td><td>0.43</td><td>V14</td><td>O 5+ K</td><td>T1 — Fenway +24% 2B but K prop separate. ERA 2.04</td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Edward Cabrera</td><td>CHC</td><td>5.13</td><td>5.21</td><td>15.9</td><td>4.86</td><td>3.27</td><td>36%</td><td>0.59</td><td>V31</td><td>O 4.5 K</td><td>T1 border — use 4.5 alt</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Braxton Ashcraft</td><td>PIT</td><td>4.95</td><td>5.00</td><td style="color:var(--good)">🟢 17.0</td><td>4.71</td><td>3.02</td><td>48%</td><td>0.39</td><td>V14</td><td>O 4.5 K</td><td>T2 — low HRA = NRFI anchor. K borderline</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Tanner Bibee</td><td>CLE</td><td>5.21</td><td>4.93</td><td>16.4</td><td style="color:var(--hot)">🔺 5.19</td><td>4.58</td><td>37%</td><td>0.76</td><td>V40</td><td>O 4.5 K</td><td>T2 — V40 vs solid MIN bats</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Spencer Arrighetti</td><td>HOU</td><td>5.37</td><td>4.86</td><td>14.2</td><td>4.12</td><td>1.96</td><td>20%</td><td>0.86</td><td>V37</td><td>O 3.5 K</td><td>T2 — HRA 0.86 flagged. GABP +12% HR risk</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Joe Ryan</td><td>MIN</td><td>5.67</td><td>4.57</td><td>16.2</td><td>4.88</td><td>3.72</td><td>36%</td><td>0.88</td><td>V17</td><td>O 3.5 K</td><td>T2 — HRA 0.88 caution</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Kyle Freeland</td><td>COL</td><td>3.66</td><td>4.38</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 6.34</strong></td><td>5.04</td><td>31%</td><td>0.92</td><td>V50</td><td>O 3.5 K</td><td>T2 border — V50 + HRA 0.92. Use 3.5 only</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Spencer Strider</td><td>ATL</td><td>6.15</td><td>4.30</td><td>14.5</td><td style="color:var(--hot)">🔺 5.04</td><td>8.10</td><td>21%</td><td>1.04</td><td>V53</td><td>SKIP</td><td>HRA 1.04 = skip K props. ERA 8.10 ugly. Target LAD bats vs him</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Shane Baz</td><td>BAL</td><td>4.84</td><td>4.22</td><td>15.6</td><td style="color:var(--hot)">🔺 5.49</td><td>4.99</td><td>32%</td><td>0.61</td><td>V54</td><td>O 3.5 K</td><td>T2 — V54 ATH bats</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Aaron Civale</td><td>ATH</td><td>4.39</td><td>4.15</td><td>15.9</td><td style="color:var(--hot)">🔺 5.14</td><td>2.95</td><td>34%</td><td>0.77</td><td>V34</td><td>O 3.5 K</td><td>T2</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Luis Castillo</td><td>SEA</td><td>5.15</td><td>4.14</td><td>14.5</td><td>5.00</td><td>6.29</td><td>21%</td><td>0.83</td><td>V60</td><td>O 3.5 K</td><td>V60 CWS — ERA 6.29 risky. HR props more appealing</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Janson Junk</td><td>MIA</td><td>4.07</td><td>3.98</td><td style="color:var(--good)">🟢 17.8</td><td style="color:var(--hot)">🔺 5.28</td><td>2.82</td><td>52%</td><td>0.50</td><td>V14</td><td>O 3.5 K</td><td>T2 solid QS% but low K ceiling</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Michael Wacha</td><td>KC</td><td>3.90</td><td>3.95</td><td style="color:var(--good)">🟢 17.2</td><td style="color:var(--hot)">🔺 5.34</td><td>3.05</td><td>42%</td><td>1.00</td><td>V14</td><td>SKIP K</td><td>HRA 1.00 — skip K props. DET bats T2 hit targets</td></tr>
-      <tr><td><span class="badge b-neutral">T2</span></td><td>Merrill Kelly</td><td>ARI</td><td>4.47</td><td>3.81</td><td>15.5</td><td><strong style="color:var(--bad)">🔺 6.15</strong></td><td>9.95</td><td>30%</td><td>0.79</td><td>V68</td><td>O 3.5 K</td><td>V68 = NYM bats TARGET him for hits/HRR</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Dustin May</td><td>STL</td><td>4.97</td><td>3.49</td><td>14.6</td><td style="color:var(--hot)">🔺 5.23</td><td>5.15</td><td>23%</td><td>0.67</td><td>V46</td><td>SKIP K</td><td>BPP 3.49 under threshold. Skip K alts</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Clay Holmes</td><td>NYM</td><td>4.06</td><td>3.45</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 5.59</strong></td><td>1.69</td><td>33%</td><td>0.48</td><td>V22</td><td>SKIP K</td><td>BPP 3.45 — skip. Chase Field +10% 2B</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Anthony Kay</td><td>CWS</td><td>4.44</td><td>3.19</td><td style="color:var(--bad)">🔻 12.5</td><td>4.14</td><td>5.70</td><td>7%</td><td>0.82</td><td>V58</td><td>SKIP K</td><td>BPP 3.19 sub-threshold. V58 SEA bats target him</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Jack Kochanowicz</td><td>LAA</td><td>2.91</td><td>3.17</td><td>16.1</td><td style="color:var(--hot)">🔺 5.41</td><td>3.05</td><td>37%</td><td>0.61</td><td>V17</td><td>SKIP K</td><td>SS 2.91 + BPP 3.17 both sub-threshold</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Zack Littell</td><td>WAS</td><td>4.03</td><td>2.54</td><td>14.6</td><td style="color:var(--hot)">🔺 5.19</td><td>7.24</td><td>21%</td><td>0.70</td><td>V60</td><td>SKIP K</td><td>BPP 2.54 — skip all K props. V60 MIA bats</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Nick Martinez</td><td>TB</td><td>4.86</td><td>2.43</td><td style="color:var(--bad)">🔻 13.3</td><td>4.80</td><td>1.71</td><td>8%</td><td>0.50</td><td>V17</td><td>SKIP K</td><td>BPP 2.43 very low. Target BOS bats vs him at Fenway</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Burch Smith</td><td>DET</td><td>0.00</td><td>1.52</td><td style="color:var(--bad)">🔻 5.1</td><td style="color:var(--good)">🟢 1.64</td><td>1.59</td><td>0%</td><td>0.24</td><td>V14</td><td>SKIP K</td><td>BPP 1.52 + SS 0.00 — no K projection. KC bats target</td></tr>
-      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Randy Vásquez</td><td>SD</td><td>0.00</td><td>0.00</td><td>16.9</td><td>4.62</td><td>3.20</td><td>0%</td><td>0.00</td><td>V17</td><td>SKIP ALL</td><td>BPP 0.00 — TBD confirm needed. Skip all props</td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Blake Snell</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>LAD</td><td style="color:var(--tier0); font-weight:700">—</td><td style="color:var(--bad); font-weight:700">7.43</td><td>16.3</td><td>3.72</td><td>—</td><td>42%</td><td>0.60</td><td>V11</td><td>O 5+ K</td><td>Slate #1 BPP K — new pitcher, elite projection vs ATL bats</td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Trey Yesavage</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TOR</td><td style="color:var(--tier0); font-weight:700">4.59</td><td style="color:var(--bad); font-weight:700">7.28</td><td>16.3</td><td>3.96</td><td>0.96</td><td>39%</td><td>0.73</td><td>V14</td><td>O 5+ K</td><td>ERA 0.96 elite — BPP 7.28 confirms. T0 vs LAA</td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Aaron Nola</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>PHI</td><td style="color:var(--tier0); font-weight:700">5.33</td><td style="color:var(--bad); font-weight:700">6.88</td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>4.97</td><td>5.06</td><td>49%</td><td>0.94</td><td>V54</td><td>O 5+ K</td><td>V54 Freeland — PHI park +10% HR but Nola K still elite</td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Jack Leiter</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX</td><td style="color:var(--tier0); font-weight:700">4.68</td><td style="color:var(--bad); font-weight:700">6.14</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td style="color:var(--hot)">🔺 5.09</td><td>5.45</td><td>49%</td><td>0.79</td><td>V60</td><td>O 5+ K</td><td>V60 CHC lineup — Globe Life -11% helps K play</td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Cam Schlittler</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYY</td><td style="color:var(--tier0); font-weight:700">4.93</td><td style="color:var(--bad); font-weight:700">6.13</td><td><strong style="color:var(--good)">🟢 17.6</strong></td><td>4.60</td><td>1.52</td><td>55%</td><td>0.59</td><td>V11</td><td>O 5+ K</td><td>ERA 1.52 elite — BPP 6.13, V11 = K ceiling solid</td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Kyle Harrison</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>MIL</td><td>5.10</td><td>6.04</td><td>15.6</td><td>4.51</td><td>2.12</td><td>32%</td><td>0.83</td><td>V14</td><td>O 5+ K</td><td>T1 — MIL home, ERA 2.12 solid vs NYY bats</td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Landen Roupp</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SF</td><td>4.55</td><td>5.82</td><td>16.2</td><td>4.22</td><td>3.18</td><td>39%</td><td>0.39</td><td>V11</td><td>O 5+ K</td><td>T1 K — Oracle neutral park. Low HRA = NRFI gem</td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Chase Burns</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CIN</td><td>5.55</td><td>5.71</td><td>14.7</td><td>3.62</td><td>2.20</td><td>19%</td><td>0.64</td><td>V34</td><td>O 5+ K</td><td>T1 — GABP +12% HR risk but K prop independent</td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Payton Tolle</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>BOS</td><td>4.66</td><td>5.31</td><td>16.8</td><td><strong style="color:var(--bad)">🔺 5.54</strong></td><td>2.04</td><td>32%</td><td>0.43</td><td>V14</td><td>O 5+ K</td><td>T1 — Fenway +24% 2B but K prop separate. ERA 2.04</td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td>Edward Cabrera</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CHC</td><td>5.13</td><td>5.21</td><td>15.9</td><td>4.86</td><td>3.27</td><td>36%</td><td>0.59</td><td>V31</td><td>O 4.5 K</td><td>T1 border — use 4.5 alt</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Braxton Ashcraft</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>PIT</td><td>4.95</td><td>5.00</td><td style="color:var(--good)">🟢 17.0</td><td>4.71</td><td>3.02</td><td>48%</td><td>0.39</td><td>V14</td><td>O 4.5 K</td><td>T2 — low HRA = NRFI anchor. K borderline</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Tanner Bibee</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CLE</td><td>5.21</td><td>4.93</td><td>16.4</td><td style="color:var(--hot)">🔺 5.19</td><td>4.58</td><td>37%</td><td>0.76</td><td>V40</td><td>O 4.5 K</td><td>T2 — V40 vs solid MIN bats</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Spencer Arrighetti</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>HOU</td><td>5.37</td><td>4.86</td><td>14.2</td><td>4.12</td><td>1.96</td><td>20%</td><td>0.86</td><td>V37</td><td>O 3.5 K</td><td>T2 — HRA 0.86 flagged. GABP +12% HR risk</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Joe Ryan</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIN</td><td>5.67</td><td>4.57</td><td>16.2</td><td>4.88</td><td>3.72</td><td>36%</td><td>0.88</td><td>V17</td><td>O 3.5 K</td><td>T2 — HRA 0.88 caution</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Kyle Freeland</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>COL</td><td>3.66</td><td>4.38</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 6.34</strong></td><td>5.04</td><td>31%</td><td>0.92</td><td>V50</td><td>O 3.5 K</td><td>T2 border — V50 + HRA 0.92. Use 3.5 only</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Spencer Strider</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ATL</td><td>6.15</td><td>4.30</td><td>14.5</td><td style="color:var(--hot)">🔺 5.04</td><td>8.10</td><td>21%</td><td>1.04</td><td>V53</td><td>SKIP</td><td>HRA 1.04 = skip K props. ERA 8.10 ugly. Target LAD bats vs him</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Shane Baz</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>BAL</td><td>4.84</td><td>4.22</td><td>15.6</td><td style="color:var(--hot)">🔺 5.49</td><td>4.99</td><td>32%</td><td>0.61</td><td>V54</td><td>O 3.5 K</td><td>T2 — V54 ATH bats</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Aaron Civale</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ATH</td><td>4.39</td><td>4.15</td><td>15.9</td><td style="color:var(--hot)">🔺 5.14</td><td>2.95</td><td>34%</td><td>0.77</td><td>V34</td><td>O 3.5 K</td><td>T2</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Luis Castillo</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA</td><td>5.15</td><td>4.14</td><td>14.5</td><td>5.00</td><td>6.29</td><td>21%</td><td>0.83</td><td>V60</td><td>O 3.5 K</td><td>V60 CWS — ERA 6.29 risky. HR props more appealing</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Janson Junk</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIA</td><td>4.07</td><td>3.98</td><td style="color:var(--good)">🟢 17.8</td><td style="color:var(--hot)">🔺 5.28</td><td>2.82</td><td>52%</td><td>0.50</td><td>V14</td><td>O 3.5 K</td><td>T2 solid QS% but low K ceiling</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Michael Wacha</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>KC</td><td>3.90</td><td>3.95</td><td style="color:var(--good)">🟢 17.2</td><td style="color:var(--hot)">🔺 5.34</td><td>3.05</td><td>42%</td><td>1.00</td><td>V14</td><td>SKIP K</td><td>HRA 1.00 — skip K props. DET bats T2 hit targets</td></tr>
+      <tr><td><span class="badge b-neutral">T2</span></td><td>Merrill Kelly</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ARI</td><td>4.47</td><td>3.81</td><td>15.5</td><td><strong style="color:var(--bad)">🔺 6.15</strong></td><td>9.95</td><td>30%</td><td>0.79</td><td>V68</td><td>O 3.5 K</td><td>V68 = NYM bats TARGET him for hits/HRR</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Dustin May</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL</td><td>4.97</td><td>3.49</td><td>14.6</td><td style="color:var(--hot)">🔺 5.23</td><td>5.15</td><td>23%</td><td>0.67</td><td>V46</td><td>SKIP K</td><td>BPP 3.49 under threshold. Skip K alts</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Clay Holmes</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYM</td><td>4.06</td><td>3.45</td><td>15.8</td><td><strong style="color:var(--bad)">🔺 5.59</strong></td><td>1.69</td><td>33%</td><td>0.48</td><td>V22</td><td>SKIP K</td><td>BPP 3.45 — skip. Chase Field +10% 2B</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Anthony Kay</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CWS</td><td>4.44</td><td>3.19</td><td style="color:var(--bad)">🔻 12.5</td><td>4.14</td><td>5.70</td><td>7%</td><td>0.82</td><td>V58</td><td>SKIP K</td><td>BPP 3.19 sub-threshold. V58 SEA bats target him</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Jack Kochanowicz</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA</td><td>2.91</td><td>3.17</td><td>16.1</td><td style="color:var(--hot)">🔺 5.41</td><td>3.05</td><td>37%</td><td>0.61</td><td>V17</td><td>SKIP K</td><td>SS 2.91 + BPP 3.17 both sub-threshold</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Zack Littell</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>WAS</td><td>4.03</td><td>2.54</td><td>14.6</td><td style="color:var(--hot)">🔺 5.19</td><td>7.24</td><td>21%</td><td>0.70</td><td>V60</td><td>SKIP K</td><td>BPP 2.54 — skip all K props. V60 MIA bats</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Nick Martinez</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TB</td><td>4.86</td><td>2.43</td><td style="color:var(--bad)">🔻 13.3</td><td>4.80</td><td>1.71</td><td>8%</td><td>0.50</td><td>V17</td><td>SKIP K</td><td>BPP 2.43 very low. Target BOS bats vs him at Fenway</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Burch Smith</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>DET</td><td>0.00</td><td>1.52</td><td style="color:var(--bad)">🔻 5.1</td><td style="color:var(--good)">🟢 1.64</td><td>1.59</td><td>0%</td><td>0.24</td><td>V14</td><td>SKIP K</td><td>BPP 1.52 + SS 0.00 — no K projection. KC bats target</td></tr>
+      <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td>Randy Vásquez</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SD</td><td>0.00</td><td>0.00</td><td>16.9</td><td>4.62</td><td>3.20</td><td>0%</td><td>0.00</td><td>V17</td><td>SKIP ALL</td><td>BPP 0.00 — TBD confirm needed. Skip all props</td></tr>
     </tbody>
   </table></div>
   <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">BPP Ks ≥6.0 shown in red (aggressive line). 🟢 Outs ≥17 = full outing (bold = K ≥6 elite combo). 🔻 Outs ≤14 = short outing risk. 🔺 Hits ≥5.0 = pitcher giving up hits (TARGET his bats). 🟢 Hits ≤3.5 = stingy. QS% ≥40% bold green. HRA ≥0.85 red. T0 threshold: BPP ≥6.0.</p>
@@ -1655,33 +1683,33 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table>
-    <thead><tr><th>#</th><th>Player</th><th>Tm</th><th>BPP HR%</th><th>Score</th><th>⚡ Zone</th><th>xwOBA</th><th>Bar%</th><th>HH%</th><th>Vuln</th><th>Pitcher</th><th>Park</th><th>Tier</th></tr></thead>
+    <thead><tr><th>#</th><th>Player</th><th>B</th><th>Tm</th><th>BPP HR%</th><th>Score</th><th>⚡ Zone</th><th>xwOBA</th><th>Bar%</th><th>HH%</th><th>Vuln</th><th>Pitcher</th><th>P</th><th>Park</th><th>Tier</th></tr></thead>
     <tbody>
-      <tr class="row-tier0"><td>1</td><td><strong>Munetaka Murakami</strong></td><td>CWS</td><td>18.6%</td><td>87</td><td>⚡9</td><td>0.391</td><td>22.1%</td><td>63.6%</td><td>V60</td><td>Castillo</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier0">T0</span></td></tr>
-      <tr class="row-tier1"><td>2</td><td>Colson Montgomery</td><td>CWS</td><td>17.5%</td><td>84</td><td>⚡5</td><td>0.328</td><td>14.8%</td><td>40.9%</td><td>V60</td><td>Castillo</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>3</td><td>Hunter Goodman</td><td>COL</td><td>21.8%</td><td>81</td><td>⚡8</td><td>0.313</td><td>14.9%</td><td>53.3%</td><td>V54</td><td>Nola</td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>4</td><td>Miguel Vargas</td><td>CWS</td><td>19.4%</td><td>80</td><td>⚡4</td><td>0.376</td><td>13.5%</td><td>44.2%</td><td>V60</td><td>Castillo</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>5</td><td>Seiya Suzuki</td><td>CHC</td><td>14.4%</td><td>79</td><td>⚡5</td><td>—</td><td>12.8%</td><td>56.5%</td><td>V60</td><td>Leiter</td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>6</td><td>Luke Raley</td><td>SEA</td><td>—</td><td>75</td><td>⚡5</td><td>—</td><td>15.0%</td><td>60.0%</td><td>V58</td><td>Kay</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>7</td><td>Mickey Moniak</td><td>COL</td><td>22.4%</td><td>74</td><td>⚡5</td><td>0.344</td><td>13.6%</td><td>44.4%</td><td>V54</td><td>Nola</td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>8</td><td>Juan Soto</td><td>NYM</td><td>20.0%</td><td>73</td><td>⚡2</td><td>—</td><td>11.9%</td><td>51.5%</td><td>V68</td><td>Kelly</td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>9</td><td>Andy Pages</td><td>LAD</td><td>14.2%</td><td>73</td><td>⚡6</td><td>0.363</td><td>7.5%</td><td>53.3%</td><td>V53</td><td>Strider</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>10</td><td>Kyle Schwarber</td><td>PHI</td><td>27.7%</td><td>72</td><td>⚡7</td><td>0.384</td><td>20.7%</td><td>48.3%</td><td>V50</td><td>Freeland</td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>11</td><td>Moisés Ballesteros</td><td>CHC</td><td>—</td><td>71</td><td>⚡4</td><td>—</td><td>13.9%</td><td>57.2%</td><td>V60</td><td>Leiter</td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr class="row-tier1"><td>12</td><td>Shohei Ohtani</td><td>LAD</td><td>28.7%</td><td>71</td><td>⚡4</td><td>0.396</td><td>18.3%</td><td>48.9%</td><td>V53</td><td>Strider</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
-      <tr><td>13</td><td>Yordan Alvarez</td><td>HOU</td><td>19.1%</td><td>68</td><td>⚡9</td><td>0.501</td><td>18.2%</td><td>52.1%</td><td>V34</td><td>Burns</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>14</td><td>Dansby Swanson</td><td>CHC</td><td>12.4%</td><td>68</td><td>⚡4</td><td>0.343</td><td>10.5%</td><td>45.8%</td><td>V60</td><td>Leiter</td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>15</td><td>Shea Langeliers</td><td>ATH</td><td>16.4%</td><td>68</td><td>⚡6</td><td>0.425</td><td>16.8%</td><td>49.5%</td><td>V54</td><td>Baz</td><td><span class="pf-neutral">-13%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
-      <tr><td>16</td><td>Carson Benge</td><td>NYM</td><td>13.5%</td><td>67</td><td>⚡3</td><td>—</td><td>10.2%</td><td>47.8%</td><td>V68</td><td>Kelly</td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>17</td><td>Kyle Tucker</td><td>LAD</td><td>19.4%</td><td>67</td><td>⚡3</td><td>0.322</td><td>7.3%</td><td>42.2%</td><td>V53</td><td>Strider</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>18</td><td>Francisco Alvarez</td><td>NYM</td><td>13.6%</td><td>67</td><td>⚡4</td><td>—</td><td>11.8%</td><td>47.4%</td><td>V68</td><td>Kelly</td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>19</td><td>Max Muncy</td><td>LAD</td><td>17.9%</td><td>67</td><td>⚡5</td><td>0.409</td><td>16.3%</td><td>53.5%</td><td>V53</td><td>Strider</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>20</td><td>Julio Rodríguez</td><td>SEA</td><td>—</td><td>66</td><td>⚡4</td><td>0.333</td><td>8.0%</td><td>42.0%</td><td>V58</td><td>Kay</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>21</td><td>Bryce Harper</td><td>PHI</td><td>22.5%</td><td>66</td><td>⚡5</td><td>0.405</td><td>14.9%</td><td>41.2%</td><td>V50</td><td>Freeland</td><td><span class="pf-good">+10%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>22</td><td>Elly De La Cruz</td><td>CIN</td><td>16.0%</td><td>65</td><td>⚡6</td><td>0.370</td><td>16.8%</td><td>50.0%</td><td>V37</td><td>Arrighetti</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>23</td><td>Spencer Steer</td><td>CIN</td><td>19.0%</td><td>65</td><td>⚡5</td><td>0.371</td><td>16.5%</td><td>38.9%</td><td>V37</td><td>Arrighetti</td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
-      <tr><td>24</td><td>Ian Happ</td><td>CHC</td><td>15.7%</td><td>65</td><td>⚡6</td><td>0.363</td><td>16.1%</td><td>40.2%</td><td>V60</td><td>Leiter</td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
-      <tr><td>25</td><td>Mark Vientos</td><td>NYM</td><td>13.5%</td><td>65</td><td>⚡3</td><td>—</td><td>13.2%</td><td>53.2%</td><td>V68</td><td>Kelly</td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr class="row-tier0"><td>1</td><td><strong>Munetaka Murakami</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CWS</td><td>18.6%</td><td>87</td><td>⚡9</td><td>0.391</td><td>22.1%</td><td>63.6%</td><td>V60</td><td>Castillo</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier0">T0</span></td></tr>
+      <tr class="row-tier1"><td>2</td><td>Colson Montgomery</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CWS</td><td>17.5%</td><td>84</td><td>⚡5</td><td>0.328</td><td>14.8%</td><td>40.9%</td><td>V60</td><td>Castillo</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>3</td><td>Hunter Goodman</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>COL</td><td>21.8%</td><td>81</td><td>⚡8</td><td>0.313</td><td>14.9%</td><td>53.3%</td><td>V54</td><td>Nola</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>4</td><td>Miguel Vargas</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CWS</td><td>19.4%</td><td>80</td><td>⚡4</td><td>0.376</td><td>13.5%</td><td>44.2%</td><td>V60</td><td>Castillo</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>5</td><td>Seiya Suzuki</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CHC</td><td>14.4%</td><td>79</td><td>⚡5</td><td>—</td><td>12.8%</td><td>56.5%</td><td>V60</td><td>Leiter</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>6</td><td>Luke Raley</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>SEA</td><td>—</td><td>75</td><td>⚡5</td><td>—</td><td>15.0%</td><td>60.0%</td><td>V58</td><td>Kay</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>7</td><td>Mickey Moniak</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>COL</td><td>22.4%</td><td>74</td><td>⚡5</td><td>0.344</td><td>13.6%</td><td>44.4%</td><td>V54</td><td>Nola</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>8</td><td>Juan Soto</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>NYM</td><td>20.0%</td><td>73</td><td>⚡2</td><td>—</td><td>11.9%</td><td>51.5%</td><td>V68</td><td>Kelly</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>9</td><td>Andy Pages</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAD</td><td>14.2%</td><td>73</td><td>⚡6</td><td>0.363</td><td>7.5%</td><td>53.3%</td><td>V53</td><td>Strider</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>10</td><td>Kyle Schwarber</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>27.7%</td><td>72</td><td>⚡7</td><td>0.384</td><td>20.7%</td><td>48.3%</td><td>V50</td><td>Freeland</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td><span class="pf-good">+10%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>11</td><td>Moisés Ballesteros</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CHC</td><td>—</td><td>71</td><td>⚡4</td><td>—</td><td>13.9%</td><td>57.2%</td><td>V60</td><td>Leiter</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr class="row-tier1"><td>12</td><td>Shohei Ohtani</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>28.7%</td><td>71</td><td>⚡4</td><td>0.396</td><td>18.3%</td><td>48.9%</td><td>V53</td><td>Strider</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-tier1">T1</span></td></tr>
+      <tr><td>13</td><td>Yordan Alvarez</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>HOU</td><td>19.1%</td><td>68</td><td>⚡9</td><td>0.501</td><td>18.2%</td><td>52.1%</td><td>V34</td><td>Burns</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>14</td><td>Dansby Swanson</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CHC</td><td>12.4%</td><td>68</td><td>⚡4</td><td>0.343</td><td>10.5%</td><td>45.8%</td><td>V60</td><td>Leiter</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>15</td><td>Shea Langeliers</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>ATH</td><td>16.4%</td><td>68</td><td>⚡6</td><td>0.425</td><td>16.8%</td><td>49.5%</td><td>V54</td><td>Baz</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-13%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
+      <tr><td>16</td><td>Carson Benge</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>NYM</td><td>13.5%</td><td>67</td><td>⚡3</td><td>—</td><td>10.2%</td><td>47.8%</td><td>V68</td><td>Kelly</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>17</td><td>Kyle Tucker</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>19.4%</td><td>67</td><td>⚡3</td><td>0.322</td><td>7.3%</td><td>42.2%</td><td>V53</td><td>Strider</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>18</td><td>Francisco Alvarez</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>NYM</td><td>13.6%</td><td>67</td><td>⚡4</td><td>—</td><td>11.8%</td><td>47.4%</td><td>V68</td><td>Kelly</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>19</td><td>Max Muncy</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>17.9%</td><td>67</td><td>⚡5</td><td>0.409</td><td>16.3%</td><td>53.5%</td><td>V53</td><td>Strider</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>20</td><td>Julio Rodríguez</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>SEA</td><td>—</td><td>66</td><td>⚡4</td><td>0.333</td><td>8.0%</td><td>42.0%</td><td>V58</td><td>Kay</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>21</td><td>Bryce Harper</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>22.5%</td><td>66</td><td>⚡5</td><td>0.405</td><td>14.9%</td><td>41.2%</td><td>V50</td><td>Freeland</td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td><span class="pf-good">+10%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>22</td><td>Elly De La Cruz</td><td style="text-align:center"><span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>CIN</td><td>16.0%</td><td>65</td><td>⚡6</td><td>0.370</td><td>16.8%</td><td>50.0%</td><td>V37</td><td>Arrighetti</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>23</td><td>Spencer Steer</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CIN</td><td>19.0%</td><td>65</td><td>⚡5</td><td>0.371</td><td>16.5%</td><td>38.9%</td><td>V37</td><td>Arrighetti</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-good">+12%</span></td><td><span class="badge b-warn">T2</span></td></tr>
+      <tr><td>24</td><td>Ian Happ</td><td style="text-align:center"><span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>CHC</td><td>15.7%</td><td>65</td><td>⚡6</td><td>0.363</td><td>16.1%</td><td>40.2%</td><td>V60</td><td>Leiter</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-11%</span></td><td><span class="badge b-warn">T2 ⚠ Park</span></td></tr>
+      <tr><td>25</td><td>Mark Vientos</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>NYM</td><td>13.5%</td><td>65</td><td>⚡3</td><td>—</td><td>13.2%</td><td>53.2%</td><td>V68</td><td>Kelly</td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td><span class="pf-neutral">-2%</span></td><td><span class="badge b-warn">T2</span></td></tr>
     </tbody>
   </table></div>
   <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">Score = composite SS + park + Vuln. ⚡ Zone = Sweet Spot barrel zone 1-10. BPP HR% ≥25% bold red. Park ≥+10% green. Park ≤-10% neutral/red. T0 = Score ≥85 + park-adjusted ≥18% BPP HR.</p>
