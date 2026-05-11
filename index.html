@@ -767,16 +767,24 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   /* ===== Double-tap row inversion feature ===== */
   /* Default (dark theme): inverted row = light surface */
   .tbl-invert {
+    color: #0f1a16 !important;
+    transition: color 0.18s ease;
+  }
+  /* For table rows: paint the cells (tr can't render background reliably) */
+  tr.tbl-invert > td, tr.tbl-invert > th {
+    background: #f8fafc !important;
+    color: #0f1a16 !important;
+    border-color: rgba(15,26,22,0.12) !important;
+  }
+  tr.tbl-invert > td:first-child {
+    box-shadow: inset 3px 0 0 #facc15 !important;
+  }
+  /* For non-table elements (flag-row, li) — paint the element directly */
+  .tbl-invert:not(tr):not(td):not(th) {
     background: #f8fafc !important;
     color: #0f1a16 !important;
     box-shadow: inset 3px 0 0 #facc15, 0 0 0 1px rgba(0,0,0,0.08);
     border-radius: 4px;
-    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
-  }
-  .tbl-invert td, .tbl-invert th {
-    background: transparent !important;
-    color: #0f1a16 !important;
-    border-color: rgba(15,26,22,0.12) !important;
   }
   .tbl-invert a { color: #0c4e54 !important; }
   .tbl-invert strong, .tbl-invert b { color: #0a0a0a !important; }
@@ -793,15 +801,20 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   .tbl-invert .b-hot { color: #c2410c !important; }
   .tbl-invert .b-cold { color: #1d4ed8 !important; }
   /* In LIGHT page theme, flip the inversion: inverted row = DARK surface */
-  [data-theme="light"] .tbl-invert {
+  [data-theme="light"] .tbl-invert { color: #ecf1ee !important; }
+  [data-theme="light"] tr.tbl-invert > td,
+  [data-theme="light"] tr.tbl-invert > th {
+    background: #14110a !important;
+    color: #ecf1ee !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  [data-theme="light"] tr.tbl-invert > td:first-child {
+    box-shadow: inset 3px 0 0 #facc15 !important;
+  }
+  [data-theme="light"] .tbl-invert:not(tr):not(td):not(th) {
     background: #14110a !important;
     color: #ecf1ee !important;
     box-shadow: inset 3px 0 0 #facc15, 0 0 0 1px rgba(255,255,255,0.08);
-  }
-  [data-theme="light"] .tbl-invert td,
-  [data-theme="light"] .tbl-invert th {
-    color: #ecf1ee !important;
-    border-color: rgba(255,255,255,0.10) !important;
   }
   [data-theme="light"] .tbl-invert a { color: #5eead4 !important; }
   [data-theme="light"] .tbl-invert strong,
@@ -1971,9 +1984,16 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     if (willAdd && idx === -1) picks.push(id);
     else if (!willAdd && idx !== -1) picks.splice(idx, 1);
     safeSet('mlb_picks_v1', picks);
+    var nowPicked = picks.indexOf(id) !== -1;
     document.querySelectorAll('.pick-btn[data-pick-id="' + CSS.escape(id) + '"]').forEach(function(b) {
-      if (picks.indexOf(id) !== -1) b.classList.add('picked');
+      if (nowPicked) b.classList.add('picked');
       else b.classList.remove('picked');
+    });
+    // Mirror state on the row itself for the inversion effect
+    document.querySelectorAll('[data-pick-id="' + CSS.escape(id) + '"]').forEach(function(row) {
+      if (row.tagName === 'BUTTON') return; // skip the star button itself
+      if (nowPicked) row.classList.add('tbl-invert');
+      else row.classList.remove('tbl-invert');
     });
     updatePicksUI();
   }
@@ -1997,8 +2017,19 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     picks = [];
     safeSet('mlb_picks_v1', picks);
     document.querySelectorAll('.pick-btn.picked').forEach(function(b){ b.classList.remove('picked'); });
+    document.querySelectorAll('.tbl-invert').forEach(function(r){ r.classList.remove('tbl-invert'); });
     updatePicksUI();
   });
+  // Re-apply inversion to rows whose pick is already saved
+  function restoreInvertedRows() {
+    picks.forEach(function(id) {
+      document.querySelectorAll('[data-pick-id="' + CSS.escape(id) + '"]').forEach(function(row) {
+        if (row.tagName === 'BUTTON') return;
+        row.classList.add('tbl-invert');
+      });
+    });
+  }
+  restoreInvertedRows();
   updatePicksUI();
 
   let picksFilterOn = false;
@@ -2119,186 +2150,5 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 })();
 </script>
 
-<script>
-(function() {
-  'use strict';
-
-  const PRESS_DURATION = 500;
-  const MOVE_TOLERANCE = 12;
-  const STORAGE_KEY = 'mlb-slate-row-invert-v1';
-  const TIP_KEY = 'mlb-slate-invert-tip-v2';
-  const TARGET_SELECTORS = [
-    'table tbody tr',
-    'section .flag-row',
-    'ul.flag-list > li'
-  ];
-
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) { return {}; }
-  }
-  function saveState(state) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-  }
-  let state = loadState();
-
-  function rowKey(el) {
-    const section = el.closest('section');
-    const sid = section ? section.id : 'root';
-    const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().substring(0, 200);
-    return sid + '::' + txt;
-  }
-
-  function findTargetRow(target) {
-    for (const sel of TARGET_SELECTORS) {
-      const hit = target.closest(sel);
-      if (hit) return hit;
-    }
-    return null;
-  }
-
-  function toggleInvert(el) {
-    const k = rowKey(el);
-    if (el.classList.contains('tbl-invert')) {
-      el.classList.remove('tbl-invert');
-      delete state[k];
-    } else {
-      el.classList.add('tbl-invert');
-      state[k] = 1;
-      el.classList.remove('tbl-tap-flash');
-      void el.offsetWidth;
-      el.classList.add('tbl-tap-flash');
-    }
-    saveState(state);
-    updateClearBtn();
-    if (navigator.vibrate) navigator.vibrate(35);
-  }
-
-  function applyStoredInversions() {
-    const sel = TARGET_SELECTORS.join(',');
-    document.querySelectorAll(sel).forEach(el => {
-      const k = rowKey(el);
-      if (state[k]) el.classList.add('tbl-invert');
-    });
-    updateClearBtn();
-  }
-
-  let pressTimer = null;
-  let pressedEl = null;
-  let pressMoved = false;
-  let pressStartXY = null;
-
-  function startPress(e, x, y) {
-    if (e.target.closest('a, button, input, select, summary, label')) return;
-    const row = findTargetRow(e.target);
-    if (!row) return;
-    pressedEl = row;
-    pressMoved = false;
-    pressStartXY = { x: x, y: y };
-    row.classList.add('tbl-pressing');
-    pressTimer = setTimeout(() => {
-      if (pressedEl && !pressMoved) {
-        toggleInvert(pressedEl);
-        pressedEl.classList.remove('tbl-pressing');
-        pressedEl = null;
-      }
-    }, PRESS_DURATION);
-  }
-
-  function movePress(x, y) {
-    if (!pressStartXY) return;
-    const dx = x - pressStartXY.x;
-    const dy = y - pressStartXY.y;
-    if (Math.abs(dx) > MOVE_TOLERANCE || Math.abs(dy) > MOVE_TOLERANCE) {
-      pressMoved = true;
-      cancelPress();
-    }
-  }
-
-  function cancelPress() {
-    if (pressTimer) clearTimeout(pressTimer);
-    pressTimer = null;
-    if (pressedEl) pressedEl.classList.remove('tbl-pressing');
-    pressedEl = null;
-    pressStartXY = null;
-  }
-
-  document.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) { cancelPress(); return; }
-    const t = e.touches[0];
-    startPress(e, t.clientX, t.clientY);
-  }, { passive: true });
-  document.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    if (t) movePress(t.clientX, t.clientY);
-  }, { passive: true });
-  document.addEventListener('touchend', cancelPress, { passive: true });
-  document.addEventListener('touchcancel', cancelPress, { passive: true });
-
-  document.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
-    startPress(e, e.clientX, e.clientY);
-  });
-  document.addEventListener('mousemove', e => movePress(e.clientX, e.clientY));
-  document.addEventListener('mouseup', cancelPress);
-  document.addEventListener('mouseleave', cancelPress);
-
-  document.addEventListener('contextmenu', e => {
-    const row = findTargetRow(e.target);
-    if (!row) return;
-    e.preventDefault();
-    toggleInvert(row);
-  });
-
-  let clearBtn;
-  function updateClearBtn() {
-    if (!clearBtn) return;
-    const count = Object.keys(state).length;
-    if (count > 0) {
-      clearBtn.textContent = '↺ Clear ' + count + ' Inverted Row' + (count > 1 ? 's' : '');
-      clearBtn.classList.add('visible');
-    } else {
-      clearBtn.classList.remove('visible');
-    }
-  }
-  function clearAll() {
-    document.querySelectorAll('.tbl-invert').forEach(el => el.classList.remove('tbl-invert'));
-    state = {};
-    saveState(state);
-    updateClearBtn();
-  }
-
-  function showTip() {
-    if (localStorage.getItem(TIP_KEY)) return;
-    const tip = document.createElement('div');
-    tip.className = 'invert-tip';
-    tip.textContent = '💡 Long-press any row to invert it · Long-press again to undo';
-    document.body.appendChild(tip);
-    setTimeout(() => tip.classList.add('visible'), 800);
-    setTimeout(() => tip.classList.remove('visible'), 5800);
-    setTimeout(() => tip.remove(), 6300);
-    localStorage.setItem(TIP_KEY, '1');
-  }
-
-  function init() {
-    clearBtn = document.createElement('button');
-    clearBtn.className = 'invert-clear-btn';
-    clearBtn.onclick = clearAll;
-    document.body.appendChild(clearBtn);
-    applyStoredInversions();
-    showTip();
-    document.querySelectorAll('.game-header, .collapsible button, .collapsible summary')
-      .forEach(btn => btn.addEventListener('click', () => setTimeout(applyStoredInversions, 60)));
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-</script>
 </body>
 </html>
