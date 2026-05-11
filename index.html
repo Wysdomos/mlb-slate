@@ -764,91 +764,119 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     }
     /* end sticky-board-header */
 
-/* ===== Long-press Highlight Feature ===== */
-block) ============ -->
-<style>
-/* Long-press highlight feature */
-.tbl-highlight {
-  background: linear-gradient(90deg,
-    rgba(250, 204, 21, 0.22) 0%,
-    rgba(250, 204, 21, 0.16) 100%) !important;
-  box-shadow: inset 4px 0 0 #facc15;
-  position: relative;
-  transition: background 0.18s ease, box-shadow 0.18s ease;
-}
-.tbl-highlight td, .tbl-highlight th {
-  background: transparent !important;
-}
-.tbl-highlight::before {
-  content: "★";
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 6px;
-  color: #facc15;
-  font-size: 14px;
-  pointer-events: none;
-  text-shadow: 0 0 4px rgba(0,0,0,0.6);
-  z-index: 1;
-}
-/* Visual feedback during press */
-.tbl-pressing {
-  background: rgba(250, 204, 21, 0.08) !important;
-  transition: background 0.12s ease;
-}
-/* Highlight flag-row variants */
-.flag-row.tbl-highlight {
-  background: linear-gradient(90deg, rgba(250,204,21,0.18), rgba(250,204,21,0.10)) !important;
-  border-left: 3px solid #facc15;
-  padding-left: calc(10px - 3px); /* compensate for border */
-}
-.flag-row.tbl-highlight::before { display: none; }
-/* Conviction list items */
-ul.flag-list li.tbl-highlight {
-  background: linear-gradient(90deg, rgba(250,204,21,0.18), rgba(250,204,21,0.10)) !important;
-  border-left: 3px solid #facc15;
-  padding-left: 9px;
-  border-radius: 4px;
-}
-ul.flag-list li.tbl-highlight::before { display: none; }
-/* "Clear all highlights" button */
-.highlight-clear-btn {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: #1f2937;
-  color: #facc15;
-  border: 1px solid #facc15;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  display: none;
-}
-.highlight-clear-btn.visible { display: block; }
-.highlight-clear-btn:hover { background: #facc15; color: #1f2937; }
-/* Help tip toast */
-.highlight-tip {
-  position: fixed;
-  top: 64px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(31, 41, 55, 0.95);
-  color: #facc15;
-  border: 1px solid #facc15;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.highlight-tip.visible { opacity: 1; }
+  /* ===== Double-tap row inversion feature ===== */
+  /* Default (dark theme): inverted row = light surface */
+  .tbl-invert {
+    background: #f8fafc !important;
+    color: #0f1a16 !important;
+    box-shadow: inset 3px 0 0 #facc15, 0 0 0 1px rgba(0,0,0,0.08);
+    border-radius: 4px;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .tbl-invert td, .tbl-invert th {
+    background: transparent !important;
+    color: #0f1a16 !important;
+    border-color: rgba(15,26,22,0.12) !important;
+  }
+  .tbl-invert a { color: #0c4e54 !important; }
+  .tbl-invert strong, .tbl-invert b { color: #0a0a0a !important; }
+  .tbl-invert em { color: #4a5568 !important; }
+  /* Force any colored spans inside an inverted row to readable dark variants */
+  .tbl-invert .pf-good { color: #15803d !important; }
+  .tbl-invert .pf-darkred { color: #b91c1c !important; }
+  .tbl-invert .pf-neutral { color: #475569 !important; }
+  .tbl-invert .b-tier0 { color: #15803d !important; }
+  .tbl-invert .b-tier1 { color: #4d7c0f !important; }
+  .tbl-invert .b-good { color: #15803d !important; }
+  .tbl-invert .b-bad { color: #b91c1c !important; }
+  .tbl-invert .b-warn { color: #b45309 !important; }
+  .tbl-invert .b-hot { color: #c2410c !important; }
+  .tbl-invert .b-cold { color: #1d4ed8 !important; }
+  /* In LIGHT page theme, flip the inversion: inverted row = DARK surface */
+  [data-theme="light"] .tbl-invert {
+    background: #14110a !important;
+    color: #ecf1ee !important;
+    box-shadow: inset 3px 0 0 #facc15, 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  [data-theme="light"] .tbl-invert td,
+  [data-theme="light"] .tbl-invert th {
+    color: #ecf1ee !important;
+    border-color: rgba(255,255,255,0.10) !important;
+  }
+  [data-theme="light"] .tbl-invert a { color: #5eead4 !important; }
+  [data-theme="light"] .tbl-invert strong,
+  [data-theme="light"] .tbl-invert b { color: #ffffff !important; }
+  [data-theme="light"] .tbl-invert em { color: #cbd5e1 !important; }
+  [data-theme="light"] .tbl-invert .pf-good { color: #4ade80 !important; }
+  [data-theme="light"] .tbl-invert .pf-darkred { color: #fca5a5 !important; }
+  [data-theme="light"] .tbl-invert .pf-neutral { color: #cbd5e1 !important; }
+  [data-theme="light"] .tbl-invert .b-tier0 { color: #4ade80 !important; }
+  [data-theme="light"] .tbl-invert .b-tier1 { color: #a3e635 !important; }
+  [data-theme="light"] .tbl-invert .b-good { color: #4ade80 !important; }
+  [data-theme="light"] .tbl-invert .b-bad { color: #fca5a5 !important; }
+  [data-theme="light"] .tbl-invert .b-warn { color: #fbbf24 !important; }
+  [data-theme="light"] .tbl-invert .b-hot { color: #fb923c !important; }
+  [data-theme="light"] .tbl-invert .b-cold { color: #93c5fd !important; }
+  /* flag-row + list-item variants get the same treatment */
+  .flag-row.tbl-invert,
+  ul.flag-list li.tbl-invert {
+    padding-left: calc(10px - 3px);
+    border-radius: 6px;
+  }
+  /* Brief tap-feedback flash */
+  .tbl-tap-flash {
+    animation: tblTapFlash 240ms ease-out;
+  }
+  @keyframes tblTapFlash {
+    0%   { background: rgba(250, 204, 21, 0.20); }
+    100% { background: transparent; }
+  }
+  /* Clear-all floating button */
+  .invert-clear-btn {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: #1f2937;
+    color: #facc15;
+    border: 1px solid #facc15;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    display: none;
+  }
+  .invert-clear-btn.visible { display: block; }
+  .invert-clear-btn:hover { background: #facc15; color: #1f2937; }
+  [data-theme="light"] .invert-clear-btn {
+    background: #ffffff;
+    color: #0c4e54;
+    border-color: #0c4e54;
+  }
+  [data-theme="light"] .invert-clear-btn:hover { background: #0c4e54; color: #ffffff; }
+  /* First-visit tip toast */
+  .invert-tip {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(31, 41, 55, 0.95);
+    color: #facc15;
+    border: 1px solid #facc15;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .invert-tip.visible { opacity: 1; }
 
   </style>
 </head>
@@ -2448,15 +2476,17 @@ ul.flag-list li.tbl-highlight::before { display: none; }
 (function() {
   'use strict';
 
-  const PRESS_DURATION = 450; // ms
-  const STORAGE_KEY = 'mlb-slate-row-highlights-v1';
-  const HIGHLIGHT_SELECTORS = [
-    'table tbody tr',         // any table row
-    'section .flag-row',      // parlays/combos/conviction flag rows
-    'ul.flag-list > li'       // conviction list items
+  const DOUBLE_TAP_WINDOW = 350; // ms between taps
+  const TAP_MOVE_TOLERANCE = 12; // px movement allowed during a tap
+  const STORAGE_KEY = 'mlb-slate-row-invert-v1';
+  const TIP_KEY = 'mlb-slate-invert-tip-v1';
+  const TARGET_SELECTORS = [
+    'table tbody tr',
+    'section .flag-row',
+    'ul.flag-list > li'
   ];
 
-  // ---- State persistence ----
+  // ---- Persistence ----
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -2466,166 +2496,149 @@ ul.flag-list li.tbl-highlight::before { display: none; }
   function saveState(state) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
   }
-  let highlightState = loadState();
+  let state = loadState();
 
-  // ---- Hash function for row keys ----
-  // Use a hash of the row's text content (stripped) as the key.
-  // This survives small DOM changes but matches by content.
   function rowKey(el) {
-    // Combine the parent section ID (if any) with text content hash
-    let section = el.closest('section');
-    let sid = section ? section.id : 'root';
-    let txt = (el.textContent || '').replace(/\s+/g, ' ').trim().substring(0, 200);
+    const section = el.closest('section');
+    const sid = section ? section.id : 'root';
+    const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().substring(0, 200);
     return sid + '::' + txt;
   }
 
-  function applyStoredHighlights() {
-    const sel = HIGHLIGHT_SELECTORS.join(',');
-    document.querySelectorAll(sel).forEach(el => {
-      const k = rowKey(el);
-      if (highlightState[k]) el.classList.add('tbl-highlight');
-    });
-    updateClearBtn();
-  }
-
-  function toggleHighlight(el) {
-    const k = rowKey(el);
-    if (el.classList.contains('tbl-highlight')) {
-      el.classList.remove('tbl-highlight');
-      delete highlightState[k];
-    } else {
-      el.classList.add('tbl-highlight');
-      highlightState[k] = 1;
-    }
-    saveState(highlightState);
-    updateClearBtn();
-  }
-
-  // ---- Long-press detection ----
-  let pressTimer = null;
-  let pressedEl = null;
-  let pressMoved = false;
-  let pressStartXY = null;
-
   function findTargetRow(target) {
-    for (const sel of HIGHLIGHT_SELECTORS) {
+    for (const sel of TARGET_SELECTORS) {
       const hit = target.closest(sel);
       if (hit) return hit;
     }
     return null;
   }
 
-  function startPress(e, x, y) {
-    // Ignore clicks on buttons/links inside rows
-    if (e.target.closest('a, button, input, select, summary')) return;
-    const row = findTargetRow(e.target);
-    if (!row) return;
-    pressedEl = row;
-    pressMoved = false;
-    pressStartXY = { x, y };
-    row.classList.add('tbl-pressing');
-    pressTimer = setTimeout(() => {
-      if (pressedEl && !pressMoved) {
-        toggleHighlight(pressedEl);
-        // Haptic feedback if available
-        if (navigator.vibrate) navigator.vibrate(35);
-        pressedEl.classList.remove('tbl-pressing');
-        pressedEl = null;
-      }
-    }, PRESS_DURATION);
+  function toggleInvert(el) {
+    const k = rowKey(el);
+    if (el.classList.contains('tbl-invert')) {
+      el.classList.remove('tbl-invert');
+      delete state[k];
+    } else {
+      el.classList.add('tbl-invert');
+      state[k] = 1;
+      // brief flash animation on toggle-on
+      el.classList.remove('tbl-tap-flash');
+      // reflow to restart animation
+      void el.offsetWidth;
+      el.classList.add('tbl-tap-flash');
+    }
+    saveState(state);
+    updateClearBtn();
+    if (navigator.vibrate) navigator.vibrate(20);
   }
 
-  function movePress(x, y) {
-    if (!pressStartXY) return;
-    const dx = x - pressStartXY.x;
-    const dy = y - pressStartXY.y;
-    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-      pressMoved = true;
-      cancelPress();
+  function applyStoredInversions() {
+    const sel = TARGET_SELECTORS.join(',');
+    document.querySelectorAll(sel).forEach(el => {
+      const k = rowKey(el);
+      if (state[k]) el.classList.add('tbl-invert');
+    });
+    updateClearBtn();
+  }
+
+  // ---- Double-tap detection (touch) ----
+  let lastTap = null; // { time, x, y, el }
+
+  function handleTap(x, y, target) {
+    if (target.closest('a, button, input, select, summary, label')) return;
+    const row = findTargetRow(target);
+    if (!row) {
+      lastTap = null;
+      return;
+    }
+    const now = Date.now();
+    if (lastTap
+        && lastTap.el === row
+        && (now - lastTap.time) <= DOUBLE_TAP_WINDOW
+        && Math.abs(x - lastTap.x) <= TAP_MOVE_TOLERANCE
+        && Math.abs(y - lastTap.y) <= TAP_MOVE_TOLERANCE) {
+      toggleInvert(row);
+      lastTap = null;
+    } else {
+      lastTap = { time: now, x: x, y: y, el: row };
     }
   }
 
-  function cancelPress() {
-    if (pressTimer) clearTimeout(pressTimer);
-    pressTimer = null;
-    if (pressedEl) pressedEl.classList.remove('tbl-pressing');
-    pressedEl = null;
-    pressStartXY = null;
-  }
-
-  // Touch events
+  // Touch
+  let touchStart = null;
   document.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { touchStart = null; return; }
     const t = e.touches[0];
-    if (t) startPress(e, t.clientX, t.clientY);
+    touchStart = { x: t.clientX, y: t.clientY, target: e.target, time: Date.now() };
   }, { passive: true });
-  document.addEventListener('touchmove', e => {
-    const t = e.touches[0];
-    if (t) movePress(t.clientX, t.clientY);
+
+  document.addEventListener('touchend', e => {
+    if (!touchStart) return;
+    const t = e.changedTouches[0];
+    const dx = Math.abs(t.clientX - touchStart.x);
+    const dy = Math.abs(t.clientY - touchStart.y);
+    const dt = Date.now() - touchStart.time;
+    // Only fire on quick, stationary taps
+    if (dx <= TAP_MOVE_TOLERANCE && dy <= TAP_MOVE_TOLERANCE && dt < 500) {
+      handleTap(t.clientX, t.clientY, touchStart.target);
+    } else {
+      lastTap = null;
+    }
+    touchStart = null;
   }, { passive: true });
-  document.addEventListener('touchend', cancelPress, { passive: true });
-  document.addEventListener('touchcancel', cancelPress, { passive: true });
 
-  // Mouse events (desktop - hold left button for long-press)
-  document.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
-    startPress(e, e.clientX, e.clientY);
-  });
-  document.addEventListener('mousemove', e => movePress(e.clientX, e.clientY));
-  document.addEventListener('mouseup', cancelPress);
-  document.addEventListener('mouseleave', cancelPress);
-
-  // Right-click also toggles (desktop power-user)
-  document.addEventListener('contextmenu', e => {
+  // Mouse (desktop double-click)
+  document.addEventListener('dblclick', e => {
+    if (e.target.closest('a, button, input, select, summary, label')) return;
     const row = findTargetRow(e.target);
     if (!row) return;
+    // Don't hijack text-selection double-clicks unless user clearly hit a row
     e.preventDefault();
-    toggleHighlight(row);
+    toggleInvert(row);
   });
 
   // ---- Clear-all button ----
   let clearBtn;
   function updateClearBtn() {
     if (!clearBtn) return;
-    const count = Object.keys(highlightState).length;
+    const count = Object.keys(state).length;
     if (count > 0) {
-      clearBtn.textContent = '★ Clear ' + count + ' Highlight' + (count > 1 ? 's' : '');
+      clearBtn.textContent = '↺ Clear ' + count + ' Inverted Row' + (count > 1 ? 's' : '');
       clearBtn.classList.add('visible');
     } else {
       clearBtn.classList.remove('visible');
     }
   }
   function clearAll() {
-    document.querySelectorAll('.tbl-highlight').forEach(el => el.classList.remove('tbl-highlight'));
-    highlightState = {};
-    saveState(highlightState);
+    document.querySelectorAll('.tbl-invert').forEach(el => el.classList.remove('tbl-invert'));
+    state = {};
+    saveState(state);
     updateClearBtn();
   }
 
   // ---- First-visit tip ----
   function showTip() {
-    if (localStorage.getItem('mlb-slate-tip-seen-v1')) return;
+    if (localStorage.getItem(TIP_KEY)) return;
     const tip = document.createElement('div');
-    tip.className = 'highlight-tip';
-    tip.textContent = '💡 Long-press any row to highlight · Press again to remove';
+    tip.className = 'invert-tip';
+    tip.textContent = '💡 Double-tap any row to invert it · Double-tap again to undo';
     document.body.appendChild(tip);
     setTimeout(() => tip.classList.add('visible'), 800);
-    setTimeout(() => tip.classList.remove('visible'), 5500);
-    setTimeout(() => tip.remove(), 6000);
-    localStorage.setItem('mlb-slate-tip-seen-v1', '1');
+    setTimeout(() => tip.classList.remove('visible'), 5800);
+    setTimeout(() => tip.remove(), 6300);
+    localStorage.setItem(TIP_KEY, '1');
   }
 
-  // ---- Init ----
   function init() {
     clearBtn = document.createElement('button');
-    clearBtn.className = 'highlight-clear-btn';
+    clearBtn.className = 'invert-clear-btn';
     clearBtn.onclick = clearAll;
     document.body.appendChild(clearBtn);
-    applyStoredHighlights();
+    applyStoredInversions();
     showTip();
-    // Re-apply when collapsible sections open (in case rows were hidden initially)
-    document.querySelectorAll('.game-header, .collapsible button').forEach(btn => {
-      btn.addEventListener('click', () => setTimeout(applyStoredHighlights, 50));
-    });
+    // Re-apply when collapsible sections open
+    document.querySelectorAll('.game-header, .collapsible button, .collapsible summary')
+      .forEach(btn => btn.addEventListener('click', () => setTimeout(applyStoredInversions, 60)));
   }
 
   if (document.readyState === 'loading') {
