@@ -831,6 +831,11 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     0%   { background: rgba(250, 204, 21, 0.20); }
     100% { background: transparent; }
   }
+  /* Long-press hold feedback */
+  .tbl-pressing {
+    background: rgba(250, 204, 21, 0.10) !important;
+    transition: background 0.18s ease;
+  }
   /* Clear-all floating button */
   .invert-clear-btn {
     position: fixed;
@@ -2476,17 +2481,16 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
 (function() {
   'use strict';
 
-  const DOUBLE_TAP_WINDOW = 350; // ms between taps
-  const TAP_MOVE_TOLERANCE = 12; // px movement allowed during a tap
+  const PRESS_DURATION = 500;
+  const MOVE_TOLERANCE = 12;
   const STORAGE_KEY = 'mlb-slate-row-invert-v1';
-  const TIP_KEY = 'mlb-slate-invert-tip-v1';
+  const TIP_KEY = 'mlb-slate-invert-tip-v2';
   const TARGET_SELECTORS = [
     'table tbody tr',
     'section .flag-row',
     'ul.flag-list > li'
   ];
 
-  // ---- Persistence ----
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -2521,15 +2525,13 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     } else {
       el.classList.add('tbl-invert');
       state[k] = 1;
-      // brief flash animation on toggle-on
       el.classList.remove('tbl-tap-flash');
-      // reflow to restart animation
       void el.offsetWidth;
       el.classList.add('tbl-tap-flash');
     }
     saveState(state);
     updateClearBtn();
-    if (navigator.vibrate) navigator.vibrate(20);
+    if (navigator.vibrate) navigator.vibrate(35);
   }
 
   function applyStoredInversions() {
@@ -2541,63 +2543,73 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     updateClearBtn();
   }
 
-  // ---- Double-tap detection (touch) ----
-  let lastTap = null; // { time, x, y, el }
+  let pressTimer = null;
+  let pressedEl = null;
+  let pressMoved = false;
+  let pressStartXY = null;
 
-  function handleTap(x, y, target) {
-    if (target.closest('a, button, input, select, summary, label')) return;
-    const row = findTargetRow(target);
-    if (!row) {
-      lastTap = null;
-      return;
-    }
-    const now = Date.now();
-    if (lastTap
-        && lastTap.el === row
-        && (now - lastTap.time) <= DOUBLE_TAP_WINDOW
-        && Math.abs(x - lastTap.x) <= TAP_MOVE_TOLERANCE
-        && Math.abs(y - lastTap.y) <= TAP_MOVE_TOLERANCE) {
-      toggleInvert(row);
-      lastTap = null;
-    } else {
-      lastTap = { time: now, x: x, y: y, el: row };
-    }
-  }
-
-  // Touch
-  let touchStart = null;
-  document.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) { touchStart = null; return; }
-    const t = e.touches[0];
-    touchStart = { x: t.clientX, y: t.clientY, target: e.target, time: Date.now() };
-  }, { passive: true });
-
-  document.addEventListener('touchend', e => {
-    if (!touchStart) return;
-    const t = e.changedTouches[0];
-    const dx = Math.abs(t.clientX - touchStart.x);
-    const dy = Math.abs(t.clientY - touchStart.y);
-    const dt = Date.now() - touchStart.time;
-    // Only fire on quick, stationary taps
-    if (dx <= TAP_MOVE_TOLERANCE && dy <= TAP_MOVE_TOLERANCE && dt < 500) {
-      handleTap(t.clientX, t.clientY, touchStart.target);
-    } else {
-      lastTap = null;
-    }
-    touchStart = null;
-  }, { passive: true });
-
-  // Mouse (desktop double-click)
-  document.addEventListener('dblclick', e => {
+  function startPress(e, x, y) {
     if (e.target.closest('a, button, input, select, summary, label')) return;
     const row = findTargetRow(e.target);
     if (!row) return;
-    // Don't hijack text-selection double-clicks unless user clearly hit a row
+    pressedEl = row;
+    pressMoved = false;
+    pressStartXY = { x: x, y: y };
+    row.classList.add('tbl-pressing');
+    pressTimer = setTimeout(() => {
+      if (pressedEl && !pressMoved) {
+        toggleInvert(pressedEl);
+        pressedEl.classList.remove('tbl-pressing');
+        pressedEl = null;
+      }
+    }, PRESS_DURATION);
+  }
+
+  function movePress(x, y) {
+    if (!pressStartXY) return;
+    const dx = x - pressStartXY.x;
+    const dy = y - pressStartXY.y;
+    if (Math.abs(dx) > MOVE_TOLERANCE || Math.abs(dy) > MOVE_TOLERANCE) {
+      pressMoved = true;
+      cancelPress();
+    }
+  }
+
+  function cancelPress() {
+    if (pressTimer) clearTimeout(pressTimer);
+    pressTimer = null;
+    if (pressedEl) pressedEl.classList.remove('tbl-pressing');
+    pressedEl = null;
+    pressStartXY = null;
+  }
+
+  document.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { cancelPress(); return; }
+    const t = e.touches[0];
+    startPress(e, t.clientX, t.clientY);
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    if (t) movePress(t.clientX, t.clientY);
+  }, { passive: true });
+  document.addEventListener('touchend', cancelPress, { passive: true });
+  document.addEventListener('touchcancel', cancelPress, { passive: true });
+
+  document.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    startPress(e, e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', e => movePress(e.clientX, e.clientY));
+  document.addEventListener('mouseup', cancelPress);
+  document.addEventListener('mouseleave', cancelPress);
+
+  document.addEventListener('contextmenu', e => {
+    const row = findTargetRow(e.target);
+    if (!row) return;
     e.preventDefault();
     toggleInvert(row);
   });
 
-  // ---- Clear-all button ----
   let clearBtn;
   function updateClearBtn() {
     if (!clearBtn) return;
@@ -2616,12 +2628,11 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     updateClearBtn();
   }
 
-  // ---- First-visit tip ----
   function showTip() {
     if (localStorage.getItem(TIP_KEY)) return;
     const tip = document.createElement('div');
     tip.className = 'invert-tip';
-    tip.textContent = '💡 Double-tap any row to invert it · Double-tap again to undo';
+    tip.textContent = '💡 Long-press any row to invert it · Long-press again to undo';
     document.body.appendChild(tip);
     setTimeout(() => tip.classList.add('visible'), 800);
     setTimeout(() => tip.classList.remove('visible'), 5800);
@@ -2636,7 +2647,6 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
     document.body.appendChild(clearBtn);
     applyStoredInversions();
     showTip();
-    // Re-apply when collapsible sections open
     document.querySelectorAll('.game-header, .collapsible button, .collapsible summary')
       .forEach(btn => btn.addEventListener('click', () => setTimeout(applyStoredInversions, 60)));
   }
