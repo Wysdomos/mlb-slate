@@ -1072,43 +1072,102 @@ section.collapsible.open > .game-header .chevron { transform: rotate(180deg); co
   <h3 id="glossary" style="margin-top:24px; padding-top:16px; border-top:1px solid var(--glass-border); display:flex; align-items:center; gap:8px;">📖 Glossary — All Abbreviations</h3>
   <p style="font-size:12px; color:var(--text-dim); margin-bottom:14px;">Tap the floating 📖 icon (lower-left, above the theme toggle) anywhere on the site to jump back here.</p>
   <div class="table-wrap"><table class="glossary-table">
-    <thead><tr><th>Abbrev</th><th>Meaning</th><th>Source / Use</th></tr></thead>
+    <thead><tr><th>Abbrev / Indicator</th><th>Meaning</th><th>Source / Use</th></tr></thead>
     <tbody>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Tiers &amp; Confidence</td></tr>
       <tr><td><strong>T0 / T1 / T2 / T3</strong></td><td>Tier 0 / 1 / 2 / 3 — confidence tiers</td><td>Internal grading. T0 = passes all 3 floors; T1 = 2 of 3; T2 = blowup ride; T3 = skip.</td></tr>
-      <tr><td><strong>⚡ ZONE</strong> (1–9)</td><td>Sweet Spot batter heat zone vs today's pitcher</td><td>Sweet Spot. ⚡5+ = premium. ⚡3 = T0/T1 floor.</td></tr>
-      <tr><td><strong>SS</strong></td><td>Sweet Spot — internal HR/K projection model</td><td>Quality input (how good the spot is, before market price).</td></tr>
+      <tr><td><strong>SKIP</strong></td><td>Do-not-play designation</td><td>Daily Skip List. Triggered by no projection, K&lt;3.5, park HR ≤ -17%, or vuln &lt; 35.</td></tr>
+      <tr><td><strong>DOWNGRADE</strong></td><td>Play exists but lower confidence</td><td>Daily Skip List. Park HR -10 to -16%, or weather-suppressed environment.</td></tr>
+      <tr><td><strong>ANCHOR</strong></td><td>T0 lead leg in a parlay</td><td>Parlay Anchors. Build other legs around the anchor.</td></tr>
+      <tr><td><strong>Score</strong> (0–100)</td><td>Sweet Spot composite HR score</td><td>Sweet Spot Analyzer. 80+ T0 row, 70+ T1 row, 60+ floor.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Handedness Chips</td></tr>
+      <tr><td><strong><span style="color:#3b82f6;font-weight:600">🔵L</span></strong> (bats / throws)</td><td>Left-handed batter (LHB) or pitcher (LHP)</td><td>Inline next to every player name across HR Board, Hits Board, SP Vuln Board, Matchup Spotlight, per-game tables, conviction picks. Source: BP_Batters.BatterStand / BP_Pitchers.PitcherHand / Sweet_Spot_Slate.Throws.</td></tr>
+      <tr><td><strong><span style="color:#ef4444;font-weight:600">🔴R</span></strong> (bats / throws)</td><td>Right-handed batter (RHB) or pitcher (RHP)</td><td>Same locations as L. Right-handed is the slate majority — platoon edges matter most when chips disagree (LHB vs RHP or RHB vs LHP).</td></tr>
+      <tr><td><strong><span style="color:#a855f7;font-weight:600">🟣S</span></strong> (bats)</td><td>Switch hitter — bats from both sides</td><td>Always has the platoon edge. Examples on Day 46 slate: Elly De La Cruz, Yandy Díaz.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Pitcher Quality / Vulnerability</td></tr>
+      <tr><td><strong>SS</strong></td><td>Sweet Spot — internal HR/K projection model</td><td>Quality input. Drives SP_Projections K column, ISO, Vuln Score.</td></tr>
       <tr><td><strong>BPP</strong></td><td>BallparkPal — Monte Carlo simulation model</td><td>Independent cross-check on HR%, K%, SB%, DK/FD points.</td></tr>
-      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>Sweet Spot. 70+ TARGET, 50–69 STRONG, 32–49 MODERATE.</td></tr>
-      <tr><td><strong>ELITE ISO</strong></td><td>Isolated Power ≥ .250</td><td>HR floor requirement.</td></tr>
-      <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Quality of contact metric. ≥ .330 = T3 confirmer.</td></tr>
-      <tr><td><strong>Barrel%</strong></td><td>Percentage of batted balls hit at "barrel" quality</td><td>Statcast. ≥ 8% = T3 confirmer.</td></tr>
+      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>Sweet Spot. Display: <strong style="color:var(--bad)">V≥50 🔥</strong> = stack target (red bold). <span style="color:var(--hot)">V32–49</span> = warm. <span style="color:var(--text-dim)">V&lt;32</span> = safe (dim).</td></tr>
+      <tr><td><strong>🔥</strong> (flame emoji)</td><td>Vulnerable / stack target / hot environment</td><td>Auto-appended in SP Vuln Board, HR Board, Hits Board when Vuln ≥ 50. Also in headlines flags and combos text.</td></tr>
+      <tr><td><strong>Danger #1–3</strong></td><td>Pitcher's three biggest hitting threats today (ISO ranked)</td><td>Matchup Spotlight + SP Vuln Board. Formatted as <em>Name · bat-chip · ISO color · ⚡Zone</em>.</td></tr>
+      <tr><td><strong>QS%</strong></td><td>Quality Start probability (≥ 6 IP, ≤ 3 ER)</td><td>BPP. ≥ 40% bold; under 25% red flag.</td></tr>
+      <tr><td><strong>HRA</strong></td><td>Home Runs Allowed (projected)</td><td>BPP / SP_Projections.HR. ≥ 0.85 = caution; ≥ 1.0 = stack-target territory.</td></tr>
+      <tr><td><strong>WHIP</strong></td><td>Walks + Hits per Inning Pitched</td><td>Standard. ≤ 1.10 = elite.</td></tr>
+      <tr><td><strong>K9 / BB9</strong></td><td>Strikeouts / Walks per 9 IP</td><td>Standard. K9 ≥ 10 = elite; BB9 ≤ 2.0 = elite control.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Batter Quality Inputs</td></tr>
+      <tr><td><strong>⚡ ZONE</strong> (1–10)</td><td>Sweet Spot batter heat zone vs today's pitcher</td><td>Sweet Spot / HR_Leaderboard. ⚡7+ = premium. ⚡5–6 = solid. ⚡3 = T0/T1 floor. ⚡&lt;3 = SKIP.</td></tr>
+      <tr><td><strong>ELITE ISO</strong> / ISO .###</td><td>Isolated Power (slugging − batting avg)</td><td>HR floor: ≥ .250 required for T0/T1. Color: <strong style="color:var(--bad)">.280+ red</strong>, <span style="color:var(--hot)">.250–.279 hot</span>, <span style="color:var(--good)">.200–.249 good</span>.</td></tr>
+      <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Quality-of-contact metric. ≥ .330 = T3 confirmer.</td></tr>
+      <tr><td><strong>Barrel%</strong></td><td>Percentage of batted balls hit at "barrel" quality</td><td>Statcast. ≥ 8% = T3 confirmer; ≥12% = elite.</td></tr>
       <tr><td><strong>HH%</strong></td><td>Hard-Hit % (exit velo ≥ 95 mph)</td><td>Statcast.</td></tr>
       <tr><td><strong>Exit Velo / EV</strong></td><td>Average exit velocity in mph</td><td>Statcast. ≥ 90 = T3 confirmer.</td></tr>
-      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>Dimers (market) or BPP (model).</td></tr>
-      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥ 1 hit</td><td>Dimers.</td></tr>
-      <tr><td><strong>Ov 0.5 / O 0.5</strong></td><td>Over 0.5 — prop bet line (≥ 1 of stat)</td><td>Used for Hits, RBIs, HR, SB, 2B props.</td></tr>
-      <tr><td><strong>HRR / H+R+RBI</strong></td><td>Hits + Runs + RBIs combined prop</td><td>PrizePicks/Underdog "Fantasy Score"-style stat.</td></tr>
-      <tr><td><strong>Alt K</strong></td><td>Alternate strikeout line</td><td>Lower line for safer pricing. Rules: ≥5 SS → O 5+; 4.5–4.99 → O 3.5; 4.0–4.49 → O 2.5; &lt;4 → SKIP.</td></tr>
-      <tr><td><strong>QS%</strong></td><td>Quality Start probability (≥ 6 IP, ≤ 3 ER)</td><td>BPP.</td></tr>
-      <tr><td><strong>HRA</strong></td><td>Home Runs Allowed (projected)</td><td>BPP. ≥ 0.85 = red flag.</td></tr>
-      <tr><td><strong>NRFI / YRFI</strong></td><td>No Run First Inning / Yes Run First Inning</td><td>BPP RunsFirstInningPct.</td></tr>
-      <tr><td><strong>F5</strong></td><td>First 5 innings (totals + ML)</td><td>Isolates starter window before bullpens.</td></tr>
-      <tr><td><strong>SB%</strong></td><td>Stolen Base probability</td><td>BPP.</td></tr>
-      <tr><td><strong>DK / FD</strong></td><td>DraftKings / FanDuel — daily fantasy scoring</td><td>BPP PointsDK / PointsFD.</td></tr>
-      <tr><td><strong>Park%</strong></td><td>Park HR% (combined stadium history + day-of weather)</td><td>ParkFactors_2026 daily file. ≥ +5 booster, ≤ -10 suppressor, ≤ -17 avoid.</td></tr>
-      <tr><td><strong>2B Proj</strong></td><td>BPP projected doubles for player</td><td>Doubles board. Adj by park 2B/3B%. ≥ 0.30 adj = lock tier.</td></tr>
-      <tr><td><strong>Ov 0.5 2B%</strong></td><td>Probability of ≥ 1 double (Poisson approx)</td><td>Doubles board. ≥ 27% = bold green LOCK tier.</td></tr>
-      <tr><td><strong>Score</strong></td><td>Sweet Spot composite HR score 0–100</td><td>Sweet Spot Analyzer. 70+ = elite floor.</td></tr>
-      <tr><td><strong>WHIP</strong></td><td>Walks + Hits per Inning Pitched</td><td>Standard. ≤ 1.10 = elite.</td></tr>
-      <tr><td><strong>K9 / BB9</strong></td><td>Strikeouts / Walks per 9 IP</td><td>Standard.</td></tr>
-      <tr><td><strong>ML / F5 ML</strong></td><td>Moneyline / First-5 Moneyline</td><td>BPP win probabilities.</td></tr>
+      <tr><td><strong>EDGE</strong> (Spotlight)</td><td>Platoon advantage — batter has L/R edge vs pitcher</td><td>Matchup Spotlight. LHB vs RHP, RHB vs LHP, or any switch hitter → EDGE. Same-side → “same”.</td></tr>
+      <tr><td><strong>(L1) – (L9)</strong></td><td>Lineup spot — batting order position 1 through 9</td><td>Top Bats lines. L1–L4 = top of order, L5–L7 = middle, L8–L9 = bottom.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Park &amp; Environment</td></tr>
+      <tr><td><strong>Park% / HR%</strong></td><td>Park HR% (stadium history + day-of weather)</td><td>ParkFactors_2026 daily file. <span class="pf-good">+8%+ green</span> = booster; <span class="pf-neutral">-9% to +7% neutral</span>; <span class="pf-darkred">-10% or worse dark red</span> = suppressor; ≤ -17% = avoid HR plays entirely.</td></tr>
+      <tr><td><strong>2B/3B%</strong></td><td>Park doubles + triples factor</td><td>Drives Doubles board independently of HR%. Fenway +29% (slate-best XBH park) despite -23% HR.</td></tr>
+      <tr><td><strong>Runs%</strong></td><td>Park run-environment factor</td><td>Drives totals/NRFI calls. ≤ -15% = NRFI lean.</td></tr>
+      <tr><td><strong>🌋 Volcano</strong></td><td>Park HR% ≥ +25% (slate-top HR environment)</td><td>Day 46: Sutter Health Park +29% (STL@ATH).</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Prop Lines &amp; Alt Rules</td></tr>
       <tr><td><strong>O / U</strong></td><td>Over / Under</td><td>Standard prop terminology.</td></tr>
-      <tr><td><strong>R/L Splits</strong></td><td>Right- / Left-handed pitcher splits</td><td>Platoon edge factor.</td></tr>
-      <tr><td><strong>(L1) – (L9)</strong></td><td>Lineup spot — batting order position 1 through 9</td><td>Shown next to each batter in Top Bats lines (e.g. <strong>Trea Turner</strong> <span style="color:#ef4444;font-weight:600">🔴R</span> (L1) = leadoff). L1–L4 = top of order, L5–L7 = middle, L8–L9 = bottom.</td></tr>
-      <tr><td><strong>B</strong> column / chip</td><td>Batting hand — <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> Left, <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span> Right, <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span> Switch</td><td>Hits Board, HR Board, and Top Bats lines. Source: BP_Batters.</td></tr>
-      <tr><td><strong>EDGE</strong> (Spotlight)</td><td>Platoon advantage — batter has L/R edge vs the pitcher</td><td>Matchup Spotlight Board. LHB vs RHP, RHB vs LHP, or any switch hitter → EDGE. Same-side → "same".</td></tr>
-      <tr><td><strong>Danger #1–3</strong></td><td>Pitcher's three biggest hitting threats today (ISO ranked)</td><td>Matchup Spotlight Board. Source: Sweet_Spot_Slate.</td></tr>
-      <tr><td><strong>P</strong> column / chip</td><td>Pitcher throwing hand — <span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span> Left (LHP), <span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span> Right (RHP)</td><td>K Board, HR Board, per-game Pitcher tables. Use for L-vs-R platoon edges. Source: BP_Pitchers.</td></tr>
+      <tr><td><strong>Ov 0.5 / O 0.5</strong></td><td>Over 0.5 — ≥1 of stat</td><td>Default play for Hits, RBIs, HR, SB, HRR, 2B props.</td></tr>
+      <tr><td><strong>Alt K / Best Line</strong></td><td>Alternate strikeout line</td><td><strong>User rule:</strong> SS ≥5 → O 5+; 4.5–4.99 → O 3.5; &lt;4.5 → O 2.5. <strong>Never alt &gt; 5.</strong></td></tr>
+      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>Dimers (market) or BPP (model).</td></tr>
+      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥1 hit</td><td>Dimers / Hit_Probabilities.</td></tr>
+      <tr><td><strong>2+ Hits %</strong></td><td>Probability of ≥2 hits</td><td>Dimers / Hit_Probabilities.</td></tr>
+      <tr><td><strong>HRR / H+R+RBI</strong></td><td>Hits + Runs + RBIs combined prop</td><td>PrizePicks/Underdog style. <strong>Always Ov 0.5</strong> per saved rule.</td></tr>
+      <tr><td><strong>SB%</strong></td><td>Stolen Base probability</td><td>BPP / BP_Batters.StolenBaseProbability.</td></tr>
+      <tr><td><strong>2B Proj</strong></td><td>BPP projected doubles for player</td><td>Doubles board. Adj by park 2B/3B%. ≥ 0.30 adj = lock tier.</td></tr>
+      <tr><td><strong>Ov 0.5 2B%</strong></td><td>Probability of ≥1 double (Poisson approx)</td><td>Doubles board. ≥ 27% = bold green LOCK tier.</td></tr>
+      <tr><td><strong>NRFI / YRFI</strong></td><td>No / Yes Run First Inning</td><td>BPP RunsFirstInningPct.</td></tr>
+      <tr><td><strong>F5</strong></td><td>First 5 innings (totals + ML)</td><td>Isolates starter window before bullpens.</td></tr>
+      <tr><td><strong>ML / F5 ML</strong></td><td>Moneyline / First-5 Moneyline</td><td>BPP win probabilities.</td></tr>
+      <tr><td><strong>R/L Splits</strong></td><td>Right- / Left-handed pitcher splits</td><td>Platoon-edge factor.</td></tr>
+      <tr><td><strong>DK / FD</strong></td><td>DraftKings / FanDuel — daily fantasy scoring</td><td>BPP PointsDK / PointsFD.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Row Highlight / Table Indicators</td></tr>
+      <tr><td><strong>row-tier0</strong> (green-shaded)</td><td>T0 row — elite play</td><td>HR Score ≥80, Hit% ≥65, Vuln ≥50, K SS ≥5.5.</td></tr>
+      <tr><td><strong>row-tier1</strong> (yellow-shaded)</td><td>T1 row — strong play</td><td>HR Score 70–79, Hit% 60–64, Vuln 32–49, K SS 4.5–5.4.</td></tr>
+      <tr><td><strong>row-bad</strong> (red-shaded)</td><td>Caution — dimmer / skip</td><td>K Board low-K starters; SP Vuln Board safest arms.</td></tr>
+      <tr><td><strong>🟢</strong> (Outs)</td><td>Projected outs ≥ 17 (gets through 6 IP)</td><td>K Board Outs column.</td></tr>
+      <tr><td><strong>🔻</strong> (Outs)</td><td>Projected outs &lt; 14 (likely short start)</td><td>K Board Outs column — caps K volume.</td></tr>
+      <tr><td><strong>🔺</strong> (Hits)</td><td>Projected hits allowed ≥ 5.0</td><td>K Board Hits column — traffic flag.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Badge Pill Reference</td></tr>
+      <tr><td><span class="badge b-tier0">T0</span></td><td>Tier 0 — elite anchor</td><td>Conviction, Combos, Parlays.</td></tr>
+      <tr><td><span class="badge b-tier1">T1</span></td><td>Tier 1 — strong play</td><td>Conviction, Combos, Parlays.</td></tr>
+      <tr><td><span class="badge b-neutral">Neutral</span></td><td>Middle-of-pack play</td><td>Totals / NRFI lean rows.</td></tr>
+      <tr><td><span class="badge b-hot">HOT</span></td><td>Hot environment</td><td>Headlines flags, methodology cues.</td></tr>
+      <tr><td><span class="badge b-cold">COLD</span></td><td>Cold / depressed environment</td><td>Methodology cues.</td></tr>
+      <tr><td><span class="badge b-warn">DOWNGRADE</span></td><td>Lower confidence — still playable</td><td>Skip List, low-alt Combos (O 3.5/2.5).</td></tr>
+      <tr><td><span class="badge b-bad">SKIP / GATE</span></td><td>Avoid this play / gating rule</td><td>Skip List, methodology gate.</td></tr>
+
+      <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Section Emojis (TOC)</td></tr>
+      <tr><td><strong>📅</strong> Slate Headlines + Flags</td><td>Top-of-page must-reads</td><td>Park volcanoes, top stacks, top K, vulnerability flags.</td></tr>
+      <tr><td><strong>🏟</strong> Park Factors Board</td><td>All 15 venues, HR%/Runs%/2B-3B%</td><td>ParkFactors_2026.</td></tr>
+      <tr><td><strong>🎮</strong> All 15 Game Write-Ups</td><td>Per-game breakdown</td><td>Pitcher tables + Top Bats + bullets.</td></tr>
+      <tr><td><strong>🔦</strong> Matchup Spotlight</td><td>28-SP × 3-Danger-Batter grid</td><td>EDGE + Danger #1–3 with ISO.</td></tr>
+      <tr><td><strong>⚡</strong> Full K's Tier Board</td><td>K-prop tier table</td><td>SS Ks, BPP Ks, Outs, Hits, ERA, QS%, HRA, Vuln, Best Line.</td></tr>
+      <tr><td><strong>☢️</strong> SP HR/BB Risk Board</td><td>Stack-target board</td><td>15 SPs ranked by HR×2 + BB×0.5 − K×0.3 composite.</td></tr>
+      <tr><td><strong>🏆</strong> Top 25 HR Board</td><td>HR_Leaderboard top 25</td><td>Score + Zone + Barrel + Park.</td></tr>
+      <tr><td><strong>☄️</strong> Top 50 Hits Board</td><td>Hit_Probabilities sorted by 1+H%</td><td>Default Ov 0.5 hits play.</td></tr>
+      <tr><td><strong>📈</strong> Game Totals &amp; F5 Board</td><td>15 games by projected total</td><td>OVER / UNDER leans.</td></tr>
+      <tr><td><strong>🥶</strong> NRFI / YRFI Watch</td><td>First-inning runs leans</td><td>Combined SP HR/9 + K heuristic.</td></tr>
+      <tr><td><strong>🏃</strong> Stolen Base Targets</td><td>BP_Batters top SB%</td><td>Cross-ref to opp SP walks.</td></tr>
+      <tr><td><strong>☄️</strong> Doubles Targets</td><td>BP projected 2B + park 2B/3B%</td><td>Independent of HR park.</td></tr>
+      <tr><td><strong>💎</strong> DFS Points Leaderboard</td><td>DK/FD projections</td><td>BP_Batters PointsDK / PointsFD.</td></tr>
+      <tr><td><strong>⚡</strong> Alt K Combos</td><td>K-only combo cards</td><td>Flag-row layout, alts ≤5 per user rule.</td></tr>
+      <tr><td><strong>🎯</strong> H+R+RBI Combos</td><td>HRR-only combo cards</td><td>Flag-row layout, every leg Ov 0.5.</td></tr>
+      <tr><td><strong>💣</strong> Parlay Anchors</td><td>10 anchor parlays</td><td>Multi-line legs + game times + rationale.</td></tr>
+      <tr><td><strong>✅</strong> Full Conviction Board</td><td>Highest-confidence plays</td><td>Flag-list w/ T0/T1 badges.</td></tr>
+      <tr><td><strong>📋</strong> Daily Skip List</td><td>Plays to avoid today</td><td>Flag-list w/ SKIP / DOWNGRADE badges.</td></tr>
+
     </tbody>
   </table></div>
   </div></div>
