@@ -1,1 +1,76 @@
- 
+name: Daily MLB Slate Build
+
+# Triggers when you upload a new .xlsx file to the repo
+on:
+  push:
+    paths:
+      - '**.xlsx'
+  workflow_dispatch:  # lets you also trigger it manually from GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install openpyxl
+
+      - name: Find xlsx file
+        run: |
+          XLSX=$(ls *.xlsx 2>/dev/null | head -1)
+          if [ -z "$XLSX" ]; then
+            echo "ERROR: No .xlsx file found in repo root"
+            exit 1
+          fi
+          echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
+          echo "Found Excel file: $XLSX"
+
+      - name: Step 1 — Extract xlsx → JSON
+        run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
+
+      - name: Step 2 — Build HTML sections
+        run: python3 build.py
+        env:
+          DATA_FILE: day_data.json
+          SECTIONS_FILE: built_sections.json
+
+      - name: Step 2b — Build editorial sections
+        run: python3 build_editorial.py
+        env:
+          DATA_FILE: day_data.json
+          SECTIONS_FILE: built_sections.json
+
+      - name: Step 3 — Sync sections into index.html
+        run: python3 sync.py
+        env:
+          DATA_FILE: day_data.json
+          SECTIONS_FILE: built_sections.json
+          INDEX_FILE: index.html
+
+      - name: Commit and push updated site
+        run: |
+          git config user.email "mrwwright9@gmail.com"
+          git config user.name "Wysdomos"
+          git add index.html day_data.json built_sections.json
+          git diff --staged --quiet && echo "No changes to commit" || \
+            git commit -m "Auto-update: $(python3 -c "
+          import json
+          from datetime import datetime, date
+          d = json.load(open('day_data.json'))
+          raw = d.get('BP_Games',[{}])[0].get('GameDate','')
+          dt = datetime.strptime(str(raw)[:10], '%Y-%m-%d').date()
+          day = (dt - date(2026, 3, 28)).days + 1
+          print(f'Day {day} · {dt.strftime(\"%b %-d\")} · {len(d.get(\"BP_Games\",[]))} games')
+          ")"
+          git push
