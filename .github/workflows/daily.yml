@@ -1,14 +1,11 @@
 name: Daily MLB Slate Build
 
-# Fires automatically when you upload a new xlsx to the repo.
-# Also runnable manually from the Actions tab (Run workflow button).
 on:
   push:
     paths:
       - '**.xlsx'
   workflow_dispatch:
 
-# Needed so the workflow can commit the built files back to the repo.
 permissions:
   contents: write
 
@@ -17,12 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. Python
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -30,7 +25,6 @@ jobs:
       - name: Install dependencies
         run: pip install openpyxl
 
-      # 3. Find the xlsx
       - name: Find slate file
         run: |
           XLSX=$(ls *.xlsx 2>/dev/null | head -1)
@@ -38,11 +32,9 @@ jobs:
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
           echo "Using: $XLSX"
 
-      # 4. Extract slate data
       - name: Extract slate data
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
-      # 5. Fetch real K lines -- 2 min hard timeout, never blocks the build
       - name: Fetch real K lines
         timeout-minutes: 2
         continue-on-error: true
@@ -52,7 +44,6 @@ jobs:
           DATA_FILE: day_data.json
         run: python3 fetch_props.py
 
-      # 6. Fetch Phase 2 metrics -- optional, 3 min timeout, always continues
       - name: Fetch Phase 2 metrics
         timeout-minutes: 3
         continue-on-error: true
@@ -62,7 +53,6 @@ jobs:
           DATA_FILE: day_data.json
         run: python3 fetch_phase2.py
 
-      # 7. Build the slate
       - name: Build slate
         env:
           DATA_FILE: day_data.json
@@ -72,28 +62,16 @@ jobs:
           K_SAVANT_FILE: k_savant_data.json
         run: python3 build.py
 
-      # 8. Sync into index.html
       - name: Sync to HTML
         run: python3 sync.py
 
-      # 9. Commit and push everything
       - name: Commit and push
         run: |
           git config user.email "mrwwright9@gmail.com"
           git config user.name "Wysdomos"
           git add index.html k-report.html day_data.json built_sections.json
           git add k_props.json 2>/dev/null; git add k_savant_data.json 2>/dev/null; true
-          MSG=$(python3 - <<'PY'
-import json
-from datetime import datetime, date
-d = json.load(open('day_data.json'))
-raw = d.get('BP_Games',[{}])[0].get('GameDate','')
-dt = datetime.strptime(str(raw)[:10], '%Y-%m-%d').date()
-day = (dt - date(2026, 3, 28)).days + 1
-print(f'Day {day} - {dt.strftime("%b %-d")} - {len(d.get("BP_Games",[]))} games')
-PY
-          )
           git diff --staged --quiet \
             && echo "No changes to commit" \
-            || git commit -m "Auto-update: $MSG"
+            || git commit -m "Auto-update: $XLSX_FILE"
           git push
