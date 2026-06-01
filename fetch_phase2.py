@@ -209,8 +209,10 @@ def ha_split(pid):
     return None
 
 def save(d):
-    with open(SAVANT_FILE, 'w', encoding='utf-8') as f:
+    tmp = SAVANT_FILE + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, SAVANT_FILE)   # atomic: never leaves a half-written file
 
 savant = {}
 for p in slate:
@@ -225,12 +227,8 @@ for p in slate:
                 print(f"    {p['name']}: pitch metrics skipped ({e})")
             if pid in form:
                 metrics['recent_form'] = form[pid]
-            try:
-                hs = ha_split(pid)
-                if hs is not None:
-                    metrics['ha_split'] = hs
-            except Exception as e:
-                print(f"    {p['name']}: H/A skipped ({e})")
+            # H/A split intentionally skipped: undocumented endpoint, too slow
+            # (17 extra calls). Leaves H/A as "P2" in the report.
         ok = team_k.get((p['opp'] or '').upper())
         if ok is not None:
             metrics['opp_lineup_k_pct'] = ok
