@@ -74,4 +74,5 @@ jobs:
           git diff --staged --quiet \
             && echo "No changes to commit" \
             || git commit -m "Auto-update: $XLSX_FILE"
+          git pull --rebase origin main
           git push
