@@ -1,12 +1,6 @@
 """
 extract_xlsx.py -- Daily MLB Slate Excel -> JSON extractor
 Usage:  python3 extract_xlsx.py <path_to_xlsx> [output_json]
-
-Defaults:
-  - Looks for any .xlsx file in current directory if no path given
-  - Outputs to day_data.json if no output path given
-
-Works for any slate size (6 games or 15, any number of batters/pitchers).
 """
 
 import sys

@@ -1,21 +1,13 @@
 """
 sync.py -- Generic daily sync for MLB Slate (any date, any game count)
-
 Reads:   built_sections.json  (or SECTIONS_FILE env var)
          day_data.json         (or DATA_FILE env var)
 Updates: index.html            (or INDEX_FILE env var)
-
-What it does:
-  1. Detects today's date and game count from the data
-  2. Updates all day-specific text (title, meta, h1, subtitle, last-updated)
-  3. Generates a dynamic park summary from Park_Factors
-  4. Replaces all 18 data-driven sections with freshly built content
 """
 
 import json, re, os
 from datetime import datetime, date, timezone
 
-# -- Config --------------------------------------------------------------------
 SECTIONS_FILE = os.environ.get('SECTIONS_FILE', 'built_sections.json')
 DATA_FILE     = os.environ.get('DATA_FILE',     'day_data.json')
 INDEX_FILE    = os.environ.get('INDEX_FILE',    'index.html')
@@ -24,7 +16,6 @@ OPENING_DAY = date(2026, 3, 28)
 
 WEEKDAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
 
-# -- Load files ----------------------------------------------------------------
 SECTIONS = json.load(open(SECTIONS_FILE, encoding='utf-8'))
 DATA     = json.load(open(DATA_FILE,     encoding='utf-8'))
 
@@ -33,7 +24,6 @@ with open(INDEX_FILE, encoding='utf-8') as f:
 
 print(f"Loaded {INDEX_FILE}: {len(html):,} bytes")
 
-# -- Derive slate date ---------------------------------------------------------
 def get_slate_date():
     for row in DATA.get('BP_Games', []):
         raw = str(row.get('GameDate', ''))[:10]
@@ -57,9 +47,8 @@ weekday     = WEEKDAY_NAMES[slate_date.weekday()]
 game_count  = len(DATA.get('BP_Games', []))
 build_time  = datetime.now(timezone.utc).strftime('%-I:%M %p UTC')
 
-print(f"Slate: {month_short} {day_of_mo} · Day {day_num} · {weekday} · {game_count} games")
+print(f"Slate: {month_short} {day_of_mo} - Day {day_num} - {weekday} - {game_count} games")
 
-# -- Park factor helpers -------------------------------------------------------
 def parse_hr_pct(val):
     if val is None: return 0
     s = str(val).replace('%','').replace('+','').strip()
@@ -126,14 +115,14 @@ def replace_section(html, sec_id, new_content):
         return html, False
     return html[:m.start()] + new_content + '\n' + html[m.end():], True
 
-html = re.sub(r'<title>MLB Slate[^<]*</title>', f'<title>MLB Slate · {month_short} {day_of_mo} · Day {day_num}</title>', html)
+html = re.sub(r'<title>MLB Slate[^<]*</title>', f'<title>MLB Slate - {month_short} {day_of_mo} - Day {day_num}</title>', html)
 html = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="The Daily Slate -- {month_short} {day_of_mo} Day {day_num}">', html)
 html = re.sub(r'<meta name="twitter:title" content="[^"]*">', f'<meta name="twitter:title" content="The Daily Slate -- {month_short} {day_of_mo} Day {day_num}">', html)
-html = re.sub(r'<h1>⚾[^<]*</h1>', f'<h1>⚾ {month_short} {day_of_mo} -- {weekday} Slate</h1>', html)
-html = re.sub(r'<div class="subtitle-block">[^<]*</div>', f'<div class="subtitle-block">{game_count} Games · Day {day_num} · Sweet Spot + Park Factors</div>', html)
-html = re.sub(r'<div class="last-updated">.*?</div>', f'<div class="last-updated">{month_short} {day_of_mo} · <b>{build_time}</b> · Day {day_num} • {weekday} slate</div>', html)
-html = re.sub(r'(<a href="#games">🎮 All )\d+( Game Write-Ups)', rf'\g<1>{game_count}\2', html)
-html = re.sub(r'(Tap to expand · tier thresholds \+ )[A-Za-z]+ \d+ park notes', rf'\g<1>{month_short} {day_of_mo} park notes', html)
+html = re.sub(r'<h1>\u26be[^<]*</h1>', f'<h1>\u26be {month_short} {day_of_mo} -- {weekday} Slate</h1>', html)
+html = re.sub(r'<div class="subtitle-block">[^<]*</div>', f'<div class="subtitle-block">{game_count} Games - Day {day_num} - Sweet Spot + Park Factors</div>', html)
+html = re.sub(r'<div class="last-updated">.*?</div>', f'<div class="last-updated">{month_short} {day_of_mo} - <b>{build_time}</b> - Day {day_num} - {weekday} slate</div>', html)
+html = re.sub(r'(<a href="#games">\U0001F3AE All )\d+( Game Write-Ups)', rf'\g<1>{game_count}\2', html)
+html = re.sub(r'(Tap to expand - tier thresholds \+ )[A-Za-z]+ \d+ park notes', rf'\g<1>{month_short} {day_of_mo} park notes', html)
 html = re.sub(r'<h4>[A-Za-z]+ \d+ Park Summary</h4>', f'<h4>{month_short} {day_of_mo} Park Summary</h4>', html)
 html = re.sub(r'(<div class="tldr-box">)\s*<h4>[^<]*</h4>\s*<p>[\s\S]*?</p>\s*(</div>)', rf'<div class="tldr-box"><h4>{month_short} {day_of_mo} Park Summary</h4>{build_park_summary()}\2', html)
 html = re.sub(r'<p class="method-intro">[\s\S]*?</p>', f'<p class="method-intro">{build_method_intro()}</p>', html, count=1)
@@ -167,4 +156,4 @@ with open(tmp, 'w', encoding='utf-8') as f:
 os.replace(tmp, INDEX_FILE)
 
 print(f"Done -- wrote {len(html):,} bytes to {INDEX_FILE}")
-print(f"Day {day_num} · {month_short} {day_of_mo} · {weekday} · {game_count} games")
+print(f"Day {day_num} - {month_short} {day_of_mo} - {weekday} - {game_count} games")

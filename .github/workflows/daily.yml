@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - '**.xlsx'
-  workflow_dispatch:  # lets you also trigger it manually from GitHub
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -36,20 +36,15 @@ jobs:
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
           echo "Found Excel file: $XLSX"
 
-      - name: Step 1 — Extract xlsx → JSON
+      - name: Step 1 — Extract xlsx to JSON
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
-      - name: Step 2 — Build HTML sections
+      - name: Step 2 — Build all sections + Safe K Report
         run: python3 build.py
         env:
           DATA_FILE: day_data.json
           SECTIONS_FILE: built_sections.json
-
-      - name: Step 2b — Build editorial sections
-        run: python3 build_editorial.py
-        env:
-          DATA_FILE: day_data.json
-          SECTIONS_FILE: built_sections.json
+          K_REPORT_FILE: k-report.html
 
       - name: Step 3 — Sync sections into index.html
         run: python3 sync.py
@@ -62,7 +57,7 @@ jobs:
         run: |
           git config user.email "mrwwright9@gmail.com"
           git config user.name "Wysdomos"
-          git add index.html day_data.json built_sections.json
+          git add index.html k-report.html day_data.json built_sections.json
           git diff --staged --quiet && echo "No changes to commit" || \
             git commit -m "Auto-update: $(python3 -c "
           import json
@@ -71,6 +66,6 @@ jobs:
           raw = d.get('BP_Games',[{}])[0].get('GameDate','')
           dt = datetime.strptime(str(raw)[:10], '%Y-%m-%d').date()
           day = (dt - date(2026, 3, 28)).days + 1
-          print(f'Day {day} · {dt.strftime(\"%b %-d\")} · {len(d.get(\"BP_Games\",[]))} games')
+          print(f'Day {day} - {dt.strftime(\"%b %-d\")} - {len(d.get(\"BP_Games\",[]))} games')
           ")"
           git push

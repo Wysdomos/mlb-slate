@@ -406,12 +406,12 @@ def build_games():
             r = BP_PIT_BY_NAME.get(name.lower())
             if not r:
                 return ('—','—','—','—','—')
-            innings = r.get('Innings') or 0
+            innings = _sf(r.get('Innings'))
             outs = innings * 3 if innings else 0
-            hits = r.get('HitsAllowed') or 0
-            qs = r.get('QualityStart') or 0
-            hra = r.get('HomeRunsAllowed') or 0
-            bp_bb = r.get('Walks') or 0
+            hits = _sf(r.get('HitsAllowed'))
+            qs = _sf(r.get('QualityStart'))
+            hra = _sf(r.get('HomeRunsAllowed'))
+            bp_bb = _sf(r.get('Walks'))
             # Format with indicators (Day 44 thresholds: Outs ≥17 = green 🟢, <14 = red 🔻)
             if outs:
                 if outs >= 17: outs_s = f'<strong style="color:var(--good)">🟢 {outs:.1f}</strong>'
@@ -562,7 +562,7 @@ def build_matchup_spotlight():
     rows_data = []
     for sp in SS:
         if not sp.get('Pitcher') or sp.get('Pitcher') == 'TBD': continue
-        try: v = int(sp.get('VulnScore') or 0)
+        try: v = int(_sf(sp.get('VulnScore')))
         except (TypeError, ValueError): v = 0
         rows_data.append((v, sp))
     rows_data.sort(key=lambda x: -x[0])
@@ -788,7 +788,7 @@ def build_k_board():
 def build_hr_board():
     rows = []
     for r in HR_LB[:25]:
-        score = r.get('Score',0)
+        score = _sf(r.get('Score'))
         if score >= 80: tier = 'row-tier0'
         elif score >= 70: tier = 'row-tier1'
         else: tier = ''
@@ -1012,11 +1012,11 @@ def build_nrfi_board():
 # ---- BUILD: SB BOARD ----
 def build_sb_board():
     # From BP_Batters StolenBaseProbability sorted desc
-    sb_sorted = sorted(BP_BAT, key=lambda r: -(r.get('StolenBaseProbability') or 0))[:20]
+    sb_sorted = sorted(BP_BAT, key=lambda r: -(_sf(r.get('StolenBaseProbability'))))[:20]
     rows = []
     for i, r in enumerate(sb_sorted, 1):
         if not r.get('FullName'): continue
-        sbp = r.get('StolenBaseProbability') or 0
+        sbp = _sf(r.get('StolenBaseProbability'))
         if sbp < 0.05: continue
         team = tn(r.get('Team'))
         opp = tn(r.get('Opponent'))
@@ -1059,11 +1059,11 @@ def build_sb_board():
 # ---- BUILD: DOUBLES ----
 def build_doubles_board():
     # From BP_Batters Doubles projection sorted desc + park 2B/3B%
-    db_sorted = sorted(BP_BAT, key=lambda r: -(r.get('Doubles') or 0))[:20]
+    db_sorted = sorted(BP_BAT, key=lambda r: -(_sf(r.get('Doubles'))))[:20]
     rows = []
     for i, r in enumerate(db_sorted, 1):
         if not r.get('FullName'): continue
-        dbls = r.get('Doubles') or 0
+        dbls = _sf(r.get('Doubles'))
         team = tn(r.get('Team'))
         opp = tn(r.get('Opponent'))
         park = PARK_BY_TEAM.get(team) or PARK_BY_TEAM.get(opp)
@@ -1108,10 +1108,10 @@ def build_dfs_board():
         if not r.get('FullName'): continue
         team = tn(r.get('Team'))
         opp = tn(r.get('Opponent'))
-        dk = r.get('PointsDK',0) or 0
-        fd = r.get('PointsFD',0) or 0
-        hr_p = r.get('HomeRunProbability',0) or 0
-        hit_p = r.get('HitProbability',0) or 0
+        dk = _sf(r.get('PointsDK'))
+        fd = _sf(r.get('PointsFD'))
+        hr_p = _sf(r.get('HomeRunProbability'))
+        hit_p = _sf(r.get('HitProbability'))
         if dk >= 9: tier = 'row-tier0'
         elif dk >= 8: tier = 'row-tier1'
         else: tier = ''

@@ -491,7 +491,7 @@ def build_combos_hrr():
             except: return 0
         h1  = pct_val(hit_row.get('1+ Hit', 0))
         rbi = pct_val(hit_row.get('To Get RBI', 0))
-        hr_score = r.get('Score', 0)
+        hr_score = _sf(r.get('Score'))
         park = get_park_for_batter(r.get('Team',''))
         park_hr = parse_pct(park.get('HR %')) if park else 0
         v = vuln_score(r.get('Pitcher',''))
@@ -512,7 +512,7 @@ def build_combos_hrr():
         v = vuln_score(r.get('Pitcher',''))
         streak = r.get('Streak','')
         return (r.get('Batter',''), tn(r.get('Team','')), r.get('Pitcher',''), v,
-                r.get('Score',0), r.get('Zone',''), h1, rbi, hr_pct, park_str, streak, r.get('Bats',''))
+                _sf(r.get('Score')), r.get('Zone',''), h1, rbi, hr_pct, park_str, streak, r.get('Bats',''))
 
     top_batters = sorted(HR_LB[:25], key=hrr_score, reverse=True)
 
@@ -527,7 +527,7 @@ def build_combos_hrr():
     # Sort stacks: vuln * count * avg_score
     def stack_score(pit, batters):
         v = vuln_score(pit)
-        avg = sum(r.get('Score',0) for r in batters) / len(batters)
+        avg = sum(_sf(r.get('Score')) for r in batters) / len(batters)
         park_hr = 0
         if batters:
             pk = get_park_for_batter(batters[0].get('Team',''))
@@ -652,7 +652,7 @@ def build_parlays():
         except: return 0
 
     # Gather T0 anchors
-    t0_hr = [r for r in HR_LB if r.get('Score',0) >= 75][:6]
+    t0_hr = [r for r in HR_LB if _sf(r.get('Score')) >= 75][:6]
     t0_k  = sorted([r for r in SP_PROJ if (_sf(r.get('K'))) >= 5.0],
                    key=lambda r: -(_sf(r.get('K'))))[:4]
     t0_hit= sorted([r for r in HIT if pct_val(r.get('1+ Hit')) >= 63],
@@ -663,7 +663,7 @@ def build_parlays():
         team = tn(r.get('Team',''))
         pit  = r.get('Pitcher','')
         v    = vuln_score(pit)
-        score= r.get('Score',0)
+        score= _sf(r.get('Score'))
         zone = r.get('Zone','')
         park = get_park_for_batter(team)
         pk_s = f", {park.get('Venue','')} {park.get('HR %','')}" if park else ''
@@ -868,7 +868,7 @@ def build_conviction():
 
     # T0 HR plays: Score >= 75, Vuln >= 40, Park HR >= 0, not COLD
     for r in HR_LB[:20]:
-        score = r.get('Score', 0)
+        score = _sf(r.get('Score'))
         if score < 72: break
         pit = r.get('Pitcher','')
         v   = vuln_score(pit)
