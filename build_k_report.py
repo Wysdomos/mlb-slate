@@ -234,20 +234,24 @@ for sp in SP_PROJ:
     score = sum(1 for c in [c1, c2, c3, c4, c5, c6] if c == 'green')
     total_pts = 6
 
-    # Phase 2 — pull from savant if available
-    savant = SAVANT.get(name.lower(), {}) if PHASE2_ACTIVE else {}
-    p7_val = p8_val = p9_val = p10_val = p11_val = p12_val = None
-    if PHASE2_ACTIVE and savant:
-        c7  = grade(sf(savant.get('swstr_pct')),  11.0, 10.0); p7_val  = f'{sf(savant.get("swstr_pct")):.1f}%'
-        c8  = grade(sf(savant.get('chase_pct')),  29.0, 27.0); p8_val  = f'{sf(savant.get("chase_pct")):.1f}%'
-        c9  = grade(sf(savant.get('arsenal_whiff')), 30.0, 28.0); p9_val = f'{sf(savant.get("arsenal_whiff")):.1f}%'
-        c10 = grade(sf(savant.get('opp_lineup_k_pct')), 24.0, 22.0); p10_val = f'{sf(savant.get("opp_lineup_k_pct")):.1f}%'
-        c11 = grade(sf(savant.get('ha_split')),   0.5, 0.3);   p11_val = f'{sf(savant.get("ha_split")):+.1f}K'
-        c12 = grade(sf(savant.get('recent_form')), 5.5, 4.5);  p12_val = f'{sf(savant.get("recent_form")):.1f}'
-        score += sum(1 for c in [c7, c8, c9, c10, c11, c12] if c == 'green')
-        total_pts = 12
-    else:
-        c7 = c8 = c9 = c10 = c11 = c12 = None
+    # Phase 2 — pull from balldontlie if available. INFO-ONLY for now:
+    # each metric shows independently and is colored, but does NOT change the
+    # tier score (tiers stay on the 6 Phase 1 points until data is proven out).
+    savant = SAVANT.get(name.lower(), {})
+
+    def p2(metric, green, yellow, fmt):
+        v = savant.get(metric)
+        if v is None or v == '':
+            return (None, None)
+        fv = sf(v)
+        return (grade(fv, green, yellow), fmt(fv))
+
+    c7,  p7_val  = p2('swstr_pct',        11.0, 10.0, lambda x: f'{x:.1f}%')
+    c8,  p8_val  = p2('chase_pct',        29.0, 27.0, lambda x: f'{x:.1f}%')
+    c9,  p9_val  = p2('arsenal_whiff',    30.0, 28.0, lambda x: f'{x:.1f}%')
+    c10, p10_val = p2('opp_lineup_k_pct', 24.0, 22.0, lambda x: f'{x:.1f}%')
+    c11, p11_val = p2('ha_split',          0.5,  0.3, lambda x: f'{x:+.1f}K')
+    c12, p12_val = p2('recent_form',       5.5,  4.5, lambda x: f'{x:.1f}')
 
     tier, tier_icon, ou, ou_cls = tier_and_ou(score, total_pts)
 
@@ -472,6 +476,9 @@ html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>📋 The Safe K Report — {DATE_STR}</title>
 <style>
