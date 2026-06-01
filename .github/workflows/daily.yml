@@ -5,7 +5,9 @@ on:
   push:
     paths:
       - '**.xlsx'
-  workflow_dispatch:
+      - 'k_props.json'
+      - 'k_savant_data.json'
+  workflow_dispatch:  # lets you also trigger it manually from GitHub
 
 permissions:
   contents: write
@@ -36,10 +38,10 @@ jobs:
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
           echo "Found Excel file: $XLSX"
 
-      - name: Step 1 — Extract xlsx to JSON
+      - name: Step 1 — Extract xlsx → JSON
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
-      - name: Step 2 — Build all sections + Safe K Report
+      - name: Step 2 — Build all sections + K Report
         run: python3 build.py
         env:
           DATA_FILE: day_data.json
@@ -66,6 +68,6 @@ jobs:
           raw = d.get('BP_Games',[{}])[0].get('GameDate','')
           dt = datetime.strptime(str(raw)[:10], '%Y-%m-%d').date()
           day = (dt - date(2026, 3, 28)).days + 1
-          print(f'Day {day} - {dt.strftime(\"%b %-d\")} - {len(d.get(\"BP_Games\",[]))} games')
+          print(f'Day {day} · {dt.strftime(\"%b %-d\")} · {len(d.get(\"BP_Games\",[]))} games')
           ")"
           git push
