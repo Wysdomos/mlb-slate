@@ -15,8 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
@@ -66,13 +64,18 @@ jobs:
         run: python3 sync.py
 
       - name: Commit and push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.email "mrwwright9@gmail.com"
           git config user.name "Wysdomos"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
           git add index.html k-report.html day_data.json built_sections.json
-          git add k_props.json 2>/dev/null; git add k_savant_data.json 2>/dev/null; true
-          git diff --staged --quiet \
-            && echo "No changes to commit" \
-            || git commit -m "Auto-update: $XLSX_FILE"
-          git pull --rebase origin main
-          git push
+          git add k_props.json 2>/dev/null || true
+          git add k_savant_data.json 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update: $XLSX_FILE"
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
