@@ -43,13 +43,17 @@ jobs:
         run: python3 fetch_props.py
 
       - name: Fetch Phase 2 metrics
-        timeout-minutes: 3
+        timeout-minutes: 8
         continue-on-error: true
         env:
           BDL_KEY: ${{ secrets.BDL_KEY }}
           K_SAVANT_FILE: k_savant_data.json
           DATA_FILE: day_data.json
-        run: python3 fetch_phase2.py
+          BDL_MIN_GAP: '0.1'
+        run: |
+          sed -i 's/retries=5/retries=2/g' fetch_phase2.py
+          sed -i 's/timeout=30/timeout=10/g' fetch_phase2.py
+          python3 fetch_phase2.py
 
       - name: Build slate
         env:
