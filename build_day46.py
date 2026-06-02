@@ -215,6 +215,9 @@ def build_headlines():
   <div class="flag-row"><div class="icon">🎯</div><div><strong>Pitcher's HR Risk Board:</strong> Eury Pérez 1.02 HR/9 (vs MIN, V46), Miles Mikolas 1.02 (vs CIN, V76), Erick Fedde 0.86 (vs KC, V29), Slade Cecconi 0.86 (vs LAA, V56), Bailey Ober 0.85 (vs MIA, V25). All five have <strong>HR-stack potential</strong> — see new "Pitcher's HR Risk Board" section.</div></div>
   <div class="flag-row"><div class="icon">🥶</div><div><strong>Fenway -23% / Truist -23% / PNC -20% HR all FADED.</strong> Phillies @ BOS (Fenway weather suppressed -23% HR but +18% 2B/3B — doubles play). CHC @ ATL (Truist -23%) and COL @ PIT (-20%) skip HR alts. Citi Field -14% HR / -29% 2B/3B = full suppressor — DET @ NYM is the under spot (NRFI 56%+).</div></div>
   <div class="flag-row"><div class="icon">📋</div><div><strong>SKIP arms / fades:</strong> Walbert Urena (LAA, K only 4.0 — skip K alts), Erick Fedde (CHW, K 2.6 — skip K alts entirely), Brayan Bello (BOS, K 2.9 — skip), Patrick Corbin (TOR, K 3.0 — skip). All HR plays at Citi/Fenway/Truist/PNC. Pivot to 1+H / RBI plays in suppressed parks.</div></div>
+  <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
+    <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
+  </div>
 </section>
 '''
 
@@ -876,10 +879,43 @@ def build_oo5_board():
         try: vv = int(vuln) if vuln is not None else 0
         except (TypeError, ValueError): vv = 0
         h1 = r.get('1+ Hit','—')
-        h2 = r.get('2+ Hits ','—')
+        h2 = r.get('2+ Hits','—')
         rbi = r.get('To Get RBI','—')
         hr = r.get('To Hit HR','—')
         match = r.get('Matchup','—')
+
+        # ── RBI+ adjusted formula (5 factors from research) ──
+        sp_r    = SP_BY_TEAM.get(opp_team, {}) if opp_team else {}
+        h_all   = _sf(sp_r.get('Hits', 4.5))
+        sp_era  = _sf(sp_r.get('ERA',  4.25))
+        sp_k    = _sf(sp_r.get('K',    0))
+        sp_outs = _sf(sp_r.get('Outs', 15))
+        sp_ip   = max(sp_outs / 3.0, 1.0)
+        k9      = (sp_k / sp_ip * 9) if sp_k > 0 else 8.5
+        p_runs  = _sf(str(PARK_BY_TEAM.get(team, {}).get('Runs %', '0')))
+        base_r  = _sf(str(rbi).replace('%',''))
+        if base_r > 0:
+            rbi_plus = round(max(0.0, min(99.0,
+                base_r
+                + (h_all  - 4.5)  * 2.0
+                - (k9     - 8.5)  * 0.4
+                + p_runs          * 0.25
+                + (sp_era - 4.25) * 0.6
+            )), 1)
+        else:
+            rbi_plus = None
+        if rbi_plus is not None:
+            if rbi_plus >= 32:
+                rbi_cell = (f'<strong style="color:var(--good)">{rbi_plus}%</strong>'
+                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
+            elif rbi_plus >= 25:
+                rbi_cell = (f'<span style="color:var(--hot)">{rbi_plus}%</span>'
+                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
+            else:
+                rbi_cell = (f'<span style="color:var(--text-dim)">{rbi_plus}%</span>'
+                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
+        else:
+            rbi_cell = '—'
         try: h1f = float(str(h1).replace('%',''))
         except (TypeError, ValueError): h1f = 0
         if h1f >= 65: tier = 'row-tier0'
@@ -898,7 +934,7 @@ def build_oo5_board():
             f'<td>{match_cell}</td>'
             f'<td><strong>{h1}</strong></td>'
             f'<td>{h2}</td>'
-            f'<td>{rbi}</td>'
+            f'<td>{rbi_cell}</td>'
             f'<td>{hr}</td>'
             f'</tr>'
         )
