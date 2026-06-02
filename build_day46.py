@@ -772,6 +772,10 @@ def build_k_board():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
+    <a href="k-report.html" style="display:flex;align-items:center;justify-content:space-between;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.35);border-radius:10px;padding:10px 14px;margin-bottom:12px;text-decoration:none;">
+      <span style="font-size:13px;font-weight:700;color:#3b82f6;">📋 View The Safe K Report</span>
+      <span style="font-size:13px;color:#3b82f6;">Safe floors · Real lines · Full criteria →</span>
+    </a>
     <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">SS Ks from <strong>SP_Projections</strong>, BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>

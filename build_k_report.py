@@ -159,34 +159,58 @@ def grade_qs(val):
     if v >= 0.35: return 'yellow'
     return 'red'
 
-def tier_and_ou(score, total_points=6):
-    """Map score to tier and O line recommendation."""
-    if total_points == 6:
-        # Phase 1 thresholds
-        if score == 6:   tier, icon = 'DIAMOND',    '💎'
-        elif score == 5: tier, icon = 'ELITE',      '🏆'
-        elif score == 4: tier, icon = 'STRONG',     '💪'
-        elif score == 3: tier, icon = 'STRONG',     '💪'
-        elif score == 2: tier, icon = 'BORDERLINE', '⚪'
-        else:            tier, icon = 'FADE',       '❌'
-    else:
-        # Phase 2 thresholds (12 points)
-        if score >= 10:  tier, icon = 'DIAMOND',    '💎'
-        elif score >= 8: tier, icon = 'ELITE',      '🏆'
-        elif score >= 7: tier, icon = 'STRONG',     '💪'
-        elif score >= 6: tier, icon = 'STRONG',     '💪'
-        elif score >= 4: tier, icon = 'BORDERLINE', '⚪'
-        else:            tier, icon = 'FADE',       '❌'
+def tier_and_ou(phase1_score, phase2_loaded_count, score, total_pts, k_proj_green):
+    """
+    Multi-path tier system with Phase 1 perfection bonus and K proj gate.
 
-    # O line tied to tier + score
-    if tier == 'DIAMOND':                   ou, cls = 'O 3.5', 'ou-top'
-    elif tier == 'ELITE':                   ou, cls = 'O 2.5', 'ou-mid'
-    elif tier == 'STRONG' and score >= 4:   ou, cls = 'O 2.5', 'ou-mid'
-    elif tier == 'STRONG':                  ou, cls = 'O 1.5', 'ou-low'
-    elif tier == 'BORDERLINE':              ou, cls = 'O 1.5', 'ou-low'
-    else:                                   ou, cls = '—',     'ou-none'
+    Diamond paths:
+      A — Phase 1 perfect (6/6) + K proj + ≥2 Phase 2 green
+      B — Phase 1 missing ≤2 (4-5/6) + K proj + total ≥9
+      C — Phase 1 missing >2 (≤3/6) + K proj + total ≥9  → warn=True
+    Phase 1 only fallback (no Phase 2 loaded): Diamond = 6/6 + K proj
 
-    return tier, icon, ou, cls
+    Returns (tier, icon, ou, ou_cls, warn)
+    warn=True adds ⚠️ to Diamond badge when Phase 1 is weak.
+    """
+    warn = False
+    p2_active = phase2_loaded_count > 0
+
+    # Determine tier (checked in priority order)
+    tier = None
+    if k_proj_green:
+        if p2_active:
+            if phase1_score == 6 and score >= 8:
+                tier, icon = 'DIAMOND', '💎'                    # Path A
+            elif phase1_score >= 4 and score >= 9:
+                tier, icon = 'DIAMOND', '💎'                    # Path B
+            elif phase1_score <= 3 and score >= 9:
+                tier, icon = 'DIAMOND', '💎'; warn = True       # Path C ⚠️
+            elif phase1_score >= 5 and score >= 7:
+                tier, icon = 'ELITE', '🏆'
+        else:
+            # Phase 1 only
+            if phase1_score == 6:   tier, icon = 'DIAMOND', '💎'
+            elif phase1_score >= 5: tier, icon = 'ELITE',   '🏆'
+
+    if tier is None:
+        if p2_active:
+            if score >= 5:   tier, icon = 'STRONG',     '💪'
+            elif score >= 3: tier, icon = 'BORDERLINE', '⚪'
+            else:            tier, icon = 'FADE',       '❌'
+        else:
+            if phase1_score >= 3:   tier, icon = 'STRONG',     '💪'
+            elif phase1_score >= 2: tier, icon = 'BORDERLINE', '⚪'
+            else:                   tier, icon = 'FADE',       '❌'
+
+    # O-line floors (unchanged)
+    if tier == 'DIAMOND':                          ou, cls = 'O 3.5', 'ou-top'
+    elif tier == 'ELITE':                          ou, cls = 'O 2.5', 'ou-mid'
+    elif tier == 'STRONG' and phase1_score >= 4:   ou, cls = 'O 2.5', 'ou-mid'
+    elif tier == 'STRONG':                         ou, cls = 'O 1.5', 'ou-low'
+    elif tier == 'BORDERLINE':                     ou, cls = 'O 1.5', 'ou-low'
+    else:                                          ou, cls = '—',     'ou-none'
+
+    return tier, icon, ou, cls, warn
 
 # ── Grade every pitcher ─────────────────────────────────────────────────────
 OU_COLOR = {'ou-top': '#3b82f6', 'ou-mid': '#22c55e', 'ou-low': '#eab308'}
@@ -231,12 +255,10 @@ for sp in SP_PROJ:
     p5_val = f'{proj_bb:.1f}'
     p6_val = f'{bf:.0f}'
 
-    score = sum(1 for c in [c1, c2, c3, c4, c5, c6] if c == 'green')
-    total_pts = 6
+    phase1_score = sum(1 for c in [c1, c2, c3, c4, c5, c6] if c == 'green')
 
-    # Phase 2 — pull from balldontlie if available. INFO-ONLY for now:
-    # each metric shows independently and is colored, but does NOT change the
-    # tier score (tiers stay on the 6 Phase 1 points until data is proven out).
+    # Phase 2 — balldontlie metrics. Score only the ones that actually loaded.
+    # total_pts adjusts dynamically so the denominator is always honest.
     savant = SAVANT.get(name.lower(), {})
 
     def p2(metric, green, yellow, fmt):
@@ -253,7 +275,15 @@ for sp in SP_PROJ:
     c11, p11_val = p2('ha_split',          0.5,  0.3, lambda x: f'{x:+.1f}K')
     c12, p12_val = p2('recent_form',       5.5,  4.5, lambda x: f'{x:.1f}')
 
-    tier, tier_icon, ou, ou_cls = tier_and_ou(score, total_pts)
+    p2_loaded = [c for c in [c7, c8, c9, c10, c11, c12] if c is not None]
+    phase2_score = sum(1 for c in p2_loaded if c == 'green')
+    score     = phase1_score + phase2_score
+    total_pts = 6 + len(p2_loaded)
+
+    k_proj_green = (c2 == 'green')
+    tier, tier_icon, ou, ou_cls, tier_warn = tier_and_ou(
+        phase1_score, len(p2_loaded), score, total_pts, k_proj_green
+    )
 
     # Flags (warnings — shown on card, never auto-remove)
     flags = []
@@ -277,7 +307,7 @@ for sp in SP_PROJ:
         'c11':(c11, 'H/A',     p11_val), 'c12':(c12, 'Form×5',  p12_val),
         'score': score, 'total_pts': total_pts,
         'tier': tier, 'tier_icon': tier_icon,
-        'ou': ou, 'ou_cls': ou_cls,
+        'ou': ou, 'ou_cls': ou_cls, 'tier_warn': tier_warn,
         'flags': flags, 'red_flag': red_flag,
     })
 
@@ -387,7 +417,7 @@ def pitcher_card(p, idx):
             f'<div class="pc-match">{p["team"]} vs {p["opp"]} · {p["venue"] or "TBD"}</div></div>'
             f'</div>'
             f'<div class="pc-right">'
-            f'<div class="pc-tier tier-{tier_cls}">{p["tier_icon"]} {p["tier"]}</div>'
+            f'<div class="pc-tier tier-{tier_cls}">{p["tier_icon"]} {p["tier"]}{"  ⚠️" if p.get("tier_warn") else ""}</div>'
             f'<div class="pc-score">{p["score"]}<span class="pc-of">/{p["total_pts"]}</span></div>'
             f'</div></div>'
             f'{row1}{row2}{row3}'
