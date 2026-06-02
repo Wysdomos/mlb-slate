@@ -172,10 +172,14 @@ def pitch_metrics(pid):
     # Log field names on first call
     if rows:
         sample_keys = list(rows[0].keys())
-        # Only log once globally
         if not getattr(pitch_metrics, '_logged', False):
             print(f"  pitch_type row keys: {sample_keys[:15]}")
             pitch_metrics._logged = True
+
+    # CRITICAL: API may return all pitchers — filter to only this player
+    rows = [r for r in rows if isinstance(r, dict) and str(r.get('player_id')) == str(pid)]
+    if not rows:
+        return {}
 
     pitches = whiffs = swings = chases = zone = 0
     for r in rows:
@@ -207,6 +211,8 @@ def ha_split(pid):
             rows = resp
         home_k = home_g = away_k = away_g = None
         for row in rows:
+            if not isinstance(row, dict):
+                continue
             label = str(row.get('split') or row.get('split_name') or
                         row.get('name') or row.get('type') or '').lower()
             k  = row.get('pitching_k', row.get('p_k', row.get('strikeouts')))
@@ -229,6 +235,8 @@ def ha_split(pid):
         rows2 = resp2.get('data', [])
         home_k = home_g = away_k = away_g = None
         for row in rows2:
+            if not isinstance(row, dict):
+                continue
             label = str(row.get('split') or row.get('name') or '').lower()
             k  = row.get('pitching_k', row.get('strikeouts'))
             gs = row.get('pitching_gs', row.get('gs', row.get('games_started')))

@@ -884,38 +884,26 @@ def build_oo5_board():
         hr = r.get('To Hit HR','—')
         match = r.get('Matchup','—')
 
-        # ── RBI+ adjusted formula (5 factors from research) ──
-        sp_r    = SP_BY_TEAM.get(opp_team, {}) if opp_team else {}
-        h_all   = _sf(sp_r.get('Hits', 4.5))
-        sp_era  = _sf(sp_r.get('ERA',  4.25))
-        sp_k    = _sf(sp_r.get('K',    0))
-        sp_outs = _sf(sp_r.get('Outs', 15))
-        sp_ip   = max(sp_outs / 3.0, 1.0)
-        k9      = (sp_k / sp_ip * 9) if sp_k > 0 else 8.5
-        p_runs  = _sf(str(PARK_BY_TEAM.get(team, {}).get('Runs %', '0')))
-        base_r  = _sf(str(rbi).replace('%',''))
-        if base_r > 0:
-            rbi_plus = round(max(0.0, min(99.0,
-                base_r
-                + (h_all  - 4.5)  * 2.0
-                - (k9     - 8.5)  * 0.4
-                + p_runs          * 0.25
-                + (sp_era - 4.25) * 0.6
+        # ── HRR probability (H+R+RBI ≥ 1 combined) ──
+        h1_f       = _sf(str(h1).replace('%',''))
+        base_rbi_f = _sf(str(rbi).replace('%',''))
+        sp_r2      = SP_BY_TEAM.get(opp_team, {}) if opp_team else {}
+        era2       = _sf(sp_r2.get('ERA', 4.25))
+        park_r2    = _sf(str(PARK_BY_TEAM.get(team, {}).get('Runs %', '0')))
+        if h1_f > 0 and base_rbi_f > 0:
+            era_boost = max(0, (era2 - 4.25) * 1.5)
+            run_prob  = min(60, base_rbi_f * 0.8 + park_r2 * 0.3 + era_boost)
+            hrr_pct   = round(min(99, max(0,
+                (1 - (1-h1_f/100) * (1-run_prob/100) * (1-base_rbi_f/100)) * 100
             )), 1)
-        else:
-            rbi_plus = None
-        if rbi_plus is not None:
-            if rbi_plus >= 32:
-                rbi_cell = (f'<strong style="color:var(--good)">{rbi_plus}%</strong>'
-                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
-            elif rbi_plus >= 25:
-                rbi_cell = (f'<span style="color:var(--hot)">{rbi_plus}%</span>'
-                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
+            if hrr_pct >= 82:
+                hrr_cell = f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
+            elif hrr_pct >= 75:
+                hrr_cell = f'<span style="color:var(--hot)">{hrr_pct}%</span>'
             else:
-                rbi_cell = (f'<span style="color:var(--text-dim)">{rbi_plus}%</span>'
-                            f'<br><small style="color:var(--text-dim);font-size:9px">{rbi}</small>')
+                hrr_cell = f'{hrr_pct}%'
         else:
-            rbi_cell = '—'
+            hrr_cell = '—'
         try: h1f = float(str(h1).replace('%',''))
         except (TypeError, ValueError): h1f = 0
         if h1f >= 65: tier = 'row-tier0'
@@ -934,7 +922,8 @@ def build_oo5_board():
             f'<td>{match_cell}</td>'
             f'<td><strong>{h1}</strong></td>'
             f'<td>{h2}</td>'
-            f'<td>{rbi_cell}</td>'
+            f'<td>{rbi}</td>'
+            f'<td>{hrr_cell}</td>'
             f'<td>{hr}</td>'
             f'</tr>'
         )
@@ -950,7 +939,7 @@ def build_oo5_board():
   <div class="game-body"><div class="game-body-inner">
     <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Default play: <strong>Ov 0.5</strong> hits. Top 50 bats by 1+ Hit% from <strong>hit probability model</strong>. Matchup cell shows opp. starter Vuln (≥50 = 🔥 stack target).</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+H</th><th>2+H</th><th>RBI</th><th>HR</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+H</th><th>2+H</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
       </tbody>
