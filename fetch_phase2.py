@@ -199,59 +199,58 @@ def pitch_metrics(pid):
         out['chase_pct'] = round(chases / oz * 100, 1)
     return out
 
-# ── H/A SPLIT ─────────────────────────────────────────────────────
-def ha_split(pid):
-    """Home K/start minus Away K/start. Tries multiple balldontlie endpoints."""
+# ── H/A SPLIT (via MLB Stats API — balldontlie has no splits endpoint) ──
+_MLB_API = 'https://statsapi.mlb.com/api/v1'
+_mlb_id_cache = {}
 
-    # Attempt 1: /players/splits
-    resp = api_get('/players/splits', {'season': season, 'player_id': pid})
-    if resp:
-        rows = resp.get('data', [])
-        if not rows and isinstance(resp, list):
-            rows = resp
-        home_k = home_g = away_k = away_g = None
-        for row in rows:
-            if not isinstance(row, dict):
-                continue
-            label = str(row.get('split') or row.get('split_name') or
-                        row.get('name') or row.get('type') or '').lower()
-            k  = row.get('pitching_k', row.get('p_k', row.get('strikeouts')))
-            gs = row.get('pitching_gs', row.get('games_started', row.get('gs')))
-            if k is None or gs is None:
-                continue
-            if 'home' in label:
-                home_k, home_g = float(k), float(gs)
-            elif 'away' in label or 'road' in label:
-                away_k, away_g = float(k), float(gs)
-        try:
-            if home_g and away_g and home_g > 0 and away_g > 0:
-                return round(home_k/home_g - away_k/away_g, 1)
-        except (TypeError, ValueError):
-            pass
+def _mlb_get(url):
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url), timeout=10) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except Exception:
+        return None
 
-    # Attempt 2: /splits with different param name
-    resp2 = api_get('/splits', {'season': season, 'player_id': pid, 'per_page': 50})
-    if resp2:
-        rows2 = resp2.get('data', [])
-        home_k = home_g = away_k = away_g = None
-        for row in rows2:
-            if not isinstance(row, dict):
-                continue
-            label = str(row.get('split') or row.get('name') or '').lower()
-            k  = row.get('pitching_k', row.get('strikeouts'))
-            gs = row.get('pitching_gs', row.get('gs', row.get('games_started')))
-            if k is None or gs is None:
-                continue
-            if 'home' in label:
-                home_k, home_g = float(k), float(gs)
-            elif 'away' in label or 'road' in label:
-                away_k, away_g = float(k), float(gs)
-        try:
-            if home_g and away_g and home_g > 0 and away_g > 0:
-                return round(home_k/home_g - away_k/away_g, 1)
-        except (TypeError, ValueError):
-            pass
+def mlb_player_id(name):
+    key = (name or '').strip().lower()
+    if key in _mlb_id_cache:
+        return _mlb_id_cache[key]
+    q = urllib.parse.urlencode({'names': name, 'sportId': 1, 'active': 'true'})
+    data = _mlb_get(f'{_MLB_API}/people/search?{q}')
+    pid = None
+    if data and data.get('people'):
+        pid = data['people'][0]['id']
+    _mlb_id_cache[key] = pid
+    return pid
 
+def ha_split(pitcher_name):
+    """Home K/start minus Away K/start from MLB Stats API statSplits."""
+    pid = mlb_player_id(pitcher_name)
+    if not pid:
+        return None
+    # sitCodes h,a — keep the comma literal
+    url = (f'{_MLB_API}/people/{pid}/stats?stats=statSplits&group=pitching'
+           f'&season={season}&sitCodes=h,a')
+    data = _mlb_get(url)
+    if not data:
+        return None
+    home_k = home_g = away_k = away_g = None
+    for st in data.get('stats', []):
+        for sp in st.get('splits', []):
+            code = (sp.get('split') or {}).get('code', '')
+            stat = sp.get('stat', {})
+            k  = stat.get('strikeOuts')
+            gs = stat.get('gamesStarted') or stat.get('gamesPlayed')
+            if k is None or not gs:
+                continue
+            try:
+                if code == 'h':
+                    home_k, home_g = float(k), float(gs)
+                elif code == 'a':
+                    away_k, away_g = float(k), float(gs)
+            except (TypeError, ValueError):
+                continue
+    if home_g and away_g and home_g > 0 and away_g > 0:
+        return round(home_k/home_g - away_k/away_g, 1)
     return None
 
 # ── INCREMENTAL SAVE ─────────────────────────────────────────────
@@ -282,7 +281,7 @@ for p in slate:
 
             # H/A split
             try:
-                hs = ha_split(pid)
+                hs = ha_split(p['name'])
                 if hs is not None:
                     metrics['ha_split'] = hs
                 else:

@@ -667,6 +667,8 @@ def build_matchup_spotlight():
 # ---- BUILD: K BOARD (Day 44 structure: Tier | Pitcher | B | Tm | SS Ks | BPP Ks | Outs | Hits | ERA | QS% | HRA | Vuln | Best Line | Note) ----
 def build_k_board():
     sp_sorted = sorted(SP_PROJ, key=lambda r: -(_sf(r.get('K'))))
+    _top2 = [r.get('Pitcher','') for r in sp_sorted[:2] if r.get('Pitcher')]
+    top_k_names = ' & '.join(_top2) if _top2 else 'top arms'
     rows = []
     for r in sp_sorted:
         name = r.get('Pitcher','')
@@ -770,7 +772,7 @@ def build_k_board():
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">⚡ Full K's Tier Board</div>
-      <span class="game-tag">Tap to expand · {len(sp_sorted)} starters · ordered by SS K desc · Skenes/Wheeler T0</span>
+      <span class="game-tag">Tap to expand · {len(sp_sorted)} starters · ordered by SS K desc · {top_k_names} lead</span>
     </div>
     <span class="chevron">▾</span>
   </button>

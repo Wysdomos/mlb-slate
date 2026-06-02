@@ -17,13 +17,9 @@ Baseball logic applied:
   - Conviction = Score + Vuln + Park + Streak all passing threshold
 """
 
-import json, re, os
+import json, re, os, random
 from datetime import datetime, date
-
-def _sf(v, default=0.0):
-    """Safely convert any SP_PROJ numeric field to float — handles str, None, empty."""
-    try: return float(v) if v not in (None, '', 'None') else default
-    except (TypeError, ValueError): return default
+random.seed(date.today().isoformat())  # stable per day, varies daily
 
 DATA_FILE     = os.environ.get('DATA_FILE',     'day_data.json')
 SECTIONS_FILE = os.environ.get('SECTIONS_FILE', 'built_sections.json')
@@ -124,222 +120,168 @@ def game_time(away_team, home_team):
     return ''
 
 # ============================================================
-# 1. HEADLINES
+# 1. HEADLINES  (color-coded action cards)
 # ============================================================
 def build_headlines():
-    flags = []  # each entry: dict with icon, title, detail, cls, action, link_href, link_text
+    cards = []
 
-    # -- Story 1: Best park environment --
+    # ---- Story 1 (HERO): Best park environment ----
     parks_sorted = sorted(PARKS, key=lambda p: -parse_pct(p.get('HR %')))
-    top_park = parks_sorted[0]
-    top_hr   = parse_pct(top_park.get('HR %'))
-    top_runs = parse_pct(top_park.get('Runs %'))
-    park_game = top_park.get('Game','')
-    park_venue = top_park.get('Venue','')
-    park_icon = '🌋' if top_hr >= 25 else '🔥'
-    park_label = 'HR volcano' if top_hr >= 25 else 'top HR environment'
-    park_action = '🌋 VOLCANO · STACK HOME' if top_hr >= 25 else '🔥 TOP PARK · STACK'
-    m = re.match(r'\s*(\w+)\s*@\s*(\w+)\s*', park_game)
-    if m:
-        home_t = m.group(2)
-        home_sp = SP_BY_TEAM.get(home_t)
-        park_hr_bats = [r for r in HR_LB[:30] if tn(r.get('Team')) in [home_t, m.group(1)]][:4]
-        bat_names = ', '.join(f"<strong>{r['Batter']}</strong> ({r.get('Score','')})" for r in park_hr_bats)
-        pitcher_note = ''
-        if home_sp:
-            vs = get_vuln(home_sp.get('Pitcher',''))
-            if vs: pitcher_note = f"vs <strong>{home_sp['Pitcher']} V{vs['VulnScore']}</strong>. "
-        flags.append({
-            'icon': park_icon,
-            'title': f"{park_venue} +{top_hr}% HR — slate's {park_label}",
-            'detail': f"<strong>{park_game}</strong> ({game_time(m.group(1), m.group(2))}). {pitcher_note}Top bats here: {bat_names}. Park also +{top_runs}% Runs.",
-            'cls': 'stack', 'action': park_action,
-            'link_href': '#hr-board', 'link_text': '→ See HR Board for these bats'
-        })
+    if parks_sorted:
+        top_park = parks_sorted[0]
+        top_hr   = parse_pct(top_park.get('HR %'))
+        top_runs = parse_pct(top_park.get('Runs %'))
+        park_game = top_park.get('Game','')
+        park_venue = top_park.get('Venue','')
+        is_volcano = top_hr >= 25
+        icon = '🌋' if is_volcano else '🔥'
+        label = 'HR volcano' if is_volcano else 'top HR environment'
+        action_label = '🌋 VOLCANO · STACK HOME' if is_volcano else '🔥 STACK HOME'
+        m = re.match(r'\s*(\w+)\s*@\s*(\w+)\s*', park_game)
+        details = []
+        if m:
+            home_t = m.group(2)
+            home_sp = SP_BY_TEAM.get(home_t)
+            t = game_time(m.group(1), m.group(2))
+            pitcher_note = ''
+            if home_sp:
+                vs = get_vuln(home_sp.get('Pitcher',''))
+                if vs: pitcher_note = f" Home SP <strong>{home_sp['Pitcher']} V{vs['VulnScore']}</strong>."
+            park_hr_bats = [r for r in HR_LB[:30] if tn(r.get('Team')) in [home_t, m.group(1)]][:5]
+            bat_names = ', '.join(f"<strong>{r['Batter']}</strong>" for r in park_hr_bats)
+            details.append(f"<strong>{park_game} ({t}).</strong>{pitcher_note}")
+            details.append(f"Top bats here: {bat_names}. Park also +{top_runs}% Runs. <strong>Stack the home lineup.</strong>")
+        else:
+            details.append(f"<strong>+{top_hr}% HR / +{top_runs}% Runs.</strong> Stack the home lineup.")
+        cards.append({'hero':True,'icon':icon,'action_class':'stack','action_label':action_label,
+            'title':f"{park_venue} +{top_hr}% HR — slate's {label}",
+            'details':details,'link_href':'#hr-board','link_text':'→ See HR Board for these bats'})
 
-    # -- Story 2: Best batter stack --
+    # ---- Stories 2 & 3: Best stacks vs vulnerable pitchers ----
     pitcher_stacks = {}
     for r in HR_LB[:25]:
         pit = r.get('Pitcher','')
         if not pit: continue
-        v = vuln_score(pit)
-        if pit not in pitcher_stacks:
-            pitcher_stacks[pit] = {'batters': [], 'vuln': v, 'team': tn(r.get('Team','')), 'pitcher_team': tn(r.get('Pitcher Team',''))}
+        pitcher_stacks.setdefault(pit, {'batters':[], 'vuln':vuln_score(pit),
+            'team':tn(r.get('Team','')), 'pitcher_team':tn(r.get('Pitcher Team',''))})
         pitcher_stacks[pit]['batters'].append(r)
-    best_stack = sorted(pitcher_stacks.items(), key=lambda x: x[1]['vuln'] * len(x[1]['batters']), reverse=True)
-    if best_stack:
-        pit_name, stack = best_stack[0]
-        bats = stack['batters']
-        v = stack['vuln']
-        team = stack['team']
-        bat_str = ', '.join(f"<strong>{r['Batter']}</strong> #{r['Rank']} (Score {r['Score']}, {r.get('Zone','')})" for r in bats[:4])
+    best_stack = sorted(pitcher_stacks.items(), key=lambda x: x[1]['vuln']*len(x[1]['batters']), reverse=True)
+    max_vuln = max((s[1]['vuln'] for s in best_stack), default=0)
+
+    for rank, (pit_name, stack) in enumerate(best_stack[:2]):
+        bats = stack['batters']; v = stack['vuln']; team = stack['team']
+        if len(bats) < 2 and rank > 0: break
+        bat_str = ', '.join(
+            f"<strong>{r['Batter']}</strong> #{r['Rank']} ({r['Score']})" for r in bats[:4])
         park = get_park_for_batter(team)
-        park_note = f" {park.get('Venue','')} <strong>{park.get('HR %','')} HR</strong>." if park else ''
-        label = 'slate-worst starter' if v == max(s[1]['vuln'] for s in best_stack) else 'top target'
-        flags.append({
-            'icon': '🔥',
-            'title': f"{team} stack vs {pit_name} (V{v} — {label})",
-            'detail': f"{park_note} HR Board: {bat_str}. <strong>Best same-game stack of the slate.</strong>".strip(),
-            'cls': 'stack', 'action': 'STACK',
-            'link_href': '#hr-board', 'link_text': '→ HR Board'
-        })
+        park_note = f"{park.get('Venue','')} <strong>{park.get('HR %','')} HR</strong>. " if park else ''
+        if rank == 0:
+            worst = 'slate-worst SP' if v == max_vuln else 'top target'
+            cards.append({'icon':'🔥','action_class':'stack','action_label':'STACK',
+                'title':f"{team} stack vs {pit_name} (V{v} — {worst})",
+                'details':[f"{park_note}HR Board: {bat_str}. <strong>Best same-game stack of the slate.</strong>"],
+                'link_href':'#hr-board','link_text':'→ HR Board'})
+        else:
+            cards.append({'icon':'🎯','action_class':'stack','action_label':'STACK',
+                'title':f"{team} stack vs {pit_name} (V{v})",
+                'details':[f"{park_note}HR Board: {bat_str}. Cross-game complement to the top stack."],
+                'link_href':'#hr-board','link_text':'→ HR Board'})
 
-    # -- Story 3: Second-best stack --
-    if len(best_stack) >= 2:
-        pit2_name, stack2 = best_stack[1]
-        if pit2_name != best_stack[0][0]:
-            bats2 = stack2['batters']
-            v2 = stack2['vuln']
-            team2 = stack2['team']
-            bat_str2 = ', '.join(f"<strong>{r['Batter']}</strong> #{r['Rank']} (Score {r['Score']})" for r in bats2[:3])
-            park2 = get_park_for_batter(team2)
-            park_note2 = f" {park2.get('Venue','')} <strong>{park2.get('HR %','')} HR</strong>." if park2 else ''
-            flags.append({
-                'icon': '🎯',
-                'title': f"{team2} stack vs {pit2_name} (V{v2})",
-                'detail': f"{park_note2} HR Board: {bat_str2}. Cross-game complement to the top stack.".strip(),
-                'cls': 'stack', 'action': 'STACK',
-                'link_href': '#hr-board', 'link_text': '→ HR Board'
-            })
-
-    # -- Story 4: K board leader --
-    sp_k_sorted = sorted(SP_PROJ, key=lambda r: -(_sf(r.get('K'))))
+    # ---- Story 4: K leader ----
+    sp_k_sorted = sorted(SP_PROJ, key=lambda r: -(r.get('K') or 0))
     if sp_k_sorted:
         top_k = sp_k_sorted[0]
         k2 = sp_k_sorted[1] if len(sp_k_sorted) > 1 else None
-        name = top_k.get('Pitcher','')
-        k_val = top_k.get('K')
-        team = tn(top_k.get('Team',''))
-        opp = tn(top_k.get('Opp',''))
-        alt = k_alt(k_val)
-        v = get_vuln(name)
+        name = top_k.get('Pitcher',''); k_val = top_k.get('K')
+        team = tn(top_k.get('Team','')); opp = tn(top_k.get('Opp',''))
+        alt = k_alt(k_val); v = get_vuln(name)
         vuln_note = f" V{v['VulnScore']}" if v else ''
         k2_str = ''
         if k2:
-            k2_alt = k_alt(k2.get('K'))
-            k2_str = f" <strong>{k2['Pitcher']}</strong> {k2.get('K')} K ({k2_alt}) is slate #2."
-        flags.append({
-            'icon': '⚡',
-            'title': f"Strikeout leader: {name} {k_val} K — Best Line: {alt}",
-            'detail': f"{team} vs {opp}{vuln_note}.{k2_str} Rule: ≥5 K → O5+, 4.5–4.99 → O3.5, &lt;4.5 → O2.5. Never alt above 5 strikeouts.",
-            'cls': 'k-target', 'action': 'STRIKEOUT (K) TARGET',
-            'link_href': '#k-board', 'link_text': "→ Full K's Board"
-        })
+            k2_str = f" <strong>{k2['Pitcher']}</strong> {k2.get('K')} K ({k_alt(k2.get('K'))}) is slate #2."
+        cards.append({'icon':'⚡','action_class':'k-target','action_label':'K TARGET',
+            'title':f"{name} {k_val} K leads the slate — Best Line: {alt}",
+            'details':[f"{team} vs {opp}{vuln_note}.{k2_str}",
+                       '<span style="font-size:12px;color:var(--text-dim)">User rule: ≥5 K → O5+, 4.5–4.99 → O3.5, &lt;4.5 → O2.5. Never alt above 5.</span>'],
+            'link_href':'#k-board','link_text':"→ Full K's Board"})
 
-    # -- Story 5: Pitcher HR/BB vulnerability --
-    sp_hr_sorted = sorted(SP_PROJ, key=lambda r: -(_sf(r.get('HR'))))
-    top_vuln_arms = [r for r in sp_hr_sorted if (_sf(r.get('HR'))) >= 0.80][:4]
+    # ---- Story 5: SP HR-vulnerability ----
+    sp_hr_sorted = sorted(SP_PROJ, key=lambda r: -(r.get('HR') or 0))
+    top_vuln_arms = [r for r in sp_hr_sorted if (r.get('HR') or 0) >= 0.80][:5]
     if top_vuln_arms:
         arm_str = ', '.join(
             f"<strong>{r['Pitcher']}</strong> {r['HR']} HR/9 (vs {tn(r['Opp'])}, V{vuln_score(r['Pitcher'])})"
-            for r in top_vuln_arms
-        )
-        flags.append({
-            'icon': '☢️',
-            'title': "Pitcher's HR Risk Board: stack opponents on these arms",
-            'detail': f"{arm_str}. All have HR-stack potential.",
-            'cls': 'risk', 'action': "HR RISK · STACK OPPS",
-            'link_href': '#sp-vuln-board', 'link_text': "→ Pitcher's HR Risk Board"
-        })
+            for r in top_vuln_arms)
+        cards.append({'icon':'☢️','action_class':'risk','action_label':'HR RISK · STACK OPPS',
+            'title':"Pitcher's HR Risk Board — stack opponents on these arms",
+            'details':[f"{arm_str}. <strong>All have HR-stack potential.</strong>"],
+            'link_href':'#sp-vuln-board','link_text':"→ Pitcher's HR Risk Board"})
 
-    # -- Story 6: Suppressor parks --
+    # ---- Story 6: Suppressor parks ----
     suppressors = [(p, parse_pct(p.get('HR %'))) for p in PARKS if parse_pct(p.get('HR %')) <= -17]
     suppressors.sort(key=lambda x: x[1])
     if suppressors:
-        sup_str = ' / '.join(
-            f"<strong>{p.get('Venue','')} {pct}% HR</strong> ({p.get('Game','')})"
-            for p, pct in suppressors[:3]
-        )
+        sup_str = ' / '.join(f"<strong>{p.get('Venue','')} {pct}% HR</strong> ({p.get('Game','')})"
+                             for p, pct in suppressors[:3])
         doubles_parks = [(p, parse_pct(p.get('2B/3B %'))) for p in PARKS if parse_pct(p.get('2B/3B %')) >= 15]
         db_note = ''
         if doubles_parks:
             dp = doubles_parks[0]
             db_note = f" <strong>{dp[0].get('Venue','')} +{dp[1]}% 2B/3B</strong> — pivot to doubles props there."
-        flags.append({
-            'icon': '🥶',
-            'title': f"HR suppressed at {len(suppressors)} park{'s' if len(suppressors)>1 else ''} — fade HR alts",
-            'detail': f"{sup_str}. Fade HR alts — pivot to 1+H / RBI / Runs plays.{db_note}",
-            'cls': 'fade', 'action': 'FADE HR ALTS',
-            'link_href': '#park-board', 'link_text': '→ Park Factors Board'
-        })
+        cards.append({'icon':'🥶','action_class':'fade','action_label':'FADE HR ALTS',
+            'title':"HR-suppressed parks — fade the long ball here",
+            'details':[f"{sup_str}. Fade HR alts — pivot to 1+H / RBI / Runs plays.{db_note}"],
+            'link_href':'#park-board','link_text':'→ Park Factors Board','link_fade':True})
 
-    # -- Story 7: Skip arms --
-    skip_arms = [r for r in SP_PROJ if (_sf(r.get('K'))) < 3.5]
+    # ---- Story 7: Skip arms ----
+    skip_arms = [r for r in SP_PROJ if (r.get('K') or 0) < 3.5]
     if skip_arms:
-        arm_list = ', '.join(
-            f"<strong>{r['Pitcher']}</strong> ({tn(r['Team'])}, K {r['K']})"
-            for r in sorted(skip_arms, key=lambda r: (_sf(r.get('K'))))[:4]
-        )
-        flags.append({
-            'icon': '⛔',
-            'title': f"{len(skip_arms)} arm{'s' if len(skip_arms)>1 else ''} below the strikeout floor — don't bet K props",
-            'detail': f"{arm_list}. All below the O 2.5 alt floor. Avoid strikeout props on these arms entirely.",
-            'cls': 'skip', 'action': 'SKIP K PROPS',
-            'link_href': '#skip', 'link_text': '→ Daily Skip List'
-        })
+        arm_list = ', '.join(f"<strong>{r['Pitcher']}</strong> ({tn(r['Team'])}, K {r['K']})"
+                            for r in sorted(skip_arms, key=lambda r:(r.get('K') or 0))[:4])
+        cards.append({'icon':'⛔','action_class':'skip','action_label':'SKIP K PROPS',
+            'title':"Arms below the O 2.5 floor — don't bet K props on these",
+            'details':[f"{arm_list}. <strong>All below the alt floor.</strong> Pivot to 1+H / RBI plays instead."],
+            'link_href':'#skip','link_text':'→ Daily Skip List','link_fade':True})
 
-    # -- Render as cards --
-    BEGINNER_NOTE = '''  <div class="beginner-note">
-    <strong>What is this?</strong> The top storylines for tonight\'s slate — where to stack, what to fade, and where the value is. Start here every day. Each card has a color-coded action tag and a link to the relevant board.
-  </div>'''
-
-    cards = []
-    for i, f in enumerate(flags):
-        icon = f['icon']; title = f['title']; detail = f['detail']
-        cls = f['cls']; action = f['action']
-        href = f['link_href']; link_text = f['link_text']
-        link_cls = ' fade' if cls in ('fade', 'skip') else ''
-        if i == 0:
-            cards.append(
-                f'  <article class="headline-hero">\n'
-                f'    <div class="card-icon">{icon}</div>\n'
+    # ---- Render ----
+    def render(c):
+        cls = 'headline-hero' if c.get('hero') else f"headline-card {c['action_class']}"
+        details_html = '\n'.join(f'      <p class="card-detail">{d}</p>' for d in c['details'])
+        link_html = ''
+        if c.get('link_href'):
+            lcls = 'card-link fade' if c.get('link_fade') else 'card-link'
+            link_html = f'\n      <a class="{lcls}" href="{c["link_href"]}">{c["link_text"]}</a>'
+        return (f'  <article class="{cls}">\n'
+                f'    <div class="card-icon">{c["icon"]}</div>\n'
                 f'    <div class="card-content">\n'
-                f'      <span class="card-action {cls}">{action}</span>\n'
-                f'      <h3 class="card-title">{title}</h3>\n'
-                f'      <p class="card-detail">{detail}</p>\n'
-                f'      <a class="card-link" href="{href}">{link_text}</a>\n'
+                f'      <span class="card-action {c["action_class"]}">{c["action_label"]}</span>\n'
+                f'      <h3 class="card-title">{c["title"]}</h3>\n'
+                f'{details_html}{link_html}\n'
                 f'    </div>\n'
-                f'  </article>'
-            )
-        else:
-            cards.append(
-                f'  <article class="headline-card {cls}">\n'
-                f'    <div class="card-icon">{icon}</div>\n'
-                f'    <div class="card-content">\n'
-                f'      <span class="card-action {cls}">{action}</span>\n'
-                f'      <h3 class="card-title">{title}</h3>\n'
-                f'      <p class="card-detail">{detail}</p>\n'
-                f'      <a class="card-link{link_cls}" href="{href}">{link_text}</a>\n'
-                f'    </div>\n'
-                f'  </article>'
-            )
+                f'  </article>')
 
-    cards_html = '\n'.join(cards)
-    return f'''<section id="headlines">
+    cards_html = '\n\n'.join(render(c) for c in cards)
+    return f'''<!-- HEADLINES -->
+<section id="headlines">
   <h2>📅 Slate Headlines + Flags</h2>
-{BEGINNER_NOTE}
+
+  <div class="beginner-note">
+    <strong>What is this?</strong> The top storylines for tonight's slate — where to stack, what to fade, and where the value is. Start here every day. Each card has a color-coded action tag and a link to the relevant board.
+  </div>
+
 {cards_html}
 </section>
 '''
 
 
 # ============================================================
-# 2. ALT K COMBOS
+# 2. ALT K COMBOS  (T1+ only, fall back to T2; random; each pitcher once)
 # ============================================================
 def build_combos_k():
-    # Get all starters with K projection, sorted desc
-    sp_k = sorted(
-        [r for r in SP_PROJ if r.get('K') is not None],
-        key=lambda r: -(_sf(r.get('K')))
-    )
-
     def sp_info(r):
-        name = r['Pitcher']
-        k    = r.get('K', 0)
-        team = tn(r.get('Team',''))
-        opp  = tn(r.get('Opp',''))
-        alt  = k_alt(k)
-        v    = vuln_score(name)
+        name = r['Pitcher']; k = r.get('K', 0) or 0
+        team = tn(r.get('Team','')); opp = tn(r.get('Opp',''))
+        alt  = k_alt(k); v = vuln_score(name)
         park = get_park_for_batter(team)
         park_hr = parse_pct(park.get('HR %')) if park else 0
         t = game_time(team, opp) or game_time(opp, team)
@@ -347,513 +289,278 @@ def build_combos_k():
         park_str = f"{'+' if park_hr>=0 else ''}{park_hr}% HR" if park_hr != 0 else 'neutral park'
         return name, k, team, opp, alt, vuln_str, park_str, t
 
-    # Tier groups
-    t0 = [r for r in sp_k if (_sf(r.get('K'))) >= 5.0]   # O5+
-    t1 = [r for r in sp_k if 4.5 <= (_sf(r.get('K'))) < 5.0]  # O3.5
-    t2 = [r for r in sp_k if 4.0 <= (_sf(r.get('K'))) < 4.5]  # O2.5
-
     def leg(r, num=None):
         n, k, team, opp, alt, v, park, t = sp_info(r)
         prefix = f"Leg {num}: " if num else ''
-        tier_badge = 'T0' if k >= 5 else ('T1' if k >= 4.5 else 'T2')
         return (f"{prefix}<strong>{n}</strong> <strong>{alt}</strong> "
                 f"(SS {k} K, {team} vs {opp}{', ' + v if v else ''}, {park}{', ' + t if t else ''})")
 
+    # Pool: T0 (>=5.0) + T1 (4.5-4.99) first; fall back to T2 (4.0-4.49) only if short
+    t0t1 = sorted([r for r in SP_PROJ if (r.get('K') or 0) >= 4.5], key=lambda r:-(r.get('K') or 0))
+    t2   = sorted([r for r in SP_PROJ if 4.0 <= (r.get('K') or 0) < 4.5], key=lambda r:-(r.get('K') or 0))
+    pool = list(t0t1)
+    if len(pool) < 9:          # need enough for 4+3+2; top up from T2
+        pool += t2[:max(0, 9 - len(pool))]
+
+    random.shuffle(pool)
+
     combos = []
+    idx = 0
+    def tier_badge(r):
+        k = r.get('K',0) or 0
+        return 'b-tier0' if k >= 5 else ('b-tier1' if k >= 4.5 else 'b-tier2')
 
-    # Combo 1: Best 2-leg T0 pair
-    if len(t0) >= 2:
-        n1,k1,tm1,op1,alt1,v1,pk1,t1_ = sp_info(t0[0])
-        n2,k2,tm2,op2,alt2,v2,pk2,t2_ = sp_info(t0[1])
-        combos.append(('1\u20e3',
-            f"<strong>{n1} {alt1} + {n2} {alt1}</strong> -- "
-            f"Slate's top 2 K projections. {leg(t0[0],1)} {leg(t0[1],2)} "
-            f"Different games. Slate-best T0 K anchor pair.",
-            'b-tier0', '2-leg T0'))
+    # 4-leg
+    if len(pool) - idx >= 4:
+        grp = pool[idx:idx+4]; idx += 4
+        names = ' + '.join(f"<strong>{r['Pitcher']} {k_alt(r['K'])}</strong>" for r in grp)
+        legs  = ' '.join(leg(r,i+1) for i,r in enumerate(grp))
+        combos.append(('🎯',
+            f"<strong>4-Leg Alt K: {names}</strong> {legs} "
+            f"Four different arms · T1+ tier · O5+/O3.5 lines only.",
+            'b-tier0','4-leg K'))
+    # 3-leg
+    if len(pool) - idx >= 3:
+        grp = pool[idx:idx+3]; idx += 3
+        names = ' + '.join(f"<strong>{r['Pitcher']} {k_alt(r['K'])}</strong>" for r in grp)
+        legs  = ' '.join(leg(r,i+1) for i,r in enumerate(grp))
+        combos.append(('⚡',
+            f"<strong>3-Leg Alt K: {names}</strong> {legs} Three-arm K stack.",
+            'b-tier1','3-leg K'))
+    # 2-legs (consume the rest in pairs)
+    pair_icons = ['⚾','💪','🔥','🎲']
+    pi = 0
+    while len(pool) - idx >= 2:
+        grp = pool[idx:idx+2]; idx += 2
+        names = ' + '.join(f"<strong>{r['Pitcher']} {k_alt(r['K'])}</strong>" for r in grp)
+        legs  = ' '.join(leg(r,i+1) for i,r in enumerate(grp))
+        combos.append((pair_icons[pi % len(pair_icons)],
+            f"<strong>2-Leg Alt K: {names}</strong> {legs}",
+            tier_badge(grp[0]),'2-leg K'))
+        pi += 1
 
-    # Combo 2: T0 #3 + T0 #4 if available, else T0 + T1
-    if len(t0) >= 4:
-        combos.append(('2\u20e3',
-            f"<strong>{t0[2]['Pitcher']} {k_alt(t0[2]['K'])} + {t0[3]['Pitcher']} {k_alt(t0[3]['K'])}</strong> -- "
-            f"{leg(t0[2],1)} {leg(t0[3],2)} "
-            f"Different games. T0 K combo.",
-            'b-tier0', '2-leg T0'))
-    elif len(t0) >= 2 and len(t1) >= 1:
-        combos.append(('2\u20e3',
-            f"<strong>{t0[-1]['Pitcher']} {k_alt(t0[-1]['K'])} + {t1[0]['Pitcher']} {k_alt(t1[0]['K'])}</strong> -- "
-            f"{leg(t0[-1],1)} {leg(t1[0],2)} "
-            f"Cross-tier T0+T1 combo.",
-            'b-tier1', '2-leg T0+T1'))
-
-    # Combo 3: Top 3 T0 (all different games)
-    if len(t0) >= 3:
-        names = ' + '.join(f"{r['Pitcher']} {k_alt(r['K'])}" for r in t0[:3])
-        legs  = ' '.join(leg(r, i+1) for i, r in enumerate(t0[:3]))
-        combos.append(('3\u20e3',
-            f"<strong>{names}</strong> -- 3-leg T0 K stack. {legs} "
-            f"All different games. Slate's only three SS >=5.0 K plays.",
-            'b-tier0', '3-leg T0 stack'))
-
-    # Combo 4: Top 4 T0
-    if len(t0) >= 4:
-        names = ' + '.join(f"{r['Pitcher']} {k_alt(r['K'])}" for r in t0[:4])
-        legs  = ' '.join(leg(r, i+1) for i, r in enumerate(t0[:4]))
-        combos.append(('4\u20e3',
-            f"<strong>{names}</strong> -- 4-leg T0 K saturation. {legs}",
-            'b-tier0', '4-leg T0 saturation'))
-
-    # Combo 5: Best 2-leg T1 pair
-    if len(t1) >= 2:
-        n1,k1,tm1,op1,alt1,v1,pk1,t1_ = sp_info(t1[0])
-        n2,k2,tm2,op2,alt2,v2,pk2,t2_ = sp_info(t1[1])
-        combos.append(('5\u20e3',
-            f"<strong>{n1} O 3.5 K + {n2} O 3.5 K</strong> -- "
-            f"{leg(t1[0],1)} {leg(t1[1],2)} "
-            f"T1 O3.5 combo. Safe floor plays.",
-            'b-tier1', '2-leg T1 O3.5'))
-
-    # Combo 6: T0 + T1 cross
-    if len(t0) >= 1 and len(t1) >= 1:
-        combos.append(('6\u20e3',
-            f"<strong>{t0[0]['Pitcher']} O 5+ + {t1[0]['Pitcher']} O 3.5</strong> -- "
-            f"{leg(t0[0],1)} {leg(t1[0],2)} "
-            f"Anchor-plus-floor structure. T0 anchor with T1 safety leg.",
-            'b-tier1', '2-leg T0+T1 anchor'))
-
-    # Combo 7: 3-leg cross T0+T1
-    if len(t0) >= 2 and len(t1) >= 1:
-        combos.append(('7\u20e3',
-            f"<strong>{t0[0]['Pitcher']} + {t0[1]['Pitcher']} + {t1[0]['Pitcher']}</strong> -- "
-            f"{leg(t0[0],1)} {leg(t0[1],2)} {leg(t1[0],3)} "
-            f"3-game T0+T0+T1 mixed stack.",
-            'b-tier1', '3-leg cross-game'))
-
-    # Combo 8: T2 safe floor if available, else 2-leg T1 +  T0
-    if len(t2) >= 2:
-        combos.append(('8\u20e3',
-            f"<strong>{t2[0]['Pitcher']} O 2.5 + {t2[1]['Pitcher']} O 2.5</strong> -- "
-            f"{leg(t2[0],1)} {leg(t2[1],2)} "
-            f"Low-alt safe play. Floor combos for softer nights.",
-            'b-warn', '2-leg O2.5 floor'))
-    elif len(t0) >= 1 and len(t1) >= 2:
-        combos.append(('8\u20e3',
-            f"<strong>{t0[0]['Pitcher']} O 5+ + {t1[0]['Pitcher']} O 3.5 + {t1[1]['Pitcher']} O 3.5</strong> -- "
-            f"{leg(t0[0],1)} {leg(t1[0],2)} {leg(t1[1],3)} "
-            f"T0 anchor + two T1 floor legs. Three different games.",
-            'b-tier1', '3-leg T0+T1+T1'))
-
-    # Pad to 8 if needed
-    while len(combos) < 8 and len(sp_k) >= 2:
-        r1, r2 = sp_k[len(combos) % len(sp_k)], sp_k[(len(combos)+1) % len(sp_k)]
-        combos.append((f'{len(combos)+1}\u20e3',
-            f"<strong>{r1['Pitcher']} {k_alt(r1['K'])} + {r2['Pitcher']} {k_alt(r2['K'])}</strong> -- "
-            f"{leg(r1,1)} {leg(r2,2)}",
-            'b-tier1', '2-leg'))
-        if len(combos) >= 8: break
-
-    blocks = [
-        f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} '
-        f'<span class="badge {badge_cls}">{badge_text}</span></div></div>'
-        for icon, body, badge_cls, badge_text in combos[:8]
-    ]
+    blocks = []
+    for icon, body, tier, tag in combos[:8]:
+        blocks.append(
+            f'  <div class="flag-row"><div class="icon">{icon}</div>'
+            f'<div><span class="badge {tier}">{tag}</span> {body}</div></div>')
 
     return f'''<!-- COMBOS K -->
 <section id="combos-k" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">⚡ Alt K Combos</div>
-      <span class="game-tag">Tap to expand · K-only combos · alts <=5 per user rule</span>
+      <span class="game-tag">Tap to expand · T1+ arms only · randomized daily · each arm used once</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">K-only combo cards. <strong>Alt rule: >=5 K -> O5+; 4.5-4.99 -> O3.5; <4.5 -> O2.5. Never alt >5.</strong> Same player max 2 legs.</p>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Alt-K combos built from <strong>T1 or better</strong> arms (SS K ≥ 4.5 → O5+/O3.5). Falls back to T2 only if short. <strong style="color:var(--good)">Randomized each day · no arm repeats.</strong></p>
 {chr(10).join(blocks)}
   </div></div>
 </section>
 '''
 
 # ============================================================
-# 3. HRR COMBOS
+# 3. HRR COMBOS  (78.5%+ HRR only; random; each batter once)
 # ============================================================
+def _pct(s):
+    try: return float(str(s).replace('%','').strip())
+    except: return 0
+
+def get_pitcher_era(pitcher_name):
+    ss = SS_BY_NAME.get((pitcher_name or '').strip().lower())
+    if ss:
+        e = _pct(ss.get('ERA',''))
+        if e: return e
+    pn = (pitcher_name or '').strip().lower()
+    for r in SP_PROJ:
+        if (r.get('Pitcher') or '').strip().lower() == pn:
+            e = _pct(r.get('ERA',''))
+            if e: return e
+    return 4.25
+
+def compute_hrr(batter_name, team, pitcher_name):
+    """Mirror of build_day46 HRR: 1 - P(no H)·P(no R)·P(no RBI)."""
+    hit_row = HIT_BY_NAME.get((batter_name or '').lower()) or {}
+    h1  = _pct(hit_row.get('1+ Hit', 0))
+    rbi = _pct(hit_row.get('To Get RBI', 0))
+    if h1 <= 0 or rbi <= 0: return 0.0
+    era = get_pitcher_era(pitcher_name)
+    park = get_park_for_batter(team)
+    park_runs = parse_pct(park.get('Runs %')) if park else 0
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob  = min(60, rbi*0.8 + park_runs*0.3 + era_boost)
+    hrr = (1 - (1-h1/100)*(1-run_prob/100)*(1-rbi/100)) * 100
+    return round(min(99, max(0, hrr)), 1)
+
 def build_combos_hrr():
-    # Score each top-25 HR board batter for HRR quality
-    # HRR = H + R + RBI (Ov 0.5 means need 1 total)
-    # Best HRR candidates: high 1+Hit% AND high RBI% AND decent HR% AND vs vulnerable pitcher AND at good park
+    HRR_MIN = 78.5
+    pool, seen = [], set()
 
-    def hrr_score(r):
-        nm = (r.get('Batter') or '').lower()
-        hit_row = HIT_BY_NAME.get(nm) or {}
-        bp_row  = BP_BAT_BY_NAME.get(nm) or {}
-        def pct_val(s):
-            if not s: return 0
-            try: return float(str(s).replace('%',''))
-            except: return 0
-        h1  = pct_val(hit_row.get('1+ Hit', 0))
-        rbi = pct_val(hit_row.get('To Get RBI', 0))
-        hr_score = _sf(r.get('Score'))
-        park = get_park_for_batter(r.get('Team',''))
-        park_hr = parse_pct(park.get('HR %')) if park else 0
-        v = vuln_score(r.get('Pitcher',''))
-        return h1 + rbi*0.7 + hr_score*0.3 + park_hr*0.2 + v*0.1
+    # From HR board (has Batter + Pitcher + Team)
+    for r in HR_LB[:50]:
+        nm = (r.get('Batter') or '').strip()
+        if not nm or nm.lower() in seen: continue
+        team = tn(r.get('Team','')); pit = r.get('Pitcher','')
+        hrr = compute_hrr(nm, team, pit)
+        if hrr >= HRR_MIN:
+            seen.add(nm.lower())
+            pool.append({'name':nm,'team':team,'pit':pit,'hrr':hrr,
+                         'vuln':vuln_score(pit),'bats':r.get('Bats','')})
 
-    def batter_detail(r):
-        nm = (r.get('Batter') or '').lower()
-        hit_row = HIT_BY_NAME.get(nm) or {}
-        def pct_val(s):
-            if not s: return '---'
-            return str(s).replace('%','').strip() + '%' if '%' not in str(s) else str(s)
-        h1  = pct_val(hit_row.get('1+ Hit'))
-        rbi = pct_val(hit_row.get('To Get RBI'))
-        hr_pct = pct_val(hit_row.get('To Hit HR'))
-        park = get_park_for_batter(r.get('Team',''))
-        park_hr = parse_pct(park.get('HR %')) if park else 0
-        park_str = f"{'+' if park_hr >= 0 else ''}{park_hr}% HR" if park_hr != 0 else ''
-        v = vuln_score(r.get('Pitcher',''))
-        streak = r.get('Streak','')
-        return (r.get('Batter',''), tn(r.get('Team','')), r.get('Pitcher',''), v,
-                _sf(r.get('Score')), r.get('Zone',''), h1, rbi, hr_pct, park_str, streak, r.get('Bats',''))
+    # From hit board (catch batters not on HR board)
+    for r in HIT:
+        nm = f"{r.get('First Name','')} {r.get('Last Name','')}".strip()
+        if not nm or nm.lower() in seen: continue
+        bp = BP_BAT_BY_NAME.get(nm.lower()) or {}
+        team = tn(bp.get('Team','')); opp_team = tn(bp.get('Opponent',''))
+        pit = (SP_BY_TEAM.get(opp_team, {}) or {}).get('Pitcher','')
+        hrr = compute_hrr(nm, team, pit)
+        if hrr >= HRR_MIN:
+            seen.add(nm.lower())
+            pool.append({'name':nm,'team':team,'pit':pit,'hrr':hrr,
+                         'vuln':vuln_score(pit),'bats':bp.get('BatterStand','')})
 
-    top_batters = sorted(HR_LB[:25], key=hrr_score, reverse=True)
+    random.shuffle(pool)
 
-    # Group by pitcher (same-game stacks)
-    by_pitcher = {}
-    for r in top_batters:
-        pit = r.get('Pitcher','') or 'Unknown'
-        if pit not in by_pitcher:
-            by_pitcher[pit] = []
-        by_pitcher[pit].append(r)
-
-    # Sort stacks: vuln * count * avg_score
-    def stack_score(pit, batters):
-        v = vuln_score(pit)
-        avg = sum(_sf(r.get('Score')) for r in batters) / len(batters)
-        park_hr = 0
-        if batters:
-            pk = get_park_for_batter(batters[0].get('Team',''))
-            park_hr = parse_pct(pk.get('HR %')) if pk else 0
-        return v * len(batters) * 0.5 + avg + park_hr * 0.3
-
-    stacks = sorted(by_pitcher.items(), key=lambda x: stack_score(x[0], x[1]), reverse=True)
+    def leg(b, num=None):
+        v = f", vs {b['pit']} V{b['vuln']}" if b['pit'] else ''
+        p = f"Leg {num}: " if num else ''
+        return (f"{p}<strong>{b['name']}</strong> {hand_chip(b['bats'])} Ov 0.5 HRR "
+                f"(HRR {b['hrr']:.0f}%{v})")
 
     combos = []
-    icon_nums = ['1\u20e3','2\u20e3','3\u20e3','4\u20e3','5\u20e3','6\u20e3','7\u20e3','8\u20e3']
+    idx = 0
+    if len(pool) - idx >= 4:
+        grp = pool[idx:idx+4]; idx += 4
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        combos.append(('🏆', f"<strong>4-Leg HRR: {names}</strong> "
+                       + ' '.join(leg(b,i+1) for i,b in enumerate(grp))
+                       + " Four-batter HRR saturation · all ≥78.5%.", 'b-tier0','4-leg HRR'))
+    if len(pool) - idx >= 3:
+        grp = pool[idx:idx+3]; idx += 3
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        combos.append(('🔥', f"<strong>3-Leg HRR: {names}</strong> "
+                       + ' '.join(leg(b,i+1) for i,b in enumerate(grp)), 'b-tier1','3-leg HRR'))
+    pair_icons = ['🎯','💥','⚡','🎲']; pi = 0
+    while len(pool) - idx >= 2:
+        grp = pool[idx:idx+2]; idx += 2
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        combos.append((pair_icons[pi % len(pair_icons)],
+                       f"<strong>2-Leg HRR: {names}</strong> "
+                       + ' '.join(leg(b,i+1) for i,b in enumerate(grp)), 'b-tier1','2-leg HRR'))
+        pi += 1
 
-    def leg_str(r, num=None):
-        nm, team, pit, v, score, zone, h1, rbi, hr_pct, pk_str, streak, bats = batter_detail(r)
-        prefix = f"Leg {num}: " if num else ''
-        streak_s = streak_chip(streak)
-        return (f"{prefix}<strong>{nm}</strong>{streak_s} Ov 0.5 HRR "
-                f"(HR Score {score} {zone}, Hit {h1} / RBI {rbi} / HR {hr_pct}"
-                f"{', ' + pk_str if pk_str else ''}, vs {pit} V{v})")
-
-    combo_idx = 0
-
-    # Best same-game stack (top stack with 2+ players)
-    for pit, batters in stacks:
-        if len(batters) >= 2:
-            nm, team, p, v, score, zone, h1, rbi, hr_pct, pk_str, streak, bats = batter_detail(batters[0])
-            bat_names = ' + '.join(f"<strong>{r['Batter']}</strong>" for r in batters[:2])
-            legs = ' '.join(leg_str(r, i+1) for i, r in enumerate(batters[:2]))
-            badge = 'b-tier0' if v >= 50 else 'b-tier1'
-            combos.append((icon_nums[combo_idx],
-                f"<strong>{bat_names} Ov 0.5 HRR</strong> -- {team} stack vs {pit} (V{v}). "
-                f"{legs} Same-game stack. <strong>{pk_str + ' park boost.' if pk_str else ''}</strong>",
-                badge, f"2-leg {team} stack"))
-            combo_idx += 1
-            if combo_idx >= 8: break
-
-            # 3-player version if available
-            if len(batters) >= 3 and combo_idx < 8:
-                bat3 = ' + '.join(f"<strong>{r['Batter']}</strong>" for r in batters[:3])
-                legs3 = ' '.join(leg_str(r, i+1) for i, r in enumerate(batters[:3]))
-                combos.append((icon_nums[combo_idx],
-                    f"<strong>{bat3} Ov 0.5 HRR</strong> -- 3-batter {team} saturation vs {pit} (V{v}). "
-                    f"{legs3}",
-                    badge, f"3-leg {team} stack"))
-                combo_idx += 1
-                if combo_idx >= 8: break
-
-    # Cross-game combos: best player from top 2 different stacks
-    if len(stacks) >= 2 and combo_idx < 8:
-        s1_pit, s1_bats = stacks[0]
-        s2_pit, s2_bats = stacks[1]
-        if s1_bats and s2_bats:
-            r1, r2 = s1_bats[0], s2_bats[0]
-            nm1, team1, p1, v1, *_ = batter_detail(r1)
-            nm2, team2, p2, v2, *_ = batter_detail(r2)
-            combos.append((icon_nums[combo_idx],
-                f"<strong>{nm1} + {nm2} Ov 0.5 HRR</strong> -- cross-game top picks. "
-                f"{leg_str(r1,1)} {leg_str(r2,2)} "
-                f"#1 and #2 HR Board anchors. Different games.",
-                'b-tier0', '2-leg cross-game'))
-            combo_idx += 1
-
-    # Cross-game: top 4 individual plays from different stacks
-    if combo_idx < 8:
-        seen_pits = set()
-        cross_bats = []
-        for pit, batters in stacks:
-            if pit not in seen_pits and batters:
-                cross_bats.append(batters[0])
-                seen_pits.add(pit)
-            if len(cross_bats) >= 4: break
-        if len(cross_bats) >= 4:
-            names = ' + '.join(f"<strong>{r['Batter']}</strong>" for r in cross_bats[:4])
-            legs = ' '.join(leg_str(r, i+1) for i, r in enumerate(cross_bats[:4]))
-            combos.append((icon_nums[combo_idx],
-                f"<strong>{names} Ov 0.5 HRR</strong> -- 4-leg saturation across "
-                f"{', '.join(tn(r.get('Team','')) for r in cross_bats[:4])}. "
-                f"{legs} Top HR Board pick from each top matchup.",
-                'b-tier1', '4-leg multi-stack'))
-            combo_idx += 1
-
-    # Pad to 8 if needed
-    while combo_idx < 8 and combo_idx < len(top_batters) - 1:
-        r1 = top_batters[combo_idx]
-        r2 = top_batters[combo_idx + 1]
-        nm1 = r1.get('Batter','')
-        nm2 = r2.get('Batter','')
-        combos.append((icon_nums[combo_idx],
-            f"<strong>{nm1} + {nm2} Ov 0.5 HRR</strong> -- "
-            f"{leg_str(r1,1)} {leg_str(r2,2)}",
-            'b-tier1', '2-leg HRR'))
-        combo_idx += 1
-
-    blocks = [
-        f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} '
-        f'<span class="badge {badge_cls}">{badge_text}</span></div></div>'
-        for icon, body, badge_cls, badge_text in combos[:8]
-    ]
+    blocks = []
+    for icon, body, tier, tag in combos[:8]:
+        blocks.append(
+            f'  <div class="flag-row"><div class="icon">{icon}</div>'
+            f'<div><span class="badge {tier}">{tag}</span> {body}</div></div>')
+    if not blocks:
+        blocks = ['  <div class="flag-row"><div class="icon">🎯</div><div>No batters cleared the 78.5% HRR threshold today.</div></div>']
 
     return f'''<!-- COMBOS HRR -->
 <section id="combos-hrr" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🎯 H+R+RBI Combos</div>
-      <span class="game-tag">Tap to expand · HRR-only combos · every leg is an Ov 0.5 H+R+RBI</span>
+      <span class="game-tag">Tap to expand · HRR ≥ 78.5% only · randomized daily · each batter once</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">H+R+RBI combos. <strong>Every leg Ov 0.5 HRR.</strong> Ranked by Hit% + RBI% + HR Score + Park + Vuln. Same-game stacks prioritized.</p>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Every leg is an <strong>Ov 0.5 H+R+RBI</strong>. Pool is filtered to batters with a <strong>78.5%+ HRR probability</strong>. <strong style="color:var(--good)">Randomized each day · no batter repeats.</strong></p>
 {chr(10).join(blocks)}
   </div></div>
 </section>
 '''
 
 # ============================================================
-# 4. PARLAYS
+# 4. PARLAY ANCHORS  (Sweet-Spot DANGER batters only; random; each once)
 # ============================================================
+def get_danger_batters():
+    """Batters tagged DangerBatter1/2/3 in Sweet_Spot_Slate (= Matchup Spotlight)."""
+    iso_re = re.compile(r'^(.*?)\s*\(ISO\s*\.(\d+)\)\s*$')
+    out, seen = [], set()
+    for sp in SS:
+        pit = sp.get('Pitcher','')
+        if not pit or pit == 'TBD': continue
+        v = vuln_score(pit)
+        throws = sp.get('Throws','')
+        opp = tn(sp.get('Opponent',''))
+        for i in (1, 2, 3):
+            raw = sp.get(f'DangerBatter{i}')
+            if not raw: continue
+            m = iso_re.match(str(raw).strip())
+            nm = m.group(1).strip() if m else str(raw).strip()
+            iso = float('0.' + m.group(2)) if m else None
+            if not nm or nm.lower() in seen: continue
+            seen.add(nm.lower())
+            hit_row = HIT_BY_NAME.get(nm.lower()) or {}
+            out.append({'name':nm,'iso':iso,'pit':pit,'vuln':v,'team':opp,
+                        'throws':throws,'bats':(BP_BAT_BY_NAME.get(nm.lower()) or {}).get('BatterStand',''),
+                        'hr':hit_row.get('To Hit HR','—'),'h1':hit_row.get('1+ Hit','—')})
+    return out
+
 def build_parlays():
-    def pct_val(s):
-        if not s: return 0
-        try: return float(str(s).replace('%',''))
-        except: return 0
+    pool = get_danger_batters()
+    random.shuffle(pool)
 
-    # Gather T0 anchors
-    t0_hr = [r for r in HR_LB if _sf(r.get('Score')) >= 75][:6]
-    t0_k  = sorted([r for r in SP_PROJ if (_sf(r.get('K'))) >= 5.0],
-                   key=lambda r: -(_sf(r.get('K'))))[:4]
-    t0_hit= sorted([r for r in HIT if pct_val(r.get('1+ Hit')) >= 63],
-                   key=lambda r: -pct_val(r.get('1+ Hit')))[:4]
-
-    def hr_leg(r, num=None):
-        nm = r.get('Batter','')
-        team = tn(r.get('Team',''))
-        pit  = r.get('Pitcher','')
-        v    = vuln_score(pit)
-        score= _sf(r.get('Score'))
-        zone = r.get('Zone','')
-        park = get_park_for_batter(team)
-        pk_s = f", {park.get('Venue','')} {park.get('HR %','')}" if park else ''
-        t = game_time(team, tn(r.get('Pitcher Team',''))) or game_time(tn(r.get('Pitcher Team','')), team)
+    def leg(b, num=None):
         p = f"Leg {num}: " if num else ''
-        return f"{p}<strong>{nm}</strong> HR (Score {score} {zone}, vs {pit} V{v}{pk_s}{', ' + t if t else ''})"
-
-    def k_leg(r, num=None):
-        nm   = r.get('Pitcher','')
-        k    = r.get('K')
-        team = tn(r.get('Team',''))
-        opp  = tn(r.get('Opp',''))
-        alt  = k_alt(k)
-        t = game_time(team, opp)
-        p = f"Leg {num}: " if num else ''
-        return f"{p}<strong>{nm}</strong> {alt} K (SS {k}, {team} vs {opp}{', ' + t if t else ''})"
-
-    def hit_leg(r, num=None):
-        nm = f"{r.get('First Name','')} {r.get('Last Name','')}".strip()
-        team = tn(r.get('Team',''))
-        h1 = r.get('1+ Hit','')
-        match = r.get('Matchup','')
-        p = f"Leg {num}: " if num else ''
-        return f"{p}<strong>{nm}</strong> 1+H ({h1} -- {match})"
+        iso_s = f"ISO .{int(round(b['iso']*1000)):03d}" if b['iso'] else ''
+        vs = f", vs {b['pit']} V{b['vuln']}" if b['pit'] else ''
+        bits = ', '.join(x for x in [iso_s, f"HR {b['hr']}" if b['hr']!='—' else ''] if x)
+        return (f"{p}<strong>{b['name']}</strong> HR "
+                f"({bits}{vs})")
 
     parlays = []
-
-    # Parlay 1: 4-leg HR
-    if len(t0_hr) >= 4:
-        legs = ' '.join(hr_leg(t0_hr[i], i+1) for i in range(4))
-        names = ' + '.join(f"<strong>{r['Batter']}</strong>" for r in t0_hr[:4])
-        parlays.append(('🏆',
-            f"<strong>4-Leg HR Parlay: {names}</strong>"
-            f"<br>{legs}"
-            f"<br><em>Top 4 HR Board anchors. Mix of stacks + cross-game for portfolio coverage.</em>"))
-
-    # Parlay 2: 4-leg Hits
-    if len(t0_hit) >= 4:
-        legs = ' '.join(hit_leg(t0_hit[i], i+1) for i in range(4))
-        names = ' + '.join(
-            f"<strong>{r.get('First Name','')} {r.get('Last Name','')}</strong>"
-            for r in t0_hit[:4]
-        )
-        parlays.append(('☄️',
-            f"<strong>4-Leg Hits Parlay: {names}</strong>"
-            f"<br>{legs}"
-            f"<br><em>Top 4 hit% rates on slate. All at top hit environments.</em>"))
-
-    # Parlay 3: 4-leg HRR
-    if len(t0_hr) >= 4:
-        legs = ' '.join(
-            f"Leg {i+1}: <strong>{r['Batter']}</strong> Ov 0.5 HRR"
-            for i, r in enumerate(t0_hr[:4])
-        )
-        names = ' + '.join(f"<strong>{r['Batter']}</strong>" for r in t0_hr[:4])
-        parlays.append(('🔥',
-            f"<strong>4-Leg HRR Parlay: {names}</strong>"
-            f"<br>{legs}"
-            f"<br><em>Top HR board names as HRR Ov 0.5 legs. Highest combined score plays.</em>"))
-
-    # Parlay 4: 2-leg HR pair (top 2, different teams)
-    if len(t0_hr) >= 2:
-        parlays.append(('⚡',
-            f"<strong>2-Leg HR Parlay: {t0_hr[0]['Batter']} + {t0_hr[1]['Batter']}</strong>"
-            f"<br>{hr_leg(t0_hr[0],1)}"
-            f"<br>{hr_leg(t0_hr[1],2)}"
-            f"<br><em>Slate's top 2 HR board scores. Clean 2-leg anchor play.</em>"))
-
-    # Parlay 5: 2-leg HR pair #2
-    if len(t0_hr) >= 4:
-        parlays.append(('💥',
-            f"<strong>2-Leg HR Parlay: {t0_hr[2]['Batter']} + {t0_hr[3]['Batter']}</strong>"
-            f"<br>{hr_leg(t0_hr[2],1)}"
-            f"<br>{hr_leg(t0_hr[3],2)}"
-            f"<br><em>HR Board #3 and #4. Different games, complementary matchups.</em>"))
-
-    # Parlay 6: 4-leg alt K
-    if len(t0_k) >= 4:
-        legs = ' '.join(k_leg(t0_k[i], i+1) for i in range(4))
-        names = ' + '.join(f"<strong>{r['Pitcher']}</strong>" for r in t0_k[:4])
-        parlays.append(('🎯',
-            f"<strong>4-Leg Alt K Parlay: {names}</strong>"
-            f"<br>{legs}"
-            f"<br><em>4 different games. All proj >=5.0 -> O5+ per user rule. Never alt >5.</em>"))
-    elif len(t0_k) >= 2:
-        legs = ' '.join(k_leg(t0_k[i], i+1) for i in range(len(t0_k)))
-        names = ' + '.join(f"<strong>{r['Pitcher']}</strong>" for r in t0_k)
-        parlays.append(('🎯',
-            f"<strong>{len(t0_k)}-Leg Alt K Parlay: {names}</strong>"
-            f"<br>{legs}"
-            f"<br><em>All available T0 K projections. Different games.</em>"))
-
-    # Parlay 7: 2-leg K combo (top 2)
-    if len(t0_k) >= 2:
-        parlays.append(('⚾',
-            f"<strong>2-Leg K Combo: {t0_k[0]['Pitcher']} + {t0_k[1]['Pitcher']}</strong>"
-            f"<br>{k_leg(t0_k[0],1)}"
-            f"<br>{k_leg(t0_k[1],2)}"
-            f"<br><em>Slate's top 2 K projections. Different games. Cleanest K pair.</em>"))
-
-    # Parlay 8: NRFI -- best game (both SPs project low HR/9, high K, suppressor park)
-    def nrfi_score(game):
-        away = tn(game.get('AwayTeam',''))
-        home = tn(game.get('HomeTeam',''))
-        ap = SP_BY_TEAM.get(away)
-        hp = SP_BY_TEAM.get(home)
-        if not ap or not hp: return 0
-        try:
-            hr_sum = float(ap.get('HR',0)) + float(hp.get('HR',0))
-            k_sum  = float(ap.get('K',0))  + float(hp.get('K',0))
-        except: return 0
-        park = PARK_BY_TEAM.get(home)
-        run_pct = parse_pct(park.get('Runs %')) if park else 0
-        return k_sum - hr_sum*3 - run_pct*0.1
-
-    best_nrfi = max(GAMES, key=nrfi_score) if GAMES else None
-    if best_nrfi:
-        away = tn(best_nrfi.get('AwayTeam',''))
-        home = tn(best_nrfi.get('HomeTeam',''))
-        ap = SP_BY_TEAM.get(away)
-        hp = SP_BY_TEAM.get(home)
-        park = PARK_BY_TEAM.get(home)
-        pk_note = f"{park.get('Venue','')} {park.get('Runs %','')} Runs" if park else ''
-        t = game_time(away, home)
-        ap_n = ap['Pitcher'] if ap else 'TBD'
-        hp_n = hp['Pitcher'] if hp else 'TBD'
-        parlays.append(('🥶',
-            f"<strong>NRFI Conviction: {away} @ {home}</strong>"
-            f"<br>Leg 1: <strong>{away} @ {home} NRFI</strong> -- "
-            f"{ap_n} SS {ap.get('K') if ap else '--'} K + {hp_n} SS {hp.get('K') if hp else '--'} K. "
-            f"{pk_note}{'. ' + t if t else '.'}"
-            f"<br><em>Both SPs project favorable K/HR balance. Best NRFI environment on slate.</em>"))
-
-    # Parlay 9: Best OVER game
-    def over_score(game):
-        ra = game.get('RunsAway') or 0
-        rh = game.get('RunsHome') or 0
-        total = ra + rh
-        away = tn(game.get('AwayTeam',''))
-        home = tn(game.get('HomeTeam',''))
-        park = PARK_BY_TEAM.get(home)
-        run_pct = parse_pct(park.get('Runs %')) if park else 0
-        return total + run_pct * 0.2
-
-    best_over = max(GAMES, key=over_score) if GAMES else None
-    if best_over:
-        away = tn(best_over.get('AwayTeam',''))
-        home = tn(best_over.get('HomeTeam',''))
-        ra = best_over.get('RunsAway',0)
-        rh = best_over.get('HomeRuns',0) or best_over.get('RunsHome',0)
-        total = (ra or 0) + (rh or 0)
-        park = PARK_BY_TEAM.get(home)
-        pk_note = f"{park.get('Venue','')} {park.get('HR %','')} HR / {park.get('Runs %','')} Runs" if park else ''
-        t = game_time(away, home)
-        parlays.append(('📈',
-            f"<strong>Game Total OVER Conviction: {away} @ {home}</strong>"
-            f"<br>Leg 1: <strong>{away} @ {home} OVER</strong> (BP proj {total:.1f} total runs). "
-            f"{pk_note}{'. ' + t if t else '.'}"
-            f"<br><em>Highest projected run total + park boost. Best slate OVER environment.</em>"))
-
-    # Parlay 10: 3-leg mix K + HR + Hit
-    if t0_k and t0_hr and t0_hit:
-        parlays.append(('🌋',
-            f"<strong>3-Leg Value Mix: {t0_k[0]['Pitcher']} K + {t0_hr[0]['Batter']} HR + "
-            f"{t0_hit[0].get('First Name','')} {t0_hit[0].get('Last Name','')} 1+H</strong>"
-            f"<br>{k_leg(t0_k[0],1)}"
-            f"<br>{hr_leg(t0_hr[0],2)}"
-            f"<br>{hit_leg(t0_hit[0],3)}"
-            f"<br><em>3 different games. K + HR + Hit mix. Each leg slate-best at its type.</em>"))
+    idx = 0
+    if len(pool) - idx >= 4:
+        grp = pool[idx:idx+4]; idx += 4
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        parlays.append(('🏆', f"<strong>4-Leg Danger Anchor: {names}</strong><br>"
+                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))
+                        + "<br><em>Four Sweet-Spot danger bats · all flagged in Matchup Spotlight.</em>"))
+    if len(pool) - idx >= 3:
+        grp = pool[idx:idx+3]; idx += 3
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        parlays.append(('🔥', f"<strong>3-Leg Danger Anchor: {names}</strong><br>"
+                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))
+                        + "<br><em>Three danger bats, different matchups.</em>"))
+    pair_icons = ['⚡','💥','💣','🎲','🌋']; pi = 0
+    while len(pool) - idx >= 2:
+        grp = pool[idx:idx+2]; idx += 2
+        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
+        parlays.append((pair_icons[pi % len(pair_icons)],
+                        f"<strong>2-Leg Danger Anchor: {names}</strong><br>"
+                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))))
+        pi += 1
 
     blocks = [
         f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body}</div></div>'
         for icon, body in parlays[:10]
     ]
+    if not blocks:
+        blocks = ['  <div class="flag-row"><div class="icon">💣</div><div>No Sweet-Spot danger batters available today.</div></div>']
 
     return f'''<!-- PARLAYS -->
 <section id="parlays" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">💣 Parlay Anchors</div>
-      <span class="game-tag">Tap to expand · 10 anchors · T0 legs · max 2x same player · alts <=5 per parlay</span>
+      <span class="game-tag">Tap to expand · Sweet-Spot danger bats only · randomized daily · each used once</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Rules: Anchor = T0 play. Min 2 different games. Same player max 2 legs. Alts <=5 per parlay. <strong>Never alt >5.</strong></p>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Anchors are built <strong>only from batters carrying a danger tag</strong> in the Sweet Spot / Matchup Spotlight. <strong style="color:var(--good)">Randomized each day · no batter repeats.</strong></p>
 {chr(10).join(blocks)}
   </div></div>
 </section>
 '''
+
 
 # ============================================================
 # 5. CONVICTION BOARD
@@ -868,7 +575,7 @@ def build_conviction():
 
     # T0 HR plays: Score >= 75, Vuln >= 40, Park HR >= 0, not COLD
     for r in HR_LB[:20]:
-        score = _sf(r.get('Score'))
+        score = r.get('Score', 0)
         if score < 72: break
         pit = r.get('Pitcher','')
         v   = vuln_score(pit)
@@ -894,8 +601,8 @@ def build_conviction():
         ))
 
     # T0 K plays
-    sp_k = sorted([r for r in SP_PROJ if (_sf(r.get('K'))) >= 5.0],
-                  key=lambda r: -(_sf(r.get('K'))))
+    sp_k = sorted([r for r in SP_PROJ if (r.get('K') or 0) >= 5.0],
+                  key=lambda r: -(r.get('K') or 0))
     for r in sp_k:
         k = r.get('K', 0)
         nm = r.get('Pitcher','')
@@ -998,8 +705,8 @@ def build_skip():
     items = []
 
     # Low-K pitchers: skip all K props
-    skip_k = sorted([r for r in SP_PROJ if (_sf(r.get('K'))) < 3.5],
-                    key=lambda r: (_sf(r.get('K'))))
+    skip_k = sorted([r for r in SP_PROJ if (r.get('K') or 0) < 3.5],
+                    key=lambda r: (r.get('K') or 0))
     for r in skip_k:
         team = tn(r.get('Team',''))
         opp  = tn(r.get('Opp',''))
