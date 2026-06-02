@@ -40,7 +40,6 @@ if not BDL_KEY:
     print("Phase 2 skipped: no BDL_KEY. (K Report shows P2 for advanced cells.)")
     raise SystemExit(0)
 
-# ---- paced HTTP (shared limiter w/ patient 429 backoff) ---------------------
 MIN_GAP = float(os.environ.get('BDL_MIN_GAP', '0.3'))
 _last = [0.0]
 
@@ -60,7 +59,6 @@ def api_get(path, params=None, retries=2):
         except urllib.error.HTTPError as e:
             if e.code == 429:
                 time.sleep(min(15 * (attempt + 1), 60)); continue
-            # Any other HTTP error: give up on THIS call (Phase 2 is optional)
             print(f"    {path}: HTTP {e.code} (skipped)")
             return None
         except Exception as e:
@@ -69,7 +67,6 @@ def api_get(path, params=None, retries=2):
     return None
 
 def paged(path, params):
-    """Yield all data rows across cursor pages."""
     params = dict(params)
     while True:
         resp = api_get(path, params)
@@ -82,7 +79,6 @@ def paged(path, params):
             return
         params['cursor'] = nxt
 
-# ---- slate context ----------------------------------------------------------
 DATA = json.load(open(DATA_FILE, encoding='utf-8'))
 season = datetime.today().year
 
@@ -101,9 +97,7 @@ print(f"Phase 2: pulling balldontlie metrics for {len(slate)} pitchers (season {
 def norm(n):
     return ' '.join((n or '').lower().replace('.', '').replace(',', '').split())
 
-# ---- 1) opponent team K% (one bulk call) -----------------------------------
-team_k = {}        # abbreviation -> K%
-team_id_abbr = {}  # team id -> abbreviation
+team_k = {}
 ts = list(paged('/teams/season_stats', {'season': season, 'per_page': 100}))
 for row in ts:
     tm = row.get('team') or {}
@@ -117,10 +111,9 @@ for row in ts:
         pass
 print(f"  opponent K% for {len(team_k)} teams")
 
-# ---- 2) resolve pitcher name -> player_id ----------------------------------
 def find_id(name):
     parts = name.split()
-    q = parts[-1] if parts else name          # search by last name
+    q = parts[-1] if parts else name
     resp = api_get('/players', {'search': q, 'per_page': 100})
     if not resp:
         return None
@@ -129,7 +122,6 @@ def find_id(name):
         full = pl.get('full_name') or f"{pl.get('first_name','')} {pl.get('last_name','')}"
         if norm(full) == want:
             return pl['id']
-    # loose fallback: last name + first initial
     for pl in resp.get('data', []):
         full = norm(pl.get('full_name') or f"{pl.get('first_name','')} {pl.get('last_name','')}")
         if parts and full.endswith(norm(parts[-1])) and full[:1] == want[:1]:
@@ -146,8 +138,7 @@ for p in slate:
         print(f"    {p['name']}: id lookup skipped ({e})")
 print(f"  matched {len(ids)}/{len(slate)} pitchers to balldontlie IDs")
 
-# ---- 3) season K/start (one bulk call) -------------------------------------
-form = {}  # player_id -> K per start
+form = {}
 if ids:
     ss = list(paged('/season_stats',
                     {'season': season, 'player_ids[]': list(ids.values()), 'per_page': 100}))
@@ -160,7 +151,6 @@ if ids:
         except (TypeError, ValueError):
             pass
 
-# ---- 4) per-pitcher pitch-type aggregates + H/A split ----------------------
 def pitch_metrics(pid):
     rows = list(paged('/pitcher_pitch_type_season_stats',
                       {'season': season, 'player_id': pid, 'per_page': 100}))
@@ -178,14 +168,12 @@ def pitch_metrics(pid):
         out['swstr_pct'] = round(whiffs / pitches * 100, 1)
     if swings:
         out['arsenal_whiff'] = round(whiffs / swings * 100, 1)
-    oz = pitches - zone           # out-of-zone pitches
+    oz = pitches - zone
     if oz > 0:
         out['chase_pct'] = round(chases / oz * 100, 1)
     return out
 
 def ha_split(pid):
-    """Best-effort home/away K-per-start split. Schema is undocumented, so we
-    probe the endpoint and look for recognizable home/away K + games fields."""
     resp = api_get('/players/splits', {'season': season, 'player_id': pid})
     if not resp:
         return None
@@ -212,11 +200,10 @@ def save(d):
     tmp = SAVANT_FILE + '.tmp'
     with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, SAVANT_FILE)   # atomic: never leaves a half-written file
+    os.replace(tmp, SAVANT_FILE)
 
 savant = {}
 for p in slate:
-    # Each pitcher is isolated: a bad API response for one can never kill the run.
     try:
         pid = ids.get(p['name'])
         metrics = {}
@@ -227,14 +214,18 @@ for p in slate:
                 print(f"    {p['name']}: pitch metrics skipped ({e})")
             if pid in form:
                 metrics['recent_form'] = form[pid]
-            # H/A split intentionally skipped: undocumented endpoint, too slow
-            # (17 extra calls). Leaves H/A as "P2" in the report.
+            try:
+                hs = ha_split(pid)
+                if hs is not None:
+                    metrics['ha_split'] = hs
+            except Exception as e:
+                print(f"    {p['name']}: H/A skipped ({e})")
         ok = team_k.get((p['opp'] or '').upper())
         if ok is not None:
             metrics['opp_lineup_k_pct'] = ok
         if metrics:
             savant[p['name'].lower()] = metrics
-            save(savant)   # incremental: a later crash/timeout still keeps this
+            save(savant)
     except Exception as e:
         print(f"    {p['name']}: skipped ({e})")
 
