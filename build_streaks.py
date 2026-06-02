@@ -13,7 +13,7 @@ Streak types & minimums:
   💰 RBI  — RBI in 4+ consecutive games
 """
 
-import json, os, time, requests
+import json, os, time, urllib.request, urllib.parse, urllib.error
 from datetime import date
 
 # ── CONFIG ────────────────────────────────────────────────────────
@@ -93,12 +93,14 @@ def load_player_index():
         except: pass
     print('[streaks] Fetching MLB player list...')
     try:
-        r = requests.get(f'{MLB_API}/sports/1/players',
-                         params={'season':SEASON,'gameType':'R'}, timeout=20)
-        for p in r.json().get('people',[]):
+        params = urllib.parse.urlencode({'season': SEASON, 'gameType': 'R'})
+        url = f'{MLB_API}/sports/1/players?{params}'
+        with urllib.request.urlopen(urllib.request.Request(url), timeout=20) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        for p in data.get('people', []):
             full = (p.get('fullName') or '').strip().lower()
             if full: _player_index[full] = p['id']
-        json.dump(_player_index, open(PLAYER_CACHE,'w'))
+        json.dump(_player_index, open(PLAYER_CACHE, 'w'))
         print(f'[streaks] Cached {len(_player_index)} players')
     except Exception as e:
         print(f'[streaks] Player index error: {e}')
@@ -108,13 +110,17 @@ def player_id(name):
 
 def fetch_logs(pid, group='hitting'):
     try:
-        r = requests.get(f'{MLB_API}/people/{pid}/stats',
-                         params={'stats':'gameLog','season':SEASON,
-                                 'group':group,'gameType':'R'}, timeout=10)
-        stats = r.json().get('stats',[])
+        params = urllib.parse.urlencode({
+            'stats': 'gameLog', 'season': SEASON,
+            'group': group, 'gameType': 'R'
+        })
+        url = f'{MLB_API}/people/{pid}/stats?{params}'
+        with urllib.request.urlopen(urllib.request.Request(url), timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        stats = data.get('stats', [])
         if not stats: return []
-        splits = stats[0].get('splits',[])
-        splits.sort(key=lambda s: s.get('date',''), reverse=True)
+        splits = stats[0].get('splits', [])
+        splits.sort(key=lambda s: s.get('date', ''), reverse=True)
         return splits[:GAMES_BACK]
     except: return []
 
