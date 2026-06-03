@@ -296,6 +296,20 @@ VERDICT_CFG = {
     'neutral':  {'icon':'➡️','label':'Neutral', 'fg':'#94a3b8','bg':'#0f1829'},
 }
 
+def streak_iso_chip(iso):
+    """Colored ISO chip — matches slate-wide convention (≥.280 red, ≥.250 orange, ≥.200 green)."""
+    if not iso: return ''
+    col = '#ef4444' if iso>=0.280 else ('#f59e0b' if iso>=0.250 else ('#22c55e' if iso>=0.200 else '#64748b'))
+    s = f'.{int(round(iso*1000)):03d}'
+    return f'<span class="chip"><span class="dim">ISO </span><span style="color:{col};font-weight:700">{s}</span></span>'
+
+def streak_zone_chip(zone):
+    """Colored Zone chip — ≥6 green, ≥4 orange, else gray."""
+    if not zone: return ''
+    col = '#22c55e' if zone>=6 else ('#f59e0b' if zone>=4 else '#64748b')
+    return f'<span class="chip"><span class="dim">Zone </span><span style="color:{col};font-weight:700">⚡{zone}</span></span>'
+
+
 def render_row(s, idx):
     tc = TYPE_CFG[s['type']]
     vc = VERDICT_CFG[s['verdict']]
