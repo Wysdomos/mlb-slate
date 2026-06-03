@@ -24,17 +24,17 @@ src = src.replace(
 )
 exec(compile(src, 'build_day46.py', 'exec'))
 
-# Step 2 — build_editorial.py → enhances built_sections.json
+# Step 2 — build_streaks.py → streaks.html + hot_streaks.json (must precede editorial)
+os.environ['STREAKS_FILE'] = STREAKS_FILE
+exec(compile(open('build_streaks.py', encoding='utf-8').read(), 'build_streaks.py', 'exec'))
+
+# Step 3 — build_editorial.py → enhances built_sections.json (uses hot_streaks.json)
 os.environ['DATA_FILE']     = DATA_FILE
 os.environ['SECTIONS_FILE'] = SECTIONS_FILE
 exec(compile(open('build_editorial.py', encoding='utf-8').read(), 'build_editorial.py', 'exec'))
 
-# Step 3 — build_k_report.py → k-report.html
+# Step 4 — build_k_report.py → k-report.html
 os.environ['K_REPORT_FILE'] = K_REPORT_FILE
 exec(compile(open('build_k_report.py', encoding='utf-8').read(), 'build_k_report.py', 'exec'))
-
-# Step 4 — build_streaks.py → streaks.html
-os.environ['STREAKS_FILE'] = STREAKS_FILE
-exec(compile(open('build_streaks.py', encoding='utf-8').read(), 'build_streaks.py', 'exec'))
 
 print(f"Pipeline complete. Sections -> {SECTIONS_FILE}, K Report -> {K_REPORT_FILE}, Streaks -> {STREAKS_FILE}")

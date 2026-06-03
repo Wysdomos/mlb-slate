@@ -29,6 +29,7 @@ SECTIONS = json.load(open(SECTIONS_FILE, encoding='utf-8'))
 
 # ---- Data lookups ----
 HR_LB    = DATA['HR_Leaderboard']
+HR_BY_NAME = { (r.get('Batter') or '').strip().lower(): r for r in HR_LB if r.get('Batter') }
 HIT      = DATA['Hit_Probabilities']
 SP_PROJ  = DATA['SP_Projections']
 SS       = DATA['Sweet_Spot_Slate']
@@ -479,15 +480,81 @@ def build_combos_hrr():
 # ============================================================
 # 4. PARLAY ANCHORS  (Sweet-Spot DANGER batters only; random; each once)
 # ============================================================
+# ── COLOR HELPERS (shared convention, slate-wide consistency) ──
+def c_vuln(v):
+    v = int(v or 0)
+    if v >= 50: return f'<span style="color:#ef4444;font-weight:700">V{v} 🔥</span>'
+    if v >= 35: return f'<span style="color:#f59e0b;font-weight:700">V{v}</span>'
+    return f'<span style="color:#64748b">V{v}</span>'
+
+def c_iso(iso):
+    if not iso: return ''
+    s = f".{int(round(iso*1000)):03d}"
+    if iso >= 0.250: return f'<span style="color:var(--good);font-weight:700">ISO {s}</span>'
+    if iso >= 0.200: return f'<span style="color:var(--hot)">ISO {s}</span>'
+    return f'<span style="color:#64748b">ISO {s}</span>'
+
+def c_hrpct(p):
+    if not p: return ''
+    if p >= 18: return f'<span style="color:var(--good);font-weight:700">HR {p:.0f}%</span>'
+    if p >= 12: return f'<span style="color:var(--hot)">HR {p:.0f}%</span>'
+    return f'<span style="color:#64748b">HR {p:.0f}%</span>'
+
+def c_zone(z):
+    if not z: return ''
+    if z >= 6: return f'<span style="color:var(--good);font-weight:700">⚡{z}</span>'
+    if z >= 4: return f'<span style="color:var(--hot)">⚡{z}</span>'
+    return f'<span style="color:#64748b">⚡{z}</span>'
+
+def c_park(p):
+    if p >= 10:  return f'<span style="color:var(--good);font-weight:700">+{p}% HR park</span>'
+    if p >= 0:   return f'<span style="color:var(--hot)">+{p}% HR park</span>'
+    if p >= -7:  return f'<span style="color:#64748b">{p}% HR park</span>'
+    return f'<span style="color:var(--bad)">{p}% HR park</span>'
+
+HOT_CHIP = ' <span style="color:var(--good);font-weight:700">HOT 🔥</span>'
+
+# ── HOT STREAKS (from build_streaks export; runs before editorial) ──
+def load_hot_streaks():
+    try:
+        hs = json.load(open(os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json'), encoding='utf-8'))
+        return (set(n.lower() for n in hs.get('all', [])),
+                set(n.lower() for n in hs.get('HR', [])))
+    except Exception:
+        return set(), set()
+
+def _zone_num(z):
+    m = re.search(r'(\d+)', str(z or ''))
+    return int(m.group(1)) if m else 0
+
+# ── PARLAY ANCHORS (rule-based, not pure random) ──
 def get_danger_batters():
-    """Batters tagged DangerBatter1/2/3 in Sweet_Spot_Slate (= Matchup Spotlight)."""
+    """Sweet-Spot danger bats enriched with vuln, park HR%, ISO, zone, HR%, hot flags."""
     iso_re = re.compile(r'^(.*?)\s*\(ISO\s*\.(\d+)\)\s*$')
+    hot_all, hot_hr = load_hot_streaks()
     out, seen = [], set()
+
+    def enrich(nm, iso, pit, vuln, team):
+        key = nm.lower()
+        hit_row = HIT_BY_NAME.get(key) or {}
+        hr_row  = HR_BY_NAME.get(key) or {}
+        park    = get_park_for_batter(team) or {}
+        return {
+            'name': nm, 'iso': iso, 'pit': pit, 'vuln': vuln, 'team': team,
+            'park_hr': parse_pct(park.get('HR %', '0')),
+            'zone':    _zone_num(hr_row.get('Zone', '')),
+            'hr_pct':  parse_pct(hit_row.get('To Hit HR', '0')),
+            'h1':      hit_row.get('1+ Hit', '—'),
+            'hot':     key in hot_all,
+            'hot_hr':  key in hot_hr,
+            'autopick': key in hot_hr,   # rule 7
+        }
+
+    # Pool 1: Sweet-Spot danger batters
     for sp in SS:
         pit = sp.get('Pitcher','')
         if not pit or pit == 'TBD': continue
         v = vuln_score(pit)
-        throws = sp.get('Throws','')
         opp = tn(sp.get('Opponent',''))
         for i in (1, 2, 3):
             raw = sp.get(f'DangerBatter{i}')
@@ -497,65 +564,112 @@ def get_danger_batters():
             iso = float('0.' + m.group(2)) if m else None
             if not nm or nm.lower() in seen: continue
             seen.add(nm.lower())
-            hit_row = HIT_BY_NAME.get(nm.lower()) or {}
-            out.append({'name':nm,'iso':iso,'pit':pit,'vuln':v,'team':opp,
-                        'throws':throws,'bats':(BP_BAT_BY_NAME.get(nm.lower()) or {}).get('BatterStand',''),
-                        'hr':hit_row.get('To Hit HR','—'),'h1':hit_row.get('1+ Hit','—')})
+            out.append(enrich(nm, iso, pit, v, opp))
+
+    # Pool 2 (rule 7): any HR-streak batter not already in pool → auto-pick
+    for hr_row in HR_LB:
+        nm = (hr_row.get('Batter') or '').strip()
+        if not nm or nm.lower() in seen: continue
+        if nm.lower() not in hot_hr: continue
+        team = tn(hr_row.get('Team',''))
+        pit  = hr_row.get('Pitcher','')
+        seen.add(nm.lower())
+        b = enrich(nm, None, pit, vuln_score(pit), team)
+        b['autopick'] = True
+        out.append(b)
+
     return out
 
 def build_parlays():
     pool = get_danger_batters()
-    random.shuffle(pool)
+
+    # Rules 1,2,3,5 — qualify (auto-picks bypass the filters)
+    def qualifies(b):
+        if b['autopick']:
+            return True
+        return (b['vuln'] >= 35
+                and b['park_hr'] >= -7
+                and (b['iso'] or 0) >= 0.200
+                and b['hr_pct'] >= 10)
+    qualified = [b for b in pool if qualifies(b)]
+    random.shuffle(qualified)
+
+    # Order so auto-picks + hot bats surface first, and every group can get a zone-4 leg
+    qualified.sort(key=lambda b: (not b['autopick'], not b['hot'], -(b['zone'] or 0)))
 
     def leg(b, num=None):
         p = f"Leg {num}: " if num else ''
-        iso_s = f"ISO .{int(round(b['iso']*1000)):03d}" if b['iso'] else ''
-        vs = f", vs {b['pit']} V{b['vuln']}" if b['pit'] else ''
-        bits = ', '.join(x for x in [iso_s, f"HR {b['hr']}" if b['hr']!='—' else ''] if x)
-        return (f"{p}<strong>{b['name']}</strong> HR "
-                f"({bits}{vs})")
+        chips = ', '.join(x for x in [c_iso(b['iso']), c_hrpct(b['hr_pct']), c_zone(b['zone'])] if x)
+        vs = f", vs {b['pit']} {c_vuln(b['vuln'])}" if b['pit'] else ''
+        hot = HOT_CHIP if b['hot'] else ''
+        return f"{p}<strong>{b['name']}</strong> HR{hot} ({chips}{vs})"
 
-    parlays = []
-    idx = 0
-    if len(pool) - idx >= 4:
-        grp = pool[idx:idx+4]; idx += 4
+    # Assemble parlays; enforce rule 4 (≥1 zone≥4 leg) and rule 6 (≥4 parlays with a hot bat)
+    sizes = [4, 3, 2, 2, 2, 2, 2]   # up to 7 parlays
+    parlays, used = [], set()
+    hot_parlays = 0
+    icons = ['🏆','🔥','⚡','💥','💣','🎲','🌋']
+
+    avail = [b for b in qualified]
+    def take(pred):
+        for b in avail:
+            if b['name'] not in used and pred(b):
+                used.add(b['name']); avail.remove(b); return b
+        return None
+
+    for gi, size in enumerate(sizes):
+        remaining = [b for b in avail if b['name'] not in used]
+        if len(remaining) < size:
+            break
+        grp = []
+        # rule 4: guarantee a zone≥4 leg
+        z = take(lambda b: (b['zone'] or 0) >= 4)
+        if z: grp.append(z)
+        # rule 6: if we still need hot-carrying parlays, seed one hot bat
+        need_hot = hot_parlays < 4
+        if need_hot and not any(b['hot'] for b in grp):
+            h = take(lambda b: b['hot'])
+            if h: grp.append(h)
+        # fill the rest
+        while len(grp) < size:
+            b = take(lambda b: True)
+            if not b: break
+            grp.append(b)
+        if len(grp) < 2:
+            break
+        if any(b['hot'] for b in grp):
+            hot_parlays += 1
         names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
-        parlays.append(('🏆', f"<strong>4-Leg Danger Anchor: {names}</strong><br>"
-                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))
-                        + "<br><em>Four Sweet-Spot danger bats · all flagged in Matchup Spotlight.</em>"))
-    if len(pool) - idx >= 3:
-        grp = pool[idx:idx+3]; idx += 3
-        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
-        parlays.append(('🔥', f"<strong>3-Leg Danger Anchor: {names}</strong><br>"
-                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))
-                        + "<br><em>Three danger bats, different matchups.</em>"))
-    pair_icons = ['⚡','💥','💣','🎲','🌋']; pi = 0
-    while len(pool) - idx >= 2:
-        grp = pool[idx:idx+2]; idx += 2
-        names = ' + '.join(f"<strong>{b['name']}</strong>" for b in grp)
-        parlays.append((pair_icons[pi % len(pair_icons)],
-                        f"<strong>2-Leg Danger Anchor: {names}</strong><br>"
-                        + '<br>'.join(leg(b,i+1) for i,b in enumerate(grp))))
-        pi += 1
+        zone_ok = any((b['zone'] or 0) >= 4 for b in grp)
+        tag = f"{len(grp)}-Leg Anchor"
+        note = []
+        if any(b['autopick'] for b in grp): note.append('contains an auto-pick HR streaker')
+        if any(b['hot'] for b in grp):       note.append('hot bat included')
+        if zone_ok:                          note.append('zone-4+ power leg')
+        note_s = (' · '.join(note)).capitalize()
+        parlays.append((icons[gi % len(icons)],
+            f"<strong>{tag}: {names}</strong><br>"
+            + '<br>'.join(leg(b, i+1) for i, b in enumerate(grp))
+            + (f"<br><em>{note_s}.</em>" if note_s else '')))
 
     blocks = [
         f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body}</div></div>'
-        for icon, body in parlays[:10]
+        for icon, body in parlays
     ]
     if not blocks:
-        blocks = ['  <div class="flag-row"><div class="icon">💣</div><div>No Sweet-Spot danger batters available today.</div></div>']
+        blocks = ['  <div class="flag-row"><div class="icon">💣</div><div>No batters cleared the parlay-anchor rules today (V35+, park ≥ −7%, ISO ≥ .200, HR ≥ 10%).</div></div>']
 
     return f'''<!-- PARLAYS -->
 <section id="parlays" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">💣 Parlay Anchors</div>
-      <span class="game-tag">Tap to expand · Sweet-Spot danger bats only · randomized daily · each used once</span>
+      <span class="game-tag">Tap to expand · rule-screened danger bats · randomized daily · each used once</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Anchors are built <strong>only from batters carrying a danger tag</strong> in the Sweet Spot / Matchup Spotlight. <strong style="color:var(--good)">Randomized each day · no batter repeats.</strong></p>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Screened by rule, not pure chance: <strong>V35+</strong>, park HR <strong>≥ −7%</strong>, <strong>ISO ≥ .200</strong>, <strong>HR ≥ 10%</strong>, each parlay carries a <strong style="color:var(--hot)">zone-4+</strong> power leg, and HR-streak bats are <strong style="color:var(--good)">auto-picked</strong>. <strong style="color:var(--good)">Randomized daily · no repeats.</strong></p>
 {chr(10).join(blocks)}
   </div></div>
 </section>

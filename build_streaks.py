@@ -43,6 +43,7 @@ SP_PROJ = DATA.get('SP_Projections', [])
 PARKS   = DATA.get('Park_Factors', [])
 BP_BAT  = DATA.get('BP_Batters', [])
 BP_PIT  = DATA.get('BP_Pitchers', [])
+SS      = DATA.get('Sweet_Spot_Slate', [])
 
 TEAM_FIX = {'WSH':'WAS','AZ':'ARI','CWS':'CHW','TB ':'TB','SF ':'SF','SD ':'SD','KC ':'KC'}
 def tn(t): return TEAM_FIX.get((t or '').strip(),(t or '').strip())
@@ -73,8 +74,9 @@ for r in PARKS:
             if t not in PARK_BY_TEAM:
                 PARK_BY_TEAM[t] = r
 
+# VulnScore lives in Sweet_Spot_Slate (NOT BP_Pitchers) — key by pitcher name
 VULN_BY_PIT = {}
-for r in BP_PIT:
+for r in SS:
     nm = (r.get('Pitcher') or '').strip().lower()
     if nm: VULN_BY_PIT[nm] = r
 
@@ -222,7 +224,7 @@ CSS = """
 html,body{background:#07090f;color:#dde3f0;min-height:100vh}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .page-header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.05)}
-.header-row{display:flex;align-items:center;gap:10px;padding:13px 16px 0}
+.header-row{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 18px) 16px 0}
 .back-link{color:#6366f1;font-size:13px;font-weight:600;text-decoration:none;flex-shrink:0}
 .header-title{font-size:20px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(90deg,#f97316,#ef4444,#f97316);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .header-sub{font-size:10.5px;color:#4ade80;margin-top:1px}
@@ -338,15 +340,18 @@ def render_html(streaks, today):
     for s in streaks: counts[s['type']] = counts.get(s['type'],0)+1
     streaks.sort(key=lambda s: (TYPE_ORDER.get(s['type'],9), -s['streak']))
 
-    tabs = [('ALL',f'All ({len(streaks)})')]
-    for k in ['HR','HRR','K','HIT','TWO','RBI']:
-        if counts.get(k,0):
-            tc = TYPE_CFG[k]
-            tabs.append((k, f"{tc['emoji']} {tc['label'].split()[0]} ({counts[k]})"))
+    cat_order  = [k for k in ['HR','HRR','K','HIT','TWO','RBI'] if counts.get(k,0)]
+    first_type = cat_order[0] if cat_order else ''
+    tabs = []
+    for k in cat_order:
+        tc = TYPE_CFG[k]
+        tabs.append((k, f"{tc['emoji']} {tc['label'].split()[0]} ({counts[k]})"))
 
     tab_html = ''.join(
-        f'<button class="filter-btn{" active" if k=="ALL" else ""}" '
-        f'onclick="filter(\'{k}\',this)" style="{("--type-color:"+TYPE_CFG[k]["color"]) if k!="ALL" else ""}">'
+        f'<button class="filter-btn{" active" if k==first_type else ""}" '
+        f'onclick="filter(\'{k}\',this)" '
+        f'style="--type-color:{TYPE_CFG[k]["color"]}'
+        f'{(";background:"+TYPE_CFG[k]["color"]+"18") if k==first_type else ""}">'
         f'{label}</button>'
         for k,label in tabs
     )
@@ -371,22 +376,30 @@ def render_html(streaks, today):
     <a href="index.html" class="back-link">← Slate</a>
     <div>
       <div class="header-title">🔥 Hot Streaks</div>
-      <div class="header-sub">{today} · {len(streaks)} active streak{'s' if len(streaks)!=1 else ''} · K threshold ≥{K_THRESHOLD}/start</div>
+      <div class="header-sub">{today} · {len(streaks)} active streak{'s' if len(streaks)!=1 else ''}</div>
     </div>
   </div>
   <div class="filter-row">{tab_html}</div>
 </div>
 <div id="streak-list">{rows_html}</div>
-<div class="footer">Filled dots = streak stat fired · K threshold ≥{K_THRESHOLD}/start · MLB Stats API</div>
+<div class="footer">Filled dots = streak stat fired · MLB Stats API</div>
 <script>
 function filter(type,btn){{
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b=>{{b.classList.remove('active');b.style.background='';}});
   btn.classList.add('active');
-  if(type!=='ALL')btn.style.setProperty('background',btn.style.getPropertyValue('--type-color')+'18');
+  btn.style.setProperty('background',btn.style.getPropertyValue('--type-color')+'18');
   document.querySelectorAll('.streak-row').forEach(r=>{{
-    r.style.display=(type==='ALL'||r.dataset.type===type)?'':'none';
+    r.style.display=(r.dataset.type===type)?'':'none';
   }});
 }}
+// init: show only the first category on load (no ALL tab)
+(function(){{
+  var t='{first_type}';
+  if(!t)return;
+  document.querySelectorAll('.streak-row').forEach(function(r){{
+    r.style.display=(r.dataset.type===t)?'':'none';
+  }});
+}})();
 </script>
 </body>
 </html>'''
@@ -503,6 +516,16 @@ def build():
     with open(STREAKS_FILE, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'[streaks] ✓ Wrote {STREAKS_FILE} — {len(streaks)} streaks')
+
+    # Export hot players for cross-module use (parlay anchors in build_editorial)
+    hot_export = {
+        'HR':  sorted({s['player'] for s in streaks if s.get('type') == 'HR'}),
+        'all': sorted({s['player'] for s in streaks if s.get('type') in ('HR','HRR','HIT','TWO','RBI')}),
+    }
+    hot_file = os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json')
+    with open(hot_file, 'w', encoding='utf-8') as f:
+        json.dump(hot_export, f)
+    print(f'[streaks] ✓ Wrote {hot_file} — {len(hot_export["HR"])} HR streakers, {len(hot_export["all"])} hot batters')
 
 if __name__ == '__main__':
     build()

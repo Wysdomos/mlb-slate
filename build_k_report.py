@@ -510,7 +510,7 @@ html = f'''<!DOCTYPE html>
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📋 The Safe K Report — {DATE_STR}</title>
+<title>📰 The Safe K Report — {DATE_STR}</title>
 <style>
 :root{{
   --bg:#0a1612;--card:#111c18;--border:#1e2e28;--glass:rgba(255,255,255,0.04);
@@ -749,7 +749,7 @@ body{{background:var(--bg);color:var(--text);
 <!-- NAV -->
 <nav class="top-nav">
   <a href="index.html" class="back">← Daily Slate</a>
-  <div class="nav-t">📋 The Safe K Report</div>
+  <div class="nav-t">📰 The Safe K Report</div>
   <div class="nav-d">{DATE_STR}<br>{SLATE_DAY}</div>
 </nav>
 
