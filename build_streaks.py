@@ -255,19 +255,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 .header-sub{font-size:10.5px;color:#4ade80;margin-top:1px}
 .filter-row{display:flex;gap:5px;overflow-x:auto;padding:9px 16px 11px;-webkit-overflow-scrolling:touch}
 .filter-row::-webkit-scrollbar{display:none}
-.filter-btn{
+.filter-btn{{
   border:1.5px solid var(--type-color,#64748b);
   color:var(--type-color,#94a3b8);
   background:transparent;
   padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;
   cursor:pointer;transition:all .2s;white-space:nowrap;
-}
-.filter-btn.active{
+}}
+.filter-btn.active{{
   background:var(--type-color,#22c55e);
   color:#000;
   border-color:var(--type-color,#22c55e);
-}
-.filter-btn:not(.active):hover{background:color-mix(in srgb,var(--type-color) 15%,transparent)}
+}}
+.filter-btn:not(.active):hover{{background:color-mix(in srgb,var(--type-color) 15%,transparent)}}
 .streak-row{border-bottom:1px solid rgba(255,255,255,.04);padding:10px 14px 10px 13px}
 .streak-row:nth-child(even){background:rgba(255,255,255,.012)}
 .row-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px}
@@ -420,15 +420,15 @@ def render_html(streaks, today, slate_label=''):
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🔥 Hot Streaks · {today}</title>
 <style>{CSS}
-.streak-guide{margin:0;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
-.streak-guide-summary{padding:10px 16px;font-size:12px;font-weight:700;color:#94a3b8;
-  cursor:pointer;list-style:none;user-select:none;}
-.streak-guide-summary::-webkit-details-marker{display:none}
-.streak-guide-body{padding:0 16px 14px;font-size:12px;color:#94a3b8;line-height:1.6}
-.streak-guide-body p{margin:0 0 8px}
-.guide-table{width:100%;border-collapse:collapse;font-size:12px}
-.guide-table td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
-.guide-table td:first-child{white-space:nowrap;width:100px;color:#dde3f0}
+.streak-guide{{margin:0;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}}
+.streak-guide-summary{{padding:10px 16px;font-size:12px;font-weight:700;color:#94a3b8;
+  cursor:pointer;list-style:none;user-select:none;}}
+.streak-guide-summary::-webkit-details-marker{{display:none}}
+.streak-guide-body{{padding:0 16px 14px;font-size:12px;color:#94a3b8;line-height:1.6}}
+.streak-guide-body p{{margin:0 0 8px}}
+.guide-table{{width:100%;border-collapse:collapse;font-size:12px}}
+.guide-table td{{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.05)}}
+.guide-table td:first-child{{white-space:nowrap;width:100px;color:#dde3f0}}
 
 </style>
 </head>
