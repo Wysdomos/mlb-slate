@@ -9,7 +9,7 @@ Streak types & minimums:
   🔥 HRR  — H+R+RBI ≥1 in 3+ consecutive games
   ⚾ K    — 6+ Ks in 3+ consecutive starts (pitchers)
   🎯 HIT  — hit in 4+ consecutive games
-  💥 2+H  — 2+ hits in 4+ consecutive games
+  💥 2+H  — 2+ hits in 2+ consecutive games
   💰 RBI  — RBI in 4+ consecutive games
 """
 
@@ -23,7 +23,7 @@ SEASON       = 2026
 GAMES_BACK   = 10   # game logs to inspect per player
 K_THRESHOLD  = 6    # minimum Ks/start to count for K streak
 
-MINIMUMS = {'HR':2,'HRR':3,'K':3,'HIT':4,'TWO':4,'RBI':4}
+MINIMUMS = {'HR':2,'HRR':3,'K':3,'HIT':4,'TWO':2,'RBI':4}
 
 TYPE_CFG = {
     'HR':  {'emoji':'💣','label':'HR STREAK', 'color':'#ef4444'},

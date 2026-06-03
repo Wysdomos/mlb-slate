@@ -735,13 +735,13 @@ body{{background:var(--bg);color:var(--text);
 .grip-line{{width:10px;height:2px;background:rgba(52,211,153,0.9);border-radius:999px;}}
 
 /* Page FABs for k-report */
-.kpage-fab{position:fixed;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;
+.kpage-fab{{position:fixed;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;
   border:1px solid rgba(255,255,255,0.18);box-shadow:0 4px 16px rgba(0,0,0,.3);
-  transition:transform .2s;-webkit-tap-highlight-color:transparent;}
-.kpage-fab:active{transform:scale(0.92);}
-.kfab-home{bottom:22px;background:rgba(30,40,60,.9);}
-.kfab-streaks{bottom:80px;background:linear-gradient(135deg,#f97316,#ef4444);}
+  transition:transform .2s;-webkit-tap-highlight-color:transparent;}}
+.kpage-fab:active{{transform:scale(0.92);}}
+.kfab-home{{bottom:22px;background:rgba(30,40,60,.9);}}
+.kfab-streaks{{bottom:80px;background:linear-gradient(135deg,#f97316,#ef4444);}}
 </style>
 </head>
 <body>
