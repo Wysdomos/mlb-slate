@@ -75,6 +75,29 @@ for r in PARKS:
             if t not in PARK_BY_TEAM:
                 PARK_BY_TEAM[t] = r
 
+# ── BATTER ISO + ZONE LOOKUPS ──────────────────────────────────────────────
+HR_BY_NAME_S = {(r.get('Batter') or '').strip().lower(): r for r in HR_LB if r.get('Batter')}
+_ISO_RE = re.compile(r'\(ISO\s*\.?(\d+)\)')
+
+def get_batter_iso(name):
+    nm = (name or '').strip().lower()
+    for sp in SS:
+        for i in (1, 2, 3):
+            raw = str(sp.get(f'DangerBatter{i}') or '')
+            if nm in raw.lower():
+                m = _ISO_RE.search(raw)
+                if m:
+                    return float('0.' + m.group(1))
+    return None
+
+def get_batter_zone(name):
+    r = HR_BY_NAME_S.get((name or '').strip().lower())
+    if not r:
+        return 0
+    z = str(r.get('Zone') or '')
+    m = re.search(r'(\d+)', z)
+    return int(m.group(1)) if m else 0
+
 # VulnScore lives in Sweet_Spot_Slate (NOT BP_Pitchers) — key by pitcher name
 VULN_BY_PIT = {}
 for r in SS:
@@ -324,6 +347,8 @@ def render_row(s, idx):
             f'<span class="chip"><span class="dim">Park </span><span style="color:{pk_color};font-weight:700">{pk_str}</span></span>'
             f'<span class="chip"><span class="dim">Platoon </span><span style="color:{edge_color};font-weight:700">{edge_txt}</span></span>'
             f'<span class="chip"><span class="dim">1+H </span><span style="color:{h1_color};font-weight:700">{s["h1"]:.0f}%</span></span>'
+            + streak_iso_chip(s.get('iso'))
+            + streak_zone_chip(s.get('zone'))
         )
         if s['type'] == 'HRR' and s.get('rbi_pct'):
             chips += f'<span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">{s["rbi_pct"]:.0f}%</span></span>'
@@ -380,7 +405,18 @@ def render_html(streaks, today, slate_label=''):
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🔥 Hot Streaks · {today}</title>
-<style>{CSS}</style>
+<style>{CSS}
+.streak-guide{margin:0;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
+.streak-guide-summary{padding:10px 16px;font-size:12px;font-weight:700;color:#94a3b8;
+  cursor:pointer;list-style:none;user-select:none;}
+.streak-guide-summary::-webkit-details-marker{display:none}
+.streak-guide-body{padding:0 16px 14px;font-size:12px;color:#94a3b8;line-height:1.6}
+.streak-guide-body p{margin:0 0 8px}
+.guide-table{width:100%;border-collapse:collapse;font-size:12px}
+.guide-table td{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.05)}
+.guide-table td:first-child{white-space:nowrap;width:100px;color:#dde3f0}
+
+</style>
 </head>
 <body>
 <div class="page-header">
@@ -394,6 +430,21 @@ def render_html(streaks, today, slate_label=''):
     </div>
     <div class="header-date">{today}<br>{slate_label}</div>
   </div>
+  <details class="streak-guide">
+    <summary class="streak-guide-summary">📖 How to read Hot Streaks</summary>
+    <div class="streak-guide-body">
+      <p><strong>What is a streak?</strong> A player who has hit the qualifying stat in back-to-back or consecutive games — not just good recent form, but an active run confirmed by official game logs.</p>
+      <table class="guide-table">
+        <tr><td>💣 <strong>HR</strong></td><td>Home run in <strong>≥ 2</strong> consecutive games</td></tr>
+        <tr><td>🔥 <strong>HRR</strong></td><td>H+R+RBI ≥ 1 in <strong>≥ 3</strong> consecutive games</td></tr>
+        <tr><td>⚾ <strong>K</strong></td><td>Pitcher recorded <strong>6+</strong> K in <strong>≥ 3</strong> consecutive starts</td></tr>
+        <tr><td>🎯 <strong>HIT</strong></td><td>At least 1 hit in <strong>≥ 4</strong> consecutive games</td></tr>
+        <tr><td>💥 <strong>2+H</strong></td><td>Multi-hit game in <strong>≥ 2</strong> consecutive games</td></tr>
+        <tr><td>💰 <strong>RBI</strong></td><td>At least 1 RBI in <strong>≥ 4</strong> consecutive games</td></tr>
+      </table>
+      <p style="margin-top:8px;font-size:12px;color:#4ade80">Game dots ● = streak stat fired that game. More filled dots = longer active run. Swipe left / right to move between categories.</p>
+    </div>
+  </details>
   <div class="filter-row">{tab_html}</div>
 </div>
 <div id="streak-list">{rows_html}</div>
@@ -415,7 +466,24 @@ function filter(type,btn){{
     r.style.display=(r.dataset.type===t)?'':'none';
   }});
 }})();
+// Touch swipe to navigate between category tabs
+(function(){{
+  var el=document.getElementById('streak-list')||document.body;
+  var sx=0,sy=0;
+  el.addEventListener('touchstart',function(e){{sx=e.touches[0].clientX;sy=e.touches[0].clientY;}},{{passive:true}});
+  el.addEventListener('touchend',function(e){{
+    var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>45){{
+      var btns=Array.from(document.querySelectorAll('.filter-btn'));
+      var ai=btns.findIndex(function(b){{return b.classList.contains('active');}});
+      var ni=dx<0?Math.min(ai+1,btns.length-1):Math.max(ai-1,0);
+      if(ni!==ai)btns[ni].click();
+    }}
+  }},{{passive:true}});
+}})();
 </script>
+<a class="page-fab fab-home" href="index.html" title="Daily Slate">⚾️</a>
+<a class="page-fab fab-kreport" href="k-report.html" title="Safe K Report">📰</a>
 </body>
 </html>'''
 

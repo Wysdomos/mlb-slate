@@ -388,7 +388,7 @@ def build_games():
             k = sp.get('K')
             try: k = float(k)
             except (TypeError, ValueError): return ''
-            v_str = f'V{vuln}' if vuln != '—' else ''
+            v_str = vuln_cell(vuln) if vuln != '—' else ''
             alt = k_alt_for(k)
             if k >= 5: return f'{v_str} · K alt {alt}'
             if k >= 4.5: return f'{v_str} · K alt {alt} (caution)'
@@ -459,7 +459,7 @@ def build_games():
                 f'<td>{hits_s}</td>'
                 f'<td>{qs_s}</td>'
                 f'<td>{hra_s}</td>'
-                f'<td><strong>V{vuln}</strong></td>'
+                f'<td>{vuln_cell(vuln)}</td>'
                 f'<td>{note}</td>'
                 '</tr>'
             )
@@ -495,8 +495,8 @@ def build_games():
         notes_bits = []
         if hr >= 15: notes_bits.append(f'<strong>Park +{hr}% HR booster — stack premium.</strong>')
         elif hr <= -20: notes_bits.append(f'<strong>Park {hr}% HR — fade HR alts, pivot to 1+H/RBI.</strong>')
-        if isinstance(ap_vuln, int) and ap_vuln >= 50: notes_bits.append(f'{ap_name} V{ap_vuln} 🔥 — target {away} stack.')
-        if isinstance(hp_vuln, int) and hp_vuln >= 50: notes_bits.append(f'{hp_name} V{hp_vuln} 🔥 — target {home} stack.')
+        if isinstance(ap_vuln, int) and ap_vuln >= 50: notes_bits.append(f'{ap_name} {vuln_cell(ap_vuln)} — target {away} stack.')
+        if isinstance(hp_vuln, int) and hp_vuln >= 50: notes_bits.append(f'{hp_name} {vuln_cell(hp_vuln)} — target {home} stack.')
         if not notes_bits:
             notes_bits.append('Standard slate game.')
         note_html = ' '.join(notes_bits)

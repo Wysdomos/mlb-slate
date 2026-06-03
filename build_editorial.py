@@ -147,7 +147,7 @@ def build_headlines():
             pitcher_note = ''
             if home_sp:
                 vs = get_vuln(home_sp.get('Pitcher',''))
-                if vs: pitcher_note = f" Home SP <strong>{home_sp['Pitcher']} V{vs['VulnScore']}</strong>."
+                if vs: pitcher_note = f" Home SP <strong>{home_sp['Pitcher']}</strong> {c_vuln(vs['VulnScore'])}."
             park_hr_bats = [r for r in HR_LB[:30] if tn(r.get('Team')) in [home_t, m.group(1)]][:5]
             bat_names = ', '.join(f"<strong>{r['Batter']}</strong>" for r in park_hr_bats)
             details.append(f"<strong>{park_game} ({t}).</strong>{pitcher_note}")
@@ -179,12 +179,12 @@ def build_headlines():
         if rank == 0:
             worst = 'slate-worst SP' if v == max_vuln else 'top target'
             cards.append({'icon':'🔥','action_class':'stack','action_label':'STACK',
-                'title':f"{team} stack vs {pit_name} (V{v} — {worst})",
+                'title':f"{team} stack vs {pit_name} ({c_vuln(v)} — {worst})",
                 'details':[f"{park_note}HR Board: {bat_str}. <strong>Best same-game stack of the slate.</strong>"],
                 'link_href':'#hr-board','link_text':'→ HR Board'})
         else:
             cards.append({'icon':'🎯','action_class':'stack','action_label':'STACK',
-                'title':f"{team} stack vs {pit_name} (V{v})",
+                'title':f"{team} stack vs {pit_name} ({c_vuln(v)})",
                 'details':[f"{park_note}HR Board: {bat_str}. Cross-game complement to the top stack."],
                 'link_href':'#hr-board','link_text':'→ HR Board'})
 
@@ -211,7 +211,7 @@ def build_headlines():
     top_vuln_arms = [r for r in sp_hr_sorted if (r.get('HR') or 0) >= 0.80][:5]
     if top_vuln_arms:
         arm_str = ', '.join(
-            f"<strong>{r['Pitcher']}</strong> {r['HR']} HR/9 (vs {tn(r['Opp'])}, V{vuln_score(r['Pitcher'])})"
+            f"<strong>{r['Pitcher']}</strong> {r['HR']} HR/9 (vs {tn(r['Opp'])}, {c_vuln(vuln_score(r['Pitcher']))})"
             for r in top_vuln_arms)
         cards.append({'icon':'☢️','action_class':'risk','action_label':'HR RISK · STACK OPPS',
             'title':"Pitcher's HR Risk Board — stack opponents on these arms",
@@ -287,7 +287,7 @@ def build_combos_k():
         park_hr = parse_pct(park.get('HR %')) if park else 0
         t = game_time(team, opp) or game_time(opp, team)
         vuln_str = c_vuln(v) if v else ''
-        park_str = f"{'+' if park_hr>=0 else ''}{park_hr}% HR" if park_hr != 0 else 'neutral park'
+        park_str = c_park(park_hr) if park_hr != 0 else '<span style="color:#64748b">neutral</span>'
         return name, k, team, opp, alt, vuln_str, park_str, t
 
     def leg(r, num=None):
@@ -429,7 +429,7 @@ def build_combos_hrr():
         v = f", vs {b['pit']} {c_vuln(b['vuln'])}" if b['pit'] else ''
         p = f"Leg {num}: " if num else ''
         return (f"{p}<strong>{b['name']}</strong> {hand_chip(b['bats'])} Ov 0.5 HRR "
-                f"(HRR {b['hrr']:.0f}%{v})")
+                f"(" + (f'<strong style="color:var(--good)">{b["hrr"]:.0f}%</strong>' if b['hrr']>=82 else (f'<span style="color:var(--hot)">{b["hrr"]:.0f}%</span>' if b['hrr']>=75 else f'{b["hrr"]:.0f}%')) + f" HRR{v})")
 
     combos = []
     idx = 0
@@ -483,6 +483,7 @@ def build_combos_hrr():
 # ── COLOR HELPERS (shared convention, slate-wide consistency) ──
 def c_vuln(v):
     v = int(v or 0)
+    if not v: return ''
     if v >= 50: return f'<strong style="color:var(--bad)">V{v} 🔥</strong>'
     if v >= 32: return f'<span style="color:var(--hot)">V{v}</span>'
     return f'<span style="color:#64748b">V{v}</span>'
@@ -709,8 +710,9 @@ def build_conviction():
         cold_note = ' <span style="color:var(--bad)">[COLD streak -- lower unit]</span>' if streak == 'COLD' else ''
         picks.append((
             tier,
-            f"<strong>{nm} HR</strong>{streak_s} -- Score {score} {zone}, vs "
-            f"<strong>{pit} V{v}</strong>{park_note}.{cold_note}",
+            f"<strong>{nm} HR</strong>{streak_s} -- Score {score} "
+            + (f'<span style="color:#22c55e;font-weight:700">{zone}</span>' if zone else '') +
+            f", vs <strong>{pit}</strong> {c_vuln(v)}{park_note}.{cold_note}",
             tier_label,
             score + v*0.3 + park_hr*0.3 - (5 if streak == 'COLD' else 0)
         ))
