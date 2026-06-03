@@ -196,7 +196,7 @@ def build_headlines():
         name = top_k.get('Pitcher',''); k_val = top_k.get('K')
         team = tn(top_k.get('Team','')); opp = tn(top_k.get('Opp',''))
         alt = k_alt(k_val); v = get_vuln(name)
-        vuln_note = f" V{v['VulnScore']}" if v else ''
+        vuln_note = (' ' + c_vuln(v['VulnScore'])) if v else ''
         k2_str = ''
         if k2:
             k2_str = f" <strong>{k2['Pitcher']}</strong> {k2.get('K')} K ({k_alt(k2.get('K'))}) is slate #2."
@@ -286,7 +286,7 @@ def build_combos_k():
         park = get_park_for_batter(team)
         park_hr = parse_pct(park.get('HR %')) if park else 0
         t = game_time(team, opp) or game_time(opp, team)
-        vuln_str = f"V{v}" if v else ''
+        vuln_str = c_vuln(v) if v else ''
         park_str = f"{'+' if park_hr>=0 else ''}{park_hr}% HR" if park_hr != 0 else 'neutral park'
         return name, k, team, opp, alt, vuln_str, park_str, t
 
@@ -426,7 +426,7 @@ def build_combos_hrr():
     random.shuffle(pool)
 
     def leg(b, num=None):
-        v = f", vs {b['pit']} V{b['vuln']}" if b['pit'] else ''
+        v = f", vs {b['pit']} {c_vuln(b['vuln'])}" if b['pit'] else ''
         p = f"Leg {num}: " if num else ''
         return (f"{p}<strong>{b['name']}</strong> {hand_chip(b['bats'])} Ov 0.5 HRR "
                 f"(HRR {b['hrr']:.0f}%{v})")
@@ -483,15 +483,16 @@ def build_combos_hrr():
 # ── COLOR HELPERS (shared convention, slate-wide consistency) ──
 def c_vuln(v):
     v = int(v or 0)
-    if v >= 50: return f'<span style="color:#ef4444;font-weight:700">V{v} 🔥</span>'
-    if v >= 35: return f'<span style="color:#f59e0b;font-weight:700">V{v}</span>'
+    if v >= 50: return f'<strong style="color:var(--bad)">V{v} 🔥</strong>'
+    if v >= 32: return f'<span style="color:var(--hot)">V{v}</span>'
     return f'<span style="color:#64748b">V{v}</span>'
 
 def c_iso(iso):
     if not iso: return ''
     s = f".{int(round(iso*1000)):03d}"
-    if iso >= 0.250: return f'<span style="color:var(--good);font-weight:700">ISO {s}</span>'
-    if iso >= 0.200: return f'<span style="color:var(--hot)">ISO {s}</span>'
+    if iso >= 0.280: return f'<strong style="color:var(--bad)">ISO {s}</strong>'
+    if iso >= 0.250: return f'<span style="color:var(--hot)">ISO {s}</span>'
+    if iso >= 0.200: return f'<span style="color:var(--good)">ISO {s}</span>'
     return f'<span style="color:#64748b">ISO {s}</span>'
 
 def c_hrpct(p):

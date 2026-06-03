@@ -189,7 +189,11 @@ def format_danger_batter(s):
         else: iso_html = iso_disp
         parts.append(f'ISO {iso_html}')
     if zone:
-        parts.append(f'<span style="color:var(--hot)">{zone}</span>')
+        zn = int(''.join(c for c in str(zone) if c.isdigit()) or '0')
+        if zn >= 6:   z_html = f'<strong style="color:var(--good)">{zone}</strong>'
+        elif zn >= 4: z_html = f'<span style="color:var(--hot)">{zone}</span>'
+        else:          z_html = f'<span style="color:#64748b">{zone}</span>'
+        parts.append(z_html)
     return ' · '.join(parts)
 
 # ---- TITLE / META ----

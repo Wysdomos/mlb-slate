@@ -44,6 +44,7 @@ PARKS   = DATA.get('Park_Factors', [])
 BP_BAT  = DATA.get('BP_Batters', [])
 BP_PIT  = DATA.get('BP_Pitchers', [])
 SS      = DATA.get('Sweet_Spot_Slate', [])
+BP_GAM  = DATA.get('BP_Games', [])
 
 TEAM_FIX = {'WSH':'WAS','AZ':'ARI','CWS':'CHW','TB ':'TB','SF ':'SF','SD ':'SD','KC ':'KC'}
 def tn(t): return TEAM_FIX.get((t or '').strip(),(t or '').strip())
@@ -224,13 +225,26 @@ CSS = """
 html,body{background:#07090f;color:#dde3f0;min-height:100vh}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .page-header{position:sticky;top:0;z-index:100;background:rgba(7,9,15,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.05)}
-.header-row{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 18px) 16px 0}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:calc(env(safe-area-inset-top) + 18px) 16px 0}
+.header-date{font-size:11px;color:#4a5568;text-align:right;line-height:1.5;flex-shrink:0;padding-top:2px;font-weight:600}
 .back-link{color:#6366f1;font-size:13px;font-weight:600;text-decoration:none;flex-shrink:0}
 .header-title{font-size:20px;font-weight:900;letter-spacing:-.5px;background:linear-gradient(90deg,#f97316,#ef4444,#f97316);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .header-sub{font-size:10.5px;color:#4ade80;margin-top:1px}
 .filter-row{display:flex;gap:5px;overflow-x:auto;padding:9px 16px 11px;-webkit-overflow-scrolling:touch}
 .filter-row::-webkit-scrollbar{display:none}
-.filter-btn{padding:4px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.06);background:transparent;color:#4a5568;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.filter-btn{
+  border:1.5px solid var(--type-color,#64748b);
+  color:var(--type-color,#94a3b8);
+  background:transparent;
+  padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.filter-btn.active{
+  background:var(--type-color,#22c55e);
+  color:#000;
+  border-color:var(--type-color,#22c55e);
+}
+.filter-btn:not(.active):hover{background:color-mix(in srgb,var(--type-color) 15%,transparent)}
 .streak-row{border-bottom:1px solid rgba(255,255,255,.04);padding:10px 14px 10px 13px}
 .streak-row:nth-child(even){background:rgba(255,255,255,.012)}
 .row-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:5px}
@@ -277,7 +291,7 @@ def render_row(s, idx):
             dots_html += '<span class="dot" style="background:rgba(255,255,255,.07)"></span>'
 
     label_word = 'starts' if is_pitcher else 'G'
-    min_badge  = f'<span class="min-badge">min {K_THRESHOLD}K/start</span>' if is_pitcher else ''
+    min_badge  = ''
     streak_label = f'{s["streak"]} {label_word} streak'
 
     # context chips
@@ -320,7 +334,6 @@ def render_row(s, idx):
     return f'''<div class="streak-row" data-type="{s['type']}" style="border-left:3px solid {color};background:{bg}">
   <div class="row-top">
     <span class="type-badge" style="color:{color};background:{color}18">{tc['emoji']} {tc['label']}</span>
-    <span class="verdict" style="color:{vc['fg']};background:{vc['bg']}">{vc['icon']} {vc['label']}</span>
   </div>
   <div class="player-row">
     <span class="player-name">{name_hand}</span>
@@ -329,13 +342,12 @@ def render_row(s, idx):
   <div class="dots-row">
     <div class="dots">{dots_html}<span class="dot-label">last 5 {label_word}</span></div>
     <span class="streak-count" style="color:{color}">{streak_label}</span>
-    {min_badge}
   </div>
   <div class="chips">{chips}</div>
   <p class="insight">{s['insight']}</p>
 </div>'''
 
-def render_html(streaks, today):
+def render_html(streaks, today, slate_label=''):
     counts = {}
     for s in streaks: counts[s['type']] = counts.get(s['type'],0)+1
     streaks.sort(key=lambda s: (TYPE_ORDER.get(s['type'],9), -s['streak']))
@@ -373,11 +385,14 @@ def render_html(streaks, today):
 <body>
 <div class="page-header">
   <div class="header-row">
-    <a href="index.html" class="back-link">← Slate</a>
-    <div>
-      <div class="header-title">🔥 Hot Streaks</div>
-      <div class="header-sub">{today} · {len(streaks)} active streak{'s' if len(streaks)!=1 else ''}</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <a href="index.html" class="back-link">← Slate</a>
+      <div>
+        <div class="header-title">🔥 Hot Streaks</div>
+        <div class="header-sub">{len(streaks)} active streak{'s' if len(streaks)!=1 else ''}</div>
+      </div>
     </div>
+    <div class="header-date">{today}<br>{slate_label}</div>
   </div>
   <div class="filter-row">{tab_html}</div>
 </div>
@@ -407,6 +422,9 @@ function filter(type,btn){{
 # ── MAIN BUILD ────────────────────────────────────────────────────
 def build():
     today = date.today().strftime('%B %-d, %Y')
+    _weekday = date.today().strftime('%A')
+    _games   = len(BP_GAM) if BP_GAM else len(SP_PROJ)
+    slate_label = f'{_games}-Game {_weekday} Slate'
     load_player_index()
 
     streaks = []
@@ -512,7 +530,7 @@ def build():
 
         time.sleep(0.25)
 
-    html = render_html(streaks, today)
+    html = render_html(streaks, today, slate_label)
     with open(STREAKS_FILE, 'w', encoding='utf-8') as f:
         f.write(html)
     print(f'[streaks] ✓ Wrote {STREAKS_FILE} — {len(streaks)} streaks')
