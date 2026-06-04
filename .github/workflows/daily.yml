@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - '**.xlsx'
+  schedule:
+    - cron: '30 10 * * *'   # 6:30 AM ET  - morning build
+    - cron: '0 15 * * *'    # 11:00 AM ET - mid-morning line posts
+    - cron: '0 20 * * *'    # 4:00 PM ET  - late lines + confirmed lineups
   workflow_dispatch:
 
 permissions:
