@@ -242,3 +242,19 @@ for sp in slate_pitchers:
         print(f"  {sp}: O/U {e['line']} ({e['vendor']})")
 if unmatched:
     print(f"No line yet for: {', '.join(unmatched)}")
+    # ---- DIAGNOSTIC: why did each miss happen? ----
+    # Shows whether balldontlie returned the player at all (name-match issue)
+    # or simply had no prop for them at build time (timing/coverage issue).
+    print("\n--- DIAGNOSTIC: balldontlie returned props for these names ---")
+    returned = sorted(id_to_name.values())
+    print(f"  ({len(returned)}) {', '.join(returned)}")
+    print("--- unmatched slate pitchers, normalized + closest returned name ---")
+    import difflib
+    returned_norm = {norm(n): n for n in returned}
+    for sp in unmatched:
+        k = norm(sp)
+        near = difflib.get_close_matches(k, list(returned_norm.keys()), n=1, cutoff=0.6)
+        if near:
+            print(f"  '{sp}' -> norm '{k}'  | CLOSE in feed: '{returned_norm[near[0]]}' (norm '{near[0]}') <-- name-match fix needed")
+        else:
+            print(f"  '{sp}' -> norm '{k}'  | NOT in balldontlie feed at build time <-- timing/coverage")
