@@ -148,14 +148,30 @@ if not game_ids:
 # Collect: player_id -> best line per vendor priority
 prop_by_player = {}
 
+# Map game_id -> "AWAY @ HOME" for clearer logging
+game_label = {}
+for g in games:
+    if 'id' in g:
+        away = (g.get('away_team') or {}).get('abbreviation') or g.get('away_team_name') or '?'
+        home = (g.get('home_team') or {}).get('abbreviation') or g.get('home_team_name') or '?'
+        game_label[g['id']] = f"{away} @ {home}"
+
+def rank(v):
+    return VENDOR_PRIORITY.index(v) if v in VENDOR_PRIORITY else 99
+
+props_per_game = {}
+vendors_per_player = {}   # pid -> set of books balldontlie returned (for fallback visibility)
 for gid in game_ids:
     cursor = None
+    seen_this_game = 0
     while True:
         params = {'game_id': gid, 'prop_type': 'pitcher_strikeouts', 'per_page': 100}
         if cursor:
             params['cursor'] = cursor
         resp = api_get('/odds/player_props', params)
-        for row in resp.get('data', []):
+        rows = resp.get('data', [])
+        seen_this_game += len(rows)
+        for row in rows:
             pid = row.get('player_id')
             vendor = (row.get('vendor') or '').lower()
             try:
@@ -169,17 +185,22 @@ for gid in game_ids:
                 'under_odds': mkt.get('under_odds'),
                 'vendor': vendor,
             }
+            if vendor:
+                vendors_per_player.setdefault(pid, set()).add(vendor)
             cur = prop_by_player.get(pid)
-            # keep the entry from the higher-priority vendor
-            def rank(v):
-                return VENDOR_PRIORITY.index(v) if v in VENDOR_PRIORITY else 99
+            # keep the entry from the higher-priority vendor (FanDuel first, then fallbacks)
             if cur is None or rank(vendor) < rank(cur['vendor']):
                 prop_by_player[pid] = entry
         cursor = (resp.get('meta') or {}).get('next_cursor')
         if not cursor:
             break
+    props_per_game[gid] = seen_this_game
 
 print(f"  Collected K lines for {len(prop_by_player)} players")
+# Show games where balldontlie returned ZERO strikeout props (the real coverage gap)
+empty_games = [game_label.get(g, str(g)) for g, n in props_per_game.items() if n == 0]
+if empty_games:
+    print(f"  ⚠ balldontlie returned NO K props for {len(empty_games)} game(s): {', '.join(empty_games)}")
 
 if not prop_by_player:
     raise SystemExit(
@@ -236,10 +257,24 @@ with open(K_PROPS_FILE, 'w', encoding='utf-8') as f:
     json.dump(k_props, f, ensure_ascii=False, indent=1)
 
 print(f"\nWrote {K_PROPS_FILE}: {matched}/{len(slate_pitchers)} pitchers matched to a real K line")
+# Build pid lookup so we can report which books were available per matched pitcher
+name_to_pid = {}
+for pid, nm in id_to_name.items():
+    name_to_pid[norm(nm)] = pid
 for sp in slate_pitchers:
     if sp.lower() in k_props:
         e = k_props[sp.lower()]
-        print(f"  {sp}: O/U {e['line']} ({e['vendor']})")
+        used = e['vendor']
+        pid = name_to_pid.get(norm(sp))
+        books = vendors_per_player.get(pid, set())
+        if used == 'fanduel':
+            note = ''
+        elif 'fanduel' not in books:
+            note = '  [FanDuel had no line - fell back]'
+        else:
+            note = '  [fallback]'
+        others = ','.join(sorted(books)) if books else used
+        print(f"  {sp}: O/U {e['line']} ({used}){note}  | books seen: {others}")
 if unmatched:
     print(f"No line yet for: {', '.join(unmatched)}")
     # ---- DIAGNOSTIC: why did each miss happen? ----
@@ -253,7 +288,7 @@ if unmatched:
     returned_norm = {norm(n): n for n in returned}
     for sp in unmatched:
         k = norm(sp)
-        near = difflib.get_close_matches(k, list(returned_norm.keys()), n=1, cutoff=0.6)
+        near = difflib.get_close_matches(k, list(returned_norm.keys()), n=1, cutoff=0.85)
         if near:
             print(f"  '{sp}' -> norm '{k}'  | CLOSE in feed: '{returned_norm[near[0]]}' (norm '{near[0]}') <-- name-match fix needed")
         else:
