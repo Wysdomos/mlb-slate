@@ -11,7 +11,7 @@ Writes:  k_props.json         (or K_PROPS_FILE env var)
 
 Output format (keyed by lowercase pitcher name):
   {
-    "tarik skubal": {"line": 6.5, "over_odds": -115, "under_odds": -105, "vendor": "draftkings"},
+    "tarik skubal": {"line": 6.5, "over_odds": -115, "under_odds": -105, "vendor": "fanduel"},
     ...
   }
 
@@ -37,7 +37,8 @@ BDL_KEY      = os.environ.get('BDL_KEY', '').strip()
 BASE         = 'https://api.balldontlie.io/mlb/v1'
 
 # Sportsbook preference order (first available wins for a given pitcher)
-VENDOR_PRIORITY = ['draftkings', 'fanduel', 'betmgm', 'caesars', 'betrivers', 'fanatics']
+# FanDuel preferred; falls back to DraftKings, then others, if FD has no line
+VENDOR_PRIORITY = ['fanduel', 'draftkings', 'betmgm', 'caesars', 'betrivers', 'fanatics']
 
 # ---- Key required -----------------------------------------------------------
 if not BDL_KEY:
@@ -203,7 +204,17 @@ for i in range(0, len(player_ids), 100):
 
 # ---- 4) Match to slate pitchers by name ------------------------------------
 def norm(n):
-    return ' '.join((n or '').lower().replace('.', '').replace(',', '').split())
+    import unicodedata
+    s = (n or '').lower()
+    # strip accents (José -> jose)
+    s = ''.join(c for c in unicodedata.normalize('NFKD', s) if not unicodedata.combining(c))
+    # normalize separators to spaces, drop punctuation
+    for ch in ['.', ',', "'", '-']:
+        s = s.replace(ch, ' ' if ch == '-' else '')
+    toks = s.split()
+    # drop generational suffixes that one source may include and the other omit
+    toks = [t for t in toks if t not in ('jr', 'sr', 'ii', 'iii', 'iv')]
+    return ' '.join(toks)
 
 name_to_line = {}
 for pid, entry in prop_by_player.items():
