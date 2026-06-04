@@ -392,7 +392,8 @@ def render_html(streaks, today, slate_label=''):
     streaks.sort(key=lambda s: (TYPE_ORDER.get(s['type'],9), -s['streak']))
 
     cat_order  = [k for k in ['HR','HRR','K','HIT','TWO','RBI'] if counts.get(k,0)]
-    first_type = cat_order[0] if cat_order else ''
+    # Default-active tab = the category with the most streaks (so page lands full, not empty)
+    first_type = max(cat_order, key=lambda k: counts.get(k,0)) if cat_order else ''
     tabs = []
     for k in cat_order:
         tc = TYPE_CFG[k]
@@ -430,6 +431,13 @@ def render_html(streaks, today, slate_label=''):
 .guide-table td{{padding:3px 6px;border-bottom:1px solid rgba(255,255,255,.05)}}
 .guide-table td:first-child{{white-space:nowrap;width:100px;color:#dde3f0}}
 
+.page-fab{{position:fixed;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:24px;text-decoration:none;
+  border:1px solid rgba(255,255,255,0.18);box-shadow:0 4px 16px rgba(0,0,0,.4);
+  transition:transform .2s;-webkit-tap-highlight-color:transparent;}}
+.page-fab:active{{transform:scale(0.92);}}
+.fab-home{{bottom:22px;background:rgba(30,40,60,.92);}}
+.fab-kreport{{bottom:80px;background:linear-gradient(135deg,#0a84ff,#0040dd);}}
 </style>
 </head>
 <body>
