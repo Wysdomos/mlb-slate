@@ -11,9 +11,10 @@ Streak types & minimums:
   🎯 HIT  — hit in 4+ consecutive games
   💥 2+H  — 2+ hits in 2+ consecutive games
   💰 RBI  — RBI in 4+ consecutive games
+  🔻 HA   — 6+ hits ALLOWED in 3+ consecutive starts (pitchers, fade)
 """
 
-import json, os, time, urllib.request, urllib.parse, urllib.error
+import json, os, time, re, urllib.request, urllib.parse, urllib.error
 from datetime import date
 
 # ── CONFIG ────────────────────────────────────────────────────────
@@ -22,8 +23,9 @@ STREAKS_FILE = os.environ.get('STREAKS_FILE', 'streaks.html')
 SEASON       = 2026
 GAMES_BACK   = 10   # game logs to inspect per player
 K_THRESHOLD  = 6    # minimum Ks/start to count for K streak
+HA_THRESHOLD = 6    # minimum hits ALLOWED/start to count for Hits Allowed streak
 
-MINIMUMS = {'HR':2,'HRR':3,'K':3,'HIT':4,'TWO':2,'RBI':4}
+MINIMUMS = {'HR':2,'HRR':3,'K':3,'HIT':4,'TWO':2,'RBI':4,'HAL':3}
 
 TYPE_CFG = {
     'HR':  {'emoji':'💣','label':'HR STREAK', 'color':'#ef4444'},
@@ -32,8 +34,9 @@ TYPE_CFG = {
     'HIT': {'emoji':'🎯','label':'HIT STREAK','color':'#22c55e'},
     'TWO': {'emoji':'💥','label':'2+H STREAK','color':'#a855f7'},
     'RBI': {'emoji':'💰','label':'RBI STREAK','color':'#f59e0b'},
+    'HAL': {'emoji':'🔻','label':'HA STREAK', 'color':'#e11d48'},
 }
-TYPE_ORDER = {'HR':0,'HRR':1,'K':2,'HIT':3,'TWO':4,'RBI':5}
+TYPE_ORDER = {'HR':0,'HRR':1,'K':2,'HAL':3,'HIT':4,'TWO':5,'RBI':6}
 
 # ── LOAD DATA ─────────────────────────────────────────────────────
 DATA    = json.load(open(DATA_FILE, encoding='utf-8'))
@@ -172,7 +175,15 @@ BATTER_CHECKS = {
     'TWO': lambda st: int(st.get('hits',0) or 0) >= 2,
     'RBI': lambda st: int(st.get('rbi',0) or 0) > 0,
 }
-K_CHECK = lambda st: int(st.get('strikeOuts',0) or 0) >= K_THRESHOLD
+def compute_hrr(h1, rbi_pct, park_r, era=4.25):
+    """HRR% (H+R+RBI ≥1 probability) — matches Hits Board formula."""
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob  = min(60, rbi_pct*0.8 + park_r*0.3 + era_boost)
+    hrr = 1 - (1-h1/100)*(1-run_prob/100)*(1-rbi_pct/100)
+    return hrr * 100
+
+K_CHECK  = lambda st: int(st.get('strikeOuts',0) or 0) >= K_THRESHOLD
+HAL_CHECK = lambda st: int(st.get('hits',0) or 0) >= HA_THRESHOLD
 
 # ── CONTEXT HELPERS ───────────────────────────────────────────────
 def get_vuln(pitcher_name):
@@ -314,7 +325,8 @@ def render_row(s, idx):
     tc = TYPE_CFG[s['type']]
     vc = VERDICT_CFG[s['verdict']]
     color = tc['color']
-    is_pitcher = s['type'] == 'K'
+    is_pitcher = s['type'] in ('K','HAL')
+    is_hal     = s['type'] == 'HAL'
 
     # dots
     dots_html = ''
@@ -333,18 +345,26 @@ def render_row(s, idx):
 
     # context chips
     if is_pitcher:
-        ok_color  = '#ef4444' if s['opp_k_pct']>=24 else '#f59e0b' if s['opp_k_pct']>=21 else '#64748b'
-        kp_color  = '#4ade80' if s['k_proj']>=7 else '#fbbf24' if s['k_proj']>=5 else '#94a3b8'
         pk_color  = '#4ade80' if s['park_r']>=8 else '#f87171' if s['park_r']<=-10 else '#64748b'
         pk_str    = ('+' if s['park_r']>0 else '') + str(int(s['park_r'])) + '%' + (' 🌋' if s['park_r']>=25 else '')
-        chips = (
-            f'<span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">{s["opp"]}</strong>'
-            f' <span class="dim">K% </span><span style="color:{ok_color};font-weight:700">{s["opp_k_pct"]:.1f}%</span></span>'
-            f'<span class="chip"><span class="dim">Proj </span><span style="color:{kp_color};font-weight:700">{s["k_proj"]}</span></span>'
-            f'<span class="chip" style="background:{color}15;border-color:{color}30">'
-            f'<span class="dim">Alt </span><span style="color:{color};font-weight:800">{s["alt_line"]}</span></span>'
-            f'<span class="chip"><span class="dim">Park </span><span style="color:{pk_color};font-weight:700">{pk_str}</span></span>'
-        )
+        if is_hal:
+            chips = (
+                f'<span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">{s["opp"]}</strong></span>'
+                f'<span class="chip" style="background:{color}15;border-color:{color}30">'
+                f'<span class="dim">Hits/start </span><span style="color:{color};font-weight:800">{s.get("hits_avg",0)}</span></span>'
+                f'<span class="chip"><span class="dim">Park </span><span style="color:{pk_color};font-weight:700">{pk_str}</span></span>'
+            )
+        else:
+            ok_color  = '#ef4444' if s['opp_k_pct']>=24 else '#f59e0b' if s['opp_k_pct']>=21 else '#64748b'
+            kp_color  = '#4ade80' if s['k_proj']>=7 else '#fbbf24' if s['k_proj']>=5 else '#94a3b8'
+            chips = (
+                f'<span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">{s["opp"]}</strong>'
+                f' <span class="dim">K% </span><span style="color:{ok_color};font-weight:700">{s["opp_k_pct"]:.1f}%</span></span>'
+                f'<span class="chip"><span class="dim">Proj </span><span style="color:{kp_color};font-weight:700">{s["k_proj"]}</span></span>'
+                f'<span class="chip" style="background:{color}15;border-color:{color}30">'
+                f'<span class="dim">Alt </span><span style="color:{color};font-weight:800">{s["alt_line"]}</span></span>'
+                f'<span class="chip"><span class="dim">Park </span><span style="color:{pk_color};font-weight:700">{pk_str}</span></span>'
+            )
         name_hand = f'{s["player"]} {hand_span(s.get("throws",""))}'
     else:
         vc_color  = '#ef4444' if s['vuln']>=50 else '#f59e0b' if s['vuln']>=32 else '#64748b'
@@ -368,11 +388,19 @@ def render_row(s, idx):
             chips += f'<span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">{s["rbi_pct"]:.0f}%</span></span>'
         name_hand = f'{s["player"]} {hand_span(s.get("bats",""))}'
 
+    # HRR% tag (Hits Board cut: ≥82 green, ≥75 orange) — only ≥78.5
+    hrr_tag = ''
+    if s['type']=='HRR' and s.get('hrr_pct',0) >= 78.5:
+        hp = s['hrr_pct']
+        hc = '#22c55e' if hp>=82 else '#f59e0b'
+        hrr_tag = f'<span class="hrr-tag" style="color:{hc};border:1px solid {hc}55;background:{hc}15">{hp:.0f}% HRR</span>'
+
     bg = 'rgba(255,255,255,.012)' if idx % 2 == 1 else 'transparent'
 
     return f'''<div class="streak-row" data-type="{s['type']}" style="border-left:3px solid {color};background:{bg}">
   <div class="row-top">
     <span class="type-badge" style="color:{color};background:{color}18">{tc['emoji']} {tc['label']}</span>
+    {hrr_tag}
   </div>
   <div class="player-row">
     <span class="player-name">{name_hand}</span>
@@ -399,14 +427,17 @@ def render_html(streaks, today, slate_label=''):
         tc = TYPE_CFG[k]
         tabs.append((k, f"{tc['emoji']} {tc['label'].split()[0]} ({counts[k]})"))
 
-    tab_html = ''.join(
-        f'<button class="filter-btn{" active" if k==first_type else ""}" '
-        f'onclick="filter(\'{k}\',this)" '
-        f'style="--type-color:{TYPE_CFG[k]["color"]}'
-        f'{(";background:"+TYPE_CFG[k]["color"]+"18") if k==first_type else ""}">'
-        f'{label}</button>'
-        for k,label in tabs
-    )
+    def _tab_btn(k, label):
+        c = TYPE_CFG[k]["color"]
+        active = (k == first_type)
+        if active:
+            style = f'--type-color:{c};background:{c};color:#000;border-color:{c}'
+            cls = 'filter-btn active'
+        else:
+            style = f'--type-color:{c};background:transparent;color:{c};border-color:{c}'
+            cls = 'filter-btn'
+        return f'<button class="{cls}" onclick="filter(\'{k}\',this)" data-color="{c}" style="{style}">{label}</button>'
+    tab_html = ''.join(_tab_btn(k, label) for k, label in tabs)
 
     rows_html = ''.join(render_row(s,i) for i,s in enumerate(streaks))
     if not rows_html:
@@ -438,13 +469,18 @@ def render_html(streaks, today, slate_label=''):
 .page-fab:active{{transform:scale(0.92);}}
 .fab-home{{bottom:22px;background:rgba(30,40,60,.92);}}
 .fab-kreport{{bottom:80px;background:linear-gradient(135deg,#0a84ff,#0040dd);}}
+.collapse-tag{{margin-left:auto;color:#4ade80;font-size:11px;font-weight:700;border:1px solid #4ade8055;background:#4ade8015;border-radius:6px;padding:2px 8px}}
+.collapse-tag::after{{content:"expand ▼"}}
+.streak-guide[open] .collapse-tag::after{{content:"collapse ▲"}}
+.hrr-tag{{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px;margin-left:auto}}
+.streak-guide-summary{{display:flex;align-items:center}}
 </style>
 </head>
 <body>
 <div class="page-header">
   <div class="header-row">
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="index.html" class="back-link">← Slate</a>
+      <a href="index.html" class="back-link">← Daily Slate</a>
       <div>
         <div class="header-title">🔥 Hot Streaks</div>
         <div class="header-sub">{len(streaks)} active streak{'s' if len(streaks)!=1 else ''}</div>
@@ -452,8 +488,8 @@ def render_html(streaks, today, slate_label=''):
     </div>
     <div class="header-date">{today}<br>{slate_label}</div>
   </div>
-  <details class="streak-guide">
-    <summary class="streak-guide-summary">📖 How to read Hot Streaks</summary>
+  <details class="streak-guide" open>
+    <summary class="streak-guide-summary">📖 How the streaks work<span class="collapse-tag"></span></summary>
     <div class="streak-guide-body">
       <p><strong>What is a streak?</strong> A player who has hit the qualifying stat in back-to-back or consecutive games — not just good recent form, but an active run confirmed by official game logs.</p>
       <table class="guide-table">
@@ -463,19 +499,25 @@ def render_html(streaks, today, slate_label=''):
         <tr><td>🎯 <strong>HIT</strong></td><td>At least 1 hit in <strong>≥ 4</strong> consecutive games</td></tr>
         <tr><td>💥 <strong>2+H</strong></td><td>Multi-hit game in <strong>≥ 2</strong> consecutive games</td></tr>
         <tr><td>💰 <strong>RBI</strong></td><td>At least 1 RBI in <strong>≥ 4</strong> consecutive games</td></tr>
+        <tr><td>🔻 <strong>HA</strong></td><td>Pitcher allowed <strong>6+</strong> hits in <strong>≥ 3</strong> consecutive starts (fade)</td></tr>
       </table>
-      <p style="margin-top:8px;font-size:12px;color:#4ade80">Game dots ● = streak stat fired that game. More filled dots = longer active run. Swipe left / right to move between categories.</p>
+      <p style="margin-top:8px;font-size:12px;color:#4ade80">Tap a category tab or swipe a card left / right to move between streak types.</p>
     </div>
   </details>
   <div class="filter-row">{tab_html}</div>
 </div>
 <div id="streak-list">{rows_html}</div>
-<div class="footer">Filled dots = streak stat fired · MLB Stats API</div>
+<div class="footer">Tap a tab or swipe a card to navigate · MLB Stats API</div>
 <script>
 function filter(type,btn){{
-  document.querySelectorAll('.filter-btn').forEach(b=>{{b.classList.remove('active');b.style.background='';}});
+  document.querySelectorAll('.filter-btn').forEach(b=>{{
+    b.classList.remove('active');
+    var c=b.getAttribute('data-color')||'#64748b';
+    b.style.background='transparent';b.style.color=c;b.style.borderColor=c;
+  }});
   btn.classList.add('active');
-  btn.style.setProperty('background',btn.style.getPropertyValue('--type-color')+'18');
+  var ac=btn.getAttribute('data-color')||'#22c55e';
+  btn.style.background=ac;btn.style.color='#000';btn.style.borderColor=ac;
   document.querySelectorAll('.streak-row').forEach(r=>{{
     r.style.display=(r.dataset.type===type)?'':'none';
   }});
@@ -554,6 +596,8 @@ def build():
         hit_row  = HIT_BY_NAME.get(nm.lower(), {})
         h1       = _sf(str(hit_row.get('1+ Hit','')).replace('%',''))
         rbi_pct  = _sf(str(hit_row.get('To Get RBI','')).replace('%',''))
+        opp_era  = _sf(sp_row.get('ERA', 4.25)) or 4.25
+        hrr_pct  = compute_hrr(h1, rbi_pct, park_r, opp_era)
 
         for stype, fn in BATTER_CHECKS.items():
             n = count_streak(splits, fn)
@@ -566,6 +610,7 @@ def build():
                     dots=dots, opp_sp=opp_sp, sp_throws=sp_throws,
                     vuln=vuln, park_r=park_r, edge=edge, h1=h1,
                     rbi_pct=rbi_pct if stype=='HRR' else 0,
+                    hrr_pct=hrr_pct if stype=='HRR' else 0,
                     verdict=v, insight=ins,
                     # K-streak fields (blank for batters)
                     opp='', opp_k_pct=0, k_proj=0, alt_line='', throws='',
@@ -614,9 +659,30 @@ def build():
                 verdict=v, insight=ins,
                 # Batter fields (blank for pitchers)
                 bats='', opp_sp='', sp_throws='', vuln=0,
-                edge=False, h1=0, rbi_pct=0,
+                edge=False, h1=0, rbi_pct=0, hrr_pct=0, hits_avg=0,
             ))
             print(f'  [streak] {pit_name}: K ×{n}')
+
+        # ── HITS ALLOWED streak (same pitching logs) ──
+        nh = count_streak(splits, HAL_CHECK)
+        if nh >= MINIMUMS['HAL']:
+            dots_h   = dot_list(splits, HAL_CHECK)
+            sp_row   = SP_BY_TEAM.get(team, {})
+            throws   = sp_row.get('PitcherHand','')
+            park_r   = get_park_runs(team)
+            # average hits allowed across the streak games
+            ha_vals  = [int(s.get('stat',{}).get('hits',0) or 0) for s in splits[:nh]]
+            hits_avg = round(sum(ha_vals)/len(ha_vals), 1) if ha_vals else 0
+            ins_h    = f"{pit_name} has allowed {HA_THRESHOLD}+ hits in {nh} straight starts ({hits_avg} avg) — target opposing bats vs {opp_team}"
+            streaks.append(dict(
+                type='HAL', player=pit_name, throws=throws, team=team, streak=nh,
+                dots=dots_h, opp=opp_team, opp_k_pct=0,
+                k_proj=0, alt_line='', park_r=park_r,
+                verdict='neutral', insight=ins_h, hits_avg=hits_avg,
+                bats='', opp_sp='', sp_throws='', vuln=0,
+                edge=False, h1=0, rbi_pct=0, hrr_pct=0,
+            ))
+            print(f'  [streak] {pit_name}: HA ×{nh} ({hits_avg} avg)')
 
         time.sleep(0.25)
 
