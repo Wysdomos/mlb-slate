@@ -913,19 +913,23 @@ body{{background:var(--bg);color:var(--text);
 
 // ---- Theme toggle (shares slateTheme with main slate) ----
 (function(){{
-  var tt=document.getElementById('themeToggle');
-  if(!tt)return;
   var cur='dark';
   try{{var s=localStorage.getItem('slateTheme');
-    if(s==='light'||s==='dark'){{cur=s;document.documentElement.setAttribute('data-theme',cur);
-      tt.textContent=cur==='dark'?'🌙':'☀️';}}
+    if(s==='light'||s==='dark'){{cur=s;document.documentElement.setAttribute('data-theme',cur);}}
   }}catch(e){{}}
-  tt.addEventListener('click',function(){{
-    cur=cur==='dark'?'light':'dark';
-    document.documentElement.setAttribute('data-theme',cur);
+  function wire(){{
+    var tt=document.getElementById('themeToggle');
+    if(!tt)return;
     tt.textContent=cur==='dark'?'🌙':'☀️';
-    try{{localStorage.setItem('slateTheme',cur);}}catch(e){{}}
-  }});
+    tt.addEventListener('click',function(){{
+      cur=cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',cur);
+      tt.textContent=cur==='dark'?'🌙':'☀️';
+      try{{localStorage.setItem('slateTheme',cur);}}catch(e){{}}
+    }});
+  }}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);
+  else wire();
 }})();
 </script>
 <button class="theme-toggle-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>

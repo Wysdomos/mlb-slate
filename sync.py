@@ -7,6 +7,7 @@ Updates: index.html            (or INDEX_FILE env var)
 
 import json, re, os
 from datetime import datetime, date, timezone
+from zoneinfo import ZoneInfo
 
 SECTIONS_FILE = os.environ.get('SECTIONS_FILE', 'built_sections.json')
 DATA_FILE     = os.environ.get('DATA_FILE',     'day_data.json')
@@ -45,7 +46,7 @@ month_short = slate_date.strftime('%b')
 day_of_mo   = slate_date.day
 weekday     = WEEKDAY_NAMES[slate_date.weekday()]
 game_count  = len(DATA.get('BP_Games', []))
-build_time  = datetime.now(timezone.utc).strftime('%-I:%M %p UTC')
+build_time  = datetime.now(ZoneInfo('America/New_York')).strftime('%-I:%M %p ET')
 
 print(f"Slate: {month_short} {day_of_mo} - Day {day_num} - {weekday} - {game_count} games")
 
