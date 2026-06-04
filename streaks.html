@@ -69,22 +69,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 .page-fab:active{transform:scale(0.92);}
 .fab-home{bottom:22px;background:rgba(30,40,60,.92);}
 .fab-kreport{bottom:80px;background:linear-gradient(135deg,#0a84ff,#0040dd);}
+.collapse-tag{margin-left:auto;color:#4ade80;font-size:11px;font-weight:700;border:1px solid #4ade8055;background:#4ade8015;border-radius:6px;padding:2px 8px}
+.collapse-tag::after{content:"expand ▼"}
+.streak-guide[open] .collapse-tag::after{content:"collapse ▲"}
+.hrr-tag{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px;margin-left:auto}
+.streak-guide-summary{display:flex;align-items:center}
 </style>
 </head>
 <body>
 <div class="page-header">
   <div class="header-row">
     <div style="display:flex;align-items:center;gap:10px">
-      <a href="index.html" class="back-link">← Slate</a>
+      <a href="index.html" class="back-link">← Daily Slate</a>
       <div>
         <div class="header-title">🔥 Hot Streaks</div>
-        <div class="header-sub">94 active streaks</div>
+        <div class="header-sub">124 active streaks</div>
       </div>
     </div>
     <div class="header-date">June 4, 2026<br>15-Game Thursday Slate</div>
   </div>
-  <details class="streak-guide">
-    <summary class="streak-guide-summary">📖 How to read Hot Streaks</summary>
+  <details class="streak-guide" open>
+    <summary class="streak-guide-summary">📖 How the streaks work<span class="collapse-tag"></span></summary>
     <div class="streak-guide-body">
       <p><strong>What is a streak?</strong> A player who has hit the qualifying stat in back-to-back or consecutive games — not just good recent form, but an active run confirmed by official game logs.</p>
       <table class="guide-table">
@@ -94,15 +99,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
         <tr><td>🎯 <strong>HIT</strong></td><td>At least 1 hit in <strong>≥ 4</strong> consecutive games</td></tr>
         <tr><td>💥 <strong>2+H</strong></td><td>Multi-hit game in <strong>≥ 2</strong> consecutive games</td></tr>
         <tr><td>💰 <strong>RBI</strong></td><td>At least 1 RBI in <strong>≥ 4</strong> consecutive games</td></tr>
+        <tr><td>🔻 <strong>HA</strong></td><td>Pitcher allowed <strong>6+</strong> hits in <strong>≥ 3</strong> consecutive starts (fade)</td></tr>
       </table>
-      <p style="margin-top:8px;font-size:12px;color:#4ade80">Game dots ● = streak stat fired that game. More filled dots = longer active run. Swipe left / right to move between categories.</p>
+      <p style="margin-top:8px;font-size:12px;color:#4ade80">Tap a category tab or swipe a card left / right to move between streak types.</p>
     </div>
   </details>
-  <div class="filter-row"><button class="filter-btn" onclick="filter('HR',this)" style="--type-color:#ef4444">💣 HR (2)</button><button class="filter-btn active" onclick="filter('HRR',this)" style="--type-color:#06b6d4;background:#06b6d418">🔥 HRR (57)</button><button class="filter-btn" onclick="filter('K',this)" style="--type-color:#f97316">⚾ K (2)</button><button class="filter-btn" onclick="filter('HIT',this)" style="--type-color:#22c55e">🎯 HIT (27)</button><button class="filter-btn" onclick="filter('TWO',this)" style="--type-color:#a855f7">💥 2+H (5)</button><button class="filter-btn" onclick="filter('RBI',this)" style="--type-color:#f59e0b">💰 RBI (1)</button></div>
+  <div class="filter-row"><button class="filter-btn" onclick="filter('HR',this)" data-color="#ef4444" style="--type-color:#ef4444;background:transparent;color:#ef4444;border-color:#ef4444">💣 HR (2)</button><button class="filter-btn active" onclick="filter('HRR',this)" data-color="#06b6d4" style="--type-color:#06b6d4;background:#06b6d4;color:#000;border-color:#06b6d4">🔥 HRR (70)</button><button class="filter-btn" onclick="filter('K',this)" data-color="#f97316" style="--type-color:#f97316;background:transparent;color:#f97316;border-color:#f97316">⚾ K (2)</button><button class="filter-btn" onclick="filter('HIT',this)" data-color="#22c55e" style="--type-color:#22c55e;background:transparent;color:#22c55e;border-color:#22c55e">🎯 HIT (34)</button><button class="filter-btn" onclick="filter('TWO',this)" data-color="#a855f7" style="--type-color:#a855f7;background:transparent;color:#a855f7;border-color:#a855f7">💥 2+H (11)</button><button class="filter-btn" onclick="filter('RBI',this)" data-color="#f59e0b" style="--type-color:#f59e0b;background:transparent;color:#f59e0b;border-color:#f59e0b">💰 RBI (2)</button></div>
 </div>
 <div id="streak-list"><div class="streak-row" data-type="HR" style="border-left:3px solid #ef4444;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#ef4444;background:#ef444418">💣 HR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Hunter Goodman <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -117,6 +124,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HR" style="border-left:3px solid #ef4444;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#ef4444;background:#ef444418">💣 HR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kyle Manzardo <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -131,6 +139,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">80% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Jorge Soler <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -145,6 +154,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Michael Busch <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">10 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">29%</span></span></div>
+  <p class="insight">Michael Busch has contributed H+R+RBI in 10 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Alex Bregman <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">10 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">28%</span></span></div>
+  <p class="insight">Alex Bregman has contributed H+R+RBI in 10 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Freddie Freeman <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -159,6 +199,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jarren Duran <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -173,6 +214,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Willi Castro <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -187,6 +229,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Luke Keaschall <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -201,6 +244,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Nathan Lukes <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -215,6 +259,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Cole Young <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -229,6 +274,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Chase Meidroth <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -243,6 +289,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Tyler Soderstrom <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -257,6 +304,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Zack Gelof <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -271,6 +319,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Shohei Ohtani <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -285,6 +334,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Pete Crow-Armstrong <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">8 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">29%</span></span></div>
+  <p class="insight">Pete Crow-Armstrong has contributed H+R+RBI in 8 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Adley Rutschman <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -296,9 +361,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Payton Tolle</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">26%</span></span></div>
   <p class="insight">Adley Rutschman has contributed H+R+RBI in 8 consecutive games but faces a tough arm in Payton Tolle (V24) A run-friendly park (+9%) lifts the floor. Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Donovan Walton <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -310,9 +376,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">61%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
   <p class="insight">Donovan Walton has contributed H+R+RBI in 8 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥) Strong 61% hit probability backs continuation.</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ben Rice <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">NYY</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">7 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Gavin Williams</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V39</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-12%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">31%</span></span></div>
+  <p class="insight">Ben Rice has contributed H+R+RBI in 7 consecutive games facing a moderately vulnerable Gavin Williams (V39) The run-suppressor environment (-12%) is a headwind.</p>
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Pete Alonso <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -327,6 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Josh Bell <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -341,6 +424,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Ozzie Albies <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -355,6 +439,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Tyler Freeman <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -369,6 +454,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Mike Trout <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -383,6 +469,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Junior Caminero <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -397,6 +484,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jac Caglianone <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -411,6 +499,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Cedric Mullins <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -425,6 +514,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Vaughn Grissom <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -439,6 +529,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Mickey Gasper <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -453,6 +544,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Caleb Durbin <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
@@ -467,6 +559,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ernie Clement <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">TOR</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">6 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Grant Holmes</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V40</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">23%</span></span></div>
+  <p class="insight">Ernie Clement has contributed H+R+RBI in 6 consecutive games facing a moderately vulnerable Grant Holmes (V40) The run-suppressor environment (-11%) is a headwind.</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Hunter Goodman <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -478,9 +586,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">29%</span></span></div>
   <p class="insight">Hunter Goodman has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Christopher Morel <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -492,9 +601,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Andrew Alvarez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V32</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">31%</span></span></div>
   <p class="insight">Christopher Morel has contributed H+R+RBI in 5 consecutive games facing a moderately vulnerable Andrew Alvarez (V32)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Cody Bellinger <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">NYY</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">5 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Gavin Williams</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V39</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-12%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">30%</span></span></div>
+  <p class="insight">Cody Bellinger has contributed H+R+RBI in 5 consecutive games facing a moderately vulnerable Gavin Williams (V39) The run-suppressor environment (-12%) is a headwind.</p>
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Oneil Cruz <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">PIT</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">5 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Spencer Arrighetti</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V29</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">26%</span></span></div>
+  <p class="insight">Oneil Cruz has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Spencer Arrighetti (V29)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kazuma Okamoto <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -506,9 +646,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Grant Holmes</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V40</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">28%</span></span></div>
   <p class="insight">Kazuma Okamoto has contributed H+R+RBI in 5 consecutive games facing a moderately vulnerable Grant Holmes (V40) The run-suppressor environment (-11%) is a headwind.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Oswald Peraza <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -520,9 +661,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">28%</span></span></div>
   <p class="insight">Oswald Peraza has contributed H+R+RBI in 5 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Victor Caratini <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -534,9 +676,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Erick Fedde</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V62 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-3%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">26%</span></span></div>
   <p class="insight">Victor Caratini has contributed H+R+RBI in 5 consecutive games and draws one of today's most vulnerable arms in Erick Fedde (V62 🔥) Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Alec Burleson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -548,9 +691,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">MacKenzie Gore</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V31</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">26%</span></span></div>
   <p class="insight">Alec Burleson has contributed H+R+RBI in 5 consecutive games but faces a tough arm in MacKenzie Gore (V31)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Marcelo Mayer <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -562,9 +706,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chris Bassitt</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V56 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">59%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
   <p class="insight">Marcelo Mayer has contributed H+R+RBI in 5 consecutive games and draws one of today's most vulnerable arms in Chris Bassitt (V56 🔥) A run-friendly park (+9%) lifts the floor.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">TJ Rumfield <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -576,9 +721,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">23%</span></span></div>
   <p class="insight">TJ Rumfield has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Troy Johnston <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -590,9 +736,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">25%</span></span></div>
   <p class="insight">Troy Johnston has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jake McCarthy <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -604,9 +751,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">21%</span></span></div>
   <p class="insight">Jake McCarthy has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Rikuu Nishida <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -618,9 +766,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Taj Bradley</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V28</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-3%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">20%</span></span></div>
   <p class="insight">Rikuu Nishida has contributed H+R+RBI in 5 consecutive games but faces a tough arm in Taj Bradley (V28)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">81% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Kyle Stowers <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -632,9 +781,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Andrew Alvarez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V32</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">62%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">33%</span></span></div>
   <p class="insight">Kyle Stowers has contributed H+R+RBI in 4 consecutive games facing a moderately vulnerable Andrew Alvarez (V32) Strong 62% hit probability backs continuation.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kerry Carpenter <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -646,9 +796,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Nick Martinez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V21</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-6%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">28%</span></span></div>
   <p class="insight">Kerry Carpenter has contributed H+R+RBI in 4 consecutive games but faces a tough arm in Nick Martinez (V21)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Wilyer Abreu <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -660,9 +811,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chris Bassitt</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V56 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">30%</span></span></div>
   <p class="insight">Wilyer Abreu has contributed H+R+RBI in 4 consecutive games and draws one of today's most vulnerable arms in Chris Bassitt (V56 🔥) A run-friendly park (+9%) lifts the floor.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Andy Pages <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -674,9 +826,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Zac Gallen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V64 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">29%</span></span></div>
   <p class="insight">Andy Pages has contributed H+R+RBI in 4 consecutive games and draws one of today's most vulnerable arms in Zac Gallen (V64 🔥)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Gunnar Henderson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -688,9 +841,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Payton Tolle</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
   <p class="insight">Gunnar Henderson has contributed H+R+RBI in 4 consecutive games but faces a tough arm in Payton Tolle (V24) A run-friendly park (+9%) lifts the floor.</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">80% HRR</span>
+  </div>
+  <div class="player-row">
+    <span class="player-name">Trea Turner <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">PHI</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walker Buehler</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V51 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">64%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">28%</span></span></div>
+  <p class="insight">Trea Turner has contributed H+R+RBI in 4 consecutive games and draws one of today's most vulnerable arms in Walker Buehler (V51 🔥) Strong 64% hit probability backs continuation.</p>
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Mookie Betts <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -705,6 +874,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Michael Massey <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -719,6 +889,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kevin McGonigle <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -733,6 +904,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Jared Triolo <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">PIT</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Spencer Arrighetti</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V29</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">22%</span></span></div>
+  <p class="insight">Jared Triolo has contributed H+R+RBI in 4 consecutive games but faces a tough arm in Spencer Arrighetti (V29)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kyle Karros <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -744,9 +931,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">22%</span></span></div>
   <p class="insight">Kyle Karros has contributed H+R+RBI in 4 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Nico Hoerner <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">24%</span></span></div>
+  <p class="insight">Nico Hoerner has contributed H+R+RBI in 4 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Riley Greene <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -761,6 +964,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Ketel Marte <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -775,6 +979,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Corbin Carroll <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -789,6 +994,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Coby Mayo <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">BAL</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#06b6d4;opacity:.35;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">3 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Payton Tolle</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
+  <p class="insight">Coby Mayo has contributed H+R+RBI in 3 consecutive games but faces a tough arm in Payton Tolle (V24) A run-friendly park (+9%) lifts the floor.</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Brandon Nimmo <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">TEX</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#06b6d4;opacity:.35;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">3 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Andre Pallante</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V40</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">59%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
+  <p class="insight">Brandon Nimmo has contributed H+R+RBI in 3 consecutive games facing a moderately vulnerable Andre Pallante (V40)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Tristan Gray <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -803,6 +1039,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">79% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Ceddanne Rafaela <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -817,6 +1054,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Miguel Vargas <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -831,6 +1069,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Dillon Dingler <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -845,6 +1084,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Gleyber Torres <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -859,6 +1099,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    <span class="hrr-tag" style="color:#f59e0b;border:1px solid #f59e0b55;background:#f59e0b15">81% HRR</span>
   </div>
   <div class="player-row">
     <span class="player-name">Otto Lopez <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -873,6 +1114,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Nick Loftin <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">KC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:#06b6d4;opacity:1;box-shadow:0 0 5px #06b6d480;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#06b6d4;opacity:.35;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#06b6d4">3 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chase Burns</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V45</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">24%</span></span></div>
+  <p class="insight">Nick Loftin has contributed H+R+RBI in 3 consecutive games facing a moderately vulnerable Chase Burns (V45)</p>
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Liam Hicks <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -884,9 +1141,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Andrew Alvarez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V32</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">61%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">27%</span></span></div>
   <p class="insight">Liam Hicks has contributed H+R+RBI in 3 consecutive games facing a moderately vulnerable Andrew Alvarez (V32) Strong 61% hit probability backs continuation.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Austin Martin <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -898,9 +1156,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Erick Fedde</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V62 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-3%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">22%</span></span></div>
   <p class="insight">Austin Martin has contributed H+R+RBI in 3 consecutive games and draws one of today's most vulnerable arms in Erick Fedde (V62 🔥)</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jake Mangum <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -912,9 +1171,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Spencer Arrighetti</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V29</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">22%</span></span></div>
   <p class="insight">Jake Mangum has contributed H+R+RBI in 3 consecutive games but faces a tough arm in Spencer Arrighetti (V29) Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:transparent">
+</div><div class="streak-row" data-type="HRR" style="border-left:3px solid #06b6d4;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#06b6d4;background:#06b6d418">🔥 HRR STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jacob Young <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -926,9 +1186,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Max Meyer</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span><span class="chip"><span class="dim">RBI% </span><span style="color:#fbbf24;font-weight:700">21%</span></span></div>
   <p class="insight">Jacob Young has contributed H+R+RBI in 3 consecutive games but faces a tough arm in Max Meyer (V24)</p>
-</div><div class="streak-row" data-type="K" style="border-left:3px solid #f97316;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="K" style="border-left:3px solid #f97316;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#f97316;background:#f9731618">⚾ K STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Max Meyer <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
@@ -940,9 +1201,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">WAS</strong> <span class="dim">K% </span><span style="color:#f59e0b;font-weight:700">22.0%</span></span><span class="chip"><span class="dim">Proj </span><span style="color:#fbbf24;font-weight:700">5.5</span></span><span class="chip" style="background:#f9731615;border-color:#f9731630"><span class="dim">Alt </span><span style="color:#f97316;font-weight:800">O 5+</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span></div>
   <p class="insight">Max Meyer has recorded 6+ Ks in 5 straight starts The WAS lineup is K-vulnerable at 22.0%. Projecting 5.5 Ks — O 5+ is the target line.</p>
-</div><div class="streak-row" data-type="K" style="border-left:3px solid #f97316;background:transparent">
+</div><div class="streak-row" data-type="K" style="border-left:3px solid #f97316;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#f97316;background:#f9731618">⚾ K STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Chase Burns <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
@@ -954,9 +1216,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">KC</strong> <span class="dim">K% </span><span style="color:#f59e0b;font-weight:700">22.0%</span></span><span class="chip"><span class="dim">Proj </span><span style="color:#fbbf24;font-weight:700">6.3</span></span><span class="chip" style="background:#f9731615;border-color:#f9731630"><span class="dim">Alt </span><span style="color:#f97316;font-weight:800">O 5+</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span></div>
   <p class="insight">Chase Burns has recorded 6+ Ks in 4 straight starts The KC lineup is K-vulnerable at 22.0%. Projecting 6.3 Ks — O 5+ is the target line.</p>
+</div><div class="streak-row" data-type="HAL" style="border-left:3px solid #e11d48;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#e11d48;background:#e11d4818">🔻 HA STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">George Kirby <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
+    <span class="team-badge">SEA</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot-label">last 5 starts</span></div>
+    <span class="streak-count" style="color:#e11d48">5 starts streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">NYM</strong></span><span class="chip" style="background:#e11d4815;border-color:#e11d4830"><span class="dim">Hits/start </span><span style="color:#e11d48;font-weight:800">7.4</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span></div>
+  <p class="insight">George Kirby has allowed 6+ hits in 5 straight starts (7.4 avg) — target opposing bats vs NYM</p>
+</div><div class="streak-row" data-type="HAL" style="border-left:3px solid #e11d48;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#e11d48;background:#e11d4818">🔻 HA STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Freddy Peralta <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
+    <span class="team-badge">NYM</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#e11d48;opacity:.35;"></span><span class="dot-label">last 5 starts</span></div>
+    <span class="streak-count" style="color:#e11d48">3 starts streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">SEA</strong></span><span class="chip" style="background:#e11d4815;border-color:#e11d4830"><span class="dim">Hits/start </span><span style="color:#e11d48;font-weight:800">7.0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span></div>
+  <p class="insight">Freddy Peralta has allowed 6+ hits in 3 straight starts (7.0 avg) — target opposing bats vs SEA</p>
+</div><div class="streak-row" data-type="HAL" style="border-left:3px solid #e11d48;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#e11d48;background:#e11d4818">🔻 HA STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Nick Martinez <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
+    <span class="team-badge">TB</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:#e11d48;opacity:1;box-shadow:0 0 5px #e11d4880;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#e11d48;opacity:.35;"></span><span class="dot-label">last 5 starts</span></div>
+    <span class="streak-count" style="color:#e11d48">3 starts streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">DET</strong></span><span class="chip" style="background:#e11d4815;border-color:#e11d4830"><span class="dim">Hits/start </span><span style="color:#e11d48;font-weight:800">8.7</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span></div>
+  <p class="insight">Nick Martinez has allowed 6+ hits in 3 straight starts (8.7 avg) — target opposing bats vs DET</p>
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jarren Duran <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -971,6 +1279,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Nathan Lukes <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -985,6 +1294,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Tyler Soderstrom <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">ATH</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">9 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Colin Rea</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V48</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span></div>
+  <p class="insight">Tyler Soderstrom has recorded a hit in 9 consecutive games facing a moderately vulnerable Colin Rea (V48)</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Pete Crow-Armstrong <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">8 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
+  <p class="insight">Pete Crow-Armstrong has recorded a hit in 8 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Zack Gelof <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -999,6 +1339,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ben Rice <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">NYY</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">7 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Gavin Williams</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V39</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-12%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
+  <p class="insight">Ben Rice has recorded a hit in 7 consecutive games facing a moderately vulnerable Gavin Williams (V39) The run-suppressor environment (-12%) is a headwind.</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Pete Alonso <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1010,9 +1366,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Payton Tolle</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span></div>
   <p class="insight">Pete Alonso has recorded a hit in 7 consecutive games but faces a tough arm in Payton Tolle (V24) A run-friendly park (+9%) lifts the floor.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Josh Bell <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -1024,9 +1381,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Erick Fedde</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V62 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-3%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span></div>
   <p class="insight">Josh Bell has recorded a hit in 7 consecutive games and draws one of today's most vulnerable arms in Erick Fedde (V62 🔥) Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Ozzie Albies <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -1038,9 +1396,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Patrick Corbin</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V33</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span></div>
   <p class="insight">Ozzie Albies has recorded a hit in 7 consecutive games facing a moderately vulnerable Patrick Corbin (V33) The run-suppressor environment (-11%) is a headwind. Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Donovan Walton <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1052,9 +1411,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">61%</span></span></div>
   <p class="insight">Donovan Walton has recorded a hit in 7 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥) Strong 61% hit probability backs continuation.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Cole Young <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1066,9 +1426,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Freddy Peralta</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V34</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">52%</span></span></div>
   <p class="insight">Cole Young has recorded a hit in 7 consecutive games facing a moderately vulnerable Freddy Peralta (V34)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Tyler Freeman <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1080,9 +1441,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
   <p class="insight">Tyler Freeman has recorded a hit in 7 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Shohei Ohtani <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1094,9 +1456,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Zac Gallen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V64 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
   <p class="insight">Shohei Ohtani has recorded a hit in 6 consecutive games and draws one of today's most vulnerable arms in Zac Gallen (V64 🔥)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Junior Caminero <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1108,9 +1471,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Troy Melton</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V18</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span></div>
   <p class="insight">Junior Caminero has recorded a hit in 6 consecutive games but faces a tough arm in Troy Melton (V18)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Vaughn Grissom <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1122,9 +1486,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">63%</span></span></div>
   <p class="insight">Vaughn Grissom has recorded a hit in 6 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥) Strong 63% hit probability backs continuation.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Mickey Gasper <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -1136,9 +1501,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chris Bassitt</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V56 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
   <p class="insight">Mickey Gasper has recorded a hit in 6 consecutive games and draws one of today's most vulnerable arms in Chris Bassitt (V56 🔥) A run-friendly park (+9%) lifts the floor. Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Caleb Durbin <span style="color:#94a3b8;font-weight:700;font-size:12px"></span></span>
@@ -1150,9 +1516,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">—</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span></div>
   <p class="insight">Caleb Durbin has recorded a hit in 6 consecutive games</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ernie Clement <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">TOR</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">6 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Grant Holmes</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V40</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span></div>
+  <p class="insight">Ernie Clement has recorded a hit in 6 consecutive games facing a moderately vulnerable Grant Holmes (V40) The run-suppressor environment (-11%) is a headwind.</p>
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Chase Meidroth <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1167,6 +1549,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Michael Busch <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">5 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
+  <p class="insight">Michael Busch has recorded a hit in 5 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Oswald Peraza <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1178,9 +1576,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span></div>
   <p class="insight">Oswald Peraza has recorded a hit in 5 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Victor Caratini <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
@@ -1192,9 +1591,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Erick Fedde</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V62 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-3%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span></div>
   <p class="insight">Victor Caratini has recorded a hit in 5 consecutive games and draws one of today's most vulnerable arms in Erick Fedde (V62 🔥) Platoon edge is active.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Alec Burleson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1206,9 +1606,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">MacKenzie Gore</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V31</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span></div>
   <p class="insight">Alec Burleson has recorded a hit in 5 consecutive games but faces a tough arm in MacKenzie Gore (V31)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Troy Johnston <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1220,9 +1621,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span></div>
   <p class="insight">Troy Johnston has recorded a hit in 5 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Mike Trout <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1234,9 +1636,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Michael Lorenzen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V70 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">59%</span></span></div>
   <p class="insight">Mike Trout has recorded a hit in 4 consecutive games and draws one of today's most vulnerable arms in Michael Lorenzen (V70 🔥)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kyle Stowers <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1248,9 +1651,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Andrew Alvarez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V32</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">62%</span></span></div>
   <p class="insight">Kyle Stowers has recorded a hit in 4 consecutive games facing a moderately vulnerable Andrew Alvarez (V32) Strong 62% hit probability backs continuation.</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kerry Carpenter <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1262,9 +1666,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Nick Martinez</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V21</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-6%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
   <p class="insight">Kerry Carpenter has recorded a hit in 4 consecutive games but faces a tough arm in Nick Martinez (V21)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Andy Pages <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1276,9 +1681,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Zac Gallen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V64 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
   <p class="insight">Andy Pages has recorded a hit in 4 consecutive games and draws one of today's most vulnerable arms in Zac Gallen (V64 🔥)</p>
-</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Gunnar Henderson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1290,9 +1696,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Payton Tolle</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V24</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
   <p class="insight">Gunnar Henderson has recorded a hit in 4 consecutive games but faces a tough arm in Payton Tolle (V24) A run-friendly park (+9%) lifts the floor.</p>
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Trea Turner <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">PHI</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walker Buehler</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V51 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">64%</span></span></div>
+  <p class="insight">Trea Turner has recorded a hit in 4 consecutive games and draws one of today's most vulnerable arms in Walker Buehler (V51 🔥) Strong 64% hit probability backs continuation.</p>
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Michael Massey <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1307,6 +1729,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kevin McGonigle <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1321,6 +1744,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
 </div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Kyle Karros <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
@@ -1332,9 +1756,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span></div>
   <p class="insight">Kyle Karros has recorded a hit in 4 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
+</div><div class="streak-row" data-type="HIT" style="border-left:3px solid #22c55e;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#22c55e;background:#22c55e18">🎯 HIT STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Nico Hoerner <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">CHC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:#22c55e;opacity:1;box-shadow:0 0 5px #22c55e80;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#22c55e">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Jeffrey Springs</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V43</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span></div>
+  <p class="insight">Nico Hoerner has recorded a hit in 4 consecutive games facing a moderately vulnerable Jeffrey Springs (V43)</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Shohei Ohtani <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1346,9 +1786,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Zac Gallen</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V64 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
   <p class="insight">Shohei Ohtani has gone multi-hit in 3 consecutive games and draws one of today's most vulnerable arms in Zac Gallen (V64 🔥)</p>
-</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Troy Johnston <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1360,9 +1801,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span></div>
   <p class="insight">Troy Johnston has gone multi-hit in 3 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
-</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Nathan Lukes <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1374,9 +1816,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Grant Holmes</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V40</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span></div>
   <p class="insight">Nathan Lukes has gone multi-hit in 3 consecutive games facing a moderately vulnerable Grant Holmes (V40) The run-suppressor environment (-11%) is a headwind.</p>
-</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Matt Olson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1388,9 +1831,100 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Patrick Corbin</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V33</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">58%</span></span></div>
   <p class="insight">Matt Olson has gone multi-hit in 2 consecutive games facing a moderately vulnerable Patrick Corbin (V33) The run-suppressor environment (-11%) is a headwind.</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Oneil Cruz <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">PIT</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Spencer Arrighetti</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V29</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-4%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">54%</span></span></div>
+  <p class="insight">Oneil Cruz has gone multi-hit in 2 consecutive games but faces a tough arm in Spencer Arrighetti (V29)</p>
 </div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
   <div class="row-top">
     <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Kyle Manzardo <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">CLE</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#a855f7;opacity:.35;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Gerrit Cole</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V32</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-12%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">49%</span></span></div>
+  <p class="insight">Kyle Manzardo has gone multi-hit in 2 consecutive games facing a moderately vulnerable Gerrit Cole (V32) The run-suppressor environment (-12%) is a headwind. Below-average 49% hit probability is a caution flag.</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Brandon Marsh <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">PHI</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walker Buehler</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V51 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">60%</span></span></div>
+  <p class="insight">Brandon Marsh has gone multi-hit in 2 consecutive games and draws one of today's most vulnerable arms in Walker Buehler (V51 🔥) Strong 60% hit probability backs continuation.</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ozzie Albies <span style="color:#a855f7;font-weight:700;font-size:12px">S</span></span>
+    <span class="team-badge">ATL</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Patrick Corbin</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V33</span></span><span class="chip"><span class="dim">Park </span><span style="color:#f87171;font-weight:700">-11%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4ade80;font-weight:700">EDGE ✓</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">60%</span></span></div>
+  <p class="insight">Ozzie Albies has gone multi-hit in 2 consecutive games facing a moderately vulnerable Patrick Corbin (V33) The run-suppressor environment (-11%) is a headwind. Platoon edge is active.</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Ceddanne Rafaela <span style="color:#ef4444;font-weight:700;font-size:12px">R</span></span>
+    <span class="team-badge">BOS</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chris Bassitt</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#ef4444;font-weight:700">V56 🔥</span></span><span class="chip"><span class="dim">Park </span><span style="color:#4ade80;font-weight:700">+9%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#fbbf24;font-weight:700">61%</span></span></div>
+  <p class="insight">Ceddanne Rafaela has gone multi-hit in 2 consecutive games and draws one of today's most vulnerable arms in Chris Bassitt (V56 🔥) A run-friendly park (+9%) lifts the floor. Strong 61% hit probability backs continuation.</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Alec Burleson <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">STL</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:#a855f7;opacity:1;box-shadow:0 0 5px #a855f780;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot" style="background:#a855f7;opacity:.35;"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#a855f7">2 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">MacKenzie Gore</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V31</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">-7%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">56%</span></span></div>
+  <p class="insight">Alec Burleson has gone multi-hit in 2 consecutive games but faces a tough arm in MacKenzie Gore (V31)</p>
+</div><div class="streak-row" data-type="TWO" style="border-left:3px solid #a855f7;background:rgba(255,255,255,.012)">
+  <div class="row-top">
+    <span class="type-badge" style="color:#a855f7;background:#a855f718">💥 2+H STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jake McCarthy <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1402,9 +1936,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   </div>
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
   <p class="insight">Jake McCarthy has gone multi-hit in 2 consecutive games but faces a tough arm in Walbert Urena (V0)</p>
+</div><div class="streak-row" data-type="RBI" style="border-left:3px solid #f59e0b;background:transparent">
+  <div class="row-top">
+    <span class="type-badge" style="color:#f59e0b;background:#f59e0b18">💰 RBI STREAK</span>
+    
+  </div>
+  <div class="player-row">
+    <span class="player-name">Michael Massey <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
+    <span class="team-badge">KC</span>
+  </div>
+  <div class="dots-row">
+    <div class="dots"><span class="dot" style="background:#f59e0b;opacity:1;box-shadow:0 0 5px #f59e0b80;"></span><span class="dot" style="background:#f59e0b;opacity:1;box-shadow:0 0 5px #f59e0b80;"></span><span class="dot" style="background:#f59e0b;opacity:1;box-shadow:0 0 5px #f59e0b80;"></span><span class="dot" style="background:#f59e0b;opacity:1;box-shadow:0 0 5px #f59e0b80;"></span><span class="dot" style="background:rgba(255,255,255,.07)"></span><span class="dot-label">last 5 G</span></div>
+    <span class="streak-count" style="color:#f59e0b">4 G streak</span>
+  </div>
+  <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Chase Burns</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#f59e0b;font-weight:700">V45</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">0%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">57%</span></span></div>
+  <p class="insight">Michael Massey has driven in a run in 4 straight games facing a moderately vulnerable Chase Burns (V45)</p>
 </div><div class="streak-row" data-type="RBI" style="border-left:3px solid #f59e0b;background:rgba(255,255,255,.012)">
   <div class="row-top">
     <span class="type-badge" style="color:#f59e0b;background:#f59e0b18">💰 RBI STREAK</span>
+    
   </div>
   <div class="player-row">
     <span class="player-name">Jake McCarthy <span style="color:#3b82f6;font-weight:700;font-size:12px">L</span></span>
@@ -1417,12 +1967,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-
   <div class="chips"><span class="chip"><span class="dim">vs </span><strong style="color:#dde3f0">Walbert Urena</strong> <span style="color:#94a3b8;font-weight:700;font-size:12px"></span> <span style="color:#64748b;font-weight:700">V0</span></span><span class="chip"><span class="dim">Park </span><span style="color:#64748b;font-weight:700">+2%</span></span><span class="chip"><span class="dim">Platoon </span><span style="color:#4a5568;font-weight:700">same</span></span><span class="chip"><span class="dim">1+H </span><span style="color:#94a3b8;font-weight:700">55%</span></span></div>
   <p class="insight">Jake McCarthy has driven in a run in 4 straight games but faces a tough arm in Walbert Urena (V0)</p>
 </div></div>
-<div class="footer">Filled dots = streak stat fired · MLB Stats API</div>
+<div class="footer">Tap a tab or swipe a card to navigate · MLB Stats API</div>
 <script>
 function filter(type,btn){
-  document.querySelectorAll('.filter-btn').forEach(b=>{b.classList.remove('active');b.style.background='';});
+  document.querySelectorAll('.filter-btn').forEach(b=>{
+    b.classList.remove('active');
+    var c=b.getAttribute('data-color')||'#64748b';
+    b.style.background='transparent';b.style.color=c;b.style.borderColor=c;
+  });
   btn.classList.add('active');
-  btn.style.setProperty('background',btn.style.getPropertyValue('--type-color')+'18');
+  var ac=btn.getAttribute('data-color')||'#22c55e';
+  btn.style.background=ac;btn.style.color='#000';btn.style.borderColor=ac;
   document.querySelectorAll('.streak-row').forEach(r=>{
     r.style.display=(r.dataset.type===type)?'':'none';
   });
