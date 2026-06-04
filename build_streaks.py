@@ -419,7 +419,7 @@ def render_html(streaks, today, slate_label=''):
     for s in streaks: counts[s['type']] = counts.get(s['type'],0)+1
     streaks.sort(key=lambda s: (TYPE_ORDER.get(s['type'],9), -s['streak']))
 
-    cat_order  = [k for k in ['HR','HRR','K','HIT','TWO','RBI'] if counts.get(k,0)]
+    cat_order  = [k for k in ['HR','HRR','K','HAL','HIT','TWO','RBI'] if counts.get(k,0)]
     # Default-active tab = the category with the most streaks (so page lands full, not empty)
     first_type = max(cat_order, key=lambda k: counts.get(k,0)) if cat_order else ''
     tabs = []
@@ -489,7 +489,7 @@ def render_html(streaks, today, slate_label=''):
     <div class="header-date">{today}<br>{slate_label}</div>
   </div>
   <details class="streak-guide" open>
-    <summary class="streak-guide-summary">📖 How the streaks work<span class="collapse-tag"></span></summary>
+    <summary class="streak-guide-summary">📖 How The Streaks Work<span class="collapse-tag"></span></summary>
     <div class="streak-guide-body">
       <p><strong>What is a streak?</strong> A player who has hit the qualifying stat in back-to-back or consecutive games — not just good recent form, but an active run confirmed by official game logs.</p>
       <table class="guide-table">
