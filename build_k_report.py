@@ -503,7 +503,7 @@ PHASE_NOTE = ('All 12 points scoring live.' if PHASE2_ACTIVE else
               'Points 1–6 scoring from workbook. Points 7–12 unlock automatically when Colab connects.')
 
 html = f'''<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -525,6 +525,20 @@ html = f'''<!DOCTYPE html>
   --p2:#475569;--p2-bg:rgba(71,85,105,0.18);
   --r:12px;--rs:8px;
 }}
+[data-theme="light"]{{
+  --bg:#f1f5f3;--card:#ffffff;--border:rgba(15,23,42,0.12);
+  --glass:rgba(15,23,42,0.03);--glass-strong:rgba(15,23,42,0.06);
+  --text:#0f1a16;--soft:#2c3935;--dim:#5b6b65;
+  --blue:#2563eb;--green:#15803d;--yellow:#b45309;--grey:#64748b;
+  --red:#dc2626;--accent:#059669;--p2:#64748b;
+}}
+.theme-toggle-fab{{position:fixed;bottom:22px;right:16px;z-index:200;width:48px;height:48px;
+  border-radius:50%;background:rgba(30,40,60,.9);color:#fff;border:1px solid rgba(255,255,255,0.18);
+  display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .2s;-webkit-tap-highlight-color:transparent}}
+.theme-toggle-fab:active{{transform:scale(0.92)}}
+[data-theme="light"] .theme-toggle-fab{{background:rgba(255,255,255,.9);color:#0f1a16;border-color:rgba(15,23,42,.15)}}
+[data-theme="light"] .kfab-home{{background:rgba(255,255,255,.9) !important;color:#0f1a16}}
 *{{box-sizing:border-box;margin:0;padding:0;}}
 body{{background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
@@ -740,8 +754,8 @@ body{{background:var(--bg);color:var(--text);
   border:1px solid rgba(255,255,255,0.18);box-shadow:0 4px 16px rgba(0,0,0,.3);
   transition:transform .2s;-webkit-tap-highlight-color:transparent;}}
 .kpage-fab:active{{transform:scale(0.92);}}
-.kfab-home{{bottom:22px;background:rgba(30,40,60,.9);}}
-.kfab-streaks{{bottom:80px;background:linear-gradient(135deg,#f97316,#ef4444);}}
+.kfab-home{{bottom:80px;background:rgba(30,40,60,.9);}}
+.kfab-streaks{{bottom:138px;background:linear-gradient(135deg,#f97316,#ef4444);}}
 </style>
 </head>
 <body>
@@ -896,7 +910,25 @@ body{{background:var(--bg);color:var(--text);
   document.addEventListener('mousemove',e=>moveDrag(e.clientY));
   document.addEventListener('mouseup',endDrag);
 }})();
+
+// ---- Theme toggle (shares slateTheme with main slate) ----
+(function(){{
+  var tt=document.getElementById('themeToggle');
+  if(!tt)return;
+  var cur='dark';
+  try{{var s=localStorage.getItem('slateTheme');
+    if(s==='light'||s==='dark'){{cur=s;document.documentElement.setAttribute('data-theme',cur);
+      tt.textContent=cur==='dark'?'🌙':'☀️';}}
+  }}catch(e){{}}
+  tt.addEventListener('click',function(){{
+    cur=cur==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',cur);
+    tt.textContent=cur==='dark'?'🌙':'☀️';
+    try{{localStorage.setItem('slateTheme',cur);}}catch(e){{}}
+  }});
+}})();
 </script>
+<button class="theme-toggle-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>
 <a class="kpage-fab kfab-home" href="index.html" title="Daily Slate">⚾️</a>
 <a class="kpage-fab kfab-streaks" href="streaks.html" title="Hot Streaks">🔥</a>
 </body>
