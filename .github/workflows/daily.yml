@@ -54,10 +54,7 @@ jobs:
           K_SAVANT_FILE: k_savant_data.json
           DATA_FILE: day_data.json
           BDL_MIN_GAP: '0.1'
-        run: |
-          sed -i 's/retries=5/retries=2/g' fetch_phase2.py
-          sed -i 's/timeout=30/timeout=10/g' fetch_phase2.py
-          python3 fetch_phase2.py
+        run: python3 fetch_phase2.py
 
       - name: Build slate
         env:
