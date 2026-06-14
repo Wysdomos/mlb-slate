@@ -4,7 +4,7 @@ Structure: Day 44 board depth + Day 45 canonical section labels.
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
-import json, re
+import json, re, os
 from datetime import datetime
 
 def _sf(v, default=0.0):
@@ -49,6 +49,24 @@ for p in PARKS:
 
 HR_LB = DATA['HR_Leaderboard']
 SSA = DATA['Sweet_Spot_Analyzer']
+
+# Workbook Streaks tab (Batter, Hit Streak, HR Streak, ISO, wOBA, ...) — cross-reference form signal
+STREAKS = DATA.get('Streaks', [])
+STREAK_BY_NAME = {}
+for r in STREAKS:
+    nm = (r.get('Batter') or '').strip().lower()
+    if nm and nm not in STREAK_BY_NAME:
+        STREAK_BY_NAME[nm] = r
+
+# BP_Teams projected team strikeouts (opp lineup K-proneness) — for K consensus
+BP_TEAMS_BY_TEAM = {}
+for r in DATA.get('BP_Teams', []):
+    t = (r.get('Team') or '').strip()
+    if t and t not in BP_TEAMS_BY_TEAM:
+        BP_TEAMS_BY_TEAM[t] = r
+
+# Structured pick records for For The Record (results-page backtest). Each builder appends.
+SLATE_PICKS = []
 
 # Team-name normalization
 TEAM_FIX = {
@@ -751,12 +769,39 @@ def build_k_board():
         elif kf < 4.0: note_parts.append('fade Ks')
         note = ' · '.join(note_parts) if note_parts else '—'
 
-        rows.append(
+        # ── Consensus: 5 independent strikeout lenses ──
+        k9 = _sf(v.get('K9')) if v else 0
+        opp_raw = (r.get('Opp','') or '').strip()
+        opp_row = BP_TEAMS_BY_TEAM.get(opp) or BP_TEAMS_BY_TEAM.get(opp_raw)
+        opp_k = _sf(opp_row.get('Strikeouts')) if opp_row else 0
+        bpp_val = bpp_kf if bp else 0
+        outs_val = outs if bp else 0
+        votes = 0
+        if kf >= 5.5: votes += 1
+        if bpp_val >= 5.0: votes += 1
+        if k9 >= 9.0: votes += 1
+        if outs_val >= 17: votes += 1
+        if opp_k >= 9.0: votes += 1
+
+        # ── Structured pick record (For The Record backtest vs MLB Stats API box scores) ──
+        win_at = 5 if '5' in best_line else (4 if '3.5' in best_line else 3)
+        SLATE_PICKS.append({
+            'market': 'K', 'pick': f'{name} {best_line}', 'name': name,
+            'team': team, 'opp': opp, 'line': best_line, 'win_at': win_at,
+            'consensus': votes, 'consensus_max': 5,
+            'ss_k': round(kf, 2), 'bpp_k': round(bpp_val, 2) if bp else None,
+            'k9': round(k9, 1) if k9 else None,
+            'outs': round(outs_val, 1) if bp else None,
+            'opp_k_proj': round(opp_k, 1) if opp_k else None,
+        })
+
+        rows.append((votes, kf,
             f'      <tr class="{tier_cls}">'
             f'<td>{tier_badge}</td>'
             f'<td><strong>{name}</strong></td>'
             f'<td style="text-align:center">{hand_chip(throws,"throws")}</td>'
             f'<td>{team}</td>'
+            f'<td>{_conv_cell(votes, 5)}</td>'
             f'<td>{ss_k_disp}</td>'
             f'<td>{bpp_k_disp}</td>'
             f'<td>{outs_s}</td>'
@@ -768,15 +813,16 @@ def build_k_board():
             f'<td><strong>{best_line}</strong></td>'
             f'<td><small>vs {opp} · {note}</small></td>'
             f'</tr>'
-        )
-    table_body = '\n'.join(rows)
+        ))
+    rows.sort(key=lambda t: (-t[0], -t[1]))
+    table_body = '\n'.join(t[2] for t in rows)
 
     return f'''<!-- K BOARD -->
 <section id="k-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">⚡ Full K's Tier Board</div>
-      <span class="game-tag">Tap to expand · {len(sp_sorted)} starters · ordered by SS K desc · {top_k_names} lead</span>
+      <span class="game-tag">Tap to expand · {len(sp_sorted)} starters · ranked by Consensus · {top_k_names} lead</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -785,9 +831,9 @@ def build_k_board():
       <span style="font-size:13px;font-weight:700;color:#3b82f6;">📋 View The Safe K Report</span>
       <span style="font-size:13px;color:#3b82f6;">Safe floors · Real lines · Full criteria →</span>
     </a>
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">SS Ks from <strong>SP_Projections</strong>, BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 5 K lenses agree: SS Ks≥5.5 · BPP Ks≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9. 🔒 = 4–5. SS Ks from <strong>SP_Projections</strong>, BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
+      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
 {table_body}
       </tbody>
@@ -798,44 +844,86 @@ def build_k_board():
 '''
 
 # ---- BUILD: HR BOARD (top 25) ----
+def _conv_cell(n, total=6):
+    ratio = (n/total) if total else 0
+    if ratio >= 0.8: return f'<strong style="color:var(--good)">🔒 {n}/{total}</strong>'
+    if ratio >= 0.6: return f'<span style="color:var(--hot)">{n}/{total}</span>'
+    return f'<span style="color:var(--text-soft)">{n}/{total}</span>'
+
 def build_hr_board():
-    rows = []
-    for r in HR_LB[:25]:
+    # Candidate pool: top 40 by Score, then re-rank by Consensus
+    cands = []
+    for r in HR_LB[:40]:
         score = _sf(r.get('Score'))
-        if score >= 80: tier = 'row-tier0'
-        elif score >= 70: tier = 'row-tier1'
-        else: tier = ''
         team = tn(r.get('Team',''))
         park = PARK_BY_TEAM.get(team)
         park_hr = parse_pct(park.get('HR %')) if park else 0
-        hr_pct = '—'
-        rbi_pct = '—'
         nm = r.get('Batter','')
         hr_row = HIT_BY_NAME.get(nm.lower())
-        if hr_row:
-            hr_pct = hr_row.get('To Hit HR','—')
-            rbi_pct = hr_row.get('To Get RBI','—')
-        # Pitcher handedness + Vuln
+        hr_pct = hr_row.get('To Hit HR','—') if hr_row else '—'
+        rbi_pct = hr_row.get('To Get RBI','—') if hr_row else '—'
+        bp_b = BP_BAT_BY_NAME.get(nm.lower())
+        sim_raw = _sf(bp_b.get('HomeRunProbability')) if bp_b else 0
+        sim_hr = f'{sim_raw*100:.1f}%' if (bp_b and bp_b.get('HomeRunProbability') not in (None, '')) else '—'
         pit_name = r.get('Pitcher','') or ''
         throws = pitcher_throws(pit_name)
         v = get_vuln_for_pitcher(pit_name)
         vuln = v.get('VulnScore') if v else None
-        # Inline cells
-        batter_cell = f'<strong>{nm}</strong> {hand_chip(r.get("Bats"), "bats")}'
-        pitcher_cell = f'{pit_name} {hand_chip(throws, "throws")}' if pit_name and pit_name != '—' else '—'
+        # ── Streak cross-reference (workbook Streaks tab) ──
+        st = STREAK_BY_NAME.get(nm.lower())
+        streak_fires = False; streak_chip = ''
+        if st:
+            hs = _sf(st.get('Hit Streak')); hrs = _sf(st.get('HR Streak'))
+            if hrs >= 1:
+                streak_fires = True
+                streak_chip = f' <span style="font-size:11px;color:var(--hot)">🔥HR{int(hrs)}</span>'
+            elif hs >= 5:
+                streak_fires = True
+                streak_chip = f' <span style="font-size:11px;color:var(--hot)">🔥H{int(hs)}</span>'
+        # ── Consensus: count independent lenses that clear their own threshold ──
+        votes = 0
+        if score >= 70: votes += 1
+        if sim_raw >= 0.15: votes += 1
+        if hr_row and _sf(str(hr_row.get('To Hit HR','')).replace('%','')) >= 12: votes += 1
+        if vuln is not None and _sf(vuln) >= 50: votes += 1
+        if park_hr >= 10: votes += 1
+        if streak_fires: votes += 1
+        cands.append(dict(r=r, nm=nm, team=team, score=score, park_hr=park_hr,
+                          hr_pct=hr_pct, rbi_pct=rbi_pct, sim_hr=sim_hr,
+                          pit_name=pit_name, throws=throws, vuln=vuln,
+                          streak_chip=streak_chip, votes=votes))
+    # Re-rank by consensus, then Score
+    cands.sort(key=lambda c: (-c['votes'], -c['score']))
+    rows = []
+    for i, c in enumerate(cands[:25], 1):
+        score = c['score']
+        SLATE_PICKS.append({
+            'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
+            'pitcher': c['pit_name'], 'line': 'Ov 0.5', 'win_at': 1,
+            'consensus': c['votes'], 'consensus_max': 6,
+            'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
+        })
+        if c['votes'] >= 5: tier = 'row-tier0'
+        elif c['votes'] >= 4: tier = 'row-tier1'
+        else: tier = ''
+        batter_cell = f'<strong>{c["nm"]}</strong> {hand_chip(c["r"].get("Bats"), "bats")}{c["streak_chip"]}'
+        pn = c['pit_name']
+        pitcher_cell = f'{pn} {hand_chip(c["throws"], "throws")}' if pn and pn != '—' else '—'
         rows.append(
             f'      <tr class="{tier}">'
-            f'<td>{r.get("Rank","")}</td>'
+            f'<td>{i}</td>'
             f'<td>{batter_cell}</td>'
-            f'<td>{team}</td>'
+            f'<td>{c["team"]}</td>'
             f'<td>{pitcher_cell}</td>'
-            f'<td>{vuln_cell(vuln)}</td>'
+            f'<td>{_conv_cell(c["votes"])}</td>'
+            f'<td>{vuln_cell(c["vuln"])}</td>'
             f'<td><strong>{score}</strong></td>'
-            f'<td>{r.get("Zone","—")}</td>'
-            f'<td>{r.get("Barrel%","—")}</td>'
-            f'<td>{hr_pct}</td>'
-            f'<td>{rbi_pct}</td>'
-            f'<td>{pf_chip(park_hr)}</td>'
+            f'<td>{c["r"].get("Zone","—")}</td>'
+            f'<td>{c["r"].get("Barrel%","—")}</td>'
+            f'<td>{c["sim_hr"]}</td>'
+            f'<td>{c["hr_pct"]}</td>'
+            f'<td>{c["rbi_pct"]}</td>'
+            f'<td>{pf_chip(c["park_hr"])}</td>'
             f'</tr>'
         )
     table_body = '\n'.join(rows)
@@ -845,14 +933,14 @@ def build_hr_board():
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🏆 Top 25 HR Board</div>
-      <span class="game-tag">Tap to expand · HR_Leaderboard top 25 · handedness + Vuln · park cross-ref</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · 6 independent lenses agree</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Sourced from <strong>HR_Leaderboard</strong> (Quality Score = Barrel% · HH% · Zone · xwOBA · Launch · Pull%, park-adjusted). All bats here use <strong>Ov 0.5</strong> on the HR ladder. Vuln ≥50 = 🔥 stack target.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 independent lenses clear their line: Score≥70 · Sim HR%≥15 · HR%≥12 · Vuln≥50 · Park≥+10% · hot streak. 🔒 = 5–6 agree (strongest). Agreement beats any single number — sort or tap any column to dig in.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>Vuln</th><th>Score</th><th>Zone</th><th>Barrel%</th><th>HR%</th><th>RBI%</th><th>Park HR%</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>Conv</th><th>Vuln</th><th>Score</th><th>Zone</th><th>Barrel%</th><th>Sim HR%</th><th>HR%</th><th>RBI%</th><th>Park HR%</th></tr></thead>
       <tbody>
 {table_body}
       </tbody>
@@ -876,6 +964,11 @@ def build_oo5_board():
         team = tn(r.get('Team',''))
         bp = BP_BAT_BY_NAME.get(nm.lower())
         bats = bp.get('BatterStand') if bp else None
+        sim_hit = f'{_sf(bp.get("HitProbability"))*100:.0f}%' if (bp and bp.get("HitProbability") not in (None, "")) else '—'
+        sim_h_raw = _sf(bp.get("HitProbability")) if bp else 0
+        st_h = STREAK_BY_NAME.get(nm.lower())
+        hit_streak = _sf(st_h.get('Hit Streak')) if st_h else 0
+        streak_chip = f' <span style="font-size:11px;color:var(--hot)">🔥H{int(hit_streak)}</span>' if hit_streak >= 5 else ''
         # Opp pitcher from BP_Batters Opponent
         opp_team = tn(bp.get('Opponent','')) if bp else ''
         opp_sp_row = SP_BY_TEAM.get(opp_team) if opp_team else None
@@ -912,42 +1005,61 @@ def build_oo5_board():
             hrr_cell = '—'
         try: h1f = float(str(h1).replace('%',''))
         except (TypeError, ValueError): h1f = 0
-        if h1f >= 65: tier = 'row-tier0'
-        elif h1f >= 60: tier = 'row-tier1'
+        # ── Consensus: 5 independent lenses for a hit ──
+        votes = 0
+        if h1f >= 60: votes += 1
+        if sim_h_raw >= 0.60: votes += 1
+        if vv >= 50: votes += 1
+        if hit_streak >= 5: votes += 1
+        if park_r2 >= 5: votes += 1
+        if votes >= 4: tier = 'row-tier0'
+        elif votes == 3: tier = 'row-tier1'
         else: tier = ''
-        batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}'
+        SLATE_PICKS.append({
+            'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
+            'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 5,
+            'h1_pct': h1, 'sim_hit': sim_hit,
+        })
+        batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
         # Matchup cell: add Vuln color/🔥 if pitcher resolved
         if opp_sp:
             match_cell = f'{match} · {vuln_cell(vuln)}'
         else:
             match_cell = match
-        rows.append(
-            f'      <tr class="{tier}"><td>{i}</td>'
+        cells = (
             f'<td>{batter_cell}</td>'
             f'<td>{team}</td>'
             f'<td>{match_cell}</td>'
+            f'<td>{_conv_cell(votes, 5)}</td>'
             f'<td><strong>{h1}</strong></td>'
+            f'<td>{sim_hit}</td>'
             f'<td>{h2}</td>'
             f'<td>{rbi}</td>'
             f'<td>{hrr_cell}</td>'
             f'<td>{hr}</td>'
-            f'</tr>'
         )
+        rows.append((votes, h1f, tier, cells))
+    # Re-rank by consensus, then 1+ Hit%
+    ranked = sorted(rows, key=lambda t: (-t[0], -t[1]))
+    table_body = '\n'.join(
+        f'      <tr class="{tier}"><td>{idx}</td>{cells}</tr>'
+        for idx, (votes, h1f, tier, cells) in enumerate(ranked, 1)
+    )
     return f'''<!-- OO5 BOARD -->
 <section id="oo5-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">☄️ Top 50 Hits Board</div>
-      <span class="game-tag">Tap to expand · hit probability model sorted by 1+ Hit% · handedness + opp Vuln</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · hit-tuned lenses</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Default play: <strong>Ov 0.5</strong> hits. Top 50 bats by 1+ Hit% from <strong>hit probability model</strong>. Matchup cell shows opp. starter Vuln (≥50 = 🔥 stack target).</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 5 lenses clear their line: 1+Hit≥60 · Sim H%≥60 · opp Vuln≥50 · hit streak≥5 · Park Runs≥+5%. 🔒 = 4–5 agree. Default play <strong>Ov 0.5</strong> hits.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+H</th><th>2+H</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>Conv</th><th>1+H</th><th>Sim H%</th><th>2+H</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
       <tbody>
-{chr(10).join(rows)}
+{table_body}
       </tbody>
     </table></div>
   </div></div>
@@ -955,40 +1067,58 @@ def build_oo5_board():
 '''
 
 # ---- BUILD: TOTALS BOARD (game totals from BP_Games) ----
+def _p_total_over(g, n=9):
+    """P(game total >= n runs) from BP_Games Runs0..20 distribution (sums to 1)."""
+    s = 0.0
+    for i in range(n, 21):
+        v = g.get(f'Runs{i}')
+        if isinstance(v, (int, float)): s += v
+    return s
+
 def build_totals_board():
     rows = []
-    games_sorted = sorted(GAMES_RAW, key=lambda g: -((g.get('RunsAway') or 0) + (g.get('RunsHome') or 0)))
-    for g in games_sorted:
-        away = tn(g.get('AwayTeam'))
-        home = tn(g.get('HomeTeam'))
-        ra = g.get('RunsAway') or 0
-        rh = g.get('RunsHome') or 0
-        total = ra + rh
-        f5 = total * 0.55
-        if total >= 10: lean = '<span class="badge b-tier0">OVER lean</span>'
-        elif total >= 9: lean = '<span class="badge b-tier1">OVER lean</span>'
-        elif total <= 7.5: lean = '<span class="badge b-bad">UNDER lean</span>'
-        elif total <= 8.5: lean = '<span class="badge b-warn">UNDER lean</span>'
-        else: lean = '<span class="badge b-neutral">Neutral</span>'
-        rows.append(
-            f'      <tr><td>{away} @ {home}</td><td>{ra:.2f}</td><td>{rh:.2f}</td>'
-            f'<td><strong>{total:.2f}</strong></td><td>{f5:.2f}</td><td>{lean}</td></tr>'
-        )
+    for g in GAMES_RAW:
+        away = tn(g.get('AwayTeam')); home = tn(g.get('HomeTeam'))
+        total = (g.get('RunsAway') or 0) + (g.get('RunsHome') or 0)
+        # Real F5 from BP_Games (was a fake total*0.55)
+        f5a = g.get('RunsFirst5Away') or 0; f5h = g.get('RunsFirst5Home') or 0
+        f5 = (f5a + f5h) if (f5a or f5h) else total * 0.55
+        p_over = _p_total_over(g, 9)  # P(>= 9) = over 8.5
+        ap = SP_BY_TEAM.get(away); hp = SP_BY_TEAM.get(home)
+        comb_r = (_sf(ap.get('R')) if ap else 0) + (_sf(hp.get('R')) if hp else 0)
+        park = PARK_BY_TEAM.get(home) or PARK_BY_TEAM.get(away)
+        park_runs = parse_pct(park.get('Runs %')) if park else 0
+        # Directional consensus: 4 independent signals
+        over = sum([total >= 9, p_over >= 0.50, comb_r >= 6.5, park_runs >= 5])
+        under = sum([total <= 7.5, p_over <= 0.42, comb_r <= 4.5, park_runs <= -5])
+        if over > under:   lean_dir, conf, lean = 'OVER', over, '<span class="badge b-tier0">OVER</span>'
+        elif under > over: lean_dir, conf, lean = 'UNDER', under, '<span class="badge b-bad">UNDER</span>'
+        else:              lean_dir, conf, lean = 'Neutral', max(over, under), '<span class="badge b-neutral">Neutral</span>'
+        SLATE_PICKS.append({
+            'market': 'TOTAL', 'pick': f'{away}@{home} {lean_dir} 8.5', 'game': f'{away}@{home}',
+            'lean': lean_dir, 'ref_line': 8.5, 'consensus': conf, 'consensus_max': 4,
+            'proj_total': round(total, 2), 'p_over_8_5': round(p_over, 3), 'f5': round(f5, 2),
+        })
+        rows.append((conf, total,
+            f'      <tr><td>{away} @ {home}</td><td><strong>{total:.2f}</strong></td>'
+            f'<td>{p_over*100:.0f}%</td><td>{f5:.2f}</td><td>{_conv_cell(conf,4)}</td><td>{lean}</td></tr>'))
+    rows.sort(key=lambda t: (-t[0], -t[1]))
+    table_body = '\n'.join(t[2] for t in rows)
     return f'''<!-- TOTALS BOARD -->
 <section id="totals-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">📈 Game Totals & F5 Board</div>
-      <span class="game-tag">Tap to expand · 15 games · BP_Games projections</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · real run distribution</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Total runs (away + home) and approx F5. Lean derived from projected total only — confirm against book line.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Conf</strong> = how many of 4 signals agree with the lean: projected total · P(over 8.5) from BallparkPal's run distribution · combined SP runs · park Runs%. <strong>P(O 8.5)</strong> is the real sim probability of 9+ runs. F5 = real first-5 projection. Confirm vs book line.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Game</th><th>Away R</th><th>Home R</th><th>Total</th><th>F5 (~)</th><th>Lean</th></tr></thead>
+      <thead><tr><th>Game</th><th>Total</th><th>P(O 8.5)</th><th>F5</th><th>Conf</th><th>Lean</th></tr></thead>
       <tbody>
-{chr(10).join(rows)}
+{table_body}
       </tbody>
     </table></div>
   </div></div>
@@ -997,47 +1127,49 @@ def build_totals_board():
 
 # ---- BUILD: NRFI / YRFI ----
 def build_nrfi_board():
-    # Heuristic: NRFI candidates = both SPs have low HR/9 + decent K
     rows = []
-    games_sorted = sorted(GAMES_RAW, key=lambda g: ((g.get('RunsAway') or 0) + (g.get('RunsHome') or 0)))
-    for g in games_sorted:
-        away = tn(g.get('AwayTeam'))
-        home = tn(g.get('HomeTeam'))
-        ap = SP_BY_TEAM.get(away)
-        hp = SP_BY_TEAM.get(home)
+    for g in GAMES_RAW:
+        away = tn(g.get('AwayTeam')); home = tn(g.get('HomeTeam'))
+        ap = SP_BY_TEAM.get(away); hp = SP_BY_TEAM.get(home)
         if not ap or not hp: continue
-        # Combined HR/9 of both starters
+        yrfi = _sf(g.get('RunsFirstInningPct'))  # P(>=1 run in first inning) — real sim
         try:
-            hr_combined = float(ap.get('HR',0)) + float(hp.get('HR',0))
-            k_combined = float(ap.get('K',0)) + float(hp.get('K',0))
+            hr_c = float(ap.get('HR', 0)) + float(hp.get('HR', 0))
+            k_c  = float(ap.get('K', 0))  + float(hp.get('K', 0))
+            r_c  = _sf(ap.get('R')) + _sf(hp.get('R'))
         except (TypeError, ValueError): continue
-        # NRFI rating
-        nrfi_score = (12 - hr_combined*4) + (k_combined/2)
-        if nrfi_score >= 12: lean = '<span class="badge b-tier0">NRFI</span>'
-        elif nrfi_score >= 10: lean = '<span class="badge b-tier1">Lean NRFI</span>'
-        elif nrfi_score <= 8: lean = '<span class="badge b-bad">YRFI</span>'
-        else: lean = '<span class="badge b-neutral">Neutral</span>'
-        rows.append(
-            f'      <tr><td>{away} @ {home}</td>'
-            f'<td>{ap["Pitcher"]}</td><td>{ap.get("HR","—")}</td><td>{ap.get("K","—")}</td>'
-            f'<td>{hp["Pitcher"]}</td><td>{hp.get("HR","—")}</td><td>{hp.get("K","—")}</td>'
-            f'<td>{lean}</td></tr>'
-        )
+        # Directional consensus: 4 signals (first-inning prob is the real anchor)
+        nrfi  = sum([0 < yrfi <= 0.46, hr_c <= 1.4, k_c >= 10, r_c <= 4.5])
+        yrfi_v = sum([yrfi >= 0.58, hr_c >= 2.0, k_c <= 7, r_c >= 6.5])
+        if nrfi > yrfi_v:    lean_dir, conf, lean = 'NRFI', nrfi, '<span class="badge b-tier0">NRFI</span>'
+        elif yrfi_v > nrfi:  lean_dir, conf, lean = 'YRFI', yrfi_v, '<span class="badge b-bad">YRFI</span>'
+        else:                lean_dir, conf, lean = 'Neutral', max(nrfi, yrfi_v), '<span class="badge b-neutral">Neutral</span>'
+        yrfi_disp = f'{yrfi*100:.0f}%' if yrfi else '—'
+        SLATE_PICKS.append({
+            'market': 'NRFI', 'pick': f'{away}@{home} {lean_dir}', 'game': f'{away}@{home}',
+            'lean': lean_dir, 'consensus': conf, 'consensus_max': 4,
+            'yrfi_prob': round(yrfi, 3) if yrfi else None,
+        })
+        rows.append((conf, (yrfi or 1),
+            f'      <tr><td>{away} @ {home}</td><td>{ap["Pitcher"]}</td><td>{hp["Pitcher"]}</td>'
+            f'<td>{yrfi_disp}</td><td>{_conv_cell(conf,4)}</td><td>{lean}</td></tr>'))
+    rows.sort(key=lambda t: (-t[0], t[1]))
+    table_body = '\n'.join(t[2] for t in rows)
     return f'''<!-- NRFI BOARD -->
 <section id="nrfi-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🥶 NRFI / YRFI Watch</div>
-      <span class="game-tag">Tap to expand · derived from SP HR/9 + K</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · real 1st-inning prob</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Heuristic blend of both SPs' HR/9 (lower = better) and K (higher = better). Confirm against book NRFI line.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>1st-Inn Run%</strong> is BallparkPal's actual probability of a run in the first (lower = NRFI). <strong>Conf</strong> = of 4 signals agreeing with the lean: that first-inning prob · combined SP HR/9 · combined K · combined SP runs. Confirm vs book NRFI line.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Game</th><th>Away SP</th><th>HR/9</th><th>K</th><th>Home SP</th><th>HR/9</th><th>K</th><th>Lean</th></tr></thead>
+      <thead><tr><th>Game</th><th>Away SP</th><th>Home SP</th><th>1st-Inn Run%</th><th>Conf</th><th>Lean</th></tr></thead>
       <tbody>
-{chr(10).join(rows)}
+{table_body}
       </tbody>
     </table></div>
   </div></div>
@@ -1049,42 +1181,53 @@ def build_sb_board():
     # From BP_Batters StolenBaseProbability sorted desc
     sb_sorted = sorted(BP_BAT, key=lambda r: -(_sf(r.get('StolenBaseProbability'))))[:20]
     rows = []
-    for i, r in enumerate(sb_sorted, 1):
+    for r in sb_sorted:
         if not r.get('FullName'): continue
         sbp = _sf(r.get('StolenBaseProbability'))
         if sbp < 0.05: continue
+        att = _sf(r.get('StolenBaseAttempts'))
         team = tn(r.get('Team'))
         opp = tn(r.get('Opponent'))
-        # Opp SP — pull their BB to flag walk-prone (more SB chances)
         opp_sp = SP_BY_TEAM.get(opp)
-        opp_bb = opp_sp.get('BB','—') if opp_sp else '—'
+        opp_bb_v = _sf(opp_sp.get('BB')) if opp_sp else 0
+        opp_bb = opp_sp.get('BB', '—') if opp_sp else '—'
+        # ── Consensus: 3 independent SB lenses ──
+        votes = sum([sbp >= 0.15, att >= 0.25, opp_bb_v >= 2.5])
+        tier = 'row-tier0' if votes >= 3 else ('row-tier1' if votes == 2 else '')
         sb_pct = f'{sbp*100:.1f}%'
-        if sbp >= 0.15: tier = 'row-tier0'
-        elif sbp >= 0.10: tier = 'row-tier1'
-        else: tier = ''
-        rows.append(
-            f'      <tr class="{tier}"><td>{i}</td>'
+        SLATE_PICKS.append({
+            'market': 'SB', 'pick': f'{r["FullName"]} Ov 0.5 SB', 'name': r['FullName'],
+            'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
+            'consensus': votes, 'consensus_max': 3,
+            'sb_prob': round(sbp, 3), 'sb_attempts': round(att, 2),
+            'opp_sp_bb': round(opp_bb_v, 2) if opp_sp else None,
+        })
+        rows.append((votes, sbp, tier,
             f'<td><strong>{r["FullName"]}</strong></td>'
-            f'<td>{team}</td>'
-            f'<td>{opp}</td>'
+            f'<td>{team}</td><td>{opp}</td>'
             f'<td><strong>{sb_pct}</strong></td>'
-            f'<td>{opp_bb}</td></tr>'
-        )
+            f'<td>{_conv_cell(votes, 3)}</td>'
+            f'<td>{opp_bb}</td>'))
+    rows.sort(key=lambda t: (-t[0], -t[1]))
+    table_body = '\n'.join(
+        f'      <tr class="{tier}"><td>{idx}</td>{cells}</tr>'
+        for idx, (votes, sbp, tier, cells) in enumerate(rows, 1)
+    )
     return f'''<!-- SB BOARD -->
 <section id="sb-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🏃 Stolen Base Targets</div>
-      <span class="game-tag">Tap to expand · BP_Batters SB% · opp SP BB cross-ref</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · SB% · attempts · opp walks</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Top 20 runners by stolen-base probability. Opp SP BB column flags high-walk arms (more on-base = more SB opportunity). Plays use <strong>Ov 0.5</strong>.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = 3 lenses: SB prob ≥15% · projected attempts ≥0.25 · opp SP walks ≥2.5 (more baserunners). Plays use <strong>Ov 0.5</strong>.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Runner</th><th>Tm</th><th>Opp</th><th>SB %</th><th>Opp SP BB</th></tr></thead>
+      <thead><tr><th>#</th><th>Runner</th><th>Tm</th><th>Opp</th><th>SB %</th><th>Conv</th><th>Opp SP BB</th></tr></thead>
       <tbody>
-{chr(10).join(rows)}
+{table_body}
       </tbody>
     </table></div>
   </div></div>
@@ -1096,39 +1239,50 @@ def build_doubles_board():
     # From BP_Batters Doubles projection sorted desc + park 2B/3B%
     db_sorted = sorted(BP_BAT, key=lambda r: -(_sf(r.get('Doubles'))))[:20]
     rows = []
-    for i, r in enumerate(db_sorted, 1):
+    for r in db_sorted:
         if not r.get('FullName'): continue
         dbls = _sf(r.get('Doubles'))
         team = tn(r.get('Team'))
         opp = tn(r.get('Opponent'))
         park = PARK_BY_TEAM.get(team) or PARK_BY_TEAM.get(opp)
         xbh = parse_pct(park.get('2B/3B %')) if park else 0
-        if dbls >= 0.30: tier = 'row-tier0'
-        elif dbls >= 0.25: tier = 'row-tier1'
-        else: tier = ''
-        rows.append(
-            f'      <tr class="{tier}"><td>{i}</td>'
+        opp_sp = SP_BY_TEAM.get(opp)
+        opp_h = _sf(opp_sp.get('H')) if opp_sp else 0
+        # ── Consensus: 3 independent doubles lenses ──
+        votes = sum([dbls >= 0.27, xbh >= 10, opp_h >= 5.5])
+        tier = 'row-tier0' if votes >= 3 else ('row-tier1' if votes == 2 else '')
+        SLATE_PICKS.append({
+            'market': '2B', 'pick': f'{r["FullName"]} Ov 0.5 2B', 'name': r['FullName'],
+            'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
+            'consensus': votes, 'consensus_max': 3,
+            'proj_2b': round(dbls, 2), 'park_2b3b': xbh, 'opp_sp_h': round(opp_h, 2) if opp_sp else None,
+        })
+        rows.append((votes, dbls, tier,
             f'<td><strong>{r["FullName"]}</strong></td>'
-            f'<td>{team}</td>'
-            f'<td>{opp}</td>'
+            f'<td>{team}</td><td>{opp}</td>'
             f'<td><strong>{dbls:.2f}</strong></td>'
-            f'<td>{fmt_pct_cell(xbh,10,-10)}</td></tr>'
-        )
+            f'<td>{_conv_cell(votes, 3)}</td>'
+            f'<td>{fmt_pct_cell(xbh,10,-10)}</td>'))
+    rows.sort(key=lambda t: (-t[0], -t[1]))
+    table_body = '\n'.join(
+        f'      <tr class="{tier}"><td>{idx}</td>{cells}</tr>'
+        for idx, (votes, dbls, tier, cells) in enumerate(rows, 1)
+    )
     return f'''<!-- DOUBLES BOARD -->
 <section id="doubles-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">☄️ Doubles Targets</div>
-      <span class="game-tag">Tap to expand · BP doubles proj × park 2B/3B%</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · proj × park × opp hits</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Top 20 by projected doubles. Fenway +18% / PNC +13% 2B/3B = highlight venues today. Plays use <strong>Ov 0.5</strong>.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = 3 lenses: projected 2B ≥0.27 · park 2B/3B ≥+10% · opp SP hits-allowed ≥5.5. Plays use <strong>Ov 0.5</strong>.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Opp</th><th>Proj 2B</th><th>Park 2B/3B%</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Opp</th><th>Proj 2B</th><th>Conv</th><th>Park 2B/3B%</th></tr></thead>
       <tbody>
-{chr(10).join(rows)}
+{table_body}
       </tbody>
     </table></div>
   </div></div>
@@ -1479,6 +1633,12 @@ SECTIONS = {
 # Write
 with open('/home/user/workspace/built_sections_d46.json','w', encoding='utf-8') as f:
     json.dump(SECTIONS, f, ensure_ascii=False, indent=1)
+
+# Structured pick records for For The Record (results-page backtest)
+_picks_out = os.environ.get('PICKS_FILE', 'slate_picks.json')
+with open(_picks_out, 'w', encoding='utf-8') as f:
+    json.dump({'slate_date': None, 'picks': SLATE_PICKS}, f, ensure_ascii=False, indent=1)
+print(f"Wrote {len(SLATE_PICKS)} pick records -> {_picks_out}")
 
 print(f"Built {len(SECTIONS)} sections")
 for k, v in SECTIONS.items():
