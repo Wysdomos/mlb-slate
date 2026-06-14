@@ -75,7 +75,7 @@ jobs:
           git config user.email "mrwwright9@gmail.com"
           git config user.name "Wysdomos"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
-          git add index.html k-report.html streaks.html day_data.json built_sections.json
+          git add index.html k-report.html streaks.html day_data.json built_sections.json slate_picks.json
           git add k_props.json 2>/dev/null || true
           git add k_savant_data.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
