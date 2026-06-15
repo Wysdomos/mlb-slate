@@ -240,6 +240,7 @@ def build_headlines():
   <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
     <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
   </div>
+  <div class="flag-row" style="margin-top:14px;"><div class="icon">🧾</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
 </section>
 '''
 
@@ -793,6 +794,12 @@ def build_k_board():
             'k9': round(k9, 1) if k9 else None,
             'outs': round(outs_val, 1) if bp else None,
             'opp_k_proj': round(opp_k, 1) if opp_k else None,
+            'context': {
+                'proj_hits_allowed': round(_sf(hits), 2) if bp else None,
+                'proj_hr_allowed': round(_sf(hra), 2) if bp else None,
+                'proj_runs_allowed': round(_sf(bp.get('RunsAllowed')), 2) if bp else None,
+                'proj_era': era if era != '—' else None,
+            },
         })
 
         rows.append((votes, kf,
@@ -853,7 +860,7 @@ def _conv_cell(n, total=6):
 def build_hr_board():
     # Candidate pool: top 40 by Score, then re-rank by Consensus
     cands = []
-    for r in HR_LB[:40]:
+    for r in HR_LB[:80]:
         score = _sf(r.get('Score'))
         team = tn(r.get('Team',''))
         park = PARK_BY_TEAM.get(team)
@@ -895,7 +902,7 @@ def build_hr_board():
     # Re-rank by consensus, then Score
     cands.sort(key=lambda c: (-c['votes'], -c['score']))
     rows = []
-    for i, c in enumerate(cands[:25], 1):
+    for i, c in enumerate(cands[:50], 1):
         score = c['score']
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
@@ -932,7 +939,7 @@ def build_hr_board():
 <section id="hr-board" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">🏆 Top 25 HR Board</div>
+      <div class="game-title">🏆 Top 50 HR Board</div>
       <span class="game-tag">Tap to expand · ranked by Consensus · 6 independent lenses agree</span>
     </div>
     <span class="chevron">▾</span>
@@ -1019,6 +1026,12 @@ def build_oo5_board():
             'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
             'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 5,
             'h1_pct': h1, 'sim_hit': sim_hit,
+        })
+        SLATE_PICKS.append({
+            'market': 'HRR', 'pick': f'{nm} Ov 0.5 HRR', 'name': nm, 'team': team,
+            'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
+            'consensus': votes, 'consensus_max': 5,
+            'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
         })
         batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
         # Matchup cell: add Vuln color/🔥 if pitcher resolved
@@ -1635,10 +1648,25 @@ with open('/home/user/workspace/built_sections_d46.json','w', encoding='utf-8') 
     json.dump(SECTIONS, f, ensure_ascii=False, indent=1)
 
 # Structured pick records for For The Record (results-page backtest)
+def _slate_md():
+    for row in DATA.get('BP_Games', []):
+        raw = str(row.get('GameDate', ''))[:10]
+        try:
+            dt = datetime.strptime(raw, '%Y-%m-%d').date()
+            return f'{dt.month}-{dt.day}', dt.isoformat()
+        except Exception:
+            pass
+    return None, None
+
+_md, _iso = _slate_md()
+_payload = {'slate_date': _iso, 'picks': SLATE_PICKS}
 _picks_out = os.environ.get('PICKS_FILE', 'slate_picks.json')
 with open(_picks_out, 'w', encoding='utf-8') as f:
-    json.dump({'slate_date': None, 'picks': SLATE_PICKS}, f, ensure_ascii=False, indent=1)
-print(f"Wrote {len(SLATE_PICKS)} pick records -> {_picks_out}")
+    json.dump(_payload, f, ensure_ascii=False, indent=1)
+if _md:  # dated archive so the grader can match results to the right slate
+    with open(f'slate_picks_{_md}.json', 'w', encoding='utf-8') as f:
+        json.dump(_payload, f, ensure_ascii=False, indent=1)
+print(f"Wrote {len(SLATE_PICKS)} pick records -> {_picks_out}" + (f" (+ slate_picks_{_md}.json)" if _md else ""))
 
 print(f"Built {len(SECTIONS)} sections")
 for k, v in SECTIONS.items():
