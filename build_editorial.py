@@ -244,6 +244,14 @@ def build_headlines():
             'details':[f"{arm_list}. <strong>All below the alt floor.</strong> Pivot to 1+H / RBI plays instead."],
             'link_href':'#skip','link_text':'→ Daily Skip List','link_fade':True})
 
+    # ---- For The Record (always last) ----
+    cards.append({'icon':'🧾','action_class':'','action_label':'FOR THE RECORD',
+        'style':'border-left:3px solid #35d6e8;',
+        'action_style':'background:rgba(53,214,232,0.12);color:#35d6e8;border:1px solid rgba(53,214,232,0.4);',
+        'title':"Yesterday's calls, graded",
+        'details':["Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board — no cherry-picking."],
+        'link_href':'record.html','link_text':'→ See how they graded'})
+
     # ---- Render ----
     def render(c):
         cls = 'headline-hero' if c.get('hero') else f"headline-card {c['action_class']}"
@@ -252,10 +260,12 @@ def build_headlines():
         if c.get('link_href'):
             lcls = 'card-link fade' if c.get('link_fade') else 'card-link'
             link_html = f'\n      <a class="{lcls}" href="{c["link_href"]}">{c["link_text"]}</a>'
-        return (f'  <article class="{cls}">\n'
+        sty = f' style="{c["style"]}"' if c.get('style') else ''
+        asty = f' style="{c["action_style"]}"' if c.get('action_style') else ''
+        return (f'  <article class="{cls}"{sty}>\n'
                 f'    <div class="card-icon">{c["icon"]}</div>\n'
                 f'    <div class="card-content">\n'
-                f'      <span class="card-action {c["action_class"]}">{c["action_label"]}</span>\n'
+                f'      <span class="card-action {c["action_class"]}"{asty}>{c["action_label"]}</span>\n'
                 f'      <h3 class="card-title">{c["title"]}</h3>\n'
                 f'{details_html}{link_html}\n'
                 f'    </div>\n'
