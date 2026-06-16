@@ -162,6 +162,55 @@ def find_workbook():
     # newest workbook (today's upload holds yesterday's HR_Results tab)
     return max(cands, key=lambda f: (_wb_date(f) or _dt.date.min, os.path.getmtime(f)))
 
+_TEAM = {'AZ':'ARI','CHW':'CWS','KCR':'KC','SDP':'SD','SFG':'SF','TBR':'TB','ATH':'OAK',
+         'WAS':'WSH','WSN':'WSH','LV':'OAK'}
+def canon(ab):
+    ab = (ab or '').strip().upper()
+    return _TEAM.get(ab, ab)
+def gamekey(game):
+    """'KC@WAS' -> 'KC@WSH' (canonical away@home)."""
+    if '@' in (game or ''):
+        a, h = game.split('@', 1)
+        return f'{canon(a)}@{canon(h)}'
+    return (game or '').upper()
+
+def fetch_games(date):
+    """Game-level results (final total runs + first-inning runs) from the free MLB Stats API
+    linescore. Drives Totals and NRFI regardless of the player-prop source. Keyed away@home."""
+    out = {'totals': {}, 'first_inning': {}}
+    try:
+        import urllib.request
+        base = 'https://statsapi.mlb.com/api/v1'
+        sched = json.load(urllib.request.urlopen(
+            f'{base}/schedule?sportId=1&date={date}&hydrate=linescore,team', timeout=10))
+        for d in sched.get('dates', []):
+            for g in d.get('games', []):
+                if g.get('status', {}).get('abstractGameState') != 'Final':
+                    continue
+                t = g.get('teams', {})
+                ah = (t.get('away', {}).get('team', {}) or {}).get('abbreviation')
+                hh = (t.get('home', {}).get('team', {}) or {}).get('abbreviation')
+                if not ah or not hh:
+                    continue
+                key = f'{canon(ah)}@{canon(hh)}'
+                ls = g.get('linescore', {}) or {}
+                ar = t.get('away', {}).get('score'); hrn = t.get('home', {}).get('score')
+                if ar is None or hrn is None:
+                    lt = ls.get('teams', {}) or {}
+                    ar = (lt.get('away', {}) or {}).get('runs'); hrn = (lt.get('home', {}) or {}).get('runs')
+                if ar is not None and hrn is not None:
+                    out['totals'][key] = ar + hrn
+                innings = ls.get('innings', []) or []
+                if innings:
+                    fi = innings[0]
+                    out['first_inning'][key] = ((fi.get('away', {}) or {}).get('runs', 0) or 0) \
+                                             + ((fi.get('home', {}) or {}).get('runs', 0) or 0)
+        print(f'games: {len(out["totals"])} totals, {len(out["first_inning"])} first-inning; '
+              f'keys={sorted(out["totals"].keys())}')
+    except Exception as e:
+        print('game-level API unavailable (Totals/NRFI pending):', e)
+    return out
+
 def to_iso(hr_date, iso_date):
     """Box-score API needs YYYY-MM-DD. Prefer the archived slate_date; else build from the tab suffix."""
     if iso_date:
@@ -222,6 +271,14 @@ def grade():
                 box = fetch_box_results(api_date)
         else:
             box = fetch_box_results(api_date)
+    if not isinstance(box, dict):
+        box = {}
+    for k in ('batters', 'pitchers', 'totals', 'first_inning'):
+        box.setdefault(k, {})
+    if api_date:
+        games = fetch_games(api_date)
+        box['totals'].update(games.get('totals', {}))
+        box['first_inning'].update(games.get('first_inning', {}))
 
     graded = []   # {market, name, line, consensus, win(bool/None), got, detail}
     for p in picks:
@@ -229,12 +286,27 @@ def grade():
         win, got = None, '—'
         detail = {}
         if mkt == 'HR':
-            if homers:
+            b = box.get('batters', {}).get(nm)
+            if b is not None:
+                win = b['hr'] >= 1; got = 'HR' if win else '0 HR'
+            elif homers:
                 win = nm in homers; got = 'HR' if win else '0 HR'
-            elif box.get('batters'):
-                b = box['batters'].get(nm, {})
-                if b:
-                    win = b['hr'] >= 1; got = 'HR' if win else '0 HR'
+        elif mkt == 'TOTAL':
+            tot = box.get('totals', {}).get(gamekey(p.get('game', '')))
+            if tot is not None and p.get('ref_line'):
+                line = float(p.get('ref_line')); lean = (p.get('lean') or 'OVER').upper()
+                if tot == line:
+                    got = f'{tot} runs · push'          # exact push -> void (stays ungraded)
+                else:
+                    over = tot > line
+                    win = over if lean == 'OVER' else (not over)
+                    got = f'{tot} runs'
+        elif mkt == 'NRFI':
+            fi = box.get('first_inning', {}).get(gamekey(p.get('game', '')))
+            if fi is not None:
+                scored = fi >= 1; lean = (p.get('lean') or 'NRFI').upper()
+                win = (not scored) if lean == 'NRFI' else scored
+                got = '0 in 1st' if not scored else f'{fi} in 1st'
         elif box:
             b = box['batters'].get(nm, {}); pi = box['pitchers'].get(nm, {})
             if mkt == 'HIT' and b: win = b['h'] >= 1; got = f'{b["h"]} H'
@@ -251,7 +323,13 @@ def grade():
         if mkt == 'K' and ctx:
             detail['proj'] = (f'proj {ctx.get("proj_hits_allowed","?")}H · '
                               f'{ctx.get("proj_runs_allowed","?")}R · {ctx.get("proj_era","?")} ERA')
-        graded.append({'market': mkt, 'name': p.get('name', ''), 'line': p.get('line', ''),
+        disp_name = p.get('name') or p.get('game') or p.get('pick', '')
+        disp_line = p.get('line', '')
+        if mkt == 'TOTAL':
+            disp_line = f"{(p.get('lean') or '').title()} {p.get('ref_line', '')}".strip()
+        elif mkt == 'NRFI':
+            disp_line = (p.get('lean') or 'NRFI')
+        graded.append({'market': mkt, 'name': disp_name, 'line': disp_line,
                        'consensus': p.get('consensus', 0), 'max': p.get('consensus_max', 6),
                        'win': win, 'got': got, 'pick': p.get('pick', ''), 'detail': detail})
 
