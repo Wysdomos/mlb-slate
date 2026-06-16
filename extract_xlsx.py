@@ -7,25 +7,47 @@ import sys
 import json
 import os
 import glob
+import re
+import datetime as _dt
 from openpyxl import load_workbook
 
+def _wb_date(path):
+    """Parse the date embedded in a slate filename, e.g. 'MLB_Slate_6-16-26.xlsx' -> 2026-06-16."""
+    m = re.search(r'(\d{1,2})[-_ ](\d{1,2})[-_ ](\d{2,4})', os.path.basename(path))
+    if not m:
+        return None
+    mo, d, y = (int(x) for x in m.groups())
+    if y < 100:
+        y += 2000
+    try:
+        return _dt.date(y, mo, d)
+    except ValueError:
+        return None
+
 def find_xlsx():
-    if len(sys.argv) >= 2:
-        path = sys.argv[1]
-        if not os.path.exists(path):
-            print(f"ERROR: File not found: {path}", file=sys.stderr)
-            sys.exit(1)
-        return path
-    matches = glob.glob("*.xlsx") + glob.glob("**/*.xlsx", recursive=False)
+    # An explicit .xlsx path on the command line always wins.
+    for a in sys.argv[1:]:
+        if a.lower().endswith('.xlsx'):
+            if not os.path.exists(a):
+                print(f"ERROR: File not found: {a}", file=sys.stderr)
+                sys.exit(1)
+            return a
+    matches = [f for f in (glob.glob("*.xlsx") + glob.glob("**/*.xlsx", recursive=False))
+               if not os.path.basename(f).startswith('~$')]
     if not matches:
         print("ERROR: No .xlsx file found.", file=sys.stderr)
         sys.exit(1)
+    # Pick the workbook whose filename date is newest (today's upload), not the alphabetical first.
+    chosen = max(matches, key=lambda f: (_wb_date(f) or _dt.date.min, os.path.getmtime(f)))
     if len(matches) > 1:
-        print(f"Multiple xlsx found, using: {matches[0]}", file=sys.stderr)
-    return matches[0]
+        print(f"Multiple xlsx found ({len(matches)}); using newest by date: {chosen}", file=sys.stderr)
+    return chosen
 
 def resolve_output():
-    return sys.argv[2] if len(sys.argv) >= 3 else "day_data.json"
+    for a in sys.argv[1:]:
+        if a.lower().endswith('.json'):
+            return a
+    return "day_data.json"
 
 def sheet_to_rows(ws):
     headers = None
@@ -100,6 +122,9 @@ def extract(xlsx_path):
     return data
 
 if __name__ == "__main__":
+    if '--which' in sys.argv:
+        print(find_xlsx())
+        sys.exit(0)
     xlsx_path = find_xlsx()
     output_path = resolve_output()
     data = extract(xlsx_path)

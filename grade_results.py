@@ -56,7 +56,7 @@ def read_hr_results(xlsx):
         print('HR results read failed:', e)
         return set(), ''
 
-BDL_KEY = os.environ.get('BALLDONTLIE_API_KEY', '').strip()
+BDL_KEY = (os.environ.get('BDL_KEY') or os.environ.get('BALLDONTLIE_API_KEY') or '').strip()
 _DBG = {'bdl': False}
 
 def _g(d, *keys, default=0):
@@ -138,12 +138,29 @@ def fetch_box_results(date):
         print('Box-score API unavailable (markets stay pending):', e)
         return {}
 
+def _wb_date(path):
+    import re, datetime as _dt
+    m = re.search(r'(\d{1,2})[-_ ](\d{1,2})[-_ ](\d{2,4})', os.path.basename(path))
+    if not m:
+        return None
+    mo, d, y = (int(x) for x in m.groups())
+    if y < 100:
+        y += 2000
+    try:
+        return _dt.date(y, mo, d)
+    except ValueError:
+        return None
+
 def find_workbook():
     if RESULTS_XLSX and os.path.exists(RESULTS_XLSX):
         return RESULTS_XLSX
-    import glob
-    cands = sorted(glob.glob('MLB_Slate_*.xlsx'), key=os.path.getmtime)
-    return cands[-1] if cands else ''
+    import glob, datetime as _dt
+    cands = [f for f in glob.glob('*.xlsx')
+             if 'slate' in os.path.basename(f).lower() and not os.path.basename(f).startswith('~$')]
+    if not cands:
+        return ''
+    # newest workbook (today's upload holds yesterday's HR_Results tab)
+    return max(cands, key=lambda f: (_wb_date(f) or _dt.date.min, os.path.getmtime(f)))
 
 def to_iso(hr_date, iso_date):
     """Box-score API needs YYYY-MM-DD. Prefer the archived slate_date; else build from the tab suffix."""
@@ -158,18 +175,41 @@ def to_iso(hr_date, iso_date):
             pass
     return None
 
+def choose_slate(hr_date):
+    """Which day's picks to grade. Priority: explicit GRADE_DATE -> workbook results tab ->
+    most recent COMMITTED archive that finished before today (ET) -> yesterday fallback.
+    Returns (picks_path, md_label, iso_date)."""
+    import glob, datetime as _dt
+    if GRADE_DATE and os.path.exists(f'slate_picks_{GRADE_DATE}.json'):
+        f = f'slate_picks_{GRADE_DATE}.json'
+        return f, GRADE_DATE, load_json(f, {}).get('slate_date')
+    if hr_date and os.path.exists(f'slate_picks_{hr_date}.json'):
+        f = f'slate_picks_{hr_date}.json'
+        return f, hr_date, load_json(f, {}).get('slate_date')
+    today_et = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=4)).date().isoformat()
+    best = best_iso = None
+    for f in glob.glob('slate_picks_*.json'):
+        sd = load_json(f, {}).get('slate_date')
+        if sd and sd < today_et and (best_iso is None or sd > best_iso):
+            best_iso, best = sd, f
+    if best:
+        try:
+            _, m, d = best_iso.split('-'); md = f'{int(m)}-{int(d)}'
+        except Exception:
+            md = best_iso
+        return best, md, best_iso
+    yest = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=4) - _dt.timedelta(days=1)).date()
+    return PICKS_FILE, f'{yest.month}-{yest.day}', yest.isoformat()
+
 def grade():
     xlsx = find_workbook()
     homers, hr_date = read_hr_results(xlsx)
-    # Match the day's archived picks to the results tab (e.g. HR_Results_6-14 -> slate_picks_6-14.json)
-    picks_path = PICKS_FILE
-    if hr_date and os.path.exists(f'slate_picks_{hr_date}.json'):
-        picks_path = f'slate_picks_{hr_date}.json'
+    picks_path, date, iso_date = choose_slate(hr_date)
     payload = load_json(picks_path, {})
     picks = payload.get('picks', [])
-    iso_date = payload.get('slate_date')           # 'YYYY-MM-DD'
-    date = GRADE_DATE or hr_date or iso_date or 'yesterday'   # M-D label for display
-    api_date = to_iso(hr_date, iso_date)            # full date for the API
+    if not iso_date:
+        iso_date = payload.get('slate_date')
+    api_date = to_iso(date, iso_date)            # full date for the API
     src = 'balldontlie' if BDL_KEY else 'MLB Stats API'
     print(f'Grading {date} (API date {api_date}, source {src}): {len(picks)} picks from {picks_path}, '
           f'{len(homers)} homers from {xlsx or "no workbook"}')
@@ -191,6 +231,10 @@ def grade():
         if mkt == 'HR':
             if homers:
                 win = nm in homers; got = 'HR' if win else '0 HR'
+            elif box.get('batters'):
+                b = box['batters'].get(nm, {})
+                if b:
+                    win = b['hr'] >= 1; got = 'HR' if win else '0 HR'
         elif box:
             b = box['batters'].get(nm, {}); pi = box['pitchers'].get(nm, {})
             if mkt == 'HIT' and b: win = b['h'] >= 1; got = f'{b["h"]} H'
