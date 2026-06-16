@@ -35,7 +35,7 @@ jobs:
       - name: Grade results and build the record page
         env:
           GRADE_DATE: ${{ github.event.inputs.grade_date }}
-          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+          BDL_KEY: ${{ secrets.BDL_KEY }}
         run: |
           python3 grade_results.py
           python3 build_record.py

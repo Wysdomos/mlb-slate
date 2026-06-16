@@ -29,10 +29,10 @@ jobs:
 
       - name: Find slate file
         run: |
-          XLSX=$(ls *.xlsx 2>/dev/null | head -1)
+          XLSX=$(python3 extract_xlsx.py --which)
           if [ -z "$XLSX" ]; then echo "No xlsx found" && exit 1; fi
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
-          echo "Using: $XLSX"
+          echo "Using newest slate by date: $XLSX"
 
       - name: Extract slate data
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
