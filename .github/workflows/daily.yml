@@ -81,7 +81,9 @@ jobs:
           git add k_savant_data.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update: $XLSX_FILE"
-            git push origin main
+            # rebase on any commits the grade workflow pushed in parallel, then push (retry once)
+            git pull --rebase --autostash origin main || true
+            git push origin main || (git pull --rebase --autostash origin main && git push origin main)
           else
             echo "No changes to commit"
           fi
