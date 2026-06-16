@@ -1,0 +1,53 @@
+name: For The Record
+
+on:
+  schedule:
+    - cron: '0 9 * * *'      # 09:00 UTC = 5 AM ET (EDT) — before the morning slate build
+  push:
+    paths:
+      - 'MLB_Slate_*.xlsx'    # re-grade whenever a new slate workbook is uploaded
+      - 'slate.xlsx'
+  workflow_dispatch:
+    inputs:
+      grade_date:
+        description: 'Date to grade (M-D, e.g. 6-14); blank = read from the results tab'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: for-the-record
+  cancel-in-progress: false
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Grade results and build the record page
+        env:
+          GRADE_DATE: ${{ github.event.inputs.grade_date }}
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+        run: |
+          python3 grade_results.py
+          python3 build_record.py
+
+      - name: Commit record.html + results.json
+        env:
+          GRADE_DATE: ${{ github.event.inputs.grade_date }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add record.html results.json
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m "For The Record: graded ${GRADE_DATE:-latest slate}"
+          git pull --rebase --autostash origin ${{ github.ref_name }} || true
+          git push
