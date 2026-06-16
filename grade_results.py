@@ -56,8 +56,56 @@ def read_hr_results(xlsx):
         print('HR results read failed:', e)
         return set(), ''
 
+BDL_KEY = os.environ.get('BALLDONTLIE_API_KEY', '').strip()
+_DBG = {'bdl': False}
+
+def _g(d, *keys, default=0):
+    """First present key — handles MLB field-name variants across providers."""
+    for k in keys:
+        if isinstance(d, dict) and d.get(k) is not None:
+            return d[k]
+    return default
+
+def fetch_bdl(date, key):
+    """balldontlie MLB box scores (your GOAT key) -> per-player actuals.
+    GET /mlb/v1/box_scores?date=YYYY-MM-DD  with header  Authorization: <key>."""
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            f'https://api.balldontlie.io/mlb/v1/box_scores?date={date}',
+            headers={'Authorization': key})
+        payload = json.load(urllib.request.urlopen(req, timeout=12))
+        out = {'batters': {}, 'pitchers': {}, 'first_inning': {}, 'totals': {}}
+        games = payload.get('data', [])
+        for g in games:
+            for side in ('home_team', 'visitor_team'):
+                for e in (g.get(side, {}) or {}).get('players', []):
+                    pl = e.get('player', {}) or {}
+                    nm = norm(f"{pl.get('first_name','')} {pl.get('last_name','')}")
+                    if not nm:
+                        continue
+                    if not _DBG['bdl']:   # one-time schema dump -> reveals real field names in the Actions log
+                        print('BDL sample player keys:', sorted(e.keys())); _DBG['bdl'] = True
+                    # batting (defensive field names)
+                    if _g(e, 'at_bats', 'ab', 'plate_appearances', 'hits', 'h', default=None) is not None:
+                        out['batters'][nm] = {
+                            'h': _g(e, 'hits', 'h'), 'hr': _g(e, 'home_runs', 'homeruns', 'hr'),
+                            'r': _g(e, 'runs', 'runs_scored', 'r'), 'rbi': _g(e, 'rbi', 'runs_batted_in', 'rbis'),
+                            'sb': _g(e, 'stolen_bases', 'sb'), 'd': _g(e, 'doubles', 'double', '2b')}
+                    # pitching — strikeouts decide the K market; rest is context
+                    k_ = _g(e, 'strikeouts_pitching', 'pitching_strikeouts', 'strike_outs', 'strikeouts', 'so', default=None)
+                    if k_ is not None and (e.get('innings_pitched') or e.get('ip') or e.get('batters_faced')):
+                        out['pitchers'][nm] = {
+                            'k': k_ or 0, 'h': _g(e, 'hits_allowed', 'pitching_hits', 'hits_against'),
+                            'er': _g(e, 'earned_runs', 'er'), 'outs': _g(e, 'outs', 'outs_pitched')}
+        print(f'balldontlie: {len(games)} games -> {len(out["batters"])} batters, {len(out["pitchers"])} pitchers')
+        return out
+    except Exception as e:
+        print('balldontlie unavailable:', e)
+        return {}
+
 def fetch_box_results(date):
-    """MLB Stats API box scores -> per-player actuals. Returns {} if unreachable (sandbox)."""
+    """MLB Stats API box scores (free, no key) -> per-player actuals. Fallback source."""
     try:
         import urllib.request
         base = 'https://statsapi.mlb.com/api/v1'
@@ -122,9 +170,18 @@ def grade():
     iso_date = payload.get('slate_date')           # 'YYYY-MM-DD'
     date = GRADE_DATE or hr_date or iso_date or 'yesterday'   # M-D label for display
     api_date = to_iso(hr_date, iso_date)            # full date for the API
-    print(f'Grading {date} (API date {api_date}): {len(picks)} picks from {picks_path}, '
+    src = 'balldontlie' if BDL_KEY else 'MLB Stats API'
+    print(f'Grading {date} (API date {api_date}, source {src}): {len(picks)} picks from {picks_path}, '
           f'{len(homers)} homers from {xlsx or "no workbook"}')
-    box = fetch_box_results(api_date) if api_date else {}
+    box = {}
+    if api_date:
+        if BDL_KEY:
+            box = fetch_bdl(api_date, BDL_KEY)
+            if not box.get('batters') and not box.get('pitchers'):
+                print('balldontlie returned no players — falling back to MLB Stats API')
+                box = fetch_box_results(api_date)
+        else:
+            box = fetch_box_results(api_date)
 
     graded = []   # {market, name, line, consensus, win(bool/None), got, detail}
     for p in picks:
