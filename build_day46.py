@@ -240,7 +240,7 @@ def build_headlines():
   <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
     <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
   </div>
-  <div class="flag-row" style="margin-top:14px;"><div class="icon">🧾</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
+  <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
 </section>
 '''
 

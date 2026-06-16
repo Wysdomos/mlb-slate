@@ -245,7 +245,7 @@ def build_headlines():
             'link_href':'#skip','link_text':'→ Daily Skip List','link_fade':True})
 
     # ---- For The Record (always last) ----
-    cards.append({'icon':'🧾','action_class':'','action_label':'FOR THE RECORD',
+    cards.append({'icon':'💿','action_class':'','action_label':'FOR THE RECORD',
         'style':'border-left:3px solid #35d6e8;',
         'action_style':'background:rgba(53,214,232,0.12);color:#35d6e8;border:1px solid rgba(53,214,232,0.4);',
         'title':"Yesterday's calls, graded",

@@ -97,35 +97,62 @@ def find_workbook():
     cands = sorted(glob.glob('MLB_Slate_*.xlsx'), key=os.path.getmtime)
     return cands[-1] if cands else ''
 
+def to_iso(hr_date, iso_date):
+    """Box-score API needs YYYY-MM-DD. Prefer the archived slate_date; else build from the tab suffix."""
+    if iso_date:
+        return iso_date
+    if hr_date and '-' in hr_date:
+        import datetime as _dt
+        try:
+            mm, dd = hr_date.split('-')[:2]
+            return f'{_dt.date.today().year}-{int(mm):02d}-{int(dd):02d}'
+        except Exception:
+            pass
+    return None
+
 def grade():
     xlsx = find_workbook()
     homers, hr_date = read_hr_results(xlsx)
-    date = GRADE_DATE or hr_date or 'yesterday'
     # Match the day's archived picks to the results tab (e.g. HR_Results_6-14 -> slate_picks_6-14.json)
     picks_path = PICKS_FILE
     if hr_date and os.path.exists(f'slate_picks_{hr_date}.json'):
         picks_path = f'slate_picks_{hr_date}.json'
-    picks = load_json(picks_path, {}).get('picks', [])
-    print(f'Grading {date}: {len(picks)} picks from {picks_path}, {len(homers)} homers from {xlsx or "no workbook"}')
-    box = fetch_box_results(date)
+    payload = load_json(picks_path, {})
+    picks = payload.get('picks', [])
+    iso_date = payload.get('slate_date')           # 'YYYY-MM-DD'
+    date = GRADE_DATE or hr_date or iso_date or 'yesterday'   # M-D label for display
+    api_date = to_iso(hr_date, iso_date)            # full date for the API
+    print(f'Grading {date} (API date {api_date}): {len(picks)} picks from {picks_path}, '
+          f'{len(homers)} homers from {xlsx or "no workbook"}')
+    box = fetch_box_results(api_date) if api_date else {}
 
-    graded = []   # {market, name, consensus, win(bool/None), got}
+    graded = []   # {market, name, line, consensus, win(bool/None), got, detail}
     for p in picks:
         mkt = p['market']; nm = norm(p['name']) if p.get('name') else ''
         win, got = None, '—'
+        detail = {}
         if mkt == 'HR':
             if homers:
                 win = nm in homers; got = 'HR' if win else '0 HR'
         elif box:
             b = box['batters'].get(nm, {}); pi = box['pitchers'].get(nm, {})
             if mkt == 'HIT' and b: win = b['h'] >= 1; got = f'{b["h"]} H'
-            elif mkt == 'HRR' and b: s = b['h']+b['r']+b['rbi']; win = s >= 1; got = f'{s} H+R+RBI'
+            elif mkt == 'HRR' and b:
+                s = b['h']+b['r']+b['rbi']; win = s >= 1; got = f'{s} H+R+RBI'
+                detail['actual'] = f'{b["h"]}H · {b["r"]}R · {b["rbi"]}RBI'
             elif mkt == 'SB' and b: win = b['sb'] >= 1; got = f'{b["sb"]} SB'
             elif mkt == '2B' and b: win = b['d'] >= 1; got = f'{b["d"]} 2B'
-            elif mkt == 'K' and pi: win = pi['k'] > p.get('win_at', 99); got = f'{pi["k"]} K'
-        graded.append({'market': mkt, 'name': p.get('name', ''),
+            elif mkt == 'K' and pi:
+                win = pi['k'] >= p.get('win_at', 99); got = f'{pi["k"]} K'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+        # K projected peripherals (the "added context") — shown graded or not
+        ctx = p.get('context') or {}
+        if mkt == 'K' and ctx:
+            detail['proj'] = (f'proj {ctx.get("proj_hits_allowed","?")}H · '
+                              f'{ctx.get("proj_runs_allowed","?")}R · {ctx.get("proj_era","?")} ERA')
+        graded.append({'market': mkt, 'name': p.get('name', ''), 'line': p.get('line', ''),
                        'consensus': p.get('consensus', 0), 'max': p.get('consensus_max', 6),
-                       'win': win, 'got': got, 'pick': p.get('pick', '')})
+                       'win': win, 'got': got, 'pick': p.get('pick', ''), 'detail': detail})
 
     # ---- HR consensus buckets (real where graded) ----
     hr = [g for g in graded if g['market'] == 'HR' and g['win'] is not None]
@@ -171,6 +198,26 @@ def grade():
                         'graded': bool(sub),
                         'picks': sum(1 for g in graded if g['market'] == key)})
 
+    # ---- per-market detail (rows + context) for the tab panels ----
+    market_detail = {}
+    for key, label, icon in META:
+        sub = [g for g in graded if g['market'] == key]
+        gd = [g for g in sub if g['win'] is not None]
+        pend = [g for g in sub if g['win'] is None]
+        gd_sorted = sorted(gd, key=lambda g: (-g['consensus'], 0 if g['win'] else 1))
+        pend_sorted = sorted(pend, key=lambda g: -g['consensus'])
+        rows = []
+        for g in (gd_sorted + pend_sorted)[:18]:
+            rows.append({
+                'wl': ('w' if g['win'] else 'l') if g['win'] is not None else 'p',
+                'name': g['name'], 'line': g['line'],
+                'consensus': g['consensus'], 'max': g['max'],
+                'got': g['got'], 'detail': g['detail'],
+            })
+        w = sum(1 for g in gd if g['win']); l = sum(1 for g in gd if not g['win'])
+        market_detail[key] = {'label': label, 'icon': icon, 'w': w, 'l': l,
+                              'graded': bool(gd), 'picks': len(sub), 'rows': rows}
+
     results = {
         'is_preview': not other_graded,
         'season_day': prev.get('season_day', 80),
@@ -179,6 +226,7 @@ def grade():
         'last7': {'w': l7w, 'l': l7l},
         'yesterday_date': date, 'yesterday': {'w': hr_w, 'l': hr_l},
         'markets': markets,
+        'market_detail': market_detail,
         'k_buckets': [],  # filled when API grading runs
         'hr_buckets': hr_buckets,
         'hr_insight': ('multi-lens bats homer above the field rate; zero-lens bats lag. '

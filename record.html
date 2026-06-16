@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>For The Record 🧾 — The Daily Slate</title>
+<title>For The Record 💿 — The Daily Slate</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
@@ -19,8 +19,7 @@
   --loss:#ff5a6a;--loss-bg:rgba(255,90,106,0.12);--loss-bd:rgba(255,90,106,0.42);
   --gold:#ffc24b;
   --radius:16px;--radius-sm:12px;--appbar-h:52px;
-  --grad:linear-gradient(135deg,var(--cy),var(--in));
-  --grad-h:linear-gradient(90deg,var(--cy),var(--in));
+  --grad:linear-gradient(135deg,var(--cy),var(--in));--grad-h:linear-gradient(90deg,var(--cy),var(--in));
   --header-bg:rgba(7,10,18,0.8);
   --font-display:"Bebas Neue","Arial Narrow",sans-serif;
   --font-body:"DM Sans",-apple-system,"Segoe UI",sans-serif;
@@ -59,22 +58,13 @@ button{font-family:inherit}
 .spacer{flex:1}
 .icon-btn{width:38px;height:38px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;
   background:var(--glass);border:1px solid var(--glass-border);color:var(--text);font-size:16px;cursor:pointer}
-.rail-wrap{position:sticky;top:calc(var(--appbar-h) + env(safe-area-inset-top,0px));z-index:55;background:var(--header-bg);
-  -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--glass-border)}
-.rail{display:flex;gap:7px;align-items:center;height:44px;overflow-x:auto;padding:0 12px;scrollbar-width:none}
-.rail::-webkit-scrollbar{display:none}
-.chip-nav{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;height:29px;padding:0 11px;border-radius:9px;
-  border:1px solid var(--glass-border);background:var(--glass);color:var(--text-dim);
-  font-family:var(--font-display);font-size:14px;letter-spacing:1.1px;white-space:nowrap;cursor:pointer}
-.chip-nav .e{font-family:var(--font-body);font-size:12px}
-.chip-nav.active{color:var(--cy);border-color:var(--cy);background:var(--cy-soft)}
 .wrap{max-width:680px;margin:0 auto;padding:0 14px}
-.hero{padding:20px 2px 2px}
+.hero{padding:20px 2px 6px}
 .eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--cy);font-weight:800}
 .title{font-family:var(--font-display);font-size:clamp(42px,13vw,64px);line-height:.9;letter-spacing:1.5px;margin:7px 0 0}
 .title em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .bigrec{display:flex;align-items:flex-end;gap:15px;margin:13px 0 0}
-.bigrec .rec{font-family:var(--font-mono);font-size:46px;font-weight:500;letter-spacing:1px;line-height:.85}
+.bigrec .rec{font-family:var(--font-mono);font-size:44px;font-weight:500;letter-spacing:1px;line-height:.85}
 .bigrec .rec em{font-style:normal;color:var(--text-dim)}
 .bigrec .meta{padding-bottom:5px}
 .bigrec .meta .p{font-family:var(--font-mono);font-size:17px;color:var(--win);line-height:1}
@@ -87,73 +77,85 @@ button{font-family:inherit}
 .banner{margin:12px 0 4px;padding:9px 12px;border-radius:var(--radius-sm);background:var(--cy-soft);
   border:1px solid rgba(53,214,232,.28);font-size:11.5px;color:var(--text-soft);line-height:1.55}
 .banner b{color:var(--cy)}
-.sec{margin:20px 0;scroll-margin-top:calc(var(--appbar-h) + 54px)}
+.sec{margin:18px 0;scroll-margin-top:calc(var(--appbar-h) + 54px)}
 .sec-hd{font-family:var(--font-display);font-size:21px;letter-spacing:1.1px;margin:0 0 11px;display:flex;align-items:baseline;gap:9px}
 .sec-hd span{font-family:var(--font-body);font-size:10px;color:var(--text-dim);font-weight:700;letter-spacing:.3px}
-.mkt-grid{display:flex;flex-wrap:wrap;gap:9px}
-.mkt{position:relative;flex:1 1 calc(50% - 5px);min-width:140px;padding:13px 14px 12px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-border);overflow:hidden}
-.mkt::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
-.mkt.off{opacity:.6}.mkt.off::before{background:var(--glass-border-2)}
-.mkt-top{display:flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--text-dim);font-weight:800}
-.mkt-ic{font-size:14px}
-.mkt-rec{font-family:var(--font-mono);font-size:27px;font-weight:500;letter-spacing:1px;margin:5px 0 1px;line-height:1}
-.mkt-rec em{font-style:normal;color:var(--text-dim);font-size:18px}
-.mkt-sub{font-size:10px;color:var(--text-soft);font-family:var(--font-mono)}
-.mkt-pend{display:inline-block;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);
-  border:1px solid var(--glass-border);border-radius:99px;padding:2px 9px}
-.mkt-bar{height:5px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:9px}
-.mkt-bar i{display:block;height:100%;background:var(--grad-h)}
-.cal{display:flex;align-items:center;gap:10px;margin:9px 0}
-.cal .tag{flex:0 0 104px;font-size:11px;font-weight:800}
-.cal .bar{flex:1;height:13px;border-radius:99px;background:var(--surface-2);overflow:hidden}
-.cal .bar i{display:block;height:100%;border-radius:99px;background:var(--grad-h)}
+/* ---- tabs ---- */
+.tabbar{position:sticky;top:calc(var(--appbar-h) + env(safe-area-inset-top,0px));z-index:40;
+  display:flex;gap:7px;overflow-x:auto;padding:8px 0;scrollbar-width:none;
+  background:var(--header-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.tabbar::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;display:flex;flex-direction:column;gap:2px;align-items:flex-start;padding:8px 13px;border-radius:12px;
+  background:var(--glass);border:1px solid var(--glass-border);cursor:pointer;min-width:76px}
+.tab .t-ic{font-size:15px;line-height:1}
+.tab .t-l{font-family:var(--font-display);font-size:15px;letter-spacing:.8px;color:var(--text-soft);line-height:1}
+.tab .t-r{font-family:var(--font-mono);font-size:10px;color:var(--text-dim);line-height:1}
+.tab.active{border-color:var(--accg);background:var(--glass-2);box-shadow:0 0 18px -8px var(--accg)}
+.tab.active .t-l,.tab.active .t-r{color:var(--acc)}
+.tab.active .t-ic{filter:drop-shadow(0 0 5px var(--accg))}
+.panel{display:none}
+.panel.active{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.panel-head{display:flex;align-items:flex-end;gap:14px;padding:15px;border-radius:14px;background:var(--glass);
+  border:1px solid var(--glass-border);border-left:3px solid var(--acc);margin-bottom:13px;box-shadow:inset 0 0 60px -42px var(--acc)}
+.ph-rec{font-family:var(--font-mono);font-size:40px;font-weight:500;letter-spacing:1px;line-height:.82;color:var(--text)}
+.ph-rec em{font-style:normal;color:var(--text-dim)}
+.ph-meta{padding-bottom:4px}
+.ph-pct{font-family:var(--font-mono);font-size:18px;color:var(--acc);line-height:1}
+.ph-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
+.block-h{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--text-dim);font-weight:800;margin:0 2px 8px}
+.cmp{padding:12px 13px;border-radius:13px;background:var(--glass);border:1px solid var(--glass-border);margin-bottom:13px}
+.cmp-row{display:flex;align-items:center;gap:9px;margin:6px 0;opacity:.62}
+.cmp-row.on{opacity:1}
+.cmp-n{flex:0 0 70px;font-size:10.5px;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmp-row.on .cmp-n{color:var(--acc);font-weight:700}
+.cmp-bar{flex:1;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.cmp-bar i{display:block;height:100%;border-radius:99px;background:var(--acc)}
+.cmp-v{flex:0 0 auto;font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim);min-width:34px;text-align:right}
+.note{font-size:11px;color:var(--text-soft);background:var(--cy-soft);border:1px solid rgba(53,214,232,.2);
+  border-radius:11px;padding:9px 11px;margin-bottom:13px;line-height:1.5}
+.cal{display:flex;align-items:center;gap:10px;margin:8px 0}
+.cal .tag{flex:0 0 100px;font-size:11px;font-weight:800}
+.cal .bar{flex:1;height:12px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.cal .bar i{display:block;height:100%;border-radius:99px;background:var(--acc)}
 .cal .bar i.s{background:linear-gradient(90deg,var(--gold),rgba(255,194,75,.45))}
 .cal .bar i.f{background:var(--glass-border-2)}
-.cal .num{flex:0 0 auto;font-family:var(--font-mono);font-size:12px;color:var(--text-soft);min-width:96px;text-align:right}
-.t-e{color:var(--cy)}.t-s{color:var(--gold)}.t-f{color:var(--text-dim)}
-.insight{margin:13px 0 0;padding:10px 12px;border-radius:var(--radius-sm);background:rgba(109,114,255,.08);
-  border:1px solid rgba(109,114,255,.22);font-size:12px;color:var(--text-soft);line-height:1.55}
-.insight b{color:var(--in)}
-.spark{display:flex;gap:5px;align-items:flex-end;height:62px}
+.cal .num{flex:0 0 auto;font-family:var(--font-mono);font-size:11.5px;color:var(--text-soft);min-width:92px;text-align:right}
+.t-e{color:var(--acc)}.t-s{color:var(--gold)}.t-f{color:var(--text-dim)}
+.cal-wrap{padding:12px 13px;border-radius:13px;background:var(--glass);border:1px solid var(--glass-border);margin-bottom:13px}
+.pk-list{display:flex;flex-direction:column;gap:7px}
+.pk{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:var(--glass);border:1px solid var(--glass-border)}
+.pk-who{flex:1;min-width:0}
+.pk-who b{font-size:12.5px}
+.pk-who small{display:block;color:var(--text-dim);font-size:10px;margin-top:1px}
+.pk-ctx{font-family:var(--font-mono);font-size:9.5px;color:var(--text-soft);margin-top:3px;opacity:.85}
+.pk .got{font-family:var(--font-mono);font-size:11px;color:var(--text-soft);white-space:nowrap}
+.wl{flex:0 0 auto;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:14px}
+.wl.w{background:var(--win-bg);border:1px solid var(--win-bd);color:var(--win)}
+.wl.l{background:var(--loss-bg);border:1px solid var(--loss-bd);color:var(--loss)}
+.wl.p{background:var(--glass);border:1px solid var(--glass-border-2);color:var(--text-dim)}
+.spark{display:flex;gap:5px;align-items:flex-end;height:60px}
 .spark b{flex:1;border-radius:4px 4px 0 0;background:var(--grad);opacity:.92}
 .spark b.dn{background:linear-gradient(var(--loss),rgba(255,90,106,.5))}
 .spark-labels{display:flex;gap:5px;margin-top:5px}
 .spark-labels span{flex:1;text-align:center;font-family:var(--font-mono);font-size:8.5px;color:var(--text-dim)}
 .muted{font-size:11.5px;color:var(--text-dim)}
-.row{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-sm);
-  background:var(--glass);border:1px solid var(--glass-border);margin:7px 0}
-.row .who{flex:1;min-width:0;font-size:12.5px}
-.row .who b{font-size:13px}
-.row .who small{display:block;color:var(--text-dim);font-size:10.5px;margin-top:1px}
-.row .got{font-family:var(--font-mono);font-size:12px;color:var(--text-soft);white-space:nowrap}
-.wl{flex:0 0 auto;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:15px}
-.wl.w{background:var(--win-bg);border:1px solid var(--win-bd);color:var(--win)}
-.wl.l{background:var(--loss-bg);border:1px solid var(--loss-bd);color:var(--loss)}
 .rules{font-size:11.5px;color:var(--text-dim);line-height:1.7}
 .rules b{color:var(--text-soft)}
-.foot{max-width:680px;margin:24px auto 6px;text-align:center;font-size:11px;color:var(--text-dim);font-family:var(--font-mono)}
+.foot{max-width:680px;margin:22px auto 6px;text-align:center;font-size:11px;color:var(--text-dim);font-family:var(--font-mono)}
 </style>
 </head>
 <body>
 <header class="app-bar">
   <a class="back-chip" href="index.html" aria-label="Back to slate">&lsaquo;</a>
-  <a class="brand" href="index.html"><span class="wm">FOR THE <em>RECORD</em> 🧾</span></a>
+  <a class="brand" href="index.html"><span class="wm">FOR THE <em>RECORD</em> 💿</span></a>
   <div class="spacer"></div>
   <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">&#127769;</button>
 </header>
-<nav class="rail-wrap"><div class="rail">
-  <button class="chip-nav" onclick="window.scrollTo({top:0,behavior:'smooth'})"><span class="e">&#8676;</span></button>
-  <a class="chip-nav" href="#markets"><span class="e">&#9636;</span>MARKETS</a>
-  <a class="chip-nav" href="#cal"><span class="e">&#128202;</span>CALIBRATION</a>
-  <a class="chip-nav" href="#trend"><span class="e">&#128200;</span>TREND</a>
-  <a class="chip-nav" href="#yesterday"><span class="e">&#128203;</span>GRADES</a>
-  <a class="chip-nav" href="#rules"><span class="e">&#129518;</span>RULES</a>
-</div></nav>
 <div class="wrap">
   <div class="hero">
-    <div class="eyebrow">Every call &middot; graded vs the box score</div>
-    <div class="title">FOR THE <em>RECORD</em> 🧾</div>
+    <div class="eyebrow">Every call · graded vs the box score</div>
+    <div class="title">FOR THE <em>RECORD</em> 💿</div>
     <div class="bigrec">
       <div class="rec">7<em>-</em>43</div>
       <div class="meta"><div class="p">14%</div><div class="lbl">Season win rate</div></div>
@@ -161,65 +163,172 @@ button{font-family:inherit}
     <div class="rule"></div>
     <div class="chips">
       <span class="chip"><span class="led"></span>DAY 78</span>
-      <span class="chip">L7 &middot; 7-43</span>
+      <span class="chip">L7 · 7-43</span>
       <span class="chip">UPDATED 6-14 graded</span>
     </div>
-    <div class="banner"><b>Preview</b> &mdash; HR is graded from the results tab. K, Hits and the rest grade live from the box score each morning and fill in here.</div>
+    <div class="banner"><b>Preview</b> — HR is graded from the results tab. K, Hits and the rest grade live from the box score each morning and light up here.</div>
   </div>
 
-  <div class="sec" id="markets">
-    <h2 class="sec-hd">&#9636; MARKETS <span>record by bet type</span></h2>
-    <div class="mkt-grid"><div class="mkt"><div class="mkt-top"><span class="mkt-ic">🏆</span>HR</div><div class="mkt-rec">7<em>-</em>43</div><div class="mkt-sub">14% · 50 calls</div><div class="mkt-bar"><i style="width:14%"></i></div></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">⚡</span>K</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">28 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">🎯</span>Hits</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">50 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">💥</span>HRR</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">50 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">📈</span>Totals</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">15 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">🥶</span>NRFI</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">13 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">🏃</span>SB</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">20 calls</div><span class="mkt-pend">pending</span></div>
-<div class="mkt off"><div class="mkt-top"><span class="mkt-ic">💎</span>2B</div><div class="mkt-rec"><em>&mdash;</em></div><div class="mkt-sub">20 calls</div><span class="mkt-pend">pending</span></div></div>
+  <div class="tabbar" id="tabbar"><button class="tab active" data-m="HR" style="--acc:#ffc24b;--accg:rgba(255,194,75,.45)"><span class="t-ic">🏆</span><span class="t-l">HR</span><span class="t-r">7-43</span></button><button class="tab " data-m="K" style="--acc:#35d6e8;--accg:rgba(53,214,232,.45)"><span class="t-ic">⚡</span><span class="t-l">K</span><span class="t-r">pend</span></button><button class="tab " data-m="HIT" style="--acc:#2fe0a0;--accg:rgba(47,224,160,.45)"><span class="t-ic">🎯</span><span class="t-l">Hits</span><span class="t-r">pend</span></button><button class="tab " data-m="HRR" style="--acc:#ff8a4a;--accg:rgba(255,138,74,.45)"><span class="t-ic">💥</span><span class="t-l">HRR</span><span class="t-r">pend</span></button><button class="tab " data-m="TOTAL" style="--acc:#56a8ff;--accg:rgba(86,168,255,.45)"><span class="t-ic">📈</span><span class="t-l">Totals</span><span class="t-r">pend</span></button><button class="tab " data-m="NRFI" style="--acc:#8ab4ff;--accg:rgba(138,180,255,.45)"><span class="t-ic">🥶</span><span class="t-l">NRFI</span><span class="t-r">pend</span></button><button class="tab " data-m="SB" style="--acc:#2ad6c0;--accg:rgba(42,214,192,.45)"><span class="t-ic">🏃</span><span class="t-l">SB</span><span class="t-r">pend</span></button><button class="tab " data-m="2B" style="--acc:#9b7cff;--accg:rgba(155,124,255,.45)"><span class="t-ic">💎</span><span class="t-l">2B</span><span class="t-r">pend</span></button></div>
+  <div class="panels">
+<section class="panel active" id="p-HR" style="--acc:#ffc24b;--accg:rgba(255,194,75,.45)"><div class="panel-head"><div class="ph-rec">7<em>-</em>43</div><div class="ph-meta"><div class="ph-pct">14%</div><div class="ph-lbl">🏆 HR · 50 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row on" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="cal-wrap"><div class="block-h">by consensus — does agreement convert?</div><div class="cal"><span class="tag t-e">🔒 5–6 lenses</span><span class="bar"><i class="e" style="width:17%"></i></span><span class="num">1-5 · 17%</span></div>
+<div class="cal"><span class="tag t-e">4 lenses</span><span class="bar"><i class="e" style="width:18%"></i></span><span class="num">2-9 · 18%</span></div>
+<div class="cal"><span class="tag t-s">2–3 lenses</span><span class="bar"><i class="s" style="width:12%"></i></span><span class="num">4-29 · 12%</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl w">W</span><div class="pk-who"><b>JJ Bleday Ov 0.5</b><small>5/6 consensus</small></div><span class="got">HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Dominic Canzone Ov 0.5</b><small>5/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Luke Raley Ov 0.5</b><small>5/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Sal Stewart Ov 0.5</b><small>5/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Manny Machado Ov 0.5</b><small>5/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Corbin Carroll Ov 0.5</b><small>5/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl w">W</span><div class="pk-who"><b>Hunter Goodman Ov 0.5</b><small>4/6 consensus</small></div><span class="got">HR</span></div>
+<div class="pk"><span class="wl w">W</span><div class="pk-who"><b>James Wood Ov 0.5</b><small>4/6 consensus</small></div><span class="got">HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Nathaniel Lowe Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Spencer Steer Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Gavin Sheets Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Jackson Merrill Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Ketel Marte Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Josh Naylor Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Shohei Ohtani Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Nick Kurtz Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl l">L</span><div class="pk-who"><b>Colt Emerson Ov 0.5</b><small>4/6 consensus</small></div><span class="got">0 HR</span></div>
+<div class="pk"><span class="wl w">W</span><div class="pk-who"><b>Junior Caminero Ov 0.5</b><small>3/6 consensus</small></div><span class="got">HR</span></div></div></section><section class="panel " id="p-K" style="--acc:#35d6e8;--accg:rgba(53,214,232,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">⚡ K · 28 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row on" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="note">Each K call carries its <b>pitcher context</b> — projected hits / runs / ERA, and the actual line once graded. The strikeout result decides the W; the rest is the "why".</div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Gavin Williams O 5+</b><small>5/5 consensus</small><div class="pk-ctx">proj 5.66H · 2.62R · 3.32 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Taj Bradley O 5+</b><small>5/5 consensus</small><div class="pk-ctx">proj 4.92H · 2.71R · 4.02 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Kyle Harrison O 5+</b><small>4/5 consensus</small><div class="pk-ctx">proj 4.58H · 2.11R · 2.72 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Cristopher Sanchez O 5+</b><small>4/5 consensus</small><div class="pk-ctx">proj 5.09H · 1.78R · None ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Connelly Early O 5+</b><small>4/5 consensus</small><div class="pk-ctx">proj 5.47H · 2.78R · 3.3 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Paul Skenes O 5+</b><small>4/5 consensus</small><div class="pk-ctx">proj 4.65H · 1.7R · 2.84 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Freddy Peralta O 5+</b><small>4/5 consensus</small><div class="pk-ctx">proj 5.19H · 2.55R · 4.04 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Max Meyer O 5+</b><small>3/5 consensus</small><div class="pk-ctx">proj 4.65H · 2.25R · 2.85 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Emmet Sheehan O 5+</b><small>3/5 consensus</small><div class="pk-ctx">proj 3.88H · 1.88R · 4.7 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Logan Webb O 5+</b><small>2/5 consensus</small><div class="pk-ctx">proj 6.25H · 2.57R · 3.88 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Casey Mize O 3.5</b><small>1/5 consensus</small><div class="pk-ctx">proj 3.66H · 1.68R · 2.27 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Grayson Rodriguez O 3.5</b><small>1/5 consensus</small><div class="pk-ctx">proj 5.35H · 2.29R · 8.1 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Nathan Eovaldi O 2.5</b><small>1/5 consensus</small><div class="pk-ctx">proj 6.25H · 2.92R · 4.26 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Will Warren O 2.5</b><small>1/5 consensus</small><div class="pk-ctx">proj 5.18H · 2.39R · 3.41 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Stephen Kolek O 2.5</b><small>1/5 consensus</small><div class="pk-ctx">proj 5.88H · 2.77R · 3.14 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Bryce Elder O 3.5</b><small>0/5 consensus</small><div class="pk-ctx">proj 5.2H · 2.55R · 2.66 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Emerson Hancock O 2.5</b><small>0/5 consensus</small><div class="pk-ctx">proj 6.22H · 3.35R · 2.74 ERA</div></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jeffrey Springs O 2.5</b><small>0/5 consensus</small><div class="pk-ctx">proj 6.23H · 3.59R · 4.68 ERA</div></div><span class="got">pending</span></div></div></section><section class="panel " id="p-HIT" style="--acc:#2fe0a0;--accg:rgba(47,224,160,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">🎯 Hits · 50 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Shea Langeliers Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Nick Kurtz Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Zack Gelof Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Julio Rodriguez Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Josh Naylor Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Dominic Canzone Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Cole Young Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Colt Emerson Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Luke Raley Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Royce Lewis Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Pete Alonso Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jackson Merrill Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Gabriel Moreno Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Xander Bogaerts Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Manny Machado Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Kyle Karros Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Hunter Goodman Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Freddie Freeman Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div></div></section><section class="panel " id="p-HRR" style="--acc:#ff8a4a;--accg:rgba(255,138,74,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">💥 HRR · 50 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Shea Langeliers Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Nick Kurtz Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Zack Gelof Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Julio Rodriguez Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Josh Naylor Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Dominic Canzone Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Cole Young Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Colt Emerson Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Luke Raley Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Royce Lewis Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Pete Alonso Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jackson Merrill Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Gabriel Moreno Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Xander Bogaerts Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Manny Machado Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Kyle Karros Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Hunter Goodman Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Freddie Freeman Ov 0.5</b><small>3/5 consensus</small></div><span class="got">pending</span></div></div></section><section class="panel " id="p-TOTAL" style="--acc:#56a8ff;--accg:rgba(86,168,255,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">📈 Totals · 15 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>2/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>2/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>2/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>2/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div></div></section><section class="panel " id="p-NRFI" style="--acc:#8ab4ff;--accg:rgba(138,180,255,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">🥶 NRFI · 13 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>4/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>3/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>2/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>1/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>0/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>0/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>0/4 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b></b><small>0/4 consensus</small></div><span class="got">pending</span></div></div></section><section class="panel " id="p-SB" style="--acc:#2ad6c0;--accg:rgba(42,214,192,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">🏃 SB · 20 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Bobby Witt Jr. Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Maikel Garcia Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jose Caballero Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Pete Crow-Armstrong Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Chandler Simpson Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Samad Taylor Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jazz Chisholm Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Fernando Tatis Jr. Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Trea Turner Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Bryson Stott Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Nasim Nunez Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jorge Mateo Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Travis Bazzana Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Dylan Crews Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jacob Young Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jase Bowen Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Corbin Carroll Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jake McCarthy Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div></div></section><section class="panel " id="p-2B" style="--acc:#9b7cff;--accg:rgba(155,124,255,.45)"><div class="panel-head"><div class="ph-rec"><em>—</em></div><div class="ph-meta"><div class="ph-pct">pending</div><div class="ph-lbl">💎 2B · 20 calls</div></div></div><div class="cmp"><div class="block-h">vs other markets</div><div class="cmp-row" style="--acc:#ffc24b"><span class="cmp-n">🏆 HR</span><span class="cmp-bar"><i style="width:14%"></i></span><span class="cmp-v">14%</span></div><div class="cmp-row" style="--acc:#35d6e8"><span class="cmp-n">⚡ K</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2fe0a0"><span class="cmp-n">🎯 Hits</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#ff8a4a"><span class="cmp-n">💥 HRR</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#56a8ff"><span class="cmp-n">📈 Totals</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#8ab4ff"><span class="cmp-n">🥶 NRFI</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row" style="--acc:#2ad6c0"><span class="cmp-n">🏃 SB</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div><div class="cmp-row on" style="--acc:#9b7cff"><span class="cmp-n">💎 2B</span><span class="cmp-bar"><i style="width:0%"></i></span><span class="cmp-v">—</span></div></div><div class="block-h">calls</div><div class="pk-list"><div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Tyler Soderstrom Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Wilyer Abreu Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Zack Gelof Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Ty France Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Ezequiel Tovar Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Corey Seager Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Lawrence Butler Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Kyle Karros Ov 0.5</b><small>3/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Shea Langeliers Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Jacob Wilson Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Nick Kurtz Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Masataka Yoshida Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Pete Alonso Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Mickey Gasper Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Willson Contreras Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Brandon Nimmo Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>TJ Rumfield Ov 0.5</b><small>2/3 consensus</small></div><span class="got">pending</span></div>
+<div class="pk"><span class="wl p">·</span><div class="pk-who"><b>Paul Goldschmidt Ov 0.5</b><small>1/3 consensus</small></div><span class="got">pending</span></div></div></section>
   </div>
 
-  <div class="sec" id="cal">
-    <h2 class="sec-hd">&#128202; CONSENSUS CALIBRATION <span>HR &middot; does agreement convert?</span></h2>
-    <div class="cal"><span class="tag t-e">🔒 5–6 lenses</span><span class="bar"><i class="e" style="width:17%"></i></span><span class="num">1-5 &middot; 17%</span></div>
-<div class="cal"><span class="tag t-e">4 lenses</span><span class="bar"><i class="e" style="width:18%"></i></span><span class="num">2-9 &middot; 18%</span></div>
-<div class="cal"><span class="tag t-s">2–3 lenses</span><span class="bar"><i class="s" style="width:12%"></i></span><span class="num">4-29 &middot; 12%</span></div>
-    <div class="insight"><b>Read:</b> multi-lens bats homer above the field rate; zero-lens bats lag. Agreement is the edge — and it sharpens as more days are graded.</div>
-  </div>
-
-  <div class="sec" id="trend">
-    <h2 class="sec-hd">&#128200; DAILY HIT RATE <span>recent slates &middot; &#8805; 50% lifts</span></h2>
+  <div class="sec">
+    <h2 class="sec-hd">&#128200; DAILY HIT RATE <span>recent slates · &#8805; 50% lifts</span></h2>
     <div class="spark"><b style="height:14%" class="dn"></b></div><div class="spark-labels"><span>6-14</span></div>
   </div>
 
-  <div class="sec" id="yesterday">
-    <h2 class="sec-hd">&#128203; GRADES <span>6-14 &middot; top calls by consensus</span></h2>
-    <div class="row"><span class="wl w">W</span><span class="who"><b>JJ Bleday — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Dominic Canzone — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Luke Raley — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Sal Stewart — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Manny Machado — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Corbin Carroll — 1+ HR</b><small>5/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Nathaniel Lowe — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Spencer Steer — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Gavin Sheets — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Jackson Merrill — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Ketel Marte — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Josh Naylor — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl l">L</span><span class="who"><b>Shohei Ohtani — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">0 HR</span></div>
-<div class="row"><span class="wl w">W</span><span class="who"><b>Hunter Goodman — 1+ HR</b><small>4/6 consensus · HR Board</small></span><span class="got">HR</span></div>
-  </div>
-
-  <div class="sec" id="rules">
+  <div class="sec">
     <h2 class="sec-hd">&#129518; HOW IT'S GRADED <span>what counts as a win</span></h2>
     <p class="rules"><b>HR / Hits / SB / 2B:</b> the bat records 1+. <b>HRR:</b> hits + runs + RBIs &#8805; 1.
-    <b>K:</b> strikeouts clear the line (a pitcher's hits, earned runs and outs ride along as context).
-    <b>Totals / NRFI:</b> the lean vs the actual result. Scratches and postponements are voided.
-    Grades pull from the official box score the next morning &mdash; no judgment calls. <b>Losses stay on the board.</b></p>
+    <b>K:</b> strikeouts clear the line (pitcher hits / ER / outs ride along as context). <b>Totals / NRFI:</b> the lean
+    vs the actual result. Scratches and postponements are voided. Grades pull from the official box score &mdash;
+    no judgment calls. <b>Losses stay on the board.</b></p>
   </div>
 </div>
 <div class="foot">For The Record &middot; part of The Daily Slate &#9918;</div>
 <script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    var m=t.getAttribute('data-m');
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    var p=document.getElementById('p-'+m); if(p) p.classList.add('active');
+    t.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+  });
+});
 (function(){var c='dark';try{var s=localStorage.getItem('slateTheme');if(s==='light'||s==='dark')c=s;}catch(e){}
 document.documentElement.setAttribute('data-theme',c);
 var t=document.getElementById('themeToggle');t.textContent=c==='dark'?'\uD83C\uDF19':'\u2600\uFE0F';
