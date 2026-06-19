@@ -81,9 +81,16 @@ jobs:
           git add k_savant_data.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update: $XLSX_FILE"
-            # rebase on any commits the grade workflow pushed in parallel, then push (retry once)
-            git pull --rebase --autostash origin main || true
-            git push origin main || (git pull --rebase --autostash origin main && git push origin main)
+            # Generated files (index.html etc.) can't be line-merged with a parallel build,
+            # so merge the remote keeping OUR freshly-built versions, and retry the push.
+            pushed=0
+            for i in 1 2 3 4 5; do
+              git fetch origin main || true
+              git merge -X ours --no-edit origin/main || git merge --abort || true
+              if git push origin main; then pushed=1; echo "pushed on attempt $i"; break; fi
+              echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
+            done
+            [ "$pushed" = 1 ] || { echo "push failed after retries"; exit 1; }
           else
             echo "No changes to commit"
           fi
