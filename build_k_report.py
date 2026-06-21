@@ -1123,6 +1123,7 @@ def v41_streaks(h):
       '<a class="dock-btn" href="index.html"><span class="di">\u26be</span><span class="dl">SLATE</span></a>'
       '<a class="dock-btn" href="k-report.html"><span class="di">\U0001F4F0</span><span class="dl">K REPORT</span></a>'
       '<a class="dock-btn" href="scout.html"><span class="di">\u26a1</span><span class="dl">SSJ</span></a>'
+      '<a class="dock-btn" href="record.html"><span class="di">\U0001F4BF</span><span class="dl">RECORD</span></a>'
       '</nav>\n'
       '<script>(function(){'
       'var rail=document.querySelector(".rail");'

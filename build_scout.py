@@ -8,14 +8,14 @@ import json, os, re
 
 HR_LB = []; SP_PROJ = []; SS_BY_NAME = {}; BP_BAT = []; GAMES = []
 TODAY_STR = ""; DAY_NUM = ""
-_SSA = []; _SCOUT = []
+_SSA = []; _SCOUT = []; _STREAKS = []
 
-def set_data(hr_lb, sp_proj, ss_by_name, bp_bat, games, today_str, day_num="", ssa=None, scout=None):
-    global HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES, TODAY_STR, DAY_NUM, _SSA, _SCOUT
+def set_data(hr_lb, sp_proj, ss_by_name, bp_bat, games, today_str, day_num="", ssa=None, scout=None, streaks=None):
+    global HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES, TODAY_STR, DAY_NUM, _SSA, _SCOUT, _STREAKS
     HR_LB, SP_PROJ, SS_BY_NAME = hr_lb, sp_proj, ss_by_name
     BP_BAT, GAMES = bp_bat, games
     TODAY_STR = today_str; DAY_NUM = day_num
-    _SSA = ssa or []; _SCOUT = scout or []
+    _SSA = ssa or []; _SCOUT = scout or []; _STREAKS = streaks or []
 
 # ── helpers ───────────────────────────────────────────────────────────
 def tn(t):
@@ -98,6 +98,12 @@ def _ssj(p):
 
 # ── build ────────────────────────────────────────────────────────────
 def build():
+    # Streaks tab lookup: keyed by batter name (fields: 'Hit Streak', 'HR Streak')
+    _streak_lu = {}
+    for _sr in _STREAKS:
+        _nm = (_sr.get('Batter') or '').strip().lower()
+        if _nm: _streak_lu[_nm] = _sr
+
     # Scout tab: ISO/wOBA lookup (filter out placeholder rows where ISO >= 0.40)
     _scout_lu = {}
     for _sr in _SCOUT:
@@ -140,8 +146,10 @@ def build():
             woba=str(_scout_lu.get(batter.lower(),{}).get('woba') or r.get("xwOBA","—") or '—'),
             hr=int(r.get("HR") or 0), grade=grade,
             zone=parse_zone(r.get("Zone","")),
-            hitStreak=int(r.get("hitStreak") or r.get("HitStreak") or 0),
-            hrStreak =int(r.get("hrStreak")  or r.get("HRStreak")  or 0),
+            hitStreak=int((_streak_lu.get(batter.lower()) or {}).get("Hit Streak")
+                         or r.get("hitStreak") or r.get("HitStreak") or 0),
+            hrStreak =int((_streak_lu.get(batter.lower()) or {}).get("HR Streak")
+                         or r.get("hrStreak")  or r.get("HRStreak")  or 0),
             hrrStreak=int(r.get("hrrStreak") or r.get("HRRStreak") or 0),
             vulnScore=vs, projHits=ph, projERA=pe,
         )
@@ -238,7 +246,7 @@ def _html(data_json, counts_json, today_str):
       ]},
       {"title":"FUSIONS — PARLAY BUILDER","entries":[
         {"term":"How Fusions Work","def":"The system randomly picks 25 pairs from the Top 50 SSJ Matchups and presents them as parlay candidates. Both players in each Fusion are shown with full card stats — you can evaluate the pair directly without switching tabs."},
-        {"term":"\U0001f500 RE-FUSE","def":"Generates 25 brand new random pairs from the same Top 50 pool without reloading the page. Hit it multiple times to explore different combinations."},
+        {"term":"🔁 RE-FUSE","def":"Generates 25 brand new random pairs from the same Top 50 pool without reloading the page. Hit it multiple times to explore different combinations."},
         {"term":"\u26a1 ELITE","def":"Both players in the Fusion are STRONG (Super Saiyan) grade. Highest-quality parlay tier. An ELITE Fusion with SAME GAME tag is the most correlated, highest-upside combination."},
         {"term":"\U0001f525 SOLID","def":"At least one player in the Fusion is STRONG. Strong parlay with one dominant anchor leg."},
         {"term":"BASE FORM","def":"Both players are MODERATE grade. Solid supporting play parlay. Lower upside but lower variance."},
@@ -339,11 +347,14 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   background:var(--danger-s);color:var(--danger);border:1px solid rgba(255,80,80,.3);letter-spacing:.08em}
 .rn{font-family:"Bebas Neue",sans-serif;font-size:20px;line-height:1;display:block;margin-bottom:6px}
 .sr{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid}
-.si .sl{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.si .sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:"Bebas Neue",sans-serif}
 .si .sv{font-size:13px;font-weight:700}
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
-  padding:2px 9px;border-radius:10px;background:rgba(255,255,255,.055)}
+  padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
+  font-family:"Bebas Neue",sans-serif;
+  font-family:"Bebas Neue",sans-serif;color:rgba(255,215,0,.55)}
 .tc{display:flex;margin-top:9px;padding-top:8px;border-top:1px solid}
 .tc .col{flex:1}
 .cd{width:1px;background:rgba(255,255,255,.1);margin:0 12px}
@@ -366,10 +377,12 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   color:var(--gold);letter-spacing:.1em;
   text-shadow:0 0 18px rgba(255,215,0,.65),0 0 40px rgba(255,215,0,.3)}
 .fs{font-size:10px;color:rgba(255,215,0,.4);letter-spacing:.14em;margin-top:4px}
-#rf{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.38);color:var(--gold);
-  font-size:12px;font-weight:700;padding:9px 14px;border-radius:6px;cursor:pointer;
-  letter-spacing:.08em;font-family:"Rajdhani",sans-serif;flex-shrink:0;margin-left:10px;
-  box-shadow:0 0 10px rgba(255,215,0,.12)}
+@keyframes rfglow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4),0 0 18px rgba(255,215,0,.15)}
+  50%{box-shadow:0 0 18px rgba(255,215,0,.85),0 0 38px rgba(255,215,0,.35)}}
+#rf{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.5);color:var(--gold);
+  font-size:13px;font-weight:700;padding:9px 16px;border-radius:6px;cursor:pointer;
+  letter-spacing:.1em;font-family:"Bebas Neue",sans-serif;flex-shrink:0;margin-left:10px;
+  animation:rfglow 2s ease-in-out infinite}
 .fc{border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid rgba(255,215,0,.25);
   background:linear-gradient(135deg,rgba(255,215,0,.06) 0%,rgba(255,80,0,.03) 50%,rgba(255,215,0,.06) 100%)}
 .fm{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
@@ -408,6 +421,38 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   transition:color .15s ease;min-width:50px}
 .da:hover,.da.act{color:var(--gold)}
 .di{font-size:16px;line-height:1}
+[data-theme="light"]{
+  --bg:#FBF7E6;--gold:#A07000;--gold-d:rgba(160,112,0,.5);--gold-s:rgba(160,112,0,.08);
+  --danger:#C02020;--danger-s:rgba(192,32,32,.1);--text:#1A1000;--text-d:rgba(26,16,0,.5);
+  --border:rgba(26,16,0,.1)}
+[data-theme="light"] body{background:#FBF7E6;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.006) 2px,rgba(0,0,0,.006) 3px),
+    radial-gradient(ellipse 80% 40% at 50% 0%,rgba(160,112,0,.05) 0%,transparent 70%)}
+[data-theme="light"] #app-bar{background:rgba(251,247,230,.94);border-color:rgba(160,112,0,.15)}
+[data-theme="light"] #hdr{background:linear-gradient(180deg,rgba(160,112,0,.06) 0%,transparent 100%);
+  border-color:rgba(160,112,0,.1)}
+[data-theme="light"] #spills,[data-theme="light"] .tab-row{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] #gf{border-color:rgba(0,0,0,.08)}
+[data-theme="light"] #gf select{background:#FFF8E0;border-color:rgba(160,112,0,.25);color:#1A1000}
+[data-theme="light"] .card.moderate,[data-theme="light"] .card.bad{background:rgba(0,0,0,.03)}
+[data-theme="light"] .fc{background:linear-gradient(135deg,rgba(160,112,0,.07) 0%,rgba(180,90,0,.03) 50%,rgba(160,112,0,.07) 100%)}
+[data-theme="light"] #dock{background:rgba(251,247,230,.92)}
+[data-theme="light"] #scroll-track{background:rgba(160,112,0,.12)}
+[data-theme="light"] #scroll-thumb{background:rgba(160,112,0,.25);border-color:rgba(160,112,0,.5)}
+[data-theme="light"] #scroll-thumb .grip-line{background:var(--gold)}
+#app-bar{display:flex;align-items:center;padding:8px 14px;gap:10px;
+  background:rgba(7,7,7,.92);backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(255,215,0,.12)}
+.back-chip{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
+  color:var(--gold);text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.bar-spacer{flex:1}
+.icon-btn{width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
+  color:var(--gold);font-size:15px;cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center}
 #scroll-track{position:fixed;right:6px;top:50%;transform:translateY(-50%);height:56vh;width:6px;
   background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.12);border-radius:999px;z-index:64}
 #scroll-thumb{position:absolute;left:50%;transform:translateX(-50%);width:28px;height:52px;
@@ -424,6 +469,11 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 </head>
 <body>
 ''')
+    parts.append('<div id="app-bar">\n')
+    parts.append('  <a class="back-chip" href="index.html">‹</a>\n')
+    parts.append('  <div class="bar-spacer"></div>\n')
+    parts.append('  <button class="icon-btn" id="themeToggle">🌙</button>\n')
+    parts.append('</div>\n')
     parts.append('<div id="hdr">\n')
     parts.append('  <div class="ghost">\u26a1</div>\n')
     parts.append('  <h1 class="t-glow">SSJ (THE ZONE) \u26a1</h1>\n')
@@ -449,11 +499,11 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 <main id="content"></main>
 <div id="scroll-track"><div id="scroll-thumb"><div class="grip-line"></div><div class="grip-line"></div><div class="grip-line"></div></div></div>
 <nav id="dock">
-  <a class="da" href="index.html"><span class="di">\U0001f4ca</span>Slate</a>
-  <a class="da" href="k-report.html"><span class="di">\U0001f4cb</span>K Report</a>
+  <a class="da" href="index.html"><span class="di">⚾️</span>Slate</a>
+  <a class="da" href="k-report.html"><span class="di">📰</span>K Report</a>
   <a class="da" href="streaks.html"><span class="di">\U0001f525</span>Streaks</a>
-  <a class="da act" href="scout.html"><span class="di">\u26a1</span>SSJ</a>
-  <a class="da" href="record.html"><span class="di">\U0001f3c6</span>Record</a>
+  <a class="da act" style="color:var(--gold)"><span class="di">\u26a1</span>SSJ</span>
+  <a class="da" href="record.html"><span class="di">💿</span>Record</a>
 </nav>
 ''')
     parts.append('<script id="sd" type="application/json">' + data_json + '</script>\n')
@@ -492,7 +542,7 @@ function bws(p){
 function ban(p){
   var hs=p.hitStreak>=4||p.hrStreak>=2||p.hrrStreak>=3;
   if(hs)return'bfire';
-  if(p.grade==='STRONG'&&p.zone>=10)return'bglow';
+  if(p.zone>=10)return'bglow';
   return'';
 }
 function bnc(p){return p.grade==='STRONG'?'#FFD700':(p.grade==='MODERATE'?'#AAAAAA':'#666');}
@@ -500,13 +550,13 @@ function rs(p,compact){
   var pt=pl(p.bats,p.throws),sl=slc(p.grade),sv=svc(p.grade),dc=dc2(p.grade);
   var vs=p.vulnScore,phR=p.projHits>=8.0,peR=p.projERA>=5.5;
   var phC=phR?'#FF6B6B':sv,peC=peR?'#FF6B6B':sv;
-  var hit=sd2(p.hitStreak,4,'\U0001f525'),hr=sd2(p.hrStreak,2,'\u26a1'),hrr=sd2(p.hrrStreak,3,'\u26a1');
+  var hit=sd2(p.hitStreak,4,'🔥'),hr=sd2(p.hrStreak,2,'⚡'),hrr=sd2(p.hrrStreak,3,'⚡');
   var sz=compact?42:46,ba=ban(p),hs=p.hitStreak>=4||p.hrStreak>=2||p.hrrStreak>=3;
   return '<div class="ct">'+
     '<div class="bw '+ba+'" style="width:'+sz+'px;height:'+sz+'px;'+bws(p)+'">'+
       '<span class="bz" style="color:'+(p.grade==='STRONG'?'#FFD700':'#3a3a3a')+'">\u26a1</span>'+
       '<span class="bn" style="color:'+bnc(p)+';font-size:'+(compact?'18px':'21px')+'">'+p.zone+'</span>'+
-      (hs?'<span class="bf">\U0001f525</span>':'')+
+      (hs?'<span class="bf">🔥</span>':'')+
     '</div>'+
     '<div class="ci">'+
       '<div class="cn" style="color:'+nc(p.grade)+'">'+p.batter+
@@ -556,7 +606,7 @@ function rc(p,rank){
 }
 function cgf(g1,g2){
   if(g1==='STRONG'&&g2==='STRONG')return{l:'\u26a1 ELITE',c:'#FFD700',b:'rgba(255,215,0,.18)'};
-  if(g1==='STRONG'||g2==='STRONG')return{l:'\U0001f525 SOLID',c:'#FFA040',b:'rgba(255,140,0,.14)'};
+  if(g1==='STRONG'||g2==='STRONG')return{l:'🔥 SOLID',c:'#FFA040',b:'rgba(255,140,0,.14)'};
   if(g1==='MODERATE'&&g2==='MODERATE')return{l:'BASE FORM',c:'#AAAAAA',b:'rgba(255,255,255,.08)'};
   return{l:'MIXED',c:'#777',b:'rgba(255,255,255,.05)'};
 }
@@ -666,7 +716,7 @@ function render(){
           '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">'+
             '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:'+(p.grade==='STRONG'?'rgba(255,215,0,.16)':'rgba(255,255,255,.08)')+';color:'+(p.grade==='STRONG'?'#FFD700':'#999')+'">'+gdsp(p.grade)+'</span>'+
             (iD?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(255,80,80,.18);color:#FF6B6B">\u26a0</span>':'')+
-            (hs?'<span style="font-size:10px">\U0001f525</span>':'')+
+            (hs?'<span style="font-size:10px">🔥</span>':'')+
           '</div>'+
           '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px">ISO <span style="color:#FFD700;font-weight:700">'+p.iso+'</span></div>'+
           '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px">wOBA <span style="color:#FFD700;font-weight:700">'+p.woba+'</span></div>'+
@@ -708,6 +758,22 @@ function rF(){fS++;render();}
   });
   document.querySelector('[data-f="STRONG"]').classList.add('active');
   render();
+})();
+// ── Theme Toggle ────────────────────────────────────────────────────
+(function(){
+  var cur='dark';
+  try{var s=localStorage.getItem('slateTheme');if(s==='light'||s==='dark')cur=s;}catch(e){}
+  document.documentElement.setAttribute('data-theme',cur);
+  var t=document.getElementById('themeToggle');
+  if(t){
+    t.textContent=cur==='dark'?'🌙':'☀️';
+    t.addEventListener('click',function(){
+      cur=cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',cur);
+      t.textContent=cur==='dark'?'🌙':'☀️';
+      try{localStorage.setItem('slateTheme',cur);}catch(e){}
+    });
+  }
 })();
 // ── Golden Scroll Grip ──────────────────────────────────────────────
 (function(){

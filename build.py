@@ -55,8 +55,9 @@ try:
     _scout_ns['set_data'](
         HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES_RAW,
         _scout_date, '',
-        ssa   = DATA.get('Sweet_Spot_Analyzer', []),
-        scout = DATA.get('Scout', [])
+        ssa     = DATA.get('Sweet_Spot_Analyzer', []),
+        scout   = DATA.get('Scout', []),
+        streaks = DATA.get('Streaks', [])
     )
     _scout_ns['build']()
     print('build_scout: scout.html written OK')
