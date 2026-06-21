@@ -39,16 +39,29 @@ exec(compile(open('build_k_report.py', encoding='utf-8').read(), 'build_k_report
 
 # Step 5 — build_scout.py → scout.html
 try:
+    import datetime as _dt_mod
+    # Derive readable date from BP_Games GameDate (TODAY_STR/DAY_NUM not set by build_day46)
+    _scout_date = 'Today'
+    for _g in DATA.get('BP_Games', []):
+        _raw = str(_g.get('GameDate', ''))[:10]
+        try:
+            _d = _dt_mod.datetime.strptime(_raw, '%Y-%m-%d').date()
+            _scout_date = _d.strftime('%B') + ' ' + str(_d.day) + ', ' + str(_d.year)
+            break
+        except Exception:
+            pass
     _scout_ns = {}
     exec(compile(open('build_scout.py', encoding='utf-8').read(), 'build_scout.py', 'exec'), _scout_ns)
     _scout_ns['set_data'](
         HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES_RAW,
-        TODAY_STR, DAY_NUM,
+        _scout_date, '',
         ssa   = DATA.get('Sweet_Spot_Analyzer', []),
         scout = DATA.get('Scout', [])
     )
     _scout_ns['build']()
+    print('build_scout: scout.html written OK')
 except Exception as _e:
-    print(f"build_scout error (non-fatal): {_e}")
+    import traceback; traceback.print_exc()
+    print(f'build_scout error (non-fatal): {_e}')
 
 print(f"Pipeline complete. Sections -> {SECTIONS_FILE}, K Report -> {K_REPORT_FILE}, Streaks -> {STREAKS_FILE}")
