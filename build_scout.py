@@ -157,8 +157,7 @@ def build():
     }
     html = _html(json.dumps(players, ensure_ascii=False),
                  json.dumps(counts,  ensure_ascii=False), TODAY_STR)
-    out  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "scout.html")
-    os.makedirs(os.path.dirname(out), exist_ok=True)
+    out  = "scout.html"  # write to repo root, same as index.html / k-report.html / streaks.html
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"build_scout: wrote scout.html  ({len(players)} players, "
