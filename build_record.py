@@ -289,10 +289,6 @@ def build():
   <div class="hero">
     <div class="eyebrow">Every call · graded vs the box score</div>
     <div class="title">FOR THE <em>RECORD</em> 💿</div>
-    <div class="bigrec">
-      <div class="rec">{sw}<em>-</em>{sl}</div>
-      <div class="meta"><div class="p">{pct(sw,sl)}</div><div class="lbl">Season win rate</div></div>
-    </div>
     <div class="rule"></div>
     <div class="chips">
       <span class="chip"><span class="led"></span>DAY {R.get('season_day','—')}</span>
@@ -339,6 +335,7 @@ t.addEventListener('click',function(){{c=c==='dark'?'light':'dark';
 document.documentElement.setAttribute('data-theme',c);t.textContent=c==='dark'?'\\uD83C\\uDF19':'\\u2600\\uFE0F';
 try{{localStorage.setItem('slateTheme',c);}}catch(e){{}}}});}})();
 </script>
+<nav style="position:fixed;left:0;right:0;bottom:0;z-index:70;display:flex;justify-content:space-around;align-items:stretch;height:calc(62px + env(safe-area-inset-bottom,0px));padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);background:rgba(7,9,15,.88);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);border-top:1px solid rgba(255,255,255,.1)"><a href="index.html" style="flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#8696a3;font-size:9.5px;font-weight:700;letter-spacing:.6px"><span style="font-size:19px;line-height:1">⚾</span>SLATE</a><a href="k-report.html" style="flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#8696a3;font-size:9.5px;font-weight:700;letter-spacing:.6px"><span style="font-size:19px;line-height:1">📰</span>K REPORT</a><a href="streaks.html" style="flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#8696a3;font-size:9.5px;font-weight:700;letter-spacing:.6px"><span style="font-size:19px;line-height:1">🔥</span>STREAKS</a><a href="scout.html" style="flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#8696a3;font-size:9.5px;font-weight:700;letter-spacing:.6px"><span style="font-size:19px;line-height:1">⚡</span>SSJ</a></nav>
 </body></html>"""
     with open(OUT_FILE, 'w', encoding='utf-8') as f:
         f.write(html)

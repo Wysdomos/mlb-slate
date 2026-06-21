@@ -37,4 +37,16 @@ exec(compile(open('build_editorial.py', encoding='utf-8').read(), 'build_editori
 os.environ['K_REPORT_FILE'] = K_REPORT_FILE
 exec(compile(open('build_k_report.py', encoding='utf-8').read(), 'build_k_report.py', 'exec'))
 
+# Step 5 — build_scout.py → scout.html
+try:
+    _scout_ns = {}
+    exec(compile(open('build_scout.py', encoding='utf-8').read(), 'build_scout.py', 'exec'), _scout_ns)
+    _scout_ns['set_data'](
+        HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES_RAW,
+        TODAY_STR, DAY_NUM
+    )
+    _scout_ns['build']()
+except Exception as _e:
+    print(f"build_scout error (non-fatal): {_e}")
+
 print(f"Pipeline complete. Sections -> {SECTIONS_FILE}, K Report -> {K_REPORT_FILE}, Streaks -> {STREAKS_FILE}")

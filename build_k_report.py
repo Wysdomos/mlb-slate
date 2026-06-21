@@ -1082,6 +1082,7 @@ def v41_kreport(h):
       '<nav class="dock">'
       '<a class="dock-btn" href="index.html"><span class="di">\u26be</span><span class="dl">SLATE</span></a>'
       '<a class="dock-btn" href="streaks.html"><span class="di">\U0001F525</span><span class="dl">STREAKS</span></a>'
+      '<a class="dock-btn" href="scout.html"><span class="di">\u26a1</span><span class="dl">SSJ</span></a>'
       '</nav>\n</body>')
     h = h.replace('</body>', tail, 1)
     return h
@@ -1121,6 +1122,7 @@ def v41_streaks(h):
       '<nav class="dock">'
       '<a class="dock-btn" href="index.html"><span class="di">\u26be</span><span class="dl">SLATE</span></a>'
       '<a class="dock-btn" href="k-report.html"><span class="di">\U0001F4F0</span><span class="dl">K REPORT</span></a>'
+      '<a class="dock-btn" href="scout.html"><span class="di">\u26a1</span><span class="dl">SSJ</span></a>'
       '</nav>\n'
       '<script>(function(){'
       'var rail=document.querySelector(".rail");'

@@ -240,6 +240,10 @@ def build_headlines():
   <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
     <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
   </div>
+  <div style="text-align:center;margin-top:14px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:10px;">
+    <a href="scout.html" style="color:#FFD700;font-weight:700;text-decoration:none;font-size:14px;">⚡ SSJ (The Zone) — Matchup Intelligence →</a>
+    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;">Zone scores · DANGER tags · platoon · projections · Fusion parlays</div>
+  </div>
   <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
 </section>
 '''
@@ -1112,8 +1116,12 @@ def build_totals_board():
             'lean': lean_dir, 'ref_line': 8.5, 'consensus': conf, 'consensus_max': 4,
             'proj_total': round(total, 2), 'p_over_8_5': round(p_over, 3), 'f5': round(f5, 2),
         })
+        away_r = g.get('RunsAway') or 0
+        home_r = g.get('RunsHome') or 0
         rows.append((conf, total,
-            f'      <tr><td>{away} @ {home}</td><td><strong>{total:.2f}</strong></td>'
+            f'      <tr>'
+            f'<td>{away} @ {home}<br><span style="font-size:10px;color:var(--text-dim)">{away} {away_r:.1f} · {home} {home_r:.1f}</span></td>'
+            f'<td><strong>{total:.2f}</strong></td>'
             f'<td>{p_over*100:.0f}%</td><td>{f5:.2f}</td><td>{_conv_cell(conf,4)}</td><td>{lean}</td></tr>'))
     rows.sort(key=lambda t: (-t[0], -t[1]))
     table_body = '\n'.join(t[2] for t in rows)
