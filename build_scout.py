@@ -97,8 +97,92 @@ def _ssj(p):
     return round(s*1000)
 
 # ── build ────────────────────────────────────────────────────────────
+
+# ── Live streak fetch (MLB Stats API) ────────────────────────────────
+def _fetch_live_streaks():
+    """
+    Pulls the last 8 days of box scores from the MLB Stats API and
+    computes Hit streak, HR streak, and HRR streak for every batter.
+    Returns dict: {batter_name_lower: {hitStreak, hrStreak, hrrStreak}}
+    Falls back silently to empty dict on any network error.
+    """
+    import urllib.request, json
+    from datetime import datetime, timedelta
+
+    today = datetime.utcnow().date()
+    start = today - timedelta(days=8)
+
+    url = (
+        "https://statsapi.mlb.com/api/v1/schedule"
+        f"?sportId=1&startDate={start}&endDate={today}"
+        "&hydrate=boxscore(fields(teams,players,stats,person,atBats,hits,homeRuns,runs,rbi))"
+    )
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "DailySlate/1.0"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.load(r)
+    except Exception as e:
+        print(f"[scout] streak API unavailable: {e}")
+        return {}
+
+    # player_games[name_lower] = [(date_str, hits, hrs, runs, rbi), ...]
+    player_games = {}
+
+    for date_obj in data.get("dates", []):
+        date_str = date_obj.get("date", "")
+        for game in date_obj.get("games", []):
+            # Only use Final / completed games
+            status = (game.get("status") or {}).get("codedGameState", "")
+            if status not in ("F", "O", "C", "TR"):
+                continue
+            boxscore = game.get("boxscore") or {}
+            for side in ("home", "away"):
+                team_data = (boxscore.get("teams") or {}).get(side) or {}
+                for pid, pdata in (team_data.get("players") or {}).items():
+                    full_name = ((pdata.get("person") or {}).get("fullName") or "").strip()
+                    if not full_name:
+                        continue
+                    batting = (pdata.get("stats") or {}).get("batting") or {}
+                    ab   = int(batting.get("atBats")    or 0)
+                    hits = int(batting.get("hits")      or 0)
+                    hrs  = int(batting.get("homeRuns")  or 0)
+                    runs = int(batting.get("runs")      or 0)
+                    rbi  = int(batting.get("rbi")       or 0)
+                    # Skip non-batters / did-not-play entries
+                    if ab == 0 and hits == 0 and hrs == 0 and runs == 0:
+                        continue
+                    key = full_name.lower()
+                    if key not in player_games:
+                        player_games[key] = []
+                    player_games[key].append((date_str, hits, hrs, runs, rbi))
+
+    # Sort each player oldest→newest, then streak from end
+    result = {}
+    for key, games in player_games.items():
+        games.sort(key=lambda x: x[0])
+        rev = list(reversed(games))
+        hit_s = hr_s = hrr_s = 0
+        for g in rev:
+            if g[1] >= 1: hit_s += 1
+            else: break
+        for g in rev:
+            if g[2] >= 1: hr_s += 1
+            else: break
+        for g in rev:
+            if g[1] >= 1 and g[3] >= 1 and g[4] >= 1: hrr_s += 1
+            else: break
+        if hit_s or hr_s or hrr_s:
+            result[key] = {"hitStreak": hit_s, "hrStreak": hr_s, "hrrStreak": hrr_s}
+
+    active = sum(1 for v in result.values() if any(v.values()))
+    print(f"[scout] live streaks: {active} active players ({len(result)} with data)")
+    return result
+
 def build():
-    # Streaks tab lookup: keyed by batter name (fields: 'Hit Streak', 'HR Streak')
+    # Live streaks from MLB Stats API (8-day lookback)
+    _live_streaks = _fetch_live_streaks()
+
+    # Workbook Streaks tab fallback (fields: 'Hit Streak', 'HR Streak')
     _streak_lu = {}
     for _sr in _STREAKS:
         _nm = (_sr.get('Batter') or '').strip().lower()
@@ -146,11 +230,14 @@ def build():
             woba=str(_scout_lu.get(batter.lower(),{}).get('woba') or r.get("xwOBA","—") or '—'),
             hr=int(r.get("HR") or 0), grade=grade,
             zone=parse_zone(r.get("Zone","")),
-            hitStreak=int((_streak_lu.get(batter.lower()) or {}).get("Hit Streak")
-                         or r.get("hitStreak") or r.get("HitStreak") or 0),
-            hrStreak =int((_streak_lu.get(batter.lower()) or {}).get("HR Streak")
-                         or r.get("hrStreak")  or r.get("HRStreak")  or 0),
-            hrrStreak=int(r.get("hrrStreak") or r.get("HRRStreak") or 0),
+            hitStreak=int(_live_streaks.get(batter.lower(), {}).get('hitStreak')
+                         or (_streak_lu.get(batter.lower()) or {}).get('Hit Streak')
+                         or r.get('hitStreak') or r.get('HitStreak') or 0),
+            hrStreak =int(_live_streaks.get(batter.lower(), {}).get('hrStreak')
+                         or (_streak_lu.get(batter.lower()) or {}).get('HR Streak')
+                         or r.get('hrStreak') or r.get('HRStreak') or 0),
+            hrrStreak=int(_live_streaks.get(batter.lower(), {}).get('hrrStreak')
+                         or r.get('hrrStreak') or r.get('HRRStreak') or 0),
             vulnScore=vs, projHits=ph, projERA=pe,
         )
         p["ssjScore"] = _ssj(p)
@@ -349,7 +436,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 .sr{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid}
 .si .sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
   font-family:"Bebas Neue",sans-serif}
-.si .sv{font-size:13px;font-weight:700}
+.si .sv{font-size:13px;font-weight:700;font-family:"Bebas Neue",sans-serif;letter-spacing:.05em}
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
   padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
@@ -448,6 +535,8 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
   color:var(--gold);text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.bar-title{font-family:"Bebas Neue",sans-serif;font-size:17px;letter-spacing:.1em;
+  color:var(--gold);text-shadow:0 0 12px rgba(255,215,0,.4);white-space:nowrap}
 .bar-spacer{flex:1}
 .icon-btn{width:36px;height:36px;border-radius:10px;flex-shrink:0;
   background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
@@ -471,6 +560,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 ''')
     parts.append('<div id="app-bar">\n')
     parts.append('  <a class="back-chip" href="index.html">‹</a>\n')
+    parts.append('  <div class="bar-title">⚡ SSJ (THE ZONE)</div>\n')
     parts.append('  <div class="bar-spacer"></div>\n')
     parts.append('  <button class="icon-btn" id="themeToggle">🌙</button>\n')
     parts.append('</div>\n')
