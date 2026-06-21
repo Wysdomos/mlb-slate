@@ -100,6 +100,8 @@ def extract(xlsx_path):
         "BP_Teams":            "BP_Teams",
         "BP_Games":            "BP_Games",
         "Streaks":             "Streaks",
+        "Scout":              "Scout",
+        "Best_Spots":         "Best_Spots",
     }
 
     data = {}

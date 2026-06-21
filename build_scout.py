@@ -8,12 +8,14 @@ import json, os, re
 
 HR_LB = []; SP_PROJ = []; SS_BY_NAME = {}; BP_BAT = []; GAMES = []
 TODAY_STR = ""; DAY_NUM = ""
+_SSA = []; _SCOUT = []
 
-def set_data(hr_lb, sp_proj, ss_by_name, bp_bat, games, today_str, day_num=""):
-    global HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES, TODAY_STR, DAY_NUM
+def set_data(hr_lb, sp_proj, ss_by_name, bp_bat, games, today_str, day_num="", ssa=None, scout=None):
+    global HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES, TODAY_STR, DAY_NUM, _SSA, _SCOUT
     HR_LB, SP_PROJ, SS_BY_NAME = hr_lb, sp_proj, ss_by_name
     BP_BAT, GAMES = bp_bat, games
     TODAY_STR = today_str; DAY_NUM = day_num
+    _SSA = ssa or []; _SCOUT = scout or []
 
 # ── helpers ───────────────────────────────────────────────────────────
 def tn(t):
@@ -96,6 +98,24 @@ def _ssj(p):
 
 # ── build ────────────────────────────────────────────────────────────
 def build():
+    # Scout tab: ISO/wOBA lookup (filter out placeholder rows where ISO >= 0.40)
+    _scout_lu = {}
+    for _sr in _SCOUT:
+        _nm = (_sr.get('Batter') or '').strip().lower()
+        _iso_v = _sr.get('ISO'); _wb_v = _sr.get('wOBA')
+        try:
+            if _nm and _iso_v is not None and float(_iso_v) < 0.40:
+                _scout_lu[_nm] = {'iso': round(float(_iso_v),3),
+                                  'woba': round(float(_wb_v),3) if _wb_v else None}
+        except: pass
+
+    # SSA: pitcher Throws lookup by batter name
+    _throws_lu = {}
+    for _ar in _SSA:
+        _nm = (_ar.get('Batter') or '').strip().lower()
+        _th = _ar.get('Throws')
+        if _nm and _th: _throws_lu[_nm] = str(_th).upper()[:1]
+
     players = []; seen = set()
     for r in HR_LB:
         grade = (r.get("Grade") or "").strip().upper()
@@ -114,10 +134,10 @@ def build():
         except: era_s = str(r.get("ERA","—"))
         p = dict(
             batter=batter, team=team,
-            bats=_bats(batter,r), throws=_throws(pitcher),
+            bats=_bats(batter,r), throws=_throws_lu.get(batter.lower()) or _throws(pitcher),
             pitcher=pitcher, pTeam=pt, era=era_s,
-            iso=str(r.get("ISO","—") or "—"),
-            woba=str(r.get("wOBA","—") or "—"),
+            iso=str(_scout_lu.get(batter.lower(),{}).get('iso') or '—'),
+            woba=str(_scout_lu.get(batter.lower(),{}).get('woba') or r.get("xwOBA","—") or '—'),
             hr=int(r.get("HR") or 0), grade=grade,
             zone=parse_zone(r.get("Zone","")),
             hitStreak=int(r.get("hitStreak") or r.get("HitStreak") or 0),
@@ -147,70 +167,88 @@ def build():
 # ── HTML ──────────────────────────────────────────────────────────────
 def _html(data_json, counts_json, today_str):
     GLOS = json.dumps([
-      {"title":"THE TABS — ROW 1","entries":[
-        {"term":"SUPER SAIYAN","def":"Top-tier matchups. Elite ISO, wOBA, Zone score, facing an exploitable pitcher. Primary targets every day."},
-        {"term":"BASE FORM","def":"Solid but not elite. Good matchups worth monitoring as backup plays."},
-        {"term":"BAD","def":"Unfavorable matchups. Use as fades or avoid entirely."},
-        {"term":"ALL","def":"The full slate with no grade filter."},
+      {"title":"WHAT IS SSJ (THE ZONE)?","entries":[
+        {"term":"The Concept","def":"SSJ (The Zone) is matchup intelligence. Every batter on today's slate is scored against their specific pitcher and ranked from strongest to weakest matchup. Think of it as going Super Saiyan — when the conditions align perfectly, a batter enters a different power level."},
+        {"term":"What It Is NOT","def":"SSJ is not a straight stat lookup. It weights Zone score, pitcher vulnerability, ISO power, wOBA, platoon advantage, and active streaks into a single composite ranking. A high-average hitter facing a soft-tossing lefty will score differently than a power hitter facing the same pitcher."},
+        {"term":"How To Use It Daily","def":"Start with the OVER NINE THOUSAND section — top 5 plays of the day. Then check the SSJ MATCHUPS tab ranked list for the full ordered board. Filter by DANGER ONLY to find the highest-exploitation matchups. Cross-reference with the main Slate's Conviction Board for double-signal plays."},
       ]},
-      {"title":"THE TABS — ROW 2 (DBZ SPECIALS)","entries":[
-        {"term":"SSJ MATCHUPS","def":"All top-ranked plays sorted by composite Power Score combining Zone, pitcher vulnerability, ISO, wOBA, HR, and streaks. The definitive ranked list for the day."},
-        {"term":"FUSIONS","def":"25 random 2-player combos from the Top 50 SSJ Matchups. Each pair is a suggested parlay. Hit RE-FUSE to generate fresh pairings. Look for ELITE or SAME GAME tags."},
-        {"term":"POWER LEVELS","def":"You are reading it now. A full guide to every metric, tag, badge, filter, and feature in SSJ (The Zone)."},
+      {"title":"THE GRADES — YOUR POWER CLASS","entries":[
+        {"term":"SUPER SAIYAN — Elite Tier","def":"All factors align: high Zone score, strong ISO and wOBA, facing a vulnerable or struggling pitcher, often with platoon advantage. These are the day's primary targets. A SUPER SAIYAN play with a DANGER tag is the strongest single-play signal on the board."},
+        {"term":"BASE FORM — Solid Tier","def":"Decent matchup but one or two factors are working against the play — a tough pitcher, a suppressor park, weak streak, or marginal platoon. Still worth including in combos or as supporting legs. Not the anchor, but a valid contributor."},
+        {"term":"YAMCHA (WEAK) — Fade Tier","def":"Named after the Dragon Ball Z character who famously loses every fight. These matchups have one or more significant negatives — a dominant pitcher, bad park factor for HRs, or unfavorable platoon. Listed for transparency and as fade targets. If you see a YAMCHA play getting heavy betting action, that's a fade signal, not a tail."},
+        {"term":"How Grades Are Set","def":"Grades come from the Sweet Spot Analyzer in the workbook — a multi-factor model combining ISO, wOBA, Zone matchup score, park HR factor, and pitcher grade. Grades are locked at build time and do not change intraday. Check back the next build for updates."},
       ]},
-      {"title":"THE ZONE BADGE","entries":[
-        {"term":"THE NUMBER","def":"A composite matchup score from the best-spots model combining ISO, wOBA, home run output, pitcher grade, and platoon advantage. Higher = stronger matchup quality."},
-        {"term":"Zone 10+ — FEATURED PLAYS","def":"Zone scores of 10 or higher are elevated to the Featured Plays section at the top of any view. Start here every day."},
-        {"term":"FIRE ON THE BADGE","def":"Active hot streak: HIT 4+ games, HR 2+ consecutive, or HRR 3+ consecutive games. Badge switches from gold glow to orange fire pulse."},
+      {"title":"THE ZONE BADGE \u26a1N","entries":[
+        {"term":"What the Number Means","def":"The Zone badge score is a composite matchup grade from the best-spots model. It combines ISO, wOBA, home run output, pitcher vulnerability, and platoon advantage into a single integer. Higher is better. A Zone 11 batter has a significantly stronger matchup profile than a Zone 4."},
+        {"term":"Zone 10+ — FEATURED PLAYS","def":"Any Zone score of 10 or higher is elevated to the Featured Plays section at the top of the current grade tab. These are the elite matchups of the day within each grade tier. Start here before scrolling the full board."},
+        {"term":"Gold Glow \u26a1","def":"A Zone badge with gold glow animation means the batter is STRONG grade and Zone 10+. Maximum matchup quality — prioritize these."},
+        {"term":"Fire Badge \U0001f525","def":"When a batter has an active hot streak (Hit streak 4+ games, HR streak 2+ games, or HRR streak 3+ games), the badge switches from gold glow to orange fire pulse. The \U0001f525 icon also appears on the badge itself. Streaks compound the matchup quality signal."},
       ]},
-      {"title":"GRADES","entries":[
-        {"term":"STRONG — SUPER SAIYAN","def":"Elite matchup. Power metrics, pitcher vulnerability, and zone score all align. Primary target tier."},
-        {"term":"MODERATE — BASE FORM","def":"Solid but one or two factors working against. Supporting play tier."},
-        {"term":"BAD","def":"One or more significant negatives. Reference only, not a recommendation."},
-      ]},
-      {"title":"DANGER TAG","entries":[
-        {"term":"WHAT DANGER MEANS","def":"The opposing pitcher has a Vulnerability Score of 70 or higher. Highly exploitable based on ERA trends, HR/9 rate, park factors, and today's matchup."},
-        {"term":"STRONG + DANGER","def":"The strongest single-play signal. Top-grade batter facing a highly vulnerable pitcher. Backtesting shows MODERATE+DANGER also outperforms STRONG-only on HR rate."},
-        {"term":"RED INDICATORS","def":"Red dots appear on PROJ H (8.0+) and PROJ ERA (5.50+) when projections enter the danger zone. Both lit = maximum exploitation signal."},
-      ]},
-      {"title":"THE STATS","entries":[
-        {"term":"ISO — Isolated Power","def":"Slugging % minus batting average. Pure extra-base hit power with singles removed. The most direct HR predictor in the model."},
-        {"term":"wOBA — Weighted On-Base Average","def":"The most complete single-number hitting metric. Weights each hit type by its actual run value."},
-        {"term":"HR — Season Home Runs","def":"The batter's total HR on the year. Context for their power ceiling."},
+      {"title":"DANGER TAG \u26a0","entries":[
+        {"term":"What DANGER Means","def":"The opposing pitcher has a Vulnerability Score of 70 or higher — meaning they are highly exploitable today based on ERA trend, HR/9 rate, park factors, and matchup history. DANGER is the single most actionable signal on the board."},
+        {"term":"STRONG + DANGER = Top Priority","def":"A STRONG-grade batter with a DANGER-tagged pitcher is the strongest signal combination. Backtesting shows MODERATE + DANGER also outperforms STRONG-only on HR rate (exploitable pitcher matters more than batter tier in many matchups)."},
+        {"term":"Red Indicators \U0001f534","def":"If PROJ H shows 8.0+ or PROJ ERA shows 5.50+, a red dot appears next to the value. Both lit simultaneously means the pitcher is in full meltdown projection for this start. These are the most exploitable starts on the board."},
+        {"term":"VulnScore 50-69 (Gold)","def":"Caution zone — the pitcher is hittable but not in meltdown territory. Worth considering especially when combined with strong batter metrics. No DANGER tag but still above average exploitation potential."},
+        {"term":"VulnScore Under 50 (Dim)","def":"The pitcher is in reasonable control. Matchup is still tracked but exploitation upside is limited. Weight the batter's own metrics more heavily in these matchups."},
       ]},
       {"title":"PITCHER PROJECTIONS","entries":[
-        {"term":"VULN — Vulnerability Score 0-100","def":"Our internal pitcher grade. ERA trend + HR/9 + park + matchup history. 70+ = DANGER (red). 50-69 = caution (gold). Under 50 = manageable (dim)."},
-        {"term":"PROJ H — Projected Hits Allowed","def":"Expected hits for this start. Flags red at 8.0 or higher."},
-        {"term":"PROJ ERA — Projected ERA","def":"Expected ERA for this start. Flags red at 5.50 or higher. Both red = full meltdown projection."},
+        {"term":"VULN — Vulnerability Score (0 to 100)","def":"Our internal pitcher exploitation grade computed from ERA trend, HR/9 rate, park HR factor, and walk rate. 70+ triggers the DANGER tag (red). 50-69 = elevated risk (gold). Under 50 = manageable (dim). Built from the Sweet Spot Slate tab in the workbook."},
+        {"term":"PROJ H — Projected Hits Allowed","def":"Estimated hits allowed for today's start based on ERA and BF projections. Shows in red when 8.0 or higher. At that level, the pitcher is expected to be consistently hittable — every batter in the lineup benefits."},
+        {"term":"PROJ ERA — Projected ERA","def":"Expected ERA for this start. Shows in red when 5.50 or higher. Combined with PROJ H red — both lit at once means this is one of the most attackable starts on the entire slate. Target the batter's whole combo board, not just HR."},
+        {"term":"ERA (Card Sub-line)","def":"The season ERA shown next to the pitcher's name in each card. This is the raw season figure from the workbook. PROJ ERA is the model's day-specific forecast, which can differ significantly from the season number based on current form."},
       ]},
-      {"title":"STREAKS","entries":[
-        {"term":"HIT — Hit Streak","def":"Consecutive games with at least one hit. Fires at 4+ games."},
-        {"term":"HR — Home Run Streak","def":"Consecutive games with at least one HR. Fires at 2+ consecutive games."},
-        {"term":"HRR — Hits + Runs + RBIs","def":"Tracks whether a batter recorded at least one Hit, one Run, AND one RBI in the same game. Active at 3+ consecutive games. Sign of elite all-around production across every major offensive category."},
-        {"term":"DASH","def":"No active streak. Not a negative, just neutral."},
+      {"title":"BATTER STATS","entries":[
+        {"term":"ISO — Isolated Power","def":"Slugging percentage minus batting average. Strips out singles and measures pure extra-base power. The most direct predictor of HR output in the model. ISO above .250 is elite. Above .300 is rare and is the strongest single-stat HR signal available."},
+        {"term":"wOBA — Weighted On-Base Average","def":"The most complete single-number offensive metric. Weights singles, doubles, triples, HRs, and walks by their actual run value. An elite wOBA (.400+) combined with high ISO means a batter is both powerful and consistently dangerous. Source: Scout tab in the workbook."},
+        {"term":"HR — Season Home Runs","def":"The batter's total home runs on the year. Context for their current power output ceiling. A player at 20+ HRs in June is in a different risk profile than someone at 5. The model uses this alongside ISO to weight HR probability."},
+      ]},
+      {"title":"STREAKS — MOMENTUM FLAGS","entries":[
+        {"term":"HIT — Hit Streak","def":"Consecutive games with at least one hit. Active at any length, highlighted in gold when it reaches 4 or more games. A long hit streak increases the probability of continued contact. \U0001f525 fire appears at 4+ games."},
+        {"term":"HR — Home Run Streak","def":"Consecutive games with at least one home run. \u26a1 activates at 2+ consecutive games. A player on a 2-game HR streak is in confirmed power form. A 3-game HR streak is extremely rare and significantly increases today's probability."},
+        {"term":"HRR — Hits + Runs + RBIs Streak","def":"Tracks whether a batter recorded at least one Hit AND one Run AND one RBI in the same game. All three must occur in the same game for the game to count toward the streak. Active at 3+ consecutive games. A player maintaining an HRR streak is contributing across all three offensive categories — the most complete signal of elite performance."},
+        {"term":"Dash ( \u2014 )","def":"No active streak. This is neutral, not negative. Many elite plays have no streak because streaks are rare. The absence of a streak does not reduce the matchup quality grade."},
+        {"term":"Streak Stacking","def":"When a player has multiple active streaks (e.g., hit streak 6 games AND HR streak 2 games), their Zone badge glows fire orange and \U0001f525 appears. The SSJ composite score also receives a bonus for each active streak. Stack signals are the highest-conviction plays."},
       ]},
       {"title":"PLATOON ADVANTAGE","entries":[
-        {"term":"L to R or R to L","def":"Batter faces a pitcher from the opposite throwing hand. Confirmed platoon advantage with statistically higher BA, SLG, and HR rate. Shown gold."},
-        {"term":"L to L or R to R","def":"Same-sided matchup. No platoon advantage. Shown dimmed."},
-        {"term":"Switch hitter","def":"Always bats from the favorable side. Always treated as having platoon advantage."},
+        {"term":"What Platoon Means","def":"Batters historically perform significantly better against pitchers throwing from the opposite hand. A left-handed batter vs a right-handed pitcher (L\u2192R) has a statistically measurable edge in batting average, slugging, and home run rate."},
+        {"term":"L\u2192R or R\u2192L with \u26a1 (Gold)","def":"Confirmed platoon advantage. The batter faces the opposite-hand pitcher. Shows gold with \u26a1 symbol. This is a meaningful edge — especially in power matchups. It compounds Zone score and pitcher vulnerability."},
+        {"term":"L\u2192L or R\u2192R (Dimmed)","def":"Same-hand matchup. No platoon advantage. The platoon edge is removed from the scoring. The play can still be valid on other factors, but one signal is missing."},
+        {"term":"S\u2192R or S\u2192L with \u26a1 (Always Gold)","def":"Switch hitters always bat from the favorable side regardless of pitcher hand. Always treated as a confirmed platoon advantage. Switch hitters facing any pitcher always get the \u26a1 platoon tag."},
       ]},
-      {"title":"WHAT IT'S OVER NINE THOUSAAAAAND","entries":[
-        {"term":"WHAT IT IS","def":"Top 5 power plays of the day by composite SSJ Score, pinned above all main tab content. The absolute highest-priority targets on today's slate."},
-        {"term":"HOW TO USE IT","def":"Swipe right to see all 5 cards. Each shows Zone, grade, DANGER, streaks, ISO, wOBA, and platoon at a glance. Start every session here."},
+      {"title":"WHAT?! IT'S OVER NINE THOUSAAAAAND!!","entries":[
+        {"term":"What It Is","def":"The five highest-ranked plays of the day by composite SSJ Score, pinned at the top above all other content on every main grade tab. These are the absolute highest-conviction plays on today's slate. Named after the famous Dragon Ball Z scene where Vegeta's scouter explodes reading Goku's power level."},
+        {"term":"How It's Ranked","def":"SSJ Score = (Zone \u00d7 3) + (VulnScore / 100 \u00d7 20) + (ISO \u00d7 30) + (wOBA \u00d7 20) + (HR \u00d7 0.2) + streak bonuses + DANGER/grade bonuses. The top 5 by this score appear in the horizontal scroll strip."},
+        {"term":"How To Use It","def":"Swipe right to see all 5 cards. Each shows Zone, grade, DANGER, streaks, ISO, wOBA, and platoon at a glance. These are your daily anchors. If you only play 2 picks today, start here. Cross-reference with the Conviction Board on the main Slate."},
+        {"term":"Why Only 5?","def":"Five is intentional. Giving you 20 elite plays dilutes the signal. Five forces ranking and prioritization. On a 15-game slate, 5 truly elite matchups is a generous count. If all 5 are STRONG + DANGER, that's a rare convergence worth noting."},
+      ]},
+      {"title":"THE TABS — ROW 1 (GRADE FILTERS)","entries":[
+        {"term":"\u26a1 SUPER SAIYAN","def":"Shows only STRONG-grade matchups. These are the elite plays of the day. Default view when you open SSJ. Start here every session."},
+        {"term":"BASE FORM","def":"Shows only MODERATE-grade matchups. Solid supporting plays. Use for combo legs, backup plays when Super Saiyan count is low, or when a MODERATE play has a DANGER tag and strong ISO."},
+        {"term":"YAMCHA (WEAK)","def":"Shows only BAD-grade matchups — the Yamcha plays. Good for identifying fade targets. If you see heavy sharp money on a YAMCHA play, that is a counter-signal. Also useful for identifying which pitchers are truly elite today."},
+        {"term":"ALL (N)","def":"Shows all matchups across all grades with no filter. The number in parentheses is the total count for the day. Use this for a full slate overview or when researching a specific batter across grade lines."},
+      ]},
+      {"title":"THE TABS — ROW 2 (DBZ SPECIALS)","entries":[
+        {"term":"\U0001f31f SSJ MATCHUPS","def":"The full ranked list sorted by composite SSJ Score — the definitive ordered board for the day. Top 50 shown. Apply DANGER ONLY or PLATOON ADV ONLY filters here for the tightest signal stack. Rank numbers (#01, #02...) appear on each card. This is the page's primary use case."},
+        {"term":"\U0001f501 FUSIONS","def":"25 randomly generated 2-player parlay combos from the Top 50 SSJ Matchups. Each Fusion shows full card detail for both players. Hit RE-FUSE to generate fresh random pairs. SAME GAME tag means both players are in the same lineup — correlated parlay, strongest Fusion type. ELITE grade means both players are STRONG."},
+        {"term":"\u26a1 POWER LEVELS","def":"This guide. A complete explanation of every metric, tag, badge, filter, and concept on the SSJ page. Bookmark this for reference when learning the system."},
       ]},
       {"title":"SSJ MATCHUPS — FILTERS","entries":[
-        {"term":"DANGER ONLY","def":"Hides every batter whose opposing pitcher VulnScore is below 70. Focus exclusively on the most exploitable pitching matchups."},
-        {"term":"PLATOON ADV ONLY","def":"Filters to batters with confirmed opposite-hand platoon advantage only. Eliminates all same-side matchups. Combine with DANGER ONLY for the tightest filter stack."},
+        {"term":"\u26a0 DANGER ONLY","def":"Hides all matchups where the opposing pitcher's VulnScore is below 70. You see only batters facing a DANGER-tagged pitcher. This is the highest-signal filter — every result is a potential exploitation target. Best used on the SSJ MATCHUPS tab for a clean ranked danger board."},
+        {"term":"\u26a1 PLATOON ADV ONLY","def":"Filters to batters with confirmed opposite-hand platoon advantage only. Eliminates all same-side matchups. Combine with DANGER ONLY to create the tightest possible filter — batters with platoon edge facing exploitable pitchers, ranked by composite score."},
+        {"term":"Result Count","def":"When either filter is active, a count appears showing how many plays remain. If DANGER ONLY returns 4 results on a given day, those 4 are the day's most important plays regardless of their raw grade."},
       ]},
-      {"title":"FUSIONS","entries":[
-        {"term":"HOW IT WORKS","def":"25 random pairs from the Top 50 SSJ Matchups. Both players in each Fusion share the full card view with all stats and projections."},
-        {"term":"RE-FUSE","def":"Generates 25 brand new random pairs from the same Top 50 pool."},
-        {"term":"ELITE","def":"Both players are STRONG (Super Saiyan) grade. Highest-quality parlay tier."},
-        {"term":"SOLID","def":"At least one STRONG player. Strong parlay with one anchor."},
-        {"term":"SAME GAME","def":"Both players from the same game and same lineup vs same pitcher. Correlated parlay — statistically the strongest Fusion type."},
+      {"title":"FUSIONS — PARLAY BUILDER","entries":[
+        {"term":"How Fusions Work","def":"The system randomly picks 25 pairs from the Top 50 SSJ Matchups and presents them as parlay candidates. Both players in each Fusion are shown with full card stats — you can evaluate the pair directly without switching tabs."},
+        {"term":"\U0001f500 RE-FUSE","def":"Generates 25 brand new random pairs from the same Top 50 pool without reloading the page. Hit it multiple times to explore different combinations."},
+        {"term":"\u26a1 ELITE","def":"Both players in the Fusion are STRONG (Super Saiyan) grade. Highest-quality parlay tier. An ELITE Fusion with SAME GAME tag is the most correlated, highest-upside combination."},
+        {"term":"\U0001f525 SOLID","def":"At least one player in the Fusion is STRONG. Strong parlay with one dominant anchor leg."},
+        {"term":"BASE FORM","def":"Both players are MODERATE grade. Solid supporting play parlay. Lower upside but lower variance."},
+        {"term":"SAME GAME","def":"Both players are in the same game — meaning they face the same pitcher or are in the same lineup. This is a correlated parlay. When both players are stacking against the same vulnerable pitcher, the implied correlation is real and should increase conviction."},
       ]},
-      {"title":"GAME FILTER DROPDOWN","entries":[
-        {"term":"WHAT IT DOES","def":"Filters every view to a single game matchup. Use for single-game stacks or when you have conviction on a specific game. Clear with the CLEAR button."},
+      {"title":"GAME FILTER + SUPER SCROLL GRIP","entries":[
+        {"term":"Game Filter Dropdown","def":"The dropdown below the tab rows filters the entire page to one specific game. Use it when you have conviction on a specific matchup and want to see only batters from that game. The CLEAR button removes the filter and restores the full view."},
+        {"term":"The Golden Scroll Grip","def":"The gold bar on the right edge of the screen is a drag-to-scroll control. Drag it up or down to navigate the page at any speed. It works on both touch and mouse. The grip glows brighter gold when actively dragging. It automatically hides if the page content fits on screen."},
+        {"term":"Why Gold?","def":"Everything on this page is gold. You're in Super Saiyan mode. That's the rule."},
       ]},
     ], ensure_ascii=False)
 
@@ -371,6 +409,18 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   transition:color .15s ease;min-width:50px}
 .da:hover,.da.act{color:var(--gold)}
 .di{font-size:16px;line-height:1}
+#scroll-track{position:fixed;right:6px;top:50%;transform:translateY(-50%);height:56vh;width:6px;
+  background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.12);border-radius:999px;z-index:64}
+#scroll-thumb{position:absolute;left:50%;transform:translateX(-50%);width:28px;height:52px;
+  background:rgba(255,215,0,.22);border:1px solid rgba(255,215,0,.55);border-radius:999px;
+  cursor:grab;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;touch-action:none;transition:background .15s;
+  box-shadow:0 0 12px rgba(255,215,0,.28),inset 0 1px 0 rgba(255,255,255,.12)}
+#scroll-thumb.dragging{background:rgba(255,215,0,.7);cursor:grabbing;
+  box-shadow:0 0 22px rgba(255,215,0,.65)}
+#scroll-thumb .grip-line{width:10px;height:2px;background:#FFD700;border-radius:999px;
+  box-shadow:0 0 4px rgba(255,215,0,.6)}
+#scroll-thumb.dragging .grip-line{background:#1a1000}
 </style>
 </head>
 <body>
@@ -384,7 +434,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
     parts.append('''<div class="tab-row" id="tr1">
   <button class="tab" data-f="STRONG" onclick="sf(this)">\u26a1 SUPER SAIYAN</button>
   <button class="tab" data-f="MODERATE" onclick="sf(this)">BASE FORM</button>
-  <button class="tab" data-f="BAD" onclick="sf(this)">BAD</button>
+  <button class="tab" data-f="BAD" onclick="sf(this)">YAMCHA (WEAK)</button>
   <button class="tab" id="tab-all" data-f="ALL" onclick="sf(this)">ALL</button>
 </div>
 <div class="tab-row dbz" id="tr2">
@@ -398,6 +448,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   <button id="gf-clear" onclick="sg('ALL')">CLEAR \u00d7</button>
 </div>
 <main id="content"></main>
+<div id="scroll-track"><div id="scroll-thumb"><div class="grip-line"></div><div class="grip-line"></div><div class="grip-line"></div></div></div>
 <nav id="dock">
   <a class="da" href="index.html"><span class="di">\U0001f4ca</span>Slate</a>
   <a class="da" href="k-report.html"><span class="di">\U0001f4cb</span>K Report</a>
@@ -431,6 +482,7 @@ function gts(g){
   if(g==='MODERATE')return'background:rgba(255,255,255,.08);color:#AAAAAA;';
   return'background:transparent;color:#666;';
 }
+function gdsp(g){return g==='BAD'?'WEAK':g;}
 function bws(p){
   var iS=p.grade==='STRONG',iF=p.zone>=10;
   var br=iS?(iF?'1px solid rgba(255,215,0,.65)':'1px solid rgba(255,215,0,.38)'):
@@ -465,7 +517,7 @@ function rs(p,compact){
     '</div>'+
     '<div class="cr">'+
       '<span class="pt" style="color:'+(pt.a?'#FFD700':'rgba(255,255,255,.22)')+'">'+pt.l+(pt.a?' \u26a1':'')+'</span>'+
-      '<span class="gt" style="'+gts(p.grade)+'">'+p.grade+'</span>'+
+      '<span class="gt" style="'+gts(p.grade)+'">'+gdsp(p.grade)+'</span>'+
       (p.vulnScore>=70?'<span class="dt">\u26a0 DANGER</span>':'')+
     '</div>'+
   '</div>'+
@@ -613,7 +665,7 @@ function render(){
           '<div style="font-weight:700;font-size:13px;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">'+p.batter+'</div>'+
           '<div style="font-size:10px;color:rgba(255,215,0,.65);letter-spacing:.1em;margin-bottom:7px">'+p.team+'</div>'+
           '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">'+
-            '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:'+(p.grade==='STRONG'?'rgba(255,215,0,.16)':'rgba(255,255,255,.08)')+';color:'+(p.grade==='STRONG'?'#FFD700':'#999')+'">'+p.grade+'</span>'+
+            '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:'+(p.grade==='STRONG'?'rgba(255,215,0,.16)':'rgba(255,255,255,.08)')+';color:'+(p.grade==='STRONG'?'#FFD700':'#999')+'">'+gdsp(p.grade)+'</span>'+
             (iD?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(255,80,80,.18);color:#FF6B6B">\u26a0</span>':'')+
             (hs?'<span style="font-size:10px">\U0001f525</span>':'')+
           '</div>'+
@@ -642,7 +694,7 @@ function rF(){fS++;render();}
   var sp=document.getElementById('spills');
   var pill=[['SUPER SAIYAN',C.STRONG,'#FFD700','rgba(255,215,0,.055)'],
             ['BASE FORM',C.MODERATE,'#C8C8C8','transparent'],
-            ['BAD',C.BAD,'#666','transparent']];
+            ['YAMCHA',C.BAD,'#888','transparent']];
   sp.innerHTML=pill.map(function(p,i){
     return '<div class="spill" style="background:'+p[3]+';border-right:'+(i<2?'1px solid rgba(255,255,255,.05)':'none')+'">'+
       '<div class="spill-n" style="color:'+p[2]+'">'+p[1]+'</div>'+
@@ -657,6 +709,40 @@ function rF(){fS++;render();}
   });
   document.querySelector('[data-f="STRONG"]').classList.add('active');
   render();
+})();
+// ── Golden Scroll Grip ──────────────────────────────────────────────
+(function(){
+  var track=document.getElementById('scroll-track');
+  var thumb=document.getElementById('scroll-thumb');
+  if(!track||!thumb)return;
+  var dragging=false,startY=0,startScroll=0;
+  function updateThumb(){
+    var docH=document.documentElement.scrollHeight-window.innerHeight;
+    var trackH=track.clientHeight-thumb.clientHeight;
+    if(docH<=0){track.style.display='none';return;}
+    track.style.display='block';
+    thumb.style.top=((window.scrollY/docH)*trackH)+'px';
+  }
+  window.addEventListener('scroll',updateThumb,{passive:true});
+  window.addEventListener('resize',updateThumb);
+  updateThumb();
+  function startDrag(y){dragging=true;startY=y;startScroll=window.scrollY;thumb.classList.add('dragging');}
+  function moveDrag(y){
+    if(!dragging)return;
+    var delta=y-startY,trackH=track.clientHeight-thumb.clientHeight;
+    var docH=document.documentElement.scrollHeight-window.innerHeight;
+    window.scrollTo(0,Math.max(0,startScroll+(delta/trackH)*docH));
+  }
+  function endDrag(){dragging=false;thumb.classList.remove('dragging');}
+  thumb.addEventListener('touchstart',function(e){startDrag(e.touches[0].clientY);e.preventDefault();},{passive:false});
+  document.addEventListener('touchmove',function(e){if(dragging){moveDrag(e.touches[0].clientY);e.preventDefault();}},{passive:false});
+  document.addEventListener('touchend',endDrag);
+  thumb.addEventListener('mousedown',function(e){startDrag(e.clientY);});
+  document.addEventListener('mousemove',function(e){moveDrag(e.clientY);});
+  document.addEventListener('mouseup',endDrag);
+  // Re-sync thumb after every render call
+  var _origRender=window.render;
+  if(_origRender)window.render=function(){_origRender();setTimeout(updateThumb,60);};
 })();
 </script>
 </body>

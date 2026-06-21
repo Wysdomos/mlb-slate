@@ -43,7 +43,9 @@ try:
     exec(compile(open('build_scout.py', encoding='utf-8').read(), 'build_scout.py', 'exec'), _scout_ns)
     _scout_ns['set_data'](
         HR_LB, SP_PROJ, SS_BY_NAME, BP_BAT, GAMES_RAW,
-        TODAY_STR, DAY_NUM
+        TODAY_STR, DAY_NUM,
+        ssa   = DATA.get('Sweet_Spot_Analyzer', []),
+        scout = DATA.get('Scout', [])
     )
     _scout_ns['build']()
 except Exception as _e:
