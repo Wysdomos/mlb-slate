@@ -88,7 +88,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 .sr{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid}
 .si .sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
   font-family:"Bebas Neue",sans-serif}
-.si .sv{font-size:13px;font-weight:700}
+.si .sv{font-size:13px;font-weight:700;font-family:"Bebas Neue",sans-serif;letter-spacing:.05em}
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
   padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
@@ -187,6 +187,8 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
   color:var(--gold);text-decoration:none;
   display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.bar-title{font-family:"Bebas Neue",sans-serif;font-size:17px;letter-spacing:.1em;
+  color:var(--gold);text-shadow:0 0 12px rgba(255,215,0,.4);white-space:nowrap}
 .bar-spacer{flex:1}
 .icon-btn{width:36px;height:36px;border-radius:10px;flex-shrink:0;
   background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.28);
@@ -209,6 +211,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 <body>
 <div id="app-bar">
   <a class="back-chip" href="index.html">‹</a>
+  <div class="bar-title">⚡ SSJ (THE ZONE)</div>
   <div class="bar-spacer"></div>
   <button class="icon-btn" id="themeToggle">🌙</button>
 </div>
