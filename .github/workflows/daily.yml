@@ -56,6 +56,16 @@ jobs:
           BDL_MIN_GAP: '0.1'
         run: python3 fetch_phase2.py
 
+      - name: Fetch live streaks
+        timeout-minutes: 6
+        continue-on-error: true
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          STREAKS_OUT: streaks_live.json
+          STREAK_DAYS: '10'
+          BDL_MIN_GAP: '0.2'
+        run: python3 fetch_streaks.py
+
       - name: Build slate
         env:
           DATA_FILE: day_data.json
@@ -63,6 +73,9 @@ jobs:
           K_REPORT_FILE: k-report.html
           K_PROPS_FILE: k_props.json
           K_SAVANT_FILE: k_savant_data.json
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          STREAKS_OUT: streaks_live.json
+          STREAK_DAYS: '10'
         run: python3 build.py
 
       - name: Sync to HTML
@@ -77,6 +90,7 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
           git add index.html k-report.html streaks.html day_data.json built_sections.json
           git add scout.html 2>/dev/null || true
+          git add streaks_live.json 2>/dev/null || true
           git add slate_picks*.json 2>/dev/null || true
           git add k_props.json 2>/dev/null || true
           git add k_savant_data.json 2>/dev/null || true
