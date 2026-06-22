@@ -55,6 +55,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 .tab.active{background:var(--gold);color:#000;border-color:var(--gold)}
 .tab.dbz-tab{border-color:rgba(255,215,0,.25);color:rgba(255,200,0,.65)}
 .tab.dbz-tab.active{background:linear-gradient(135deg,#FFD700,#FF9500);color:#000;border-color:var(--gold)}
+.emoji-gold{filter:sepia(1) saturate(5) hue-rotate(5deg) brightness(1.1);display:inline-block}
 #gf{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)}
 #gf label{font-size:9px;font-weight:700;color:var(--gold-d);letter-spacing:.15em;white-space:nowrap}
 #gf select{flex:1;background:#0d0d0d;border:1px solid rgba(255,215,0,.2);color:rgba(255,255,255,.65);
@@ -86,13 +87,11 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   background:var(--danger-s);color:var(--danger);border:1px solid rgba(255,80,80,.3);letter-spacing:.08em}
 .rn{font-family:"Bebas Neue",sans-serif;font-size:20px;line-height:1;display:block;margin-bottom:6px}
 .sr{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid}
-.si .sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  font-family:"Bebas Neue",sans-serif}
-.si .sv{font-size:13px;font-weight:700;font-family:"Bebas Neue",sans-serif;letter-spacing:.05em}
+.si .sl{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.si .sv{font-size:13px;font-weight:700}
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
-  padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
-  font-family:"Bebas Neue",sans-serif;color:rgba(255,215,0,.55)}
+  padding:2px 9px;border-radius:10px;background:rgba(255,255,255,.055)}
 .tc{display:flex;margin-top:9px;padding-top:8px;border-top:1px solid}
 .tc .col{flex:1}
 .cd{width:1px;background:rgba(255,255,255,.1);margin:0 12px}
@@ -115,12 +114,10 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   color:var(--gold);letter-spacing:.1em;
   text-shadow:0 0 18px rgba(255,215,0,.65),0 0 40px rgba(255,215,0,.3)}
 .fs{font-size:10px;color:rgba(255,215,0,.4);letter-spacing:.14em;margin-top:4px}
-@keyframes rfglow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4),0 0 18px rgba(255,215,0,.15)}
-  50%{box-shadow:0 0 18px rgba(255,215,0,.85),0 0 38px rgba(255,215,0,.35)}}
-#rf{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.5);color:var(--gold);
-  font-size:13px;font-weight:700;padding:9px 16px;border-radius:6px;cursor:pointer;
-  letter-spacing:.1em;font-family:"Bebas Neue",sans-serif;flex-shrink:0;margin-left:10px;
-  animation:rfglow 2s ease-in-out infinite}
+#rf{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.38);color:#FFD700;
+  font-size:12px;font-weight:700;padding:9px 14px;border-radius:6px;cursor:pointer;
+  letter-spacing:.08em;font-family:"Rajdhani",sans-serif;flex-shrink:0;margin-left:10px;
+  box-shadow:0 0 10px rgba(255,215,0,.12)}
 .fc{border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid rgba(255,215,0,.25);
   background:linear-gradient(135deg,rgba(255,215,0,.06) 0%,rgba(255,80,0,.03) 50%,rgba(255,215,0,.06) 100%)}
 .fm{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
@@ -230,7 +227,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 </div>
 <div class="tab-row dbz" id="tr2">
   <button class="tab dbz-tab" data-f="SSJ" onclick="sf(this)">🌟 SSJ MATCHUPS</button>
-  <button class="tab dbz-tab" data-f="FUSIONS" onclick="sf(this)">🔁 FUSIONS</button>
+  <button class="tab dbz-tab" data-f="FUSIONS" onclick="sf(this)"><span class="emoji-gold">🔁</span> FUSIONS</button>
   <button class="tab dbz-tab" data-f="POWER" onclick="sf(this)">⚡ POWER LEVELS</button>
 </div>
 <div id="gf">
@@ -282,7 +279,7 @@ function bws(p){
 function ban(p){
   var hs=p.hitStreak>=4||p.hrStreak>=2||p.hrrStreak>=3;
   if(hs)return'bfire';
-  if(p.zone>=10)return'bglow';
+  if(p.grade==='STRONG'&&p.zone>=10)return'bglow';
   return'';
 }
 function bnc(p){return p.grade==='STRONG'?'#FFD700':(p.grade==='MODERATE'?'#AAAAAA':'#666');}
@@ -417,7 +414,7 @@ function render(){
     html='<div class="fh">'+
       '<div><div class="ft">FUU… SION… HAA!</div>'+
       '<div class="fs">25 RANDOM PAIRS · TOP 50 SSJ MATCHUPS</div></div>'+
-      '<button id="rf" onclick="rF()">🔁 RE-FUSE</button>'+
+      '<button id="rf" onclick="rF()">🔀 RE-FUSE</button>'+
     '</div>'+pairs.map(function(p,i){return rfusion(p,i);}).join('');
   } else if(cf==='SSJ'){
     gfel.style.display='flex';
