@@ -98,43 +98,74 @@ def _ssj(p):
 
 # ── build ────────────────────────────────────────────────────────────
 
-# ── Live streak fetch (MLB Stats API) ────────────────────────────────
+# ── Live streak loader ───────────────────────────────────────────────
 def _fetch_live_streaks():
     """
-    Pulls the last 8 days of box scores from the MLB Stats API and
-    computes Hit streak, HR streak, and HRR streak for every batter.
-    Returns dict: {batter_name_lower: {hitStreak, hrStreak, hrrStreak}}
-    Falls back silently to empty dict on any network error.
+    Returns {batter_name_lower: {hitStreak, hrStreak, hrrStreak}}.
+
+    Primary path: read streaks_live.json (produced by fetch_streaks.py,
+    which pulls from balldontlie then MLB Stats API). If that file is
+    missing or empty, fall back to an inline MLB Stats API fetch so the
+    page still gets live streaks even when the dedicated step didn't run.
+    Never raises.
     """
+    import json, os
+
+    streaks_file = os.environ.get('STREAKS_OUT', 'streaks_live.json')
+
+    # 1) Preferred: the JSON written by fetch_streaks.py
+    if os.path.exists(streaks_file):
+        try:
+            with open(streaks_file, encoding='utf-8') as f:
+                data = json.load(f)
+            active = sum(1 for v in data.values() if any(v.values()))
+            print(f"[scout] loaded {streaks_file}: {len(data)} players, {active} active streaks")
+            if data:
+                return data
+            print(f"[scout] {streaks_file} was empty — using inline MLB Stats fallback")
+        except Exception as e:
+            print(f"[scout] could not read {streaks_file} ({e}) — using inline fallback")
+    else:
+        print(f"[scout] {streaks_file} not found — using inline MLB Stats fallback")
+
+    # 2) Inline fallback: MLB Stats API directly (with debug logging)
+    return _inline_mlb_streaks()
+
+
+def _inline_mlb_streaks():
+    """Inline MLB Stats API streak fetch with verbose diagnostics."""
     import urllib.request, json
     from datetime import datetime, timedelta
 
     today = datetime.utcnow().date()
-    start = today - timedelta(days=8)
+    lookback = int(os.environ.get('STREAK_DAYS', '10'))
+    start = today - timedelta(days=lookback)
 
     url = (
         "https://statsapi.mlb.com/api/v1/schedule"
         f"?sportId=1&startDate={start}&endDate={today}"
         "&hydrate=boxscore(fields(teams,players,stats,person,atBats,hits,homeRuns,runs,rbi))"
     )
+    print(f"[scout] inline MLB Stats fetch: {start} -> {today} ({lookback}d)")
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "DailySlate/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as r:
+        with urllib.request.urlopen(req, timeout=20) as r:
             data = json.load(r)
     except Exception as e:
-        print(f"[scout] streak API unavailable: {e}")
+        print(f"[scout] !! MLB Stats API unreachable: {type(e).__name__}: {e}")
+        print(f"[scout] !! streaks will be workbook-only this build")
         return {}
 
-    # player_games[name_lower] = [(date_str, hits, hrs, runs, rbi), ...]
     player_games = {}
-
+    games_total = games_final = 0
     for date_obj in data.get("dates", []):
         date_str = date_obj.get("date", "")
         for game in date_obj.get("games", []):
-            # Only use Final / completed games
+            games_total += 1
             status = (game.get("status") or {}).get("codedGameState", "")
             if status not in ("F", "O", "C", "TR"):
                 continue
+            games_final += 1
             boxscore = game.get("boxscore") or {}
             for side in ("home", "away"):
                 team_data = (boxscore.get("teams") or {}).get(side) or {}
@@ -148,15 +179,18 @@ def _fetch_live_streaks():
                     hrs  = int(batting.get("homeRuns")  or 0)
                     runs = int(batting.get("runs")      or 0)
                     rbi  = int(batting.get("rbi")       or 0)
-                    # Skip non-batters / did-not-play entries
                     if ab == 0 and hits == 0 and hrs == 0 and runs == 0:
                         continue
-                    key = full_name.lower()
-                    if key not in player_games:
-                        player_games[key] = []
-                    player_games[key].append((date_str, hits, hrs, runs, rbi))
+                    player_games.setdefault(full_name.lower(), []).append(
+                        (date_str, hits, hrs, runs, rbi))
 
-    # Sort each player oldest→newest, then streak from end
+    print(f"[scout] inline MLB Stats: {games_total} games seen, {games_final} final, "
+          f"{len(player_games)} batters with data")
+
+    if games_final == 0:
+        print("[scout] !! 0 final games returned — check date range / API response")
+        return {}
+
     result = {}
     for key, games in player_games.items():
         games.sort(key=lambda x: x[0])
@@ -175,7 +209,7 @@ def _fetch_live_streaks():
             result[key] = {"hitStreak": hit_s, "hrStreak": hr_s, "hrrStreak": hrr_s}
 
     active = sum(1 for v in result.values() if any(v.values()))
-    print(f"[scout] live streaks: {active} active players ({len(result)} with data)")
+    print(f"[scout] inline MLB Stats: {active} players with active streaks")
     return result
 
 def build():
@@ -403,6 +437,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 .tab.active{background:var(--gold);color:#000;border-color:var(--gold)}
 .tab.dbz-tab{border-color:rgba(255,215,0,.25);color:rgba(255,200,0,.65)}
 .tab.dbz-tab.active{background:linear-gradient(135deg,#FFD700,#FF9500);color:#000;border-color:var(--gold)}
+.emoji-gold{filter:sepia(1) saturate(5) hue-rotate(5deg) brightness(1.1);display:inline-block}
 #gf{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)}
 #gf label{font-size:9px;font-weight:700;color:var(--gold-d);letter-spacing:.15em;white-space:nowrap}
 #gf select{flex:1;background:#0d0d0d;border:1px solid rgba(255,215,0,.2);color:rgba(255,255,255,.65);
@@ -434,13 +469,11 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   background:var(--danger-s);color:var(--danger);border:1px solid rgba(255,80,80,.3);letter-spacing:.08em}
 .rn{font-family:"Bebas Neue",sans-serif;font-size:20px;line-height:1;display:block;margin-bottom:6px}
 .sr{display:flex;gap:16px;flex-wrap:wrap;margin-top:9px;padding-top:8px;border-top:1px solid}
-.si .sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-  font-family:"Bebas Neue",sans-serif}
-.si .sv{font-size:13px;font-weight:700;font-family:"Bebas Neue",sans-serif;letter-spacing:.05em}
+.si .sl{font-size:9px;letter-spacing:.12em;text-transform:uppercase}
+.si .sv{font-size:13px;font-weight:700}
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
-  padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
-  font-family:"Bebas Neue",sans-serif;color:rgba(255,215,0,.55)}
+  padding:2px 9px;border-radius:10px;background:rgba(255,255,255,.055)}
 .tc{display:flex;margin-top:9px;padding-top:8px;border-top:1px solid}
 .tc .col{flex:1}
 .cd{width:1px;background:rgba(255,255,255,.1);margin:0 12px}
@@ -463,12 +496,10 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   color:var(--gold);letter-spacing:.1em;
   text-shadow:0 0 18px rgba(255,215,0,.65),0 0 40px rgba(255,215,0,.3)}
 .fs{font-size:10px;color:rgba(255,215,0,.4);letter-spacing:.14em;margin-top:4px}
-@keyframes rfglow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.4),0 0 18px rgba(255,215,0,.15)}
-  50%{box-shadow:0 0 18px rgba(255,215,0,.85),0 0 38px rgba(255,215,0,.35)}}
-#rf{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.5);color:var(--gold);
-  font-size:13px;font-weight:700;padding:9px 16px;border-radius:6px;cursor:pointer;
-  letter-spacing:.1em;font-family:"Bebas Neue",sans-serif;flex-shrink:0;margin-left:10px;
-  animation:rfglow 2s ease-in-out infinite}
+#rf{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.38);color:#FFD700;
+  font-size:12px;font-weight:700;padding:9px 14px;border-radius:6px;cursor:pointer;
+  letter-spacing:.08em;font-family:"Rajdhani",sans-serif;flex-shrink:0;margin-left:10px;
+  box-shadow:0 0 10px rgba(255,215,0,.12)}
 .fc{border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid rgba(255,215,0,.25);
   background:linear-gradient(135deg,rgba(255,215,0,.06) 0%,rgba(255,80,0,.03) 50%,rgba(255,215,0,.06) 100%)}
 .fm{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
@@ -577,7 +608,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 </div>
 <div class="tab-row dbz" id="tr2">
   <button class="tab dbz-tab" data-f="SSJ" onclick="sf(this)">\U0001f31f SSJ MATCHUPS</button>
-  <button class="tab dbz-tab" data-f="FUSIONS" onclick="sf(this)">\U0001f501 FUSIONS</button>
+  <button class="tab dbz-tab" data-f="FUSIONS" onclick="sf(this)"><span class="emoji-gold">\U0001f501</span> FUSIONS</button>
   <button class="tab dbz-tab" data-f="POWER" onclick="sf(this)">\u26a1 POWER LEVELS</button>
 </div>
 <div id="gf">
@@ -630,7 +661,7 @@ function bws(p){
 function ban(p){
   var hs=p.hitStreak>=4||p.hrStreak>=2||p.hrrStreak>=3;
   if(hs)return'bfire';
-  if(p.zone>=10)return'bglow';
+  if(p.grade==='STRONG'&&p.zone>=10)return'bglow';
   return'';
 }
 function bnc(p){return p.grade==='STRONG'?'#FFD700':(p.grade==='MODERATE'?'#AAAAAA':'#666');}
@@ -765,7 +796,7 @@ function render(){
     html='<div class="fh">'+
       '<div><div class="ft">FUU… SION… HAA!</div>'+
       '<div class="fs">25 RANDOM PAIRS · TOP 50 SSJ MATCHUPS</div></div>'+
-      '<button id="rf" onclick="rF()">🔁 RE-FUSE</button>'+
+      '<button id="rf" onclick="rF()">🔀 RE-FUSE</button>'+
     '</div>'+pairs.map(function(p,i){return rfusion(p,i);}).join('');
   } else if(cf==='SSJ'){
     gfel.style.display='flex';
