@@ -269,7 +269,7 @@ def _html(data_json, counts_json, today_str):
       {"title":"THE GRADES — YOUR POWER CLASS","entries":[
         {"term":"SUPER SAIYAN — Elite Tier","def":"All factors align: high Zone score, strong ISO and wOBA, facing a vulnerable or struggling pitcher, often with platoon advantage. These are the day's primary targets. A SUPER SAIYAN play with a DANGER tag is the strongest single-play signal on the board."},
         {"term":"BASE FORM — Solid Tier","def":"Decent matchup but one or two factors are working against the play — a tough pitcher, a suppressor park, weak streak, or marginal platoon. Still worth including in combos or as supporting legs. Not the anchor, but a valid contributor."},
-        {"term":"YAMCHA (WEAK) — Fade Tier","def":"Named after the Dragon Ball Z character who famously loses every fight. These matchups have one or more significant negatives — a dominant pitcher, bad park factor for HRs, or unfavorable platoon. Listed for transparency and as fade targets. If you see a YAMCHA play getting heavy betting action, that's a fade signal, not a tail."},
+        {"term":"YAMCHA — Fade Tier","def":"Named after the Dragon Ball Z character who famously loses every fight. These matchups have one or more significant negatives — a dominant pitcher, bad park factor for HRs, or unfavorable platoon. Listed for transparency and as fade targets. If you see a YAMCHA play getting heavy betting action, that's a fade signal, not a tail."},
         {"term":"How Grades Are Set","def":"Grades come from the Sweet Spot Analyzer in the workbook — a multi-factor model combining ISO, wOBA, Zone matchup score, park HR factor, and pitcher grade. Grades are locked at build time and do not change intraday. Check back the next build for updates."},
       ]},
       {"title":"THE ZONE BADGE \u26a1N","entries":[
@@ -318,7 +318,7 @@ def _html(data_json, counts_json, today_str):
       {"title":"THE TABS — ROW 1 (GRADE FILTERS)","entries":[
         {"term":"\u26a1 SUPER SAIYAN","def":"Shows only STRONG-grade matchups. These are the elite plays of the day. Default view when you open SSJ. Start here every session."},
         {"term":"BASE FORM","def":"Shows only MODERATE-grade matchups. Solid supporting plays. Use for combo legs, backup plays when Super Saiyan count is low, or when a MODERATE play has a DANGER tag and strong ISO."},
-        {"term":"YAMCHA (WEAK)","def":"Shows only BAD-grade matchups — the Yamcha plays. Good for identifying fade targets. If you see heavy sharp money on a YAMCHA play, that is a counter-signal. Also useful for identifying which pitchers are truly elite today."},
+        {"term":"YAMCHA","def":"Shows only WEAK-grade matchups — the Yamcha plays. Good for identifying fade targets. If you see heavy sharp money on a YAMCHA play, that is a counter-signal. Also useful for identifying which pitchers are truly elite today."},
         {"term":"ALL (N)","def":"Shows all matchups across all grades with no filter. The number in parentheses is the total count for the day. Use this for a full slate overview or when researching a specific batter across grade lines."},
       ]},
       {"title":"THE TABS — ROW 2 (DBZ SPECIALS)","entries":[
@@ -440,7 +440,6 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 .ph{text-align:center;margin-bottom:5px}
 .ph span{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.18em;
   padding:2px 9px;border-radius:10px;background:rgba(255,215,0,.07);
-  font-family:"Bebas Neue",sans-serif;
   font-family:"Bebas Neue",sans-serif;color:rgba(255,215,0,.55)}
 .tc{display:flex;margin-top:9px;padding-top:8px;border-top:1px solid}
 .tc .col{flex:1}
@@ -527,7 +526,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
 [data-theme="light"] #scroll-track{background:rgba(160,112,0,.12)}
 [data-theme="light"] #scroll-thumb{background:rgba(160,112,0,.25);border-color:rgba(160,112,0,.5)}
 [data-theme="light"] #scroll-thumb .grip-line{background:var(--gold)}
-#app-bar{display:flex;align-items:center;padding:8px 14px;gap:10px;
+#app-bar{display:flex;align-items:center;padding:calc(8px + env(safe-area-inset-top,0px)) 14px 8px;gap:10px;
   background:rgba(7,7,7,.92);backdrop-filter:blur(18px) saturate(140%);
   -webkit-backdrop-filter:blur(18px) saturate(140%);position:sticky;top:0;z-index:100;
   border-bottom:1px solid rgba(255,215,0,.12)}
@@ -573,7 +572,7 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
     parts.append('''<div class="tab-row" id="tr1">
   <button class="tab" data-f="STRONG" onclick="sf(this)">\u26a1 SUPER SAIYAN</button>
   <button class="tab" data-f="MODERATE" onclick="sf(this)">BASE FORM</button>
-  <button class="tab" data-f="BAD" onclick="sf(this)">YAMCHA (WEAK)</button>
+  <button class="tab" data-f="BAD" onclick="sf(this)">YAMCHA</button>
   <button class="tab" id="tab-all" data-f="ALL" onclick="sf(this)">ALL</button>
 </div>
 <div class="tab-row dbz" id="tr2">
@@ -592,7 +591,6 @@ html,body{background:var(--bg);color:var(--text);font-family:"Rajdhani",system-u
   <a class="da" href="index.html"><span class="di">⚾️</span>Slate</a>
   <a class="da" href="k-report.html"><span class="di">📰</span>K Report</a>
   <a class="da" href="streaks.html"><span class="di">\U0001f525</span>Streaks</a>
-  <a class="da act" style="color:var(--gold)"><span class="di">\u26a1</span>SSJ</span>
   <a class="da" href="record.html"><span class="di">💿</span>Record</a>
 </nav>
 ''')
@@ -604,10 +602,10 @@ var D=JSON.parse(document.getElementById('sd').textContent);
 var C=JSON.parse(document.getElementById('cd').textContent);
 var G=JSON.parse(document.getElementById('gd').textContent);
 var cf='STRONG',cg='ALL',dO=false,pO=false,fS=0;
-function gk(p){return [p.team,p.pTeam].sort().join(' \u00b7 ');}
-function pl(b,t){if(b==='S')return{l:'S\u2192'+t,a:true};return{l:b+'\u2192'+t,a:b!==t};}
+function gk(p){return [p.team,p.pTeam].sort().join(' · ');}
+function pl(b,t){if(b==='S')return{l:'S→'+t,a:true};return{l:b+'→'+t,a:b!==t};}
 function sd2(v,thr,ic){
-  if(!v||v===0)return{t:'\u2014',c:'rgba(255,255,255,.2)',s:''};
+  if(!v||v===0)return{t:'—',c:'rgba(255,255,255,.2)',s:''};
   if(v>=thr)return{t:''+v,c:'#FFD700',s:ic};
   return{t:''+v,c:'rgba(255,255,255,.65)',s:''};
 }
@@ -644,7 +642,7 @@ function rs(p,compact){
   var sz=compact?42:46,ba=ban(p),hs=p.hitStreak>=4||p.hrStreak>=2||p.hrrStreak>=3;
   return '<div class="ct">'+
     '<div class="bw '+ba+'" style="width:'+sz+'px;height:'+sz+'px;'+bws(p)+'">'+
-      '<span class="bz" style="color:'+(p.grade==='STRONG'?'#FFD700':'#3a3a3a')+'">\u26a1</span>'+
+      '<span class="bz" style="color:'+(p.grade==='STRONG'?'#FFD700':'#3a3a3a')+'">⚡</span>'+
       '<span class="bn" style="color:'+bnc(p)+';font-size:'+(compact?'18px':'21px')+'">'+p.zone+'</span>'+
       (hs?'<span class="bf">🔥</span>':'')+
     '</div>'+
@@ -652,20 +650,20 @@ function rs(p,compact){
       '<div class="cn" style="color:'+nc(p.grade)+'">'+p.batter+
         ' <span style="font-size:11px;font-weight:700;color:rgba(255,215,0,.65);letter-spacing:.1em">'+p.team+'</span></div>'+
       '<div class="cm" style="color:'+(p.grade==='STRONG'?'rgba(255,255,255,.65)':'rgba(255,255,255,.5)')+'">'+
-        'vs '+p.pitcher+' \u00b7 '+p.pTeam+' \u00b7 ERA '+p.era+'</div>'+
+        'vs '+p.pitcher+' · '+p.pTeam+' · ERA '+p.era+'</div>'+
     '</div>'+
     '<div class="cr">'+
-      '<span class="pt" style="color:'+(pt.a?'#FFD700':'rgba(255,255,255,.22)')+'">'+pt.l+(pt.a?' \u26a1':'')+'</span>'+
+      '<span class="pt" style="color:'+(pt.a?'#FFD700':'rgba(255,255,255,.22)')+'">'+pt.l+(pt.a?' ⚡':'')+'</span>'+
       '<span class="gt" style="'+gts(p.grade)+'">'+gdsp(p.grade)+'</span>'+
-      (p.vulnScore>=70?'<span class="dt">\u26a0 DANGER</span>':'')+
+      (p.vulnScore>=70?'<span class="dt">⚠ DANGER</span>':'')+
     '</div>'+
   '</div>'+
   '<div class="sr" style="border-color:'+dc+'">'+
     '<div class="si"><div class="sl" style="color:'+sl+'">VULN</div><div class="sv" style="color:'+vc(vs)+'">'+vs+'</div></div>'+
     '<div class="si"><div class="sl" style="color:'+sl+'">PROJ H</div>'+
-      '<div class="sv" style="color:'+phC+'">'+(p.pitcher==='TBD'?'\u2014':p.projHits)+'</div>'+(phR&&p.pitcher!=='TBD'?' \U0001f534':'')+' </div>'+
+      '<div class="sv" style="color:'+phC+'">'+(p.pitcher==='TBD'?'—':p.projHits)+'</div>'+(phR&&p.pitcher!=='TBD'?' 🔴':'')+' </div>'+
     '<div class="si"><div class="sl" style="color:'+sl+'">PROJ ERA</div>'+
-      '<div class="sv" style="color:'+peC+'">'+(p.pitcher==='TBD'?'\u2014':p.projERA)+'</div>'+(peR&&p.pitcher!=='TBD'?' \U0001f534':'')+' </div>'+
+      '<div class="sv" style="color:'+peC+'">'+(p.pitcher==='TBD'?'—':p.projERA)+'</div>'+(peR&&p.pitcher!=='TBD'?' 🔴':'')+' </div>'+
   '</div>'+
   '<div class="tc" style="border-color:'+dc+'">'+
     '<div class="col">'+
@@ -695,7 +693,7 @@ function rc(p,rank){
   return '<div class="'+cls+'">'+rh+rs(p,false)+'</div>';
 }
 function cgf(g1,g2){
-  if(g1==='STRONG'&&g2==='STRONG')return{l:'\u26a1 ELITE',c:'#FFD700',b:'rgba(255,215,0,.18)'};
+  if(g1==='STRONG'&&g2==='STRONG')return{l:'⚡ ELITE',c:'#FFD700',b:'rgba(255,215,0,.18)'};
   if(g1==='STRONG'||g2==='STRONG')return{l:'🔥 SOLID',c:'#FFA040',b:'rgba(255,140,0,.14)'};
   if(g1==='MODERATE'&&g2==='MODERATE')return{l:'BASE FORM',c:'#AAAAAA',b:'rgba(255,255,255,.08)'};
   return{l:'MIXED',c:'#777',b:'rgba(255,255,255,.05)'};
@@ -711,12 +709,12 @@ function rfusion(pair,idx){
       '</div>'+
     '</div>'+
     rs(p1,true)+
-    '<div class="fd"><span>\u26a1 + \u26a1</span></div>'+
+    '<div class="fd"><span>⚡ + ⚡</span></div>'+
     rs(p2,true)+
   '</div>';
 }
 function rglos(){
-  return '<div id="gh" class="t-glow"><h2>\u26a1 POWER LEVELS</h2>'+
+  return '<div id="gh" class="t-glow"><h2>⚡ POWER LEVELS</h2>'+
     '<div class="gs">A Saiyan\'s Field Guide to the Zone</div></div>'+
     G.map(function(sec){
       return '<div class="gs-sec">'+
@@ -765,9 +763,9 @@ function render(){
     gfel.style.display='none';
     var pairs=gfusions();
     html='<div class="fh">'+
-      '<div><div class="ft">FUU\u2026 SION\u2026 HAA!</div>'+
-      '<div class="fs">25 RANDOM PAIRS \u00b7 TOP 50 SSJ MATCHUPS</div></div>'+
-      '<button id="rf" onclick="rF()">\U0001f500 RE-FUSE</button>'+
+      '<div><div class="ft">FUU… SION… HAA!</div>'+
+      '<div class="fs">25 RANDOM PAIRS · TOP 50 SSJ MATCHUPS</div></div>'+
+      '<button id="rf" onclick="rF()">🔁 RE-FUSE</button>'+
     '</div>'+pairs.map(function(p,i){return rfusion(p,i);}).join('');
   } else if(cf==='SSJ'){
     gfel.style.display='flex';
@@ -781,8 +779,8 @@ function render(){
     var pb=pO?'rgba(255,215,0,.15)':'transparent';
     var pc=pO?'#FFD700':'rgba(255,215,0,.5)';
     html='<div id="sf">'+
-      '<button class="fp" onclick="tD()" style="border:'+dn+';background:'+db+';color:'+dc+'">\u26a0 DANGER ONLY</button>'+
-      '<button class="fp" onclick="tP()" style="border:'+pn+';background:'+pb+';color:'+pc+'">\u26a1 PLATOON ADV ONLY</button>'+
+      '<button class="fp" onclick="tD()" style="border:'+dn+';background:'+db+';color:'+dc+'">⚠ DANGER ONLY</button>'+
+      '<button class="fp" onclick="tP()" style="border:'+pn+';background:'+pb+';color:'+pc+'">⚡ PLATOON ADV ONLY</button>'+
       ((dO||pO)?'<span style="font-size:10px;color:rgba(255,255,255,.3);align-self:center">'+fd.length+' results</span>':'')+
     '</div>'+
     (fd.length===0?'<div style="text-align:center;padding:40px;color:rgba(255,255,255,.22);font-size:13px">No matchups match the active filters.</div>':
@@ -799,18 +797,18 @@ function render(){
           ';background:'+(i===0?'linear-gradient(135deg,rgba(255,215,0,.13),rgba(255,140,0,.06))':'rgba(255,215,0,.05)')+'">'+
           '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">'+
             '<span style="font-family:Bebas Neue,sans-serif;font-size:18px;color:'+(i===0?'#FFD700':'rgba(255,215,0,.5)')+'">#'+(i+1)+'</span>'+
-            '<span style="font-family:Bebas Neue,sans-serif;font-size:14px;color:#FFD700">\u26a1'+p.zone+'</span>'+
+            '<span style="font-family:Bebas Neue,sans-serif;font-size:14px;color:#FFD700">⚡'+p.zone+'</span>'+
           '</div>'+
           '<div style="font-weight:700;font-size:13px;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px">'+p.batter+'</div>'+
           '<div style="font-size:10px;color:rgba(255,215,0,.65);letter-spacing:.1em;margin-bottom:7px">'+p.team+'</div>'+
           '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px">'+
             '<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:'+(p.grade==='STRONG'?'rgba(255,215,0,.16)':'rgba(255,255,255,.08)')+';color:'+(p.grade==='STRONG'?'#FFD700':'#999')+'">'+gdsp(p.grade)+'</span>'+
-            (iD?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(255,80,80,.18);color:#FF6B6B">\u26a0</span>':'')+
+            (iD?'<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(255,80,80,.18);color:#FF6B6B">⚠</span>':'')+
             (hs?'<span style="font-size:10px">🔥</span>':'')+
           '</div>'+
           '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px">ISO <span style="color:#FFD700;font-weight:700">'+p.iso+'</span></div>'+
           '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:3px">wOBA <span style="color:#FFD700;font-weight:700">'+p.woba+'</span></div>'+
-          '<div style="font-size:11px;color:rgba(255,255,255,.4)">'+pt.l+(pt.a?' <span style="color:#FFD700">\u26a1</span>':'')+
+          '<div style="font-size:11px;color:rgba(255,255,255,.4)">'+pt.l+(pt.a?' <span style="color:#FFD700">⚡</span>':'')+
           '</div>'+
         '</div>';
       }).join('');
@@ -818,7 +816,7 @@ function render(){
         '<div class="o9s">Today\'s Top 5 Power Plays</div>'+
         '<div class="o9r">'+cards+'</div></div>';
     }
-    if(feat.length)html+=sh('\u26a1 Featured Plays','Zone \u2265 10',true)+feat.map(function(p){return rc(p,null);}).join('');
+    if(feat.length)html+=sh('⚡ Featured Plays','Zone ≥ 10',true)+feat.map(function(p){return rc(p,null);}).join('');
     if(rest.length){if(feat.length)html+=sh('Full Board','',false);html+=rest.map(function(p){return rc(p,null);}).join('');}
     if(!d.length)html+='<div style="text-align:center;padding:50px;color:rgba(255,255,255,.22);font-size:13px">NO PLAYS IN THIS CATEGORY</div>';
   }
@@ -833,7 +831,7 @@ function rF(){fS++;render();}
   var sp=document.getElementById('spills');
   var pill=[['SUPER SAIYAN',C.STRONG,'#FFD700','rgba(255,215,0,.055)'],
             ['BASE FORM',C.MODERATE,'#C8C8C8','transparent'],
-            ['YAMCHA',C.BAD,'#888','transparent']];
+            ['WEAK',C.BAD,'#888','transparent']];
   sp.innerHTML=pill.map(function(p,i){
     return '<div class="spill" style="background:'+p[3]+';border-right:'+(i<2?'1px solid rgba(255,255,255,.05)':'none')+'">'+
       '<div class="spill-n" style="color:'+p[2]+'">'+p[1]+'</div>'+
