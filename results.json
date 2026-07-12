@@ -29,8 +29,8 @@
    "key": "K",
    "label": "K",
    "icon": "⚡",
-   "w": 10,
-   "l": 16,
+   "w": 11,
+   "l": 15,
    "graded": true,
    "picks": 27
   },
@@ -38,8 +38,8 @@
    "key": "HIT",
    "label": "Hits",
    "icon": "🎯",
-   "w": 17,
-   "l": 26,
+   "w": 21,
+   "l": 22,
    "graded": true,
    "picks": 50
   },
@@ -47,8 +47,8 @@
    "key": "HRR",
    "label": "HRR",
    "icon": "💥",
-   "w": 17,
-   "l": 26,
+   "w": 22,
+   "l": 21,
    "graded": true,
    "picks": 50
   },
@@ -265,8 +265,8 @@
   "K": {
    "label": "K",
    "icon": "⚡",
-   "w": 10,
-   "l": 16,
+   "w": 11,
+   "l": 15,
    "graded": true,
    "picks": 27,
    "rows": [
@@ -295,14 +295,14 @@
      }
     },
     {
-     "wl": "l",
+     "wl": "w",
      "name": "Braxton Ashcraft",
      "line": "O 5+",
      "consensus": 5,
      "max": 5,
-     "got": "0 K",
+     "got": "6 K",
      "detail": {
-      "actual": "0H · 0ER · 0 outs",
+      "actual": "5H · 5ER · 15 outs",
       "proj": "proj 5.6H · 2.21R · 3.24 ERA"
      }
     },
@@ -396,9 +396,9 @@
      "line": "O 5+",
      "consensus": 2,
      "max": 5,
-     "got": "0 K",
+     "got": "3 K",
      "detail": {
-      "actual": "0H · 0ER · 0 outs",
+      "actual": "2H · 2ER · 9 outs",
       "proj": "proj 4.57H · 2.34R · 5.13 ERA"
      }
     },
@@ -491,8 +491,8 @@
   "HIT": {
    "label": "Hits",
    "icon": "🎯",
-   "w": 17,
-   "l": 26,
+   "w": 21,
+   "l": 22,
    "graded": true,
    "picks": 50,
    "rows": [
@@ -516,6 +516,15 @@
     },
     {
      "wl": "w",
+     "name": "Jake Mangum",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
      "name": "Casey Schmitt",
      "line": "Ov 0.5",
      "consensus": 3,
@@ -525,11 +534,29 @@
     },
     {
      "wl": "w",
+     "name": "Nick Gonzales",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
      "name": "Rafael Devers",
      "line": "Ov 0.5",
      "consensus": 3,
      "max": 5,
      "got": "3 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Brandon Lowe",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H",
      "detail": {}
     },
     {
@@ -552,25 +579,7 @@
     },
     {
      "wl": "l",
-     "name": "Jake Mangum",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
      "name": "Ryan O'Hearn",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Nick Gonzales",
      "line": "Ov 0.5",
      "consensus": 3,
      "max": 5,
@@ -607,15 +616,6 @@
     {
      "wl": "l",
      "name": "Willy Adames",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Brandon Lowe",
      "line": "Ov 0.5",
      "consensus": 3,
      "max": 5,
@@ -663,8 +663,8 @@
   "HRR": {
    "label": "HRR",
    "icon": "💥",
-   "w": 17,
-   "l": 26,
+   "w": 22,
+   "l": 21,
    "graded": true,
    "picks": 50,
    "rows": [
@@ -692,6 +692,17 @@
     },
     {
      "wl": "w",
+     "name": "Jake Mangum",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "3 H+R+RBI",
+     "detail": {
+      "actual": "1H · 2R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
      "name": "Casey Schmitt",
      "line": "Ov 0.5",
      "consensus": 3,
@@ -703,6 +714,17 @@
     },
     {
      "wl": "w",
+     "name": "Nick Gonzales",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
      "name": "Rafael Devers",
      "line": "Ov 0.5",
      "consensus": 3,
@@ -710,6 +732,28 @@
      "got": "7 H+R+RBI",
      "detail": {
       "actual": "3H · 1R · 3RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Bryan Reynolds",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "0H · 1R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Brandon Lowe",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "2 H+R+RBI",
+     "detail": {
+      "actual": "1H · 1R · 0RBI"
      }
     },
     {
@@ -736,40 +780,7 @@
     },
     {
      "wl": "l",
-     "name": "Jake Mangum",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H+R+RBI",
-     "detail": {
-      "actual": "0H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "l",
      "name": "Ryan O'Hearn",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H+R+RBI",
-     "detail": {
-      "actual": "0H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "l",
-     "name": "Nick Gonzales",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H+R+RBI",
-     "detail": {
-      "actual": "0H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "l",
-     "name": "Bryan Reynolds",
      "line": "Ov 0.5",
      "consensus": 3,
      "max": 5,
@@ -803,17 +814,6 @@
     {
      "wl": "l",
      "name": "Willy Adames",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H+R+RBI",
-     "detail": {
-      "actual": "0H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "l",
-     "name": "Brandon Lowe",
      "line": "Ov 0.5",
      "consensus": 3,
      "max": 5,
