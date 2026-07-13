@@ -22,12 +22,12 @@ import ast
 import base64
 import requests
 from firebase_functions import https_fn, options
-import google.generativeai as genai
+from google import genai
 
 # ── ENVIRONMENT CONFIG ───────────────────────────────────────────
 # These must all be set as Firebase environment variables.
-# Function raises on startup if GEMINI_API_KEY is missing.
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+# The Gemini client is created lazily inside the handler (the API key is a
+# mounted secret, absent during deploy-time analysis).
 GITHUB_TOKEN       = os.environ.get("GITHUB_TOKEN")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID")
@@ -197,11 +197,17 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
         f"BROKEN FILE ({failed_file}):\n{broken_code}"
     )
 
-    # PATCH 4: Wrap Gemini call — rate limits and API errors are real
-    model = genai.GenerativeModel("gemini-3.5-flash")
+    # PATCH 4: Wrap Gemini call — rate limits and API errors are real.
+    # Uses the current google-genai SDK (the legacy google-generativeai
+    # package is EOL and cannot reach gemini-3.5-flash).
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt,
+        )
     except Exception as e:
+        print(f"Gemini API error for {failed_file}: {e}")
         notify_mobile(
             f"⚠️ Auto-heal failed: Gemini API error for {failed_file}: {e}. "
             f"Manual intervention required."
