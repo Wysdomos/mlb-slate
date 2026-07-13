@@ -85,7 +85,14 @@ def notify_mobile(message: str):
 # ── MAIN WEBHOOK HANDLER ─────────────────────────────────────────
 @https_fn.on_request(
     timeout_sec=300,
-    memory=options.MemoryOption.MB_512
+    memory=options.MemoryOption.MB_512,
+    secrets=[
+        "GEMINI_API_KEY",
+        "GITHUB_TOKEN",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
+        "WEBHOOK_SECRET",
+    ],
 )
 def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
 
@@ -191,7 +198,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     )
 
     # PATCH 4: Wrap Gemini call — rate limits and API errors are real
-    model = genai.GenerativeModel("gemini-2.0-flash-thinking-exp")
+    model = genai.GenerativeModel("gemini-3.5-flash")
     try:
         response = model.generate_content(prompt)
     except Exception as e:
