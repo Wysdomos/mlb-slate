@@ -18,7 +18,7 @@ def parse_lineup(raw_entries):
 
 def weighted_score(player, weights):
     # Rank value = batting average weighted + home-run power weighted.
-    return player["avg"] * weights["average"] + player["hr"] * weights["homers"]
+    return player["avg"] * weights["avg"] + player["hr"] * weights["hr"]
 
 
 def build_slate(raw_lineups, weights):
