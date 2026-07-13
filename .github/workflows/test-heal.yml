@@ -1,0 +1,34 @@
+name: Test Heal
+on: workflow_dispatch
+jobs:
+  fail-on-purpose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run intentionally broken script
+        run: python3 healer_selftest.py
+
+      - name: Telegram alert on failure
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="🚨 Heal self-test FAILED (expected): ${{ github.workflow }} — https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Notify Firebase Auto-Healer on Failure
+        if: failure()
+        run: |
+          PAYLOAD=$(printf '{"repository":"%s","run_id":"%s","sha":"%s"}' \
+            "${{ github.repository }}" \
+            "${{ github.run_id }}" \
+            "${{ github.sha }}")
+          SIG=$(printf '%s' "$PAYLOAD" | openssl dgst -sha256 \
+            -hmac "${{ secrets.WEBHOOK_SECRET }}" | awk '{print $2}')
+          curl -s -X POST "${{ secrets.FIREBASE_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -d "$PAYLOAD"
