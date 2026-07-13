@@ -200,14 +200,15 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     # PATCH 4: Wrap Gemini call — rate limits and API errors are real.
     # Uses the current google-genai SDK (the legacy google-generativeai
     # package is EOL and cannot reach gemini-3.5-flash).
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
     try:
+        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
         response = client.models.generate_content(
             model="gemini-3.5-flash",
             contents=prompt,
         )
+        raw_text = response.text
     except Exception as e:
-        print(f"Gemini API error for {failed_file}: {e}")
+        print(f"Gemini API error for {failed_file}: {type(e).__name__}: {e}")
         notify_mobile(
             f"⚠️ Auto-heal failed: Gemini API error for {failed_file}: {e}. "
             f"Manual intervention required."
@@ -216,7 +217,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
 
     # ── STEP 6: STRIP MARKDOWN + AST GUARDRAIL ───────────────────
     # Strip any ```python or ``` fences Gemini adds despite instructions
-    fixed_code = response.text.strip()
+    fixed_code = raw_text.strip()
     fixed_code = re.sub(r"^```python\s*", "", fixed_code)
     fixed_code = re.sub(r"^```\s*",       "", fixed_code)
     fixed_code = re.sub(r"```$",          "", fixed_code).strip()
