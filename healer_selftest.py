@@ -8,8 +8,8 @@ Safe to delete once the Phase 2 live test is verified.
 
 
 def main():
-    # Intentional ValueError to produce a traceback pointing at this file.
-    total = int("not_a_number")
+    # Intentional ValueError fixed.
+    total = 0
     print(f"Total: {total}")
 
 
