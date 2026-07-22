@@ -123,9 +123,21 @@ def extract(xlsx_path):
     wb.close()
     return data
 
+def _today_et():
+    """Real calendar date in US/Eastern -- the timezone MLB slates run on."""
+    from zoneinfo import ZoneInfo
+    return _dt.datetime.now(ZoneInfo("America/New_York")).date()
+
 if __name__ == "__main__":
     if '--which' in sys.argv:
-        print(find_xlsx())
+        chosen = find_xlsx()
+        wb_date, today = _wb_date(chosen), _today_et()
+        if wb_date != today:
+            print(f"ERROR: newest available slate file is dated {wb_date} "
+                  f"but today (ET) is {today} -- no fresh upload found. "
+                  f"Refusing to build a stale slate.", file=sys.stderr)
+            sys.exit(1)
+        print(chosen)
         sys.exit(0)
     xlsx_path = find_xlsx()
     output_path = resolve_output()
