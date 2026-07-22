@@ -297,6 +297,7 @@ def build_park_board():
         '<span class="badge b-neutral">Neutral</span> '
         '<span class="badge b-warn">HR Lean Down</span> '
         '<span class="badge b-bad">HR Suppress / KILLER</span>'
+        ' · Projections context: <a href="https://www.ballparkpal.com" target="_blank" rel="noopener" style="color:var(--info); text-decoration:none;">BallparkPal</a>'
     )
 
     return f'''<!-- PARK FACTORS BOARD -->
