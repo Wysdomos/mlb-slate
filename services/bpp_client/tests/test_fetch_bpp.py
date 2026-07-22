@@ -6,6 +6,8 @@ from unittest.mock import patch
 
 import fetch_bpp
 
+PUBLIC_PROJECTION_MARKERS = ("bpp_api_k", "proj_hr", "proj_hits", "proj_k")
+
 
 class FetchBppReducerTests(unittest.TestCase):
     def test_reducer_emits_only_allowlisted_derived_fields(self):
@@ -131,3 +133,15 @@ class FetchBppReducerTests(unittest.TestCase):
 
             written = json.loads(out_path.read_text(encoding="utf-8"))
         self.assertEqual(set(written), {"hitter 101", "hitter 202"})
+
+    def test_public_pick_records_keep_bpp_projection_values_private(self):
+        public_pick = {
+            "market": "K",
+            "name": "Example Pitcher",
+            "consensus": 4,
+            "consensus_max": 6,
+            "bpp_k": 5.25,
+        }
+        serialized = json.dumps(public_pick)
+        for marker in PUBLIC_PROJECTION_MARKERS:
+            self.assertNotIn(marker, serialized)

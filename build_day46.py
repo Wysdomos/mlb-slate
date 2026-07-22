@@ -836,7 +836,6 @@ def build_k_board():
             'team': team, 'opp': opp, 'line': best_line, 'win_at': win_at,
             'consensus': votes, 'consensus_max': consensus_max,
             'ss_k': round(kf, 2), 'bpp_k': round(bpp_val, 2) if bp else None,
-            'bpp_api_k': round(bpp_api_k, 2) if bpp_api_k else None,
             'k9': round(k9, 1) if k9 else None,
             'outs': round(outs_val, 1) if bp else None,
             'opp_k_proj': round(opp_k, 1) if opp_k else None,
