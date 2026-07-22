@@ -19,6 +19,10 @@ FAIL POLICY: if the key is missing or the API is unreachable, this RAISES
 so the Colab "Run All" stops before pushing. If the API works but a given
 pitcher simply has no posted line yet, that pitcher is skipped (logged) and
 the K Report just shows the floor for them, as it does today.
+
+FALLBACK: if ODDS_API_KEY is set, pitchers that balldontlie could not
+cover are filled from The Odds API (fetch_odds_api.py) before writing.
+If ODDS_API_KEY is unset, behavior is EXACTLY as before -- a no-op.
 """
 
 import os
@@ -34,6 +38,7 @@ import urllib.error
 DATA_FILE    = os.environ.get('DATA_FILE',    'day_data.json')
 K_PROPS_FILE = os.environ.get('K_PROPS_FILE', 'k_props.json')
 BDL_KEY      = os.environ.get('BDL_KEY', '').strip()
+ODDS_API_KEY = os.environ.get('ODDS_API_KEY', '').strip()   # optional fallback (The Odds API)
 BASE         = 'https://api.balldontlie.io/mlb/v1'
 
 # Sportsbook preference order (first available wins for a given pitcher)
@@ -203,13 +208,15 @@ if empty_games:
     print(f"  ⚠ balldontlie returned NO K props for {len(empty_games)} game(s): {', '.join(empty_games)}")
 
 if not prop_by_player:
-    raise SystemExit(
-        "\n\n==================== BUILD STOPPED ====================\n"
-        "No strikeout props posted yet for today's games.\n"
-        "Pitcher K lines usually post the morning of -- try again later.\n"
-        "Nothing has been pushed.\n"
-        "=======================================================\n"
-    )
+    if not ODDS_API_KEY:
+        raise SystemExit(
+            "\n\n==================== BUILD STOPPED ====================\n"
+            "No strikeout props posted yet for today's games.\n"
+            "Pitcher K lines usually post the morning of -- try again later.\n"
+            "Nothing has been pushed.\n"
+            "=======================================================\n"
+        )
+    print("  \u26a0 balldontlie returned ZERO strikeout props -- relying on The Odds API fallback")
 
 # ---- 3) Map player_id -> name ----------------------------------------------
 player_ids = list(prop_by_player.keys())
@@ -253,6 +260,68 @@ for sp in slate_pitchers:
     else:
         unmatched.append(sp)
 
+# ---- 4b) Fallback: The Odds API for pitchers balldontlie missed --------------
+# Fires ONLY when ODDS_API_KEY is set. Must never kill the build: any failure
+# here is logged and we proceed with whatever balldontlie matched above.
+ODDS_META = None
+if unmatched and not ODDS_API_KEY:
+    print(f"  (no ODDS_API_KEY set -- {len(unmatched)} pitcher(s) stay line-less; "
+          "add the ODDS_API_KEY secret to enable The Odds API fallback)")
+elif unmatched and ODDS_API_KEY:
+    try:
+        import fetch_odds_api
+
+        # Same-day reuse: only trust prior fallback entries written for THIS
+        # slate date (the committed file is otherwise yesterday's slate).
+        prev_entries = {}
+        if os.path.exists(K_PROPS_FILE):
+            try:
+                _prev = json.load(open(K_PROPS_FILE, encoding='utf-8'))
+                if isinstance(_prev, dict) and (_prev.get('_meta') or {}).get('date') == DATE_STR:
+                    prev_entries = _prev
+            except Exception:
+                prev_entries = {}
+
+        team_of = {}
+        for r in DATA.get('SP_Projections', []):
+            _nm = (r.get('Pitcher') or '').strip()
+            _tm = (r.get('Team') or '').strip().upper()
+            if _nm and _tm:
+                team_of[_nm] = _tm
+
+        print(f"\nFalling back to The Odds API for {len(unmatched)} pitcher(s): {', '.join(unmatched)}")
+        _filled, ODDS_META = fetch_odds_api.fill_missing(
+            api_key=ODDS_API_KEY,
+            date_str=DATE_STR,
+            missing=unmatched,
+            norm=norm,
+            vendor_priority=VENDOR_PRIORITY,
+            team_of=team_of,
+            prev_entries=prev_entries,
+        )
+        for _lname, _entry in _filled.items():
+            k_props[_lname] = _entry
+        _still = [sp for sp in unmatched if sp.lower() not in k_props]
+        matched += len(unmatched) - len(_still)
+        unmatched = _still
+        print(f"  Odds API filled {len(_filled)} pitcher(s) "
+              f"({ODDS_META.get('credits_used_this_run', '?')} credit(s) used, "
+              f"{ODDS_META.get('remaining', '?')} remaining this month)")
+    except Exception as e:
+        print(f"  \u26a0 Odds API fallback failed ({e}) -- continuing with balldontlie data only")
+
+if not k_props and not prop_by_player:
+    raise SystemExit(
+        "\n\n==================== BUILD STOPPED ====================\n"
+        "No strikeout props found from ANY source for today's games.\n"
+        "Pitcher K lines usually post the morning of -- try again later.\n"
+        "Nothing has been pushed.\n"
+        "=======================================================\n"
+    )
+
+if ODDS_META:
+    k_props['_meta'] = ODDS_META
+
 with open(K_PROPS_FILE, 'w', encoding='utf-8') as f:
     json.dump(k_props, f, ensure_ascii=False, indent=1)
 
@@ -267,7 +336,9 @@ for sp in slate_pitchers:
         used = e['vendor']
         pid = name_to_pid.get(norm(sp))
         books = vendors_per_player.get(pid, set())
-        if used == 'fanduel':
+        if e.get('src') == 'oddsapi':
+            note = '  [via The Odds API]'
+        elif used == 'fanduel':
             note = ''
         elif 'fanduel' not in books:
             note = '  [FanDuel had no line - fell back]'
