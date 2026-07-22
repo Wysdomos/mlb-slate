@@ -57,6 +57,14 @@ jobs:
           BDL_MIN_GAP: '0.1'
         run: python3 fetch_phase2.py
 
+      - name: Fetch BallparkPal projections
+        timeout-minutes: 5
+        continue-on-error: true
+        env:
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+        run: python3 fetch_bpp.py
+
       - name: Fetch live streaks
         timeout-minutes: 6
         continue-on-error: true
@@ -74,6 +82,7 @@ jobs:
           K_REPORT_FILE: k-report.html
           K_PROPS_FILE: k_props.json
           K_SAVANT_FILE: k_savant_data.json
+          BPP_SUMMARY_FILE: bpp_summary.json
           BDL_KEY: ${{ secrets.BDL_KEY }}
           STREAKS_OUT: streaks_live.json
           STREAK_DAYS: '10'
@@ -95,6 +104,7 @@ jobs:
           git add slate_picks*.json 2>/dev/null || true
           git add k_props.json 2>/dev/null || true
           git add k_savant_data.json 2>/dev/null || true
+          git add bpp_summary.json 2>/dev/null || true
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update: $XLSX_FILE"
             # Generated files (index.html etc.) can't be line-merged with a parallel build,
