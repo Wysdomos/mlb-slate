@@ -65,6 +65,16 @@ for r in DATA.get('BP_Teams', []):
     if t and t not in BP_TEAMS_BY_TEAM:
         BP_TEAMS_BY_TEAM[t] = r
 
+# BallparkPal API summary lens. This file is reduced by fetch_bpp.py before it
+# reaches the repo: only rounded derived fields are allowed here.
+try:
+    BPP_SUMMARY_FILE = os.environ.get('BPP_SUMMARY_FILE', 'bpp_summary.json')
+    BPP_SUMMARY = json.load(open(BPP_SUMMARY_FILE, encoding='utf-8'))
+    if not isinstance(BPP_SUMMARY, dict):
+        BPP_SUMMARY = {}
+except Exception:
+    BPP_SUMMARY = {}
+
 # Structured pick records for For The Record (results-page backtest). Each builder appends.
 SLATE_PICKS = []
 
@@ -106,6 +116,30 @@ def parse_pct(s):
     s = str(s).replace('+','').replace('%','').strip()
     try: return int(float(s))
     except (TypeError, ValueError): return 0
+
+def bpp_entry(name):
+    if not name: return {}
+    v = BPP_SUMMARY.get(str(name).strip().lower(), {})
+    return v if isinstance(v, dict) else {}
+
+def bpp_factor_chip(value, label):
+    if value in (None, '', 'None'): return ''
+    try: n = float(value)
+    except (TypeError, ValueError): return ''
+    sign = '+' if n >= 0 else ''
+    color = 'var(--good)' if n >= 10 else ('var(--bad)' if n <= -10 else 'var(--text-soft)')
+    return f' <small style="color:{color}">BPP {label} {sign}{n:.0f}%</small>'
+
+def bpp_matchup_chip(value):
+    if value in (None, '', 'None'): return ''
+    try: n = int(float(value))
+    except (TypeError, ValueError): return ''
+    if n >= 4:
+        return f' <span class="badge b-tier1">BPP Match +{n}</span>'
+    if n <= -4:
+        return f' <span class="badge b-bad">BPP Match {n}</span>'
+    sign = '+' if n >= 0 else ''
+    return f' <span class="badge b-neutral">BPP Match {sign}{n}</span>'
 
 def fmt_pct_cell(n, bold_pos=8, bold_neg=-10):
     sign = '+' if n >= 0 else ''
@@ -773,7 +807,6 @@ def build_k_board():
         if vuln_n >= 50: note_parts.append('☢️ HR-risk')
         if kf >= 5.5: note_parts.append('K anchor')
         elif kf < 4.0: note_parts.append('fade Ks')
-        note = ' · '.join(note_parts) if note_parts else '—'
 
         # ── Consensus: 5 independent strikeout lenses ──
         k9 = _sf(v.get('K9')) if v else 0
@@ -782,19 +815,26 @@ def build_k_board():
         opp_k = _sf(opp_row.get('Strikeouts')) if opp_row else 0
         bpp_val = bpp_kf if bp else 0
         outs_val = outs if bp else 0
+        bpp_api = bpp_entry(name)
+        bpp_api_k = _sf(bpp_api.get('proj_k')) if bpp_api else 0
+        consensus_max = 6
         votes = 0
         if kf >= 5.5: votes += 1
         if bpp_val >= 5.0: votes += 1
         if k9 >= 9.0: votes += 1
         if outs_val >= 17: votes += 1
         if opp_k >= 9.0: votes += 1
+        if bpp_api_k >= 5.0: votes += 1
+        if bpp_api_k:
+            note_parts.append(f'BPP API K {bpp_api_k:.2f}')
+        note = ' · '.join(note_parts) if note_parts else '—'
 
         # ── Structured pick record (For The Record backtest vs MLB Stats API box scores) ──
         win_at = 5 if '5' in best_line else (4 if '3.5' in best_line else 3)
         SLATE_PICKS.append({
             'market': 'K', 'pick': f'{name} {best_line}', 'name': name,
             'team': team, 'opp': opp, 'line': best_line, 'win_at': win_at,
-            'consensus': votes, 'consensus_max': 5,
+            'consensus': votes, 'consensus_max': consensus_max,
             'ss_k': round(kf, 2), 'bpp_k': round(bpp_val, 2) if bp else None,
             'k9': round(k9, 1) if k9 else None,
             'outs': round(outs_val, 1) if bp else None,
@@ -813,7 +853,7 @@ def build_k_board():
             f'<td><strong>{name}</strong></td>'
             f'<td style="text-align:center">{hand_chip(throws,"throws")}</td>'
             f'<td>{team}</td>'
-            f'<td>{_conv_cell(votes, 5)}</td>'
+            f'<td>{_conv_cell(votes, consensus_max)}</td>'
             f'<td>{ss_k_disp}</td>'
             f'<td>{bpp_k_disp}</td>'
             f'<td>{outs_s}</td>'
@@ -843,7 +883,7 @@ def build_k_board():
       <span style="font-size:13px;font-weight:700;color:#3b82f6;">📋 View The Safe K Report</span>
       <span style="font-size:13px;color:#3b82f6;">Safe floors · Real lines · Full criteria →</span>
     </a>
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 5 K lenses agree: SS Ks≥5.5 · BPP Ks≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9. 🔒 = 4–5. SS Ks from <strong>SP_Projections</strong>, BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 K lenses agree: SS Ks≥5.5 · workbook BPP Ks≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9 · BPP API proj K≥5. 🔒 = 5–6. SS Ks from <strong>SP_Projections</strong>, workbook BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
@@ -871,6 +911,10 @@ def build_hr_board():
         park = PARK_BY_TEAM.get(team)
         park_hr = parse_pct(park.get('HR %')) if park else 0
         nm = r.get('Batter','')
+        bpp_api = bpp_entry(nm)
+        bpp_proj_hr = _sf(bpp_api.get('proj_hr')) if bpp_api else 0
+        bpp_match_adv = bpp_api.get('matchup_advantage') if bpp_api else None
+        bpp_park_hr = bpp_api.get('park_hr_factor') if bpp_api else None
         hr_row = HIT_BY_NAME.get(nm.lower())
         hr_pct = hr_row.get('To Hit HR','—') if hr_row else '—'
         rbi_pct = hr_row.get('To Get RBI','—') if hr_row else '—'
@@ -900,10 +944,13 @@ def build_hr_board():
         if vuln is not None and _sf(vuln) >= 50: votes += 1
         if park_hr >= 10: votes += 1
         if streak_fires: votes += 1
+        if bpp_proj_hr >= 0.15: votes += 1
         cands.append(dict(r=r, nm=nm, team=team, score=score, park_hr=park_hr,
                           hr_pct=hr_pct, rbi_pct=rbi_pct, sim_hr=sim_hr,
                           pit_name=pit_name, throws=throws, vuln=vuln,
-                          streak_chip=streak_chip, votes=votes))
+                          streak_chip=streak_chip, votes=votes,
+                          bpp_proj_hr=bpp_proj_hr, bpp_match_adv=bpp_match_adv,
+                          bpp_park_hr=bpp_park_hr))
     # Re-rank by consensus, then Score
     cands.sort(key=lambda c: (-c['votes'], -c['score']))
     rows = []
@@ -912,22 +959,25 @@ def build_hr_board():
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
             'pitcher': c['pit_name'], 'line': 'Ov 0.5', 'win_at': 1,
-            'consensus': c['votes'], 'consensus_max': 6,
+            'consensus': c['votes'], 'consensus_max': 7,
             'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
+            'bpp_api_hr': round(c['bpp_proj_hr'], 2) if c['bpp_proj_hr'] else None,
+            'bpp_matchup_advantage': c['bpp_match_adv'],
         })
-        if c['votes'] >= 5: tier = 'row-tier0'
-        elif c['votes'] >= 4: tier = 'row-tier1'
+        if c['votes'] >= 6: tier = 'row-tier0'
+        elif c['votes'] >= 5: tier = 'row-tier1'
         else: tier = ''
-        batter_cell = f'<strong>{c["nm"]}</strong> {hand_chip(c["r"].get("Bats"), "bats")}{c["streak_chip"]}'
+        batter_cell = f'<strong>{c["nm"]}</strong> {hand_chip(c["r"].get("Bats"), "bats")}{c["streak_chip"]}{bpp_matchup_chip(c["bpp_match_adv"])}'
         pn = c['pit_name']
         pitcher_cell = f'{pn} {hand_chip(c["throws"], "throws")}' if pn and pn != '—' else '—'
+        park_cell = pf_chip(c["park_hr"]) + bpp_factor_chip(c["bpp_park_hr"], "HR")
         rows.append(
             f'      <tr class="{tier}">'
             f'<td>{i}</td>'
             f'<td>{batter_cell}</td>'
             f'<td>{c["team"]}</td>'
             f'<td>{pitcher_cell}</td>'
-            f'<td>{_conv_cell(c["votes"])}</td>'
+            f'<td>{_conv_cell(c["votes"], 7)}</td>'
             f'<td>{vuln_cell(c["vuln"])}</td>'
             f'<td><strong>{score}</strong></td>'
             f'<td>{c["r"].get("Zone","—")}</td>'
@@ -935,7 +985,7 @@ def build_hr_board():
             f'<td>{c["sim_hr"]}</td>'
             f'<td>{c["hr_pct"]}</td>'
             f'<td>{c["rbi_pct"]}</td>'
-            f'<td>{pf_chip(c["park_hr"])}</td>'
+            f'<td>{park_cell}</td>'
             f'</tr>'
         )
     table_body = '\n'.join(rows)
@@ -945,12 +995,12 @@ def build_hr_board():
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🏆 Top 50 HR Board</div>
-      <span class="game-tag">Tap to expand · ranked by Consensus · 6 independent lenses agree</span>
+      <span class="game-tag">Tap to expand · ranked by Consensus · 7 independent lenses agree</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 independent lenses clear their line: Score≥70 · Sim HR%≥15 · HR%≥12 · Vuln≥50 · Park≥+10% · hot streak. 🔒 = 5–6 agree (strongest). Agreement beats any single number — sort or tap any column to dig in.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 7 independent lenses clear their line: Score≥70 · Sim HR%≥15 · HR%≥12 · Vuln≥50 · Park≥+10% · hot streak · BPP API proj HR≥0.15. 🔒 = 6–7. <strong>BPP Match</strong> is a new HR-board tag for calibration only; do not trust it over VulnScore until the HR inversion slice is backtested.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>Conv</th><th>Vuln</th><th>Score</th><th>Zone</th><th>Barrel%</th><th>Sim HR%</th><th>HR%</th><th>RBI%</th><th>Park HR%</th></tr></thead>
       <tbody>
@@ -974,6 +1024,9 @@ def build_oo5_board():
     for i, r in enumerate(hp_sorted, 1):
         nm = _hit_full(r)
         team = tn(r.get('Team',''))
+        bpp_api = bpp_entry(nm)
+        bpp_proj_hits = _sf(bpp_api.get('proj_hits')) if bpp_api else 0
+        bpp_park_hits = bpp_api.get('park_hits_factor') if bpp_api else None
         bp = BP_BAT_BY_NAME.get(nm.lower())
         bats = bp.get('BatterStand') if bp else None
         sim_hit = f'{_sf(bp.get("HitProbability"))*100:.0f}%' if (bp and bp.get("HitProbability") not in (None, "")) else '—'
@@ -1024,18 +1077,20 @@ def build_oo5_board():
         if vv >= 50: votes += 1
         if hit_streak >= 5: votes += 1
         if park_r2 >= 5: votes += 1
-        if votes >= 4: tier = 'row-tier0'
-        elif votes == 3: tier = 'row-tier1'
+        if bpp_proj_hits >= 0.90: votes += 1
+        if votes >= 5: tier = 'row-tier0'
+        elif votes >= 4: tier = 'row-tier1'
         else: tier = ''
         SLATE_PICKS.append({
             'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
-            'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 5,
+            'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 6,
             'h1_pct': h1, 'sim_hit': sim_hit,
+            'bpp_api_hits': round(bpp_proj_hits, 2) if bpp_proj_hits else None,
         })
         SLATE_PICKS.append({
             'market': 'HRR', 'pick': f'{nm} Ov 0.5 HRR', 'name': nm, 'team': team,
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
-            'consensus': votes, 'consensus_max': 5,
+            'consensus': votes, 'consensus_max': 6,
             'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
         })
         batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
@@ -1044,11 +1099,12 @@ def build_oo5_board():
             match_cell = f'{match} · {vuln_cell(vuln)}'
         else:
             match_cell = match
+        match_cell += bpp_factor_chip(bpp_park_hits, "Hit")
         cells = (
             f'<td>{batter_cell}</td>'
             f'<td>{team}</td>'
             f'<td>{match_cell}</td>'
-            f'<td>{_conv_cell(votes, 5)}</td>'
+            f'<td>{_conv_cell(votes, 6)}</td>'
             f'<td><strong>{h1}</strong></td>'
             f'<td>{sim_hit}</td>'
             f'<td>{h2}</td>'
@@ -1073,7 +1129,7 @@ def build_oo5_board():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 5 lenses clear their line: 1+Hit≥60 · Sim H%≥60 · opp Vuln≥50 · hit streak≥5 · Park Runs≥+5%. 🔒 = 4–5 agree. Default play <strong>Ov 0.5</strong> hits.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 lenses clear their line: 1+Hit≥60 · Sim H%≥60 · opp Vuln≥50 · hit streak≥5 · Park Runs≥+5% · BPP API proj Hits≥0.90. 🔒 = 5–6 agree. Default play <strong>Ov 0.5</strong> hits.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>Conv</th><th>1+H</th><th>Sim H%</th><th>2+H</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
       <tbody>
