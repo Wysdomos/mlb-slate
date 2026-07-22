@@ -1,107 +1,96 @@
 # THE DAILY SLATE — PROJECT STATUS
-**Updated:** July 12, 2026 (post Phase 1 live test)
-**Repo:** github.com/Wysdomos/mlb-slate · **Live:** wysdomos.github.io/mlb-slate
-*Repo state verified against live main branch at time of writing.*
 
----
+**Updated:** July 13, 2026
 
-# ✅ COMPLETED
+**Repo:** github.com/Wysdomos/mlb-slate
 
-## The Platform (running in production)
-- [x] Full automated pipeline: xlsx upload → GitHub Actions → live site in ~5 min
-- [x] 4 live pages: index.html (main slate), k-report.html, streaks.html, record.html
-- [x] 13-tab daily workbook structure locked (INDEX, HR/Hit/SSJ, BP tabs, Streaks, Results)
-- [x] grade_results.py grading prior-day picks → For The Record
-- [x] Merge-conflict-proof workflows (git merge -X ours, 5-attempt retry)
-- [x] Validated backtest insight: MODERATE+DANGER dual-tag = 15.6% HR rate vs 5.6% STRONG-only
+**Live:** wysdomos.github.io/mlb-slate
 
-## MacBook M5 Dev Environment
-- [x] Homebrew + PATH configured (Apple Silicon)
-- [x] node, git, gh CLI installed; gh authenticated (repo/workflow scopes)
-- [x] Repo cloned to ~/mlb-slate
-- [x] VS Code, Xcode tools
-- [x] Claude Code installed + signed in (executed all of Phase 1)
-- [x] Codex CLI + Cloud connected to repo + phone dispatch
-- [x] Firebase CLI installed + authenticated
-- [x] Antigravity installed (not yet pointed at repo)
-- [x] Telegram, ChatGPT, Comet apps
+**Product chapter:** Player-stats data layer
 
-## AI Team (operational)
-- [x] Roles locked: Claude architect/reviewer · Codex builder · Antigravity heavy-lift/backtest · Perplexity research · Gemini assistant/data · AI Studio payload testing
-- [x] Master AI Brief PDF (roles, guardrails, decision matrix)
-- [x] Core loop proven live: handoff → Claude Code build → Claude independent review → developer merge
-- [x] Firebase self-healer code: 3 review rounds (Gemini) + final rewrite (Claude), all 9 issues fixed
+## Production platform
 
-## Self-Healing Pipeline — PHASE 1 LIVE 🚨
-- [x] Telegram bot created · Chat ID 1744153296
-- [x] GitHub Secrets set: TELEGRAM_BOT_TOKEN (✓ confirmed), TELEGRAM_CHAT_ID
-- [x] Telegram failure alert step live on daily.yml AND grade.yml (final step, if: failure())
-- [x] functions/main.py (291 lines, byte-verified vs reviewed version) — staged on main
-- [x] functions/requirements.txt + firebase.json (python311) — staged on main
-- [x] PR #1 squash-merged to main (commit 3ff4db4)
-- [x] **LIVE TEST PASSED — phone buzzed** (run 29179455821)
+- [x] Automated workbook → GitHub Actions → GitHub Pages pipeline
+- [x] Main slate, K Report, Streaks, Scout, and For The Record outputs
+- [x] Prior-day grading through `grade_results.py`
+- [x] Conflict-aware workflow push retries
+- [x] Telegram failure alerts on daily and grading workflows
+- [x] Self-healer code, HMAC hooks, syntax gate, PR creation, and notifications
+  previously verified on simple and complex forced failures
+- [x] Healer migrated to the current `google-genai` SDK on repository main
 
----
+## Cloud healer status — fully functional
 
-# 🔶 IN FLIGHT (minutes of work)
+The Firebase function, signed workflow calls, Gemini diagnosis, syntax gate,
+auto-heal PR creation, and Telegram notification loop were verified end to end
+on both simple and complex forced failures. The developer confirms Firebase is
+still fully functional and the earlier billing-activation follow-up is resolved.
 
-- [ ] **Merge the cleanup PR** — test-alert.yml is still on main; the removal PR
-  is open and unmerged. One tap: github.com/Wysdomos/mlb-slate/pulls
-- [ ] **git identity** (cosmetic): `git config --global user.name "Wysdomos"` +
-  `user.email "you@example.com"` — commits currently show auto-generated identity
+- Telegram failure alerts remain the first-line notification.
+- Repository main has migrated the healer from the legacy SDK to
+  `google-genai`.
+- The healer remains failure-only and never merges its own PRs.
+- Do not change billing, deploy Firebase, rotate cloud configuration, or edit
+  cloud secrets without explicit developer approval.
 
----
+No tokens, chat IDs, API keys, or secret values belong in this file.
 
-# 🔲 NEEDS FINISHING
+## M5 development environment
 
-## 1. AGENTS.md ← do before Phase 2
-Not on main (verified). The self-healer fetches it to give Gemini project
-context — fixes will be materially better with it. Gemini's version never
-landed; have Claude write it directly (2 min) and commit.
+- [x] Homebrew, Xcode tools, Git, GitHub CLI, Node 24, and Python installed
+- [x] `~/mlb-slate` connected to `Wysdomos/mlb-slate`
+- [x] VS Code, Claude Code, and Codex local/cloud access
+- [x] iPhone remote-control read-only test
+- [x] Firebase CLI authenticated and self-healer fully operational
+- [ ] Antigravity first-open against `~/mlb-slate`
 
-## 2. Self-Healer PHASE 2 — Firebase deploy (~1 hr total)
-**Browser prereqs (phone-friendly, ~15 min):**
-- [ ] Firebase console → create project → upgrade to Blaze (card on file)
-- [ ] Budget alert: $1 tripwire (alerts notify, don't cap — expected bill $0.00)
-- [ ] Gemini API key from aistudio.google.com (free tier)
-- [ ] Fine-grained GitHub PAT scoped to mlb-slate: Contents R/W, Pull requests R/W, Actions R
+## Current review branch — PyBaseball API v0.1
 
-**At the MacBook (~30 min, Claude Code has Phase 2 gated in the handoff):**
-- [ ] Verify gemini-2.0-flash-thinking-exp still live (swap model string if rotated)
-- [ ] firebase init → set 5 secrets (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,
-      GEMINI_API_KEY, GITHUB_TOKEN, WEBHOOK_SECRET via openssl rand -hex 32)
-- [ ] firebase deploy --only functions (first deploy 5-10 min; say YES to
-      container-image cleanup prompt)
-- [ ] gh secret set FIREBASE_WEBHOOK_URL + WEBHOOK_SECRET
-- [ ] PR: signed HMAC webhook step appended to both workflows → merge
-- [ ] Live test: forced Python failure → Gemini diagnoses → auto-heal PR →
-      Telegram buzz with PR link
+Branch: `codex/pybaseball-api-v1`
 
-## 3. Antigravity first-open (~5 min, no urgency)
-Point it at ~/mlb-slate. Needed before backtesting work starts.
+- [x] Local-only FastAPI service structure
+- [x] Read-only player lookup endpoint
+- [x] Read-only batter and pitcher Statcast endpoints
+- [x] Read-only season batting and pitching endpoints
+- [x] Date, season, ID, and row-limit validation
+- [x] One shared data layer for pybaseball calls and six-hour CSV caching
+- [x] Honest 502/503 responses for upstream/dependency failure
+- [x] Route tests use fakes and do not scrape live sites
+- [x] Pagination contract with `offset`, `next_offset`, and truncation guard
+- [x] Strict JSON conversion for `inf`, `-inf`, `NaN`, and `NaT`
+- [x] Identical-call CSV cache test proves zero new upstream requests
+- [x] `httpx2` development dependency installed; pytest warning removed
+- [x] Install the isolated development environment (Python 3.14)
+- [x] Run unit/contract tests (10 passed, warning-free)
+- [x] Run one bounded live player-lookup smoke test (Aaron Judge → 592450)
+- [x] Run one bounded seven-day Statcast smoke test (125 real rows)
+- [ ] Independent Claude review
+- [ ] Developer approval to push/open a PR
 
----
+This branch does not modify `.github/workflows`, Firebase, the production
+website, or existing slate output files.
 
-# 🎯 AFTER SETUP — THE PRODUCT ROADMAP
-*Everything below is "picking winning plays" work. Setup era ends at Phase 2.*
+## Product roadmap
 
-1. **The Odds API** — ODDS_API_KEY secret + fetch_props.py update. Kills the
-   balldontlie K-prop gap; opens HR/hit/RBI book lines. (Free 500 req/mo tier)
-2. **RBI+ formula** — OO5 board 5-factor composite (base_rbi + hits_traffic +
-   K9_suppressor + park_runs + ERA); ≥32% green / 25-31% yellow / <25% dim
-3. **Savant expansion** — barrel rate, hard-hit %, xSLG, xERA into
-   fetch_phase2.py → smarter pitcher vulnerability
-4. **OpenMeteo weather** — free, no key; live wind/temp per park → dynamic HR
-   park factors (real edge most tools lack)
-5. **Backtesting pipeline** — Antigravity parallel scenarios on
-   slate_picks_*.json + results.json; validate MODERATE+DANGER season-scale;
-   pybaseball for historical depth
-6. **Alt parlay revamp** — K combos T0-2 only, HRR vs high hits-allowed,
-   anchors require DANGER label, max 2× same player
+The developer moved PyBaseball to the front of the next chapter. Full details,
+skill progression, model gates, and team lanes are in
+`PLAYER_STATS_DATA_AND_SKILL_ROADMAP.md`.
 
----
+1. Local PyBaseball API and stable JSON contracts
+2. Immutable Parquet/SQLite historical snapshots
+3. Leakage-safe feature tables and baseline backtests
+4. Savant barrel/hard-hit/xSLG/xERA expansion
+5. The Odds API with a request budget and secret-management plan
+6. Open-Meteo weather and dynamic park context
+7. Phone-friendly research view only after model validation
 
-# STANDING GUARDRAILS (unchanged)
-No AI in CI (healer = failure-only exception) · GitHub is single source of
-truth · Developer merges everything · Checkpoint before AI tasks · No fake
-data · Frozen design tokens · ast.parse after every .py edit
+## Standing guardrails
+
+- GitHub is the single source of truth.
+- No AI in normal CI; the live cloud healer is a failure-only exception.
+- Never commit directly to `main`; use a review branch and PR.
+- The developer approves every merge, deployment, billing action, and secret.
+- Never fabricate missing data or prop lines.
+- Preserve frozen design tokens and existing site behavior.
+- Run `ast.parse` after every Python edit.
+- Backtests use time-ordered validation and versioned source snapshots.

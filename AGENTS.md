@@ -61,25 +61,34 @@ Loop: **Plan (Claude) → Build (Codex/Claude Code) → Review (Claude) → Deve
 Verification checklists mandatory on Gemini deliverables (3-strike history).
 
 ## SELF-HEALING PIPELINE
-Phase 1 LIVE: Telegram alerts on workflow failure (both workflows, final step,
+Telegram alerts are LIVE on workflow failure (both workflows, final step,
 if: failure(); secrets TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).
-Phase 2 staged: functions/main.py = Firebase webhook (HMAC-verified) → fetches
-logs (zip-aware) + broken file + this AGENTS.md → Gemini free tier writes fix →
-ast.parse gate → auto-heal/<run_id> PR → Telegram. Firebase is a failure
-responder ONLY — never a deployment surface. Developer reviews every heal PR.
+The Firebase webhook was deployed and verified end to end: HMAC verification →
+zip-aware logs + broken file + this AGENTS.md → Gemini writes a fix → ast.parse
+gate → auto-heal/<run_id> PR → Telegram. The billing-activation follow-up is
+resolved and the developer confirms the healer remains fully functional. The
+repository uses the current google-genai SDK. Never change billing, redeploy,
+or rotate cloud configuration without explicit approval. Firebase is a failure
+responder ONLY; developer reviews every heal PR.
 
 ## DATA SOURCES
 Active: balldontlie (BDL_KEY, K props — known gaps), MLB Stats API (free;
 schedule/linescore/game logs; probables via
 /api/v1/schedule?hydrate=probablePitcher), Baseball Savant (SwStr%, chase),
 BallparkPal (4 BP_ tabs), hrtargets.com (HR results authority).
-Roadmap: The Odds API (ODDS_API_KEY) → OpenMeteo (free, wind/park factors) →
-pybaseball (backtesting).
+Roadmap: local PyBaseball API (backtesting) → Savant expansion → The Odds API
+(ODDS_API_KEY) → OpenMeteo (free, wind/park factors). The PyBaseball API stays
+local and out of CI until its data contracts and historical snapshots pass
+review. See PLAYER_STATS_DATA_AND_SKILL_ROADMAP.md.
 
 ## FILE MAP
 build_day46.py ~1,673 ln (main slate) · build_k_report.py ~1,143 ·
 build_streaks.py ~944 · build_editorial.py ~939 · build_record.py ~349 ·
 extract_xlsx.py · sync.py · grade_results.py · functions/main.py (healer).
+Player-stats data layer: backtest/data_access.py owns all pybaseball calls +
+CSV cache; services/pybaseball_api/app/service.py consumes it; app/main.py is
+the FastAPI skin.
+Any loader receiving truncated:true MUST request next_offset until complete.
 Workbook tabs (13): HR_Leaderboard, Hit_Probabilities, Sweet_Spot_Analyzer,
 Sweet_Spot_Slate, Pitcher_Projections, SP_Projections, Park_Factors, Streaks,
 HR_Results, BP_Batters, BP_Pitchers, BP_Teams, BP_Games.
