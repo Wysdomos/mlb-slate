@@ -38,10 +38,11 @@ jobs:
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
       - name: Fetch real K lines
-        timeout-minutes: 2
+        timeout-minutes: 4
         continue-on-error: true
         env:
           BDL_KEY: ${{ secrets.BDL_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           K_PROPS_FILE: k_props.json
           DATA_FILE: day_data.json
         run: python3 fetch_props.py
