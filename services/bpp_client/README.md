@@ -59,3 +59,11 @@ python3 -m services.bpp_client.snapshot --date 2026-07-22
 The archiver writes named JSON files under
 `services/bpp_client/cache/snapshots/YYYY-MM-DD/`, including date-level
 payloads and per-game `projection_averages` / `projection_probabilities`.
+
+Snapshot pacing and guardrails:
+
+- `BPP_MIN_GAP`: seconds between live BPP calls, default `1.0`
+- `BPP_MAX_CALLS`: maximum calls per snapshot run, default `150`
+
+The archiver logs each running call count to stderr against the 15,000/month
+BPP budget and writes the final count to `manifest.json`.
