@@ -20,6 +20,7 @@ import hmac
 import hashlib
 import ast
 import base64
+import time
 import requests
 from firebase_functions import https_fn, options
 from google import genai
@@ -82,6 +83,45 @@ def notify_mobile(message: str):
         print(f"Telegram notify failed: {e}")
 
 
+# Transient upstream failures (503 overloaded, 429 rate limit) are
+# common during demand spikes and are exactly when the healer is most
+# needed. Permanent failures (bad key, bad model, malformed request)
+# must fail fast instead of burning the function's timeout budget.
+_TRANSIENT_MARKERS = (
+    "503", "429", "unavailable", "overloaded",
+    "resource_exhausted", "deadline",
+)
+
+
+def gemini_generate(prompt: str, max_attempts: int = 3):
+    """Call Gemini with backoff on transient errors only.
+
+    Returns (response, attempts_used). Raises the final exception if
+    every attempt fails, or immediately on a non-transient error.
+    """
+    delay = 2
+    last_exc = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+            resp = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents=prompt,
+            )
+            return resp, attempt
+        except Exception as e:
+            last_exc = e
+            blob = f"{type(e).__name__} {e}".lower()
+            if not any(m in blob for m in _TRANSIENT_MARKERS):
+                print(f"Gemini permanent error (no retry): {type(e).__name__}: {e}")
+                raise
+            print(f"Gemini transient error attempt {attempt}/{max_attempts}: {e}")
+            if attempt < max_attempts:
+                time.sleep(delay)
+                delay *= 3
+    raise last_exc
+
+
 # ── MAIN WEBHOOK HANDLER ─────────────────────────────────────────
 @https_fn.on_request(
     timeout_sec=300,
@@ -123,12 +163,9 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     # Gated behind HMAC verification above; runs before any GitHub fetch.
     if payload.get("selftest") is True:
         try:
-            client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-            r = client.models.generate_content(
-                model="gemini-3.5-flash",
-                contents="Reply with exactly: OK",
-            )
-            msg = f"✅ Healer self-test passed. Gemini replied: {r.text.strip()[:40]}"
+            r, attempts = gemini_generate("Reply with exactly: OK")
+            msg = (f"✅ Healer self-test passed (attempt {attempts}). "
+                   f"Gemini replied: {r.text.strip()[:40]}")
             notify_mobile(msg)
             return https_fn.Response(msg, status=200)
         except Exception as e:
@@ -231,11 +268,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     # Uses the current google-genai SDK (the legacy google-generativeai
     # package is EOL and cannot reach gemini-3.5-flash).
     try:
-        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        response = client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt,
-        )
+        response, _attempts = gemini_generate(prompt)
         raw_text = response.text
     except Exception as e:
         print(f"Gemini API error for {failed_file}: {type(e).__name__}: {e}")
