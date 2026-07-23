@@ -119,6 +119,24 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             "Missing required fields: repository, run_id, sha.", status=400
         )
 
+    # ── SELF-TEST: prove the Gemini key + model work (no repo touch) ──
+    # Gated behind HMAC verification above; runs before any GitHub fetch.
+    if payload.get("selftest") is True:
+        try:
+            client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+            r = client.models.generate_content(
+                model="gemini-3.5-flash",
+                contents="Reply with exactly: OK",
+            )
+            msg = f"✅ Healer self-test passed. Gemini replied: {r.text.strip()[:40]}"
+            notify_mobile(msg)
+            return https_fn.Response(msg, status=200)
+        except Exception as e:
+            msg = f"❌ Healer self-test FAILED: {type(e).__name__}: {e}"
+            print(msg)
+            notify_mobile(msg)
+            return https_fn.Response(msg, status=500)
+
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json",
@@ -135,6 +153,10 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     )
 
     if log_resp.status_code != 200:
+        notify_mobile(
+            f"⚠️ Healer could not fetch logs for run {run_id} "
+            f"(HTTP {log_resp.status_code}). No action taken."
+        )
         return https_fn.Response(
             f"Failed to fetch logs (HTTP {log_resp.status_code})", status=500
         )
@@ -150,6 +172,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             "utf-8", errors="replace"
         )[-8000:]
     except Exception as e:
+        notify_mobile(f"⚠️ Healer could not parse logs for run {run_id}: {e}")
         return https_fn.Response(
             f"Error parsing log zip: {e}", status=500
         )
@@ -160,6 +183,13 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     failed_file = match.group(1).split("/")[-1] if match else None
 
     if not failed_file:
+        print(f"Healer declined run {run_id}: no Python traceback in logs.")
+        notify_mobile(
+            f"🔍 Healer reviewed run {run_id} — no Python traceback "
+            f"found, so there is no code to patch. No action taken. "
+            f"(Likely a data/step failure, e.g. a missing workbook or "
+            f"the freshness gate.)"
+        )
         return https_fn.Response(
             "No Python file found in traceback.", status=200
         )
