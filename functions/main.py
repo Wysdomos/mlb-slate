@@ -185,15 +185,35 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     log_url = (
         f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/logs"
     )
-    log_resp = requests.get(
-        log_url, headers=headers, allow_redirects=True, timeout=30
-    )
+    log_resp = None
+    for attempt in range(1, 4):
+        log_resp = requests.get(
+            log_url, headers=headers, allow_redirects=True, timeout=30
+        )
+        if log_resp.status_code != 404:
+            break
+        # 404 here almost always means the run is still in progress and
+        # GitHub has not assembled the log archive yet. Wait it out.
+        print(f"Logs not ready for run {run_id} (attempt {attempt}/3); waiting.")
+        if attempt < 3:
+            time.sleep(10)
+
+    if log_resp.status_code == 404:
+        # Benign: run logs never became available in time. Not a
+        # malfunction — return 200 so the workflow's "safety net may be
+        # down" alert does not fire.
+        msg = (f"🔍 Healer could not read logs for run {run_id} yet "
+               f"(still finalizing). No action taken.")
+        print(msg)
+        notify_mobile(msg)
+        return https_fn.Response(msg, status=200)
 
     if log_resp.status_code != 200:
-        notify_mobile(
-            f"⚠️ Healer could not fetch logs for run {run_id} "
-            f"(HTTP {log_resp.status_code}). No action taken."
-        )
+        # Real problem: auth, permissions, rate limit, outage.
+        msg = (f"⚠️ Healer FAILED to fetch logs for run {run_id} "
+               f"(HTTP {log_resp.status_code}). Check the GitHub token.")
+        print(msg)
+        notify_mobile(msg)
         return https_fn.Response(
             f"Failed to fetch logs (HTTP {log_resp.status_code})", status=500
         )
@@ -209,7 +229,12 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             "utf-8", errors="replace"
         )[-8000:]
     except Exception as e:
-        notify_mobile(f"⚠️ Healer could not parse logs for run {run_id}: {e}")
+        # A corrupt/unreadable log archive is a genuine malfunction, not a
+        # routine decline — say so plainly and keep the 500 + ⚠️.
+        msg = (f"⚠️ Healer FAILED: log archive for run {run_id} was corrupt "
+               f"or unreadable ({e}). This is a malfunction — needs a look.")
+        print(msg)
+        notify_mobile(msg)
         return https_fn.Response(
             f"Error parsing log zip: {e}", status=500
         )
