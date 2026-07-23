@@ -32,6 +32,7 @@ MLB_BASE    = 'https://statsapi.mlb.com/api/v1'
 OUT_FILE    = os.environ.get('STREAKS_OUT', 'streaks_live.json')
 LOOKBACK    = int(os.environ.get('STREAK_DAYS', '10'))
 MIN_GAP     = float(os.environ.get('BDL_MIN_GAP', '0.2'))
+MLB_MIN_GAP = float(os.environ.get('MLB_MIN_GAP', '0.15'))
 
 _last = [0.0]
 def _pace():
@@ -160,54 +161,74 @@ def fetch_streaks_bdl():
 # Source 2 — MLB Stats API (free fallback)
 # ──────────────────────────────────────────────────────────────────────
 def fetch_streaks_mlb():
-    print(f"[streaks] MLB Stats API: pulling last {LOOKBACK} days of box scores...")
+    print(f"[streaks] MLB Stats API: pulling last {LOOKBACK} days of box scores (per-game)...")
     today = date.today()
     start = today - timedelta(days=LOOKBACK)
-    url = (f"{MLB_BASE}/schedule?sportId=1"
-           f"&startDate={start}&endDate={today}"
-           "&hydrate=boxscore(fields(teams,players,stats,person,atBats,hits,homeRuns,runs,rbi))")
+    sched_url = (f"{MLB_BASE}/schedule?sportId=1"
+                 f"&startDate={start}&endDate={today}")
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "DailySlate/1.0"})
+        req = urllib.request.Request(sched_url, headers={"User-Agent": "DailySlate/1.0"})
         with urllib.request.urlopen(req, timeout=25) as r:
             data = json.load(r)
     except Exception as e:
-        print(f"[streaks] MLB Stats API unavailable: {e}")
+        print(f"[streaks] MLB Stats API schedule unavailable: {e}")
         return {}
 
-    player_games = {}
-    games_seen = 0
+    # Collect (gamePk, date_str) for every completed game. Bulk boxscore
+    # hydrate over a date range is unreliable (returns empty/partial box
+    # objects), so we fetch each game's /game/{pk}/boxscore individually —
+    # the fully-populated endpoint grade_results.fetch_box_results() trusts.
+    games = []
     for date_obj in data.get("dates", []):
         ds = date_obj.get("date", "")
         for game in date_obj.get("games", []):
             status = (game.get("status") or {}).get("codedGameState", "")
             if status not in ("F", "O", "C", "TR"):
                 continue
-            games_seen += 1
-            box = game.get("boxscore") or {}
-            for side in ("home", "away"):
-                team = (box.get("teams") or {}).get(side) or {}
-                for pid, pdata in (team.get("players") or {}).items():
-                    name = ((pdata.get("person") or {}).get("fullName") or "").strip()
-                    if not name:
-                        continue
-                    bat = (pdata.get("stats") or {}).get("batting") or {}
-                    ab   = int(bat.get("atBats")   or 0)
-                    hits = int(bat.get("hits")     or 0)
-                    hrs  = int(bat.get("homeRuns") or 0)
-                    runs = int(bat.get("runs")     or 0)
-                    rbi  = int(bat.get("rbi")      or 0)
-                    if ab == 0 and hits == 0 and hrs == 0 and runs == 0:
-                        continue
-                    key = name.lower()
-                    player_games.setdefault(key, []).append((ds, hits, hrs, runs, rbi))
+            pk = game.get("gamePk")
+            if pk:
+                games.append((pk, ds))
 
-    if games_seen == 0:
+    if not games:
         print("[streaks] MLB Stats API returned 0 completed games")
         return {}
+
+    player_games = {}
+    fetched, failed = 0, 0
+    for pk, ds in games:
+        try:
+            box_url = f"{MLB_BASE}/game/{pk}/boxscore"
+            breq = urllib.request.Request(box_url, headers={"User-Agent": "DailySlate/1.0"})
+            with urllib.request.urlopen(breq, timeout=25) as r:
+                box = json.load(r)
+        except Exception as e:
+            failed += 1
+            print(f"[streaks]   game {pk} boxscore failed (non-fatal): {e}")
+            time.sleep(MLB_MIN_GAP)
+            continue
+        fetched += 1
+        for side in ("home", "away"):
+            team = ((box.get("teams") or {}).get(side)) or {}
+            for pid, pdata in (team.get("players") or {}).items():
+                name = ((pdata.get("person") or {}).get("fullName") or "").strip()
+                if not name:
+                    continue
+                bat = (pdata.get("stats") or {}).get("batting") or {}
+                ab   = int(bat.get("atBats")   or 0)
+                hits = int(bat.get("hits")     or 0)
+                hrs  = int(bat.get("homeRuns") or 0)
+                runs = int(bat.get("runs")     or 0)
+                rbi  = int(bat.get("rbi")      or 0)
+                if ab == 0 and hits == 0 and hrs == 0 and runs == 0:
+                    continue
+                key = name.lower()
+                player_games.setdefault(key, []).append((ds, hits, hrs, runs, rbi))
+        time.sleep(MLB_MIN_GAP)
+
     result = _compute(player_games)
     active = sum(1 for v in result.values() if any(v.values()))
-    print(f"[streaks] MLB Stats API OK: {games_seen} games, "
-          f"{len(player_games)} batters, {active} active streaks")
+    print(f"[streaks] MLB Stats API OK (per-game): {fetched} games fetched, "
+          f"{failed} failed, {len(player_games)} batters, {active} active streaks")
     return result
 
 # ──────────────────────────────────────────────────────────────────────
@@ -216,16 +237,16 @@ def fetch_streaks_mlb():
 def main():
     streaks = None
     try:
-        streaks = fetch_streaks_bdl()       # try balldontlie first
+        streaks = fetch_streaks_mlb()       # statsapi first: 100% coverage
     except Exception as e:
-        print(f"[streaks] balldontlie crashed (non-fatal): {e}")
+        print(f"[streaks] MLB Stats API crashed (non-fatal): {e}")
         streaks = None
 
     if not streaks:                          # None or empty -> fallback
         try:
-            streaks = fetch_streaks_mlb()
+            streaks = fetch_streaks_bdl()
         except Exception as e:
-            print(f"[streaks] MLB Stats API crashed (non-fatal): {e}")
+            print(f"[streaks] balldontlie crashed (non-fatal): {e}")
             streaks = {}
 
     streaks = streaks or {}
