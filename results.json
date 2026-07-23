@@ -29,8 +29,8 @@
    "key": "K",
    "label": "K",
    "icon": "⚡",
-   "w": 13,
-   "l": 11,
+   "w": 14,
+   "l": 12,
    "graded": true,
    "picks": 27
   },
@@ -38,7 +38,7 @@
    "key": "HIT",
    "label": "Hits",
    "icon": "🎯",
-   "w": 29,
+   "w": 31,
    "l": 9,
    "graded": true,
    "picks": 50
@@ -47,7 +47,7 @@
    "key": "HRR",
    "label": "HRR",
    "icon": "💥",
-   "w": 32,
+   "w": 34,
    "l": 6,
    "graded": true,
    "picks": 50
@@ -83,8 +83,8 @@
    "key": "2B",
    "label": "2B",
    "icon": "💎",
-   "w": 2,
-   "l": 17,
+   "w": 3,
+   "l": 16,
    "graded": true,
    "picks": 20
   }
@@ -265,8 +265,8 @@
   "K": {
    "label": "K",
    "icon": "⚡",
-   "w": 13,
-   "l": 11,
+   "w": 14,
+   "l": 12,
    "graded": true,
    "picks": 27,
    "rows": [
@@ -416,6 +416,18 @@
     },
     {
      "wl": "w",
+     "name": "Bubba Chandler",
+     "line": "O 3.5",
+     "consensus": 0,
+     "max": 5,
+     "got": "5 K",
+     "detail": {
+      "actual": "2H · 0ER · 19 outs",
+      "proj": "proj 4.42H · 2.34R · 4.77 ERA"
+     }
+    },
+    {
+     "wl": "w",
      "name": "Parker Messick",
      "line": "O 2.5",
      "consensus": 0,
@@ -473,25 +485,13 @@
       "actual": "7H · 6ER · 11 outs",
       "proj": "proj 6.15H · 3.31R · 6.22 ERA"
      }
-    },
-    {
-     "wl": "l",
-     "name": "Zac Thornton",
-     "line": "O 3.5",
-     "consensus": 0,
-     "max": 5,
-     "got": "2 K",
-     "detail": {
-      "actual": "3H · 0ER · 18 outs",
-      "proj": "proj NoneH · NoneR · 2.60 ERA"
-     }
     }
    ]
   },
   "HIT": {
    "label": "Hits",
    "icon": "🎯",
-   "w": 29,
+   "w": 31,
    "l": 9,
    "graded": true,
    "picks": 50,
@@ -588,6 +588,15 @@
     },
     {
      "wl": "w",
+     "name": "Cody Bellinger",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
      "name": "Nolan Arenado",
      "line": "Ov 0.5",
      "consensus": 3,
@@ -648,22 +657,13 @@
      "max": 5,
      "got": "2 H",
      "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Drake Baldwin",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "0 H",
-     "detail": {}
     }
    ]
   },
   "HRR": {
    "label": "HRR",
    "icon": "💥",
-   "w": 32,
+   "w": 34,
    "l": 6,
    "graded": true,
    "picks": 50,
@@ -791,6 +791,17 @@
     },
     {
      "wl": "w",
+     "name": "Cody Bellinger",
+     "line": "Ov 0.5",
+     "consensus": 3,
+     "max": 5,
+     "got": "2 H+R+RBI",
+     "detail": {
+      "actual": "1H · 1R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
      "name": "Nolan Arenado",
      "line": "Ov 0.5",
      "consensus": 3,
@@ -853,17 +864,6 @@
      "got": "1 H+R+RBI",
      "detail": {
       "actual": "1H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Zach Neto",
-     "line": "Ov 0.5",
-     "consensus": 3,
-     "max": 5,
-     "got": "2 H+R+RBI",
-     "detail": {
-      "actual": "2H · 0R · 0RBI"
      }
     }
    ]
@@ -1306,8 +1306,8 @@
   "2B": {
    "label": "2B",
    "icon": "💎",
-   "w": 2,
-   "l": 17,
+   "w": 3,
+   "l": 16,
    "graded": true,
    "picks": 20,
    "rows": [
@@ -1375,6 +1375,15 @@
      "detail": {}
     },
     {
+     "wl": "w",
+     "name": "Pete Alonso",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "1 2B",
+     "detail": {}
+    },
+    {
      "wl": "l",
      "name": "Tyler Soderstrom",
      "line": "Ov 0.5",
@@ -1422,15 +1431,6 @@
     {
      "wl": "l",
      "name": "Mickey Moniak",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Pete Alonso",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
