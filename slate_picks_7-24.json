@@ -273,7 +273,7 @@
    "opp": "LAD",
    "line": "O 5+",
    "win_at": 5,
-   "consensus": 3,
+   "consensus": 2,
    "consensus_max": 6,
    "ss_k": 5.0,
    "bpp_k": 5.0,
@@ -653,7 +653,7 @@
    "sim_hr": "23.2%",
    "to_hit_hr": "17.25%",
    "park_hr": -1,
-   "bpp_api_hr": 0.26,
+   "bpp_api_hr": 0.25,
    "bpp_matchup_advantage": 4
   },
   {
@@ -721,7 +721,7 @@
    "sim_hr": "18.5%",
    "to_hit_hr": "15.60%",
    "park_hr": -4,
-   "bpp_api_hr": 0.2,
+   "bpp_api_hr": 0.22,
    "bpp_matchup_advantage": -1
   },
   {
@@ -772,7 +772,7 @@
    "sim_hr": "15.5%",
    "to_hit_hr": "14.20%",
    "park_hr": -1,
-   "bpp_api_hr": 0.17,
+   "bpp_api_hr": 0.16,
    "bpp_matchup_advantage": 10
   },
   {
@@ -789,7 +789,7 @@
    "sim_hr": "20.2%",
    "to_hit_hr": "16.93%",
    "park_hr": -1,
-   "bpp_api_hr": 0.22,
+   "bpp_api_hr": 0.21,
    "bpp_matchup_advantage": 4
   },
   {
@@ -840,7 +840,7 @@
    "sim_hr": "18.1%",
    "to_hit_hr": "14.05%",
    "park_hr": -1,
-   "bpp_api_hr": 0.19,
+   "bpp_api_hr": 0.21,
    "bpp_matchup_advantage": 10
   },
   {
@@ -874,7 +874,7 @@
    "sim_hr": "29.8%",
    "to_hit_hr": "19.00%",
    "park_hr": -4,
-   "bpp_api_hr": 0.35,
+   "bpp_api_hr": 0.36,
    "bpp_matchup_advantage": 10
   },
   {
@@ -993,7 +993,7 @@
    "sim_hr": "18.0%",
    "to_hit_hr": "12.47%",
    "park_hr": -1,
-   "bpp_api_hr": 0.2,
+   "bpp_api_hr": 0.18,
    "bpp_matchup_advantage": -2
   },
   {
@@ -1061,7 +1061,7 @@
    "sim_hr": "20.5%",
    "to_hit_hr": "13.68%",
    "park_hr": 0,
-   "bpp_api_hr": 0.22,
+   "bpp_api_hr": 0.25,
    "bpp_matchup_advantage": 10
   },
   {
@@ -1146,7 +1146,7 @@
    "sim_hr": "14.3%",
    "to_hit_hr": "14.51%",
    "park_hr": -10,
-   "bpp_api_hr": 0.15,
+   "bpp_api_hr": 0.16,
    "bpp_matchup_advantage": -1
   },
   {
@@ -1180,7 +1180,7 @@
    "sim_hr": "14.6%",
    "to_hit_hr": "12.16%",
    "park_hr": -4,
-   "bpp_api_hr": 0.16,
+   "bpp_api_hr": 0.17,
    "bpp_matchup_advantage": 7
   },
   {
@@ -1214,7 +1214,7 @@
    "sim_hr": "17.1%",
    "to_hit_hr": "11.93%",
    "park_hr": -4,
-   "bpp_api_hr": 0.19,
+   "bpp_api_hr": 0.18,
    "bpp_matchup_advantage": 2
   },
   {
@@ -1270,6 +1270,23 @@
   },
   {
    "market": "HR",
+   "pick": "Jacob Wilson Ov 0.5 HR",
+   "name": "Jacob Wilson",
+   "team": "ATH",
+   "pitcher": "Zebby Matthews",
+   "line": "Ov 0.5",
+   "win_at": 1,
+   "consensus": 3,
+   "consensus_max": 7,
+   "score": 55.0,
+   "sim_hr": "13.2%",
+   "to_hit_hr": "7.43%",
+   "park_hr": -1,
+   "bpp_api_hr": 0.15,
+   "bpp_matchup_advantage": 10
+  },
+  {
+   "market": "HR",
    "pick": "JJ Wetherholt Ov 0.5 HR",
    "name": "JJ Wetherholt",
    "team": "STL",
@@ -1284,23 +1301,6 @@
    "park_hr": -5,
    "bpp_api_hr": 0.11,
    "bpp_matchup_advantage": 10
-  },
-  {
-   "market": "HR",
-   "pick": "Brooks Lee Ov 0.5 HR",
-   "name": "Brooks Lee",
-   "team": "MIN",
-   "pitcher": "Jacob Lopez",
-   "line": "Ov 0.5",
-   "win_at": 1,
-   "consensus": 2,
-   "consensus_max": 7,
-   "score": 69.0,
-   "sim_hr": "14.5%",
-   "to_hit_hr": "9.81%",
-   "park_hr": -1,
-   "bpp_api_hr": 0.15,
-   "bpp_matchup_advantage": 4
   },
   {
    "market": "HR",
@@ -1350,7 +1350,7 @@
    "sim_hr": "10.9%",
    "to_hit_hr": "14.07%",
    "park_hr": -4,
-   "bpp_api_hr": 0.12,
+   "bpp_api_hr": 0.13,
    "bpp_matchup_advantage": -8
   },
   {
@@ -1367,8 +1367,8 @@
    "sim_hr": "13.1%",
    "to_hit_hr": "8.88%",
    "park_hr": -1,
-   "bpp_api_hr": 0.14,
-   "bpp_matchup_advantage": 10
+   "bpp_api_hr": null,
+   "bpp_matchup_advantage": null
   },
   {
    "market": "HR",
@@ -1389,6 +1389,23 @@
   },
   {
    "market": "HR",
+   "pick": "Mookie Betts Ov 0.5 HR",
+   "name": "Mookie Betts",
+   "team": "LAD",
+   "pitcher": "Sean Manaea",
+   "line": "Ov 0.5",
+   "win_at": 1,
+   "consensus": 2,
+   "consensus_max": 7,
+   "score": 60.0,
+   "sim_hr": "13.7%",
+   "to_hit_hr": "11.03%",
+   "park_hr": -4,
+   "bpp_api_hr": 0.15,
+   "bpp_matchup_advantage": 10
+  },
+  {
+   "market": "HR",
    "pick": "Randy Arozarena Ov 0.5 HR",
    "name": "Randy Arozarena",
    "team": "SEA",
@@ -1401,7 +1418,7 @@
    "sim_hr": "14.8%",
    "to_hit_hr": "9.50%",
    "park_hr": -10,
-   "bpp_api_hr": 0.15,
+   "bpp_api_hr": 0.19,
    "bpp_matchup_advantage": 2
   },
   {
@@ -1440,20 +1457,20 @@
   },
   {
    "market": "HR",
-   "pick": "Jacob Wilson Ov 0.5 HR",
-   "name": "Jacob Wilson",
-   "team": "ATH",
-   "pitcher": "Zebby Matthews",
+   "pick": "Jake Burger Ov 0.5 HR",
+   "name": "Jake Burger",
+   "team": "TEX",
+   "pitcher": "Bryce Miller",
    "line": "Ov 0.5",
    "win_at": 1,
    "consensus": 2,
    "consensus_max": 7,
    "score": 55.0,
-   "sim_hr": "13.2%",
-   "to_hit_hr": "7.43%",
-   "park_hr": -1,
-   "bpp_api_hr": 0.14,
-   "bpp_matchup_advantage": 10
+   "sim_hr": "13.8%",
+   "to_hit_hr": "15.83%",
+   "park_hr": -10,
+   "bpp_api_hr": 0.15,
+   "bpp_matchup_advantage": 3
   },
   {
    "market": "HR",
@@ -1471,23 +1488,6 @@
    "park_hr": -7,
    "bpp_api_hr": 0.15,
    "bpp_matchup_advantage": -6
-  },
-  {
-   "market": "HR",
-   "pick": "Max Muncy Ov 0.5 HR",
-   "name": "Max Muncy",
-   "team": "LAD",
-   "pitcher": "Sean Manaea",
-   "line": "Ov 0.5",
-   "win_at": 1,
-   "consensus": 2,
-   "consensus_max": 7,
-   "score": 54.0,
-   "sim_hr": "13.3%",
-   "to_hit_hr": "9.36%",
-   "park_hr": -4,
-   "bpp_api_hr": 0.14,
-   "bpp_matchup_advantage": -2
   },
   {
    "market": "HIT",
@@ -1721,11 +1721,11 @@
    "team": "HOU",
    "line": "Ov 0.5",
    "win_at": 1,
-   "consensus": 3,
+   "consensus": 2,
    "consensus_max": 6,
    "h1_pct": "62.97%",
    "sim_hit": "71%",
-   "bpp_api_hits": 1.11
+   "bpp_api_hits": null
   },
   {
    "market": "HRR",
@@ -1735,7 +1735,7 @@
    "line": "Ov 0.5",
    "win_at": 1,
    "win_stat": "H+R+RBI",
-   "consensus": 3,
+   "consensus": 2,
    "consensus_max": 6,
    "hrr_pct": 80.4
   },
@@ -1775,7 +1775,7 @@
    "consensus_max": 6,
    "h1_pct": "62.60%",
    "sim_hit": "71%",
-   "bpp_api_hits": 1.13
+   "bpp_api_hits": 1.14
   },
   {
    "market": "HRR",
@@ -1875,7 +1875,7 @@
    "consensus_max": 6,
    "h1_pct": "62.20%",
    "sim_hit": "74%",
-   "bpp_api_hits": 1.24
+   "bpp_api_hits": 1.21
   },
   {
    "market": "HRR",
@@ -1900,7 +1900,7 @@
    "consensus_max": 6,
    "h1_pct": "62.07%",
    "sim_hit": "71%",
-   "bpp_api_hits": 1.13
+   "bpp_api_hits": 1.18
   },
   {
    "market": "HRR",
@@ -2075,7 +2075,7 @@
    "consensus_max": 6,
    "h1_pct": "61.03%",
    "sim_hit": "68%",
-   "bpp_api_hits": 1.06
+   "bpp_api_hits": 1.05
   },
   {
    "market": "HRR",
@@ -2325,7 +2325,7 @@
    "consensus_max": 6,
    "h1_pct": "59.81%",
    "sim_hit": "70%",
-   "bpp_api_hits": 1.08
+   "bpp_api_hits": 1.12
   },
   {
    "market": "HRR",
@@ -2375,7 +2375,7 @@
    "consensus_max": 6,
    "h1_pct": "59.56%",
    "sim_hit": "65%",
-   "bpp_api_hits": 0.94
+   "bpp_api_hits": 0.99
   },
   {
    "market": "HRR",
@@ -2446,11 +2446,11 @@
    "team": "MIN",
    "line": "Ov 0.5",
    "win_at": 1,
-   "consensus": 3,
+   "consensus": 2,
    "consensus_max": 6,
    "h1_pct": "59.47%",
    "sim_hit": "64%",
-   "bpp_api_hits": 0.92
+   "bpp_api_hits": 0.85
   },
   {
    "market": "HRR",
@@ -2460,7 +2460,7 @@
    "line": "Ov 0.5",
    "win_at": 1,
    "win_stat": "H+R+RBI",
-   "consensus": 3,
+   "consensus": 2,
    "consensus_max": 6,
    "hrr_pct": 77.1
   },
@@ -2550,7 +2550,7 @@
    "consensus_max": 6,
    "h1_pct": "59.35%",
    "sim_hit": "67%",
-   "bpp_api_hits": 1.01
+   "bpp_api_hits": 0.96
   },
   {
    "market": "HRR",
@@ -2600,7 +2600,7 @@
    "consensus_max": 6,
    "h1_pct": "59.04%",
    "sim_hit": "65%",
-   "bpp_api_hits": 0.97
+   "bpp_api_hits": 0.98
   },
   {
    "market": "HRR",
