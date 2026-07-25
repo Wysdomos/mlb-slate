@@ -11,6 +11,8 @@ import re
 import datetime as _dt
 from openpyxl import load_workbook
 
+PROJECTED_SENTINEL = "__PROJECTED_MODE__"
+
 def _wb_date(path):
     """Parse the date embedded in a slate filename, e.g. 'MLB_Slate_6-16-26.xlsx' -> 2026-06-16."""
     m = re.search(r'(\d{1,2})[-_ ](\d{1,2})[-_ ](\d{2,4})', os.path.basename(path))
@@ -35,6 +37,8 @@ def find_xlsx():
     matches = [f for f in (glob.glob("*.xlsx") + glob.glob("**/*.xlsx", recursive=False))
                if not os.path.basename(f).startswith('~$')]
     if not matches:
+        if os.environ.get("ALLOW_PROJECTED_MODE") == "1":
+            return None
         print("ERROR: No .xlsx file found.", file=sys.stderr)
         sys.exit(1)
     # Pick the workbook whose filename date is newest (today's upload), not the alphabetical first.
@@ -48,6 +52,30 @@ def resolve_output():
         if a.lower().endswith('.json'):
             return a
     return "day_data.json"
+
+def projected_marker():
+    today = _today_et()
+    keys = [
+        "HR_Leaderboard",
+        "Hit_Probabilities",
+        "Sweet_Spot_Analyzer",
+        "Pitcher_Projections",
+        "SP_Projections",
+        "Park_Factors",
+        "Sweet_Spot_Slate",
+        "BP_Batters",
+        "BP_Pitchers",
+        "BP_Teams",
+        "BP_Games",
+        "Streaks",
+        "Scout",
+        "Best_Spots",
+    ]
+    data = {key: [] for key in keys}
+    data["_mode"] = "projected"
+    data["_slate_date"] = today.isoformat()
+    data["INDEX"] = [{"Sheet": key, "Rows": 0, "Cols": 0} for key in keys]
+    return data
 
 def sheet_to_rows(ws):
     headers = None
@@ -131,6 +159,9 @@ def _today_et():
 if __name__ == "__main__":
     if '--which' in sys.argv:
         chosen = find_xlsx()
+        if chosen is None:
+            print(PROJECTED_SENTINEL)
+            sys.exit(0)
         wb_date, today = _wb_date(chosen), _today_et()
         if wb_date != today:
             print(f"ERROR: newest available slate file is dated {wb_date} "
@@ -141,7 +172,21 @@ if __name__ == "__main__":
         sys.exit(0)
     xlsx_path = find_xlsx()
     output_path = resolve_output()
-    data = extract(xlsx_path)
+    if xlsx_path is None:
+        data = projected_marker()
+        print(
+            f"Projected Mode marker written for {data['_slate_date']} "
+            f"because no workbook was uploaded and ALLOW_PROJECTED_MODE=1.",
+            file=sys.stderr,
+        )
+    else:
+        wb_date, today = _wb_date(xlsx_path), _today_et()
+        if wb_date != today:
+            print(f"ERROR: slate file is dated {wb_date} "
+                  f"but today (ET) is {today} -- refusing stale workbook.",
+                  file=sys.stderr)
+            sys.exit(1)
+        data = extract(xlsx_path)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2, default=str)
     total_rows = sum(len(v) for v in data.values() if isinstance(v, list))

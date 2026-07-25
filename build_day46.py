@@ -13,6 +13,7 @@ def _sf(v, default=0.0):
     except (TypeError, ValueError): return default
 
 DATA = json.load(open('/home/user/workspace/day46_data.json'))
+PROJECTED_MODE = DATA.get('_mode') == 'projected'
 
 # ---- Build lookup indexes ----
 SP_PROJ = DATA['SP_Projections']  # new 15-pitcher sheet (Team, Pitcher, Opp, Inn, BF, R, H, HR, K, BB)
@@ -902,6 +903,155 @@ def _conv_cell(n, total=6):
     if ratio >= 0.6: return f'<span style="color:var(--hot)">{n}/{total}</span>'
     return f'<span style="color:var(--text-soft)">{n}/{total}</span>'
 
+def projected_badge(text):
+    return (
+        '<div class="projected-section-badge">'
+        '<span>PROJECTED MODE</span>'
+        f'<small>{text}</small>'
+        '</div>'
+    )
+
+def with_projected_badge(html, text):
+    marker = '<div class="game-body"><div class="game-body-inner">'
+    return html.replace(marker, marker + '\n    ' + projected_badge(text), 1)
+
+def projected_unavailable_section(sec_id, title, tag, reason):
+    return f'''<!-- PROJECTED UNAVAILABLE -->
+<section id="{sec_id}" class="collapsible projected-unavailable">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">{tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <div class="unavailable-card">
+      <strong>Unavailable without workbook</strong>
+      <p>{reason} Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
+    </div>
+  </div></div>
+</section>
+'''
+
+def build_projected_headlines():
+    top_hr = HR_LB[0] if HR_LB else {}
+    top_hit = sorted(HIT, key=lambda r: -parse_pct(r.get('1+ Hit')), reverse=False)[0] if HIT else {}
+    parks = sorted(PARKS, key=lambda p: parse_pct(p.get('HR %')), reverse=True)
+    top_park = parks[0] if parks else {}
+    cards = [
+        (
+            "Projected HR Anchor",
+            f"<strong>{top_hr.get('Batter','—')}</strong> leads the reconstructed HR board "
+            f"with a derived score of <strong>{top_hr.get('Score','—')}</strong>. "
+            "Zone is intentionally blank in Projected Mode."
+        ),
+        (
+            "Projected Hit Anchor",
+            f"<strong>{_hit_full(top_hit) or '—'}</strong> tops the hit board at "
+            f"<strong>{top_hit.get('1+ Hit','—')}</strong>."
+        ),
+        (
+            "Park Signal",
+            f"<strong>{top_park.get('Venue','—')}</strong> is the top HR environment "
+            f"({top_park.get('Game','')}, {top_park.get('HR %','—')} HR)."
+        ),
+    ]
+    body = ''.join(
+        f'<div class="headline-card"><div class="hc-title">{title}</div><p>{text}</p></div>'
+        for title, text in cards
+    )
+    return f'''<!-- HEADLINES -->
+<section id="headlines" class="headline-grid">
+  {projected_badge("Top cards rebuilt from live sources; workbook-only signals are withheld.")}
+  {body}
+</section>
+'''
+
+def build_projected_hr_board():
+    rows = []
+    for i, r in enumerate(HR_LB[:50], 1):
+        score = _sf(r.get('Score'))
+        if score >= 78: tier = 'row-tier0'
+        elif score >= 66: tier = 'row-tier1'
+        else: tier = ''
+        batter = f'<strong>{r.get("Batter","—")}</strong> {hand_chip(r.get("Bats"), "bats")}'
+        streak = r.get('Streak') or ''
+        if streak:
+            batter += f' <span style="font-size:11px;color:var(--hot)">{streak}</span>'
+        pitcher = r.get('Pitcher') or '—'
+        rows.append(
+            f'      <tr class="{tier}">'
+            f'<td>{i}</td><td>{batter}</td><td>{tn(r.get("Team"))}</td>'
+            f'<td>{pitcher}</td><td>{r.get("Pitcher Team","—")}</td>'
+            f'<td><strong>{r.get("Score","—")}</strong></td><td>{r.get("Grade","—")}</td>'
+            f'<td>{r.get("Zone","—")}</td><td>{r.get("HR","—")}</td>'
+            f'<td>{r.get("Barrel%","—")}</td><td>{r.get("xwOBA","—")}</td>'
+            f'<td>{r.get("ERA","—")}</td><td>{r.get("Park","—")}</td></tr>'
+        )
+    return f'''<!-- HR BOARD PROJECTED -->
+<section id="hr-board" class="collapsible reconstructed-board">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">Top 50 HR Board</div>
+      <span class="game-tag">Tap to expand · Projected Mode · derived rankings + Savant contact metrics</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    {projected_badge("Score and tier are Daily Slate derived; Zone is unavailable and shown as a dash.")}
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Ranked by the Daily Slate projected HR score using live matchup probability, Baseball Savant barrel rate/xwOBA, park HR context, pitcher HR risk, and streak signal. This does not reproduce Sweet Spot grades or Zone.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>P Tm</th><th>Score</th><th>Tier</th><th>Zone</th><th>HR Prob</th><th>Barrel%</th><th>xwOBA</th><th>ERA</th><th>Park HR%</th></tr></thead>
+      <tbody>
+{chr(10).join(rows)}
+      </tbody>
+    </table></div>
+  </div></div>
+</section>
+'''
+
+def build_projected_oo5_board():
+    def hp_val(r, key):
+        return parse_pct(r.get(key))
+    ranked = sorted(HIT, key=lambda r: -hp_val(r, '1+ Hit'))[:50]
+    rows = []
+    for i, r in enumerate(ranked, 1):
+        nm = _hit_full(r)
+        bp = BP_BAT_BY_NAME.get(nm.lower())
+        bats = bp.get('BatterStand') if bp else None
+        team = tn(r.get('Team'))
+        tier = 'row-tier0' if hp_val(r, '1+ Hit') >= 60 else ('row-tier1' if hp_val(r, '1+ Hit') >= 55 else '')
+        rows.append(
+            f'      <tr class="{tier}"><td>{i}</td>'
+            f'<td><strong>{nm}</strong> {hand_chip(bats, "bats")}</td>'
+            f'<td>{team}</td><td>{r.get("Matchup","—")}</td>'
+            f'<td><strong>{r.get("1+ Hit","—")}</strong></td>'
+            f'<td>{r.get("2+ Hits","—")}</td>'
+            f'<td>{r.get("To Get RBI","—")}</td>'
+            f'<td>{r.get("To Hit HR","—")}</td></tr>'
+        )
+    return f'''<!-- OO5 BOARD PROJECTED -->
+<section id="oo5-board" class="collapsible reconstructed-board">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">Top 50 Hits Board</div>
+      <span class="game-tag">Tap to expand · Projected Mode · live hit probabilities</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    {projected_badge("Hit, multi-hit, RBI, and HR columns reconstructed from live projection inputs.")}
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
+      <tbody>
+{chr(10).join(rows)}
+      </tbody>
+    </table></div>
+  </div></div>
+</section>
+'''
+
 def build_hr_board():
     # Candidate pool: top 40 by Score, then re-rank by Consensus
     cands = []
@@ -962,7 +1112,7 @@ def build_hr_board():
             'consensus': c['votes'], 'consensus_max': 7,
             'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
             'bpp_api_hr': round(c['bpp_proj_hr'], 2) if c['bpp_proj_hr'] else None,
-            'bpp_matchup_advantage': c['bpp_match_adv'],
+            'calibration_signal': c['bpp_match_adv'],
         })
         if c['votes'] >= 6: tier = 'row-tier0'
         elif c['votes'] >= 5: tier = 'row-tier1'
@@ -1687,26 +1837,78 @@ def build_sp_vuln():
 '''
 
 # ---- ASSEMBLE ALL SECTIONS ----
-SECTIONS = {
-    'headlines':         build_headlines(),
-    'park-board':        build_park_board(),
-    'games':             build_games(),
-    'matchup-spotlight': build_matchup_spotlight(),
-    'k-board':           build_k_board(),
-    'hr-board':          build_hr_board(),
-    'oo5-board':         build_oo5_board(),
-    'totals-board':      build_totals_board(),
-    'nrfi-board':        build_nrfi_board(),
-    'sb-board':          build_sb_board(),
-    'doubles-board':     build_doubles_board(),
-    'dfs-board':         build_dfs_board(),
-    'combos-k':          build_combos_k(),
-    'combos-hrr':        build_combos_hrr(),
-    'parlays':           build_parlays(),
-    'conviction':        build_conviction(),
-    'skip':              build_skip(),
-    'sp-vuln-board':     build_sp_vuln(),
-}
+if PROJECTED_MODE:
+    SECTIONS = {
+        'headlines':         build_projected_headlines(),
+        'park-board':        with_projected_badge(build_park_board(), "Park factors rebuilt from live park/weather context."),
+        'games':             with_projected_badge(build_games(), "Game cards rebuilt from live team projections and public schedule data."),
+        'matchup-spotlight': projected_unavailable_section(
+            'matchup-spotlight',
+            'Matchup Spotlight',
+            'Unavailable without workbook',
+            'The Sweet Spot danger-batter grid is workbook-only and cannot be reconstructed honestly.',
+        ),
+        'k-board':           with_projected_badge(build_k_board(), "Starter strikeout board rebuilt from live pitcher projections."),
+        'hr-board':          build_projected_hr_board(),
+        'oo5-board':         build_projected_oo5_board(),
+        'totals-board':      with_projected_badge(build_totals_board(), "Totals rebuilt from live team run projections."),
+        'nrfi-board':        with_projected_badge(build_nrfi_board(), "YRFI/NRFI rebuilt from live first-inning probability where available."),
+        'sb-board':          with_projected_badge(build_sb_board(), "Stolen-base board rebuilt from live projection probabilities."),
+        'doubles-board':     with_projected_badge(build_doubles_board(), "Extra-base board rebuilt from live doubles and park context."),
+        'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
+        'combos-k':          with_projected_badge(build_combos_k(), "K combos rebuilt from projected starter rows."),
+        'combos-hrr':        projected_unavailable_section(
+            'combos-hrr',
+            'HRR Combos',
+            'Unavailable without workbook',
+            'The HRR combo board depends on full Sweet Spot and Dimers workbook context.',
+        ),
+        'parlays':           projected_unavailable_section(
+            'parlays',
+            'Parlay Builder',
+            'Unavailable without workbook',
+            'The full parlay builder is withheld in Projected Mode because several workbook-only signals are missing.',
+        ),
+        'conviction':        projected_unavailable_section(
+            'conviction',
+            'Conviction Board',
+            'Unavailable without workbook',
+            'Conviction rankings require the complete workbook signal stack.',
+        ),
+        'skip':              projected_unavailable_section(
+            'skip',
+            'Daily Skip List',
+            'Unavailable without workbook',
+            'The skip list includes editorial workbook context and is not reconstructed on missed-upload days.',
+        ),
+        'sp-vuln-board':     projected_unavailable_section(
+            'sp-vuln-board',
+            "Pitcher's HR Risk Board",
+            'Unavailable without workbook',
+            'The Sweet Spot pitcher vulnerability and danger-batter columns have no clean Projected Mode source.',
+        ),
+    }
+else:
+    SECTIONS = {
+        'headlines':         build_headlines(),
+        'park-board':        build_park_board(),
+        'games':             build_games(),
+        'matchup-spotlight': build_matchup_spotlight(),
+        'k-board':           build_k_board(),
+        'hr-board':          build_hr_board(),
+        'oo5-board':         build_oo5_board(),
+        'totals-board':      build_totals_board(),
+        'nrfi-board':        build_nrfi_board(),
+        'sb-board':          build_sb_board(),
+        'doubles-board':     build_doubles_board(),
+        'dfs-board':         build_dfs_board(),
+        'combos-k':          build_combos_k(),
+        'combos-hrr':        build_combos_hrr(),
+        'parlays':           build_parlays(),
+        'conviction':        build_conviction(),
+        'skip':              build_skip(),
+        'sp-vuln-board':     build_sp_vuln(),
+    }
 
 # Write
 with open('/home/user/workspace/built_sections_d46.json','w', encoding='utf-8') as f:

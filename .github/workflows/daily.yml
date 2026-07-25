@@ -28,6 +28,8 @@ jobs:
         run: pip install openpyxl
 
       - name: Find slate file
+        env:
+          ALLOW_PROJECTED_MODE: '1'
         run: |
           XLSX=$(python3 extract_xlsx.py --which)
           if [ -z "$XLSX" ]; then echo "No xlsx found" && exit 1; fi
@@ -35,7 +37,17 @@ jobs:
           echo "Using newest slate by date: $XLSX"
 
       - name: Extract slate data
+        env:
+          ALLOW_PROJECTED_MODE: '1'
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
+
+      - name: Rebuild Projected Mode data
+        timeout-minutes: 8
+        env:
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+          STREAKS_OUT: streaks_live.json
+        run: python3 fetch_projected_mode.py
 
       - name: Fetch BallparkPal tab overrides
         timeout-minutes: 6
