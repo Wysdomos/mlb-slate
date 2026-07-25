@@ -142,6 +142,16 @@ def bpp_matchup_chip(value):
     sign = '+' if n >= 0 else ''
     return f' <span class="badge b-neutral">BPP Match {sign}{n}</span>'
 
+def bpp_matchup_tier(value):
+    if value in (None, '', 'None'): return None
+    try: n = int(float(value))
+    except (TypeError, ValueError): return None
+    if n >= 7: return 'plus'
+    if n >= 3: return 'lean-plus'
+    if n <= -7: return 'minus'
+    if n <= -3: return 'lean-minus'
+    return 'neutral'
+
 def fmt_pct_cell(n, bold_pos=8, bold_neg=-10):
     sign = '+' if n >= 0 else ''
     s = f"{sign}{n}%"
@@ -1112,7 +1122,7 @@ def build_hr_board():
             'consensus': c['votes'], 'consensus_max': 7,
             'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
             'bpp_api_hr': round(c['bpp_proj_hr'], 2) if c['bpp_proj_hr'] else None,
-            'calibration_signal': c['bpp_match_adv'],
+            'calibration_tier': bpp_matchup_tier(c['bpp_match_adv']),
         })
         if c['votes'] >= 6: tier = 'row-tier0'
         elif c['votes'] >= 5: tier = 'row-tier1'

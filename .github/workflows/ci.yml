@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'codex/**'
+
+permissions:
+  contents: read
+
+jobs:
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch compliance baseline
+        run: git fetch origin +main:refs/remotes/origin/main
+
+      - name: Python syntax
+        run: |
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          for path in [
+              'extract_xlsx.py',
+              'fetch_projected_mode.py',
+              'build.py',
+              'build_day46.py',
+              'sync.py',
+              'tools/check_bpp_compliance.py',
+          ]:
+              ast.parse(Path(path).read_text(encoding='utf-8'), filename=path)
+              print(f'ast OK {path}')
+          PY
+
+      - name: BPP public-output compliance
+        run: python3 tools/check_bpp_compliance.py --base origin/main

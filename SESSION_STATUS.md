@@ -1,5 +1,51 @@
 # SESSION STATUS - 2026-07-25 - Codex
 
+## 0. ARCHITECT REVIEW FIXES - 2026-07-25
+- Restored `slate_picks.json`, `slate_picks_7-24.json`, and `slate_picks_7-25.json` to their `origin/main` tree state. The 2026-07-24 and 2026-07-25 historical slate-pick files are no longer modified by Chapter F.
+- Removed the raw-value rename for future generation. `build_day46.py` now emits `calibration_tier` as a derived label (`plus`, `lean-plus`, `neutral`, `lean-minus`, `minus`) instead of writing the raw BPP matchup integer under another key.
+- Added committed compliance test `tools/check_bpp_compliance.py` and CI workflow `.github/workflows/ci.yml`. The test is value-aware for `slate_picks*.json`: renaming the old raw `bpp_matchup_advantage` vector to another key fails even when the forbidden key name is gone.
+- Added the compliance check to the daily workflow after HTML sync and before committing generated public outputs.
+- Updated `daily.yml` so `Rebuild Projected Mode data` has `continue-on-error: true` and the same `ALLOW_PROJECTED_MODE: '1'` gate as the Find/Extract steps.
+- Because workflow edits must be applied by the repo owner through the GitHub web UI, use the final YAML in `.github/workflows/daily.yml` from this branch. The relevant final block is:
+
+```yaml
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild Projected Mode data
+        timeout-minutes: 8
+        continue-on-error: true
+        env:
+          ALLOW_PROJECTED_MODE: '1'
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+          STREAKS_OUT: streaks_live.json
+        run: python3 fetch_projected_mode.py
+
+      - name: Sync to HTML
+        run: python3 sync.py
+
+      - name: Fetch compliance baseline
+        run: git fetch origin +main:refs/remotes/origin/main
+
+      - name: BPP public-output compliance
+        run: python3 tools/check_bpp_compliance.py --base origin/main
+```
+
+Review-fix verification:
+```text
+python3 tools/check_bpp_compliance.py --base origin/main
+BPP compliance OK (0 changed JSON/HTML files checked against 7cf48ada4454)
+
+python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py tools/check_bpp_compliance.py
+exit 0
+
+negative compliance test: renaming bpp_matchup_advantage to calibration_signal in slate_picks_7-25.json
+BPP compliance check failed:
+  - slate_picks_7-25.json: `calibration_signal` is byte-for-byte the old raw BPP matchup vector
+```
+
 ## 1. WHAT I DID
 - Branch: `codex/chapter-f-projected-mode` off current `origin/main`.
 - Added Projected Mode for cleanly absent workbook days, gated by `ALLOW_PROJECTED_MODE=1`.
@@ -15,7 +61,7 @@
   - Honest unavailable cards for workbook-only Sweet Spot / Dimers / Zone surfaces.
   - HR board uses Daily Slate derived score/tier, real BPP-derived HR probabilities, Savant barrel/xwOBA, real pitcher/park context, and `Zone` shown as `—`.
 - Added PR review artifact: `docs/projected-mode-sample.png`.
-- Renamed committed pick JSON key `bpp_matchup_advantage` to `calibration_signal` for compliance.
+- Superseded by architect review fix: committed pick JSON files are restored to `origin/main`, and future generation uses derived `calibration_tier`.
 
 ## 2. RAW VERIFICATION OUTPUT
 

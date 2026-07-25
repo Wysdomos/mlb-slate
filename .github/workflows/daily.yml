@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -43,7 +45,9 @@ jobs:
 
       - name: Rebuild Projected Mode data
         timeout-minutes: 8
+        continue-on-error: true
         env:
+          ALLOW_PROJECTED_MODE: '1'
           BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
           DATA_FILE: day_data.json
           STREAKS_OUT: streaks_live.json
@@ -110,6 +114,12 @@ jobs:
 
       - name: Sync to HTML
         run: python3 sync.py
+
+      - name: Fetch compliance baseline
+        run: git fetch origin +main:refs/remotes/origin/main
+
+      - name: BPP public-output compliance
+        run: python3 tools/check_bpp_compliance.py --base origin/main
 
       - name: Commit and push
         env:
