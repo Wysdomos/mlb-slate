@@ -37,6 +37,14 @@ jobs:
       - name: Extract slate data
         run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
+      - name: Fetch BallparkPal tab overrides
+        timeout-minutes: 6
+        continue-on-error: true
+        env:
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+        run: python3 fetch_bpp_tabs.py
+
       - name: Fetch real K lines
         timeout-minutes: 4
         continue-on-error: true
