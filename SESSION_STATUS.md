@@ -1,95 +1,102 @@
-# SESSION STATUS — 2026-07-23 — Claude Code
+# SESSION STATUS - 2026-07-25 - Codex
 
 ## 1. WHAT I DID
-- PR #16 `feat/healer-visibility` — **MERGED + DEPLOYED**. Healer now notifies on decline/log-fetch/zip-parse exits; added HMAC-gated Gemini `selftest` branch; daily.yml webhook step now checks HTTP status.
-- PR #17 `feat/healer-retry` — **MERGED** (deployed together with #18). Shared `gemini_generate()` helper retries transient (503/429) Gemini errors only; permanent errors still fail fast.
-- PR #18 `feat/healer-alert-noise` — **MERGED + DEPLOYED**. Logs-404 race now retried 3× then returns 200+🔍 (benign) instead of a false "safety net down" 500 alert; real fetch failures stay 500+⚠️.
-- PR #19 `feat/streaks-per-game` — **MERGED**. Rewrote `fetch_streaks_mlb()` to per-game `/game/{pk}/boxscore` and flipped source priority to statsapi-primary. No deploy needed (runs in the Actions "Fetch live streaks" step; takes effect next scheduled build).
-- Created **private repo `Wysdomos/mlb-slate-archive`** (Chapter B2 steps 1–3): `.github/workflows/archive.yml`, README, `.gitignore` committed to its `main`. NOT a PR in this repo; the public repo is untouched by that work.
-- Chapter D discovery (this session, no code, no PR): analyzed the merged `services/bpp_client` snapshot to map BallparkPal API coverage of the 6 `day_data.json` BPP tabs, plus 4 follow-up gap questions.
-- Earlier in session (all **MERGED**): #9 backtest-foundation, #10 site-fixes-1 (attribution + freshness gate; streaks Fix-1 was pulled OUT and later shipped properly as #19), #11 odds-api-fallback, #14 tip-attribution. (#12/#13/#15 are Codex PRs.)
+- Branch: `codex/chapter-d-hybrid-tabs` off current `origin/main`.
+- Added `fetch_bpp_tabs.py`, a non-fatal Chapter D override step for:
+  - `SP_Projections`: rebuilt from live BPP projection averages plus MLB Stats API handedness.
+  - `Park_Factors`: consumed columns rebuilt from live BPP park factors plus MLB Stats API venue lookup.
+  - `BP_Batters` / `BP_Pitchers`: workbook rows preserved; API-available projection columns update in place when the workbook game/player keys match live BPP.
+- Updated `.github/workflows/daily.yml` to run `fetch_bpp_tabs.py` immediately after `extract_xlsx.py` and before all downstream fetch/build steps.
+- Kept `BP_Teams` and `BP_Games` workbook-only.
+- Did not commit generated `day_data.json` or build artifacts.
 
 ## 2. RAW VERIFICATION OUTPUT
-*(BallparkPal projection VALUES omitted per the report rule — field names, market names, and counts only. Non-BPP command output is verbatim.)*
 
-Healer Gemini self-test (deployed function, valid HMAC), run twice:
-```
-secret loaded, length: 64
-HTTP 500
-❌ Healer self-test FAILED: ServerError: 503 UNAVAILABLE. {...'message': 'This model is currently experiencing high demand...'...}
-```
-→ 503 = TRANSIENT (model overloaded). Auth succeeded → GEMINI_API_KEY (v2) is VALID, NOT revoked; `gemini-3.5-flash` resolves. (This is why PR #17 retry exists.)
-
-Healer diagnostics (deployed function):
-```
-bad signature (sha256=deadbeef)         -> HTTP 401  "Unauthorized or misconfigured webhook."
-valid signature, run_id 29940016559     -> HTTP 200  "No Python file found in traceback."
-```
-
-Streaks before/after (live MLB Stats API, branch feat/streaks-per-game):
-```
-BEFORE (schedule-hydrate): 92 games, 0 batters, 0 active streaks
-AFTER  (per-game):         92 games fetched, 0 failed, 406 batters, 212 active streaks
-end-to-end main() (statsapi-primary): wrote 212 players, 212 active streaks
-runtime: 51.5s (step timeout is 6 min)
+Syntax gates:
+```text
 ast OK
+python3 -m py_compile fetch_bpp_tabs.py -> exit 0
 ```
 
-Firebase deploys (both):
-```
-✔  functions[auto_heal_webhook(us-central1)] Successful update operation.
-✔  Deploy complete!
-```
-
-Archive repo:
-```
-gh secret list --repo Wysdomos/mlb-slate-archive  ->  (empty; no secrets set — BPP_API_KEY is human-only)
-git push -u origin main  ->  new branch main created, 3 files
+Failure test with `BPP_API_KEY` unset:
+```text
+no_key exit 0 unchanged True
+stdout [bpp-tabs] skipped: BPP_API_KEY is not set; day_data.json left untouched | BPP tab API calls this run: 0
 ```
 
-Chapter D — BPP API coverage findings (metadata/counts only):
+Stale-workbook/key-set fallback test:
+```text
+stale_with_key exit 0 unchanged True
+stdout BPP tab API calls this run: 1
+stderr_tail [bpp-tabs] BPP call 1 (monthly budget 15000): games(2026-07-24) | [bpp-tabs] non-fatal failure: Historical data is not available. Only today and future dates are served. | [bpp-tabs] day_data.json left untouched
 ```
-projection_probabilities market catalog (markets.json): 22 markets total
-  6 pitcher markets: Walks, Strikeouts, Earned Runs, To-Record-Win, Hits Allowed, Outs
-  -> NO "Pitcher Home Runs Allowed" market (present only as averages.pitchers[].homeRunsAllowed point value)
-  -> NO stolen-base ATTEMPT market (only "Batter Stolen Bases" = successes; averages has stolenBaseSuccesses only)
-  -> all probability markets are OVER/UNDER threshold lines; NO exact-count distribution buckets
-Distribution buckets (Runs0-20, HomeRuns0-5, RunsInning1-9) and batter/pitcher HANDEDNESS:
-  -> MISSING from every endpoint (games, averages, probabilities, parkfactors, parkfactors_hitters, matchups)
-  -> these currently come from the uploaded workbook, not the API
-First-5 splits: PRESENT as point values -> projection_averages.data.teams[].runsFirstFive
-  and .winFirstFiveProbability; RunsFirstInningPct = probabilities mkt_4 "Runs First Inning" side=over probability
-Q3 test — sum(projection_averages.batters[]) per team vs BP_Teams (34 game-team pairs, 2026-07-22 snapshot):
-  Doubles:    MATCH 2/34,  DIFF 32/34
-  Strikeouts: MATCH 0/34,  DIFF 34/34
-  Walks:      MATCH 0/34,  DIFF 34/34
-  direction always negative (sum UNDERSHOOTS BP_Teams by ~1-2.5%); NOT an exact reproduction
+
+Live pull test with `BPP_TABS_DATE=2026-07-25`:
+```text
+[bpp-tabs] schema parity OK: SP_Projections rows=30 required=11
+[bpp-tabs] schema parity OK: Park_Factors rows=15 required=7
+[bpp-tabs] schema parity OK: BP_Batters rows=270 required=11
+[bpp-tabs] schema parity OK: BP_Pitchers rows=30 required=11
+[bpp-tabs] calls/run BPP=32, MLB=4; 3 runs/day BPP ~= 96; 4 runs/day BPP ~= 128; monthly budget 15000
+BPP tab API calls this run: 32
+```
+
+Tab-level diff, before/after live override:
+```text
+changed_tabs: Park_Factors, SP_Projections
+SP_Projections: CHANGED
+Park_Factors: CHANGED
+BP_Batters: unchanged
+BP_Pitchers: unchanged
+BP_Teams: unchanged
+BP_Games: unchanged
+```
+
+Schema parity explicit check:
+```text
+SP_Projections missing= none
+Park_Factors missing= none
+BP_Batters missing= none
+BP_Pitchers missing= none
+```
+
+Handedness spot checks against MLB Stats API:
+```text
+pitcher Michael Wacha output R mlb R match True
+pitcher Casey Mize output R mlb R match True
+pitcher Foster Griffin output L mlb L match True
+batter Ildemaro Vargas output S mlb S match True
+batter Nolan Arenado output R mlb R match True
+batter Ketel Marte output S mlb S match True
+```
+
+Temp-copy build verification after no-key failure test:
+```text
+Pipeline complete. Sections -> /tmp/chapterd-build-test.ThLzfN/built_sections.test.json, K Report -> /tmp/chapterd-build-test.ThLzfN/k-report.test.html, Streaks -> /tmp/chapterd-build-test.ThLzfN/streaks.test.html
+```
+
+Compliance grep over tracked JSON:
+```text
+git ls-files '*.json' | xargs rg -n "marketKey|matchupAdvantage|homeRunVsTypical|runsCreatedVsTypical|VsTypical|requestId|asOf"
+-> no matches
 ```
 
 ## 3. WHERE I STOPPED AND WHY
-- Chapter D is a **discovery task only** — complete, no code written. Next action is an architect decision (see §6) on how to source the workbook-only columns (handedness, distribution buckets) if the workbook is to be replaced.
-- Archive repo: steps 1–3 done; **verification (manual "Run workflow" first-run) is pending a human** because `BPP_API_KEY` must be set in the archive repo by the developer (never by me).
-- Healer self-test has not yet returned a green pass — blocked only by Google's transient 503 overload, not by our code/key. Re-run when Google capacity frees up.
+- Implementation and verification are complete on the feature branch.
+- Stopped before merge, per handoff and AGENTS.md.
 
 ## 4. SURPRISES AND DEVIATIONS
-- **`BPP_API_KEY` UNSET locally** → I could not do a live "today" (2026-07-23) BPP pull. Used the merged client's real cached **2026-07-22 snapshot** instead; the response schema is date-invariant, so it fully answers the discovery. This is a deviation from "pull today."
-- **The BPP API does NOT contain the distribution buckets or handedness** the `day_data.json` BPP tabs carry. If Chapter D assumed the merged client could replace the workbook wholesale, that assumption is wrong: buckets (exact-count Runs/HomeRuns/RunsInning), handedness, StolenBaseAttempts, pitcher StolenBasesAllowed, win/loss margins, venue name, and the venue-level stadium/weather split all have no API source.
-- **Summing `batters[]` does NOT reproduce BP_Teams exactly** — it undershoots by ~1–2.5% on every one of 34 team-games (BP_Teams includes more than the 9 starters, or is modeled separately). The "obvious" derivation is an approximation, not a match.
-- **Streaks: the OLD `fetch_streaks_mlb()` returned 0 batters** (MLB bulk `hydrate=boxscore` over a date range yields empty box objects). Confirmed with a before/after BEFORE flipping priority, per the handoff's gate. Per-game fetch fixed it (0 → 212).
-- **Healer key was NOT revoked** (the July-13 worry): the self-test's 503 proves the key authenticates. So no key rotation was needed.
-- **`gcloud` is absent on this machine** — the earlier gcloud-based healer diagnostics could not run (used `firebase functions:log` + signed curl instead). `firebase` CLI is present.
-- Left one **stash** (`stash@{0}`, pre-existing dirty build artifacts). Safe to drop — regenerated build outputs, not hand-authored.
-- Minor: `/tmp` subdirectories hit a sandbox group-permission error; wrote dump files to `/tmp` top-level instead.
+- The repo's current real workbook is `MLB Slate 7-24-26.xlsx`, while the session date is 2026-07-25. BPP rejects historical projection pulls, so the normal default-date run correctly failed non-fatally and left `day_data.json` untouched.
+- To satisfy the real live pull requirement, I ran the live verification with `BPP_TABS_DATE=2026-07-25` against a `/tmp` extract. Because the workbook rows were 2026-07-24 game IDs, `BP_Batters` and `BP_Pitchers` had no same-game rows to update in that forced-date local run. This is expected; in CI the workbook date and BPP date should match.
+- `PROMPT_Session_Report.md` was not present in the repo or attachments, so this report follows the existing `SESSION_STATUS.md` section format.
 
 ## 5. LOCAL STATE
-- Branch: `main` — HEAD `5d46adb` (before this SESSION_STATUS commit).
-- `git status --short`: clean (empty) aside from this new file.
-- Stash: `stash@{0}: On feat/healer-visibility: stale build artifacts parked before healer-visibility deploy 2026-07-23` — **safe to drop** (build artifacts, regenerated by builds).
-- Env (names only): `BPP_API_KEY`, `ODDS_API_KEY`, `BDL_KEY`, `GEMINI_API_KEY`, `WEBHOOK_SECRET`, `TELEGRAM_BOT_TOKEN` — all **UNSET** locally. Tooling: `firebase` present, `gcloud` absent.
-- Deployed Firebase function `auto_heal_webhook` (project `wysdomos-slate-healer`, us-central1) currently reflects merged PRs #16 + #17 + #18.
+- Branch: `codex/chapter-d-hybrid-tabs`.
+- Intended changed files:
+  - `.github/workflows/daily.yml`
+  - `fetch_bpp_tabs.py`
+  - `SESSION_STATUS.md`
+- Generated verification files are under `/tmp` only.
 
-## 6. OPEN QUESTIONS FOR THE ARCHITECT
-- Handedness (`BatterStand`, `PitcherHand`, SP `Throws`) has **no BPP source**. OK to pull it from MLB Stats API (`people` → `batSide`/`pitchHand`) in Chapter D?
-- BP_Teams `Doubles`/`Strikeouts`/`Walks` reproduce only to ~1–2.5% (always low) by summing `batters[]`. Accept that approximation, or keep the workbook as the source for team-level columns?
-- Exact-count distribution buckets (Runs/HomeRuns/RunsInning) have **no API source** at all. Keep the workbook for those columns, or drop them from the 63 consumed columns?
-- Archive repo is ready for its first manual `workflow_dispatch` verification run once you've set `BPP_API_KEY` there — want me to walk through it after you confirm the secret is set?
+## 6. OPEN QUESTIONS
+- None blocking. A same-date uploaded 2026-07-25 workbook would exercise the `BP_Batters` and `BP_Pitchers` in-place refresh path end to end; the code path is implemented, but the local workbook date prevented a same-game live diff.
