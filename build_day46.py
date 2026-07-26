@@ -1113,6 +1113,25 @@ def projected_unavailable_section(sec_id, title, tag, reason):
 </section>
 '''
 
+def empty_market_section(sec_id, title, tag, reason):
+    return f'''<!-- EMPTY MARKET SECTION -->
+<section id="{sec_id}" class="collapsible empty-market">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">Tap to expand · {tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <div class="unavailable-card">
+      <strong>No qualifying rows</strong>
+      <p>{reason}</p>
+    </div>
+  </div></div>
+</section>
+'''
+
 def build_projected_headlines():
     return build_headlines()
 
@@ -1194,6 +1213,103 @@ def build_projected_oo5_board():
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
+      </tbody>
+    </table></div>
+  </div></div>
+</section>
+'''
+
+def hit_prob_fraction(row, key):
+    value = row.get(key)
+    if value in (None, '', 'None'):
+        return 0.0
+    if isinstance(value, (int, float)):
+        number = float(value)
+    else:
+        text = str(value).replace('%', '').strip()
+        try:
+            number = float(text)
+        except (TypeError, ValueError):
+            return 0.0
+    return max(0.0, min(1.0, number / 100 if number > 1 else number))
+
+def two_plus_hits_key():
+    if not HIT:
+        return None
+    matches = sorted({key for row in HIT for key in row if str(key).strip() == '2+ Hits'})
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise RuntimeError("Hit_Probabilities is missing the required 2+ Hits column")
+    raise RuntimeError(f"Hit_Probabilities has ambiguous 2+ Hits columns: {matches}")
+
+def total_bases_rows():
+    key_2h = two_plus_hits_key()
+    if not key_2h:
+        return []
+    rows = []
+    for hit in HIT:
+        name = _hit_full(hit)
+        if not name:
+            continue
+        bp = BP_BAT_BY_NAME.get(name.lower())
+        if not bp:
+            continue
+        one_hit = hit_prob_fraction(hit, '1+ Hit')
+        two_hits = hit_prob_fraction(hit, key_2h)
+        e_hits = one_hit + two_hits
+        e_tb = e_hits + _sf(bp.get('Doubles')) + (3 * _sf(bp.get('HomeRuns')))
+        rows.append({
+            'name': name,
+            'team': tn(hit.get('Team') or bp.get('Team')),
+            'opp': tn(bp.get('Opponent') or hit.get('Opp')),
+            'matchup': hit.get('Matchup') or '',
+            'one_hit': one_hit,
+            'two_hits': two_hits,
+            'e_hits': e_hits,
+            'e_tb': e_tb,
+        })
+    rows.sort(key=lambda row: (-row['e_tb'], row['name']))
+    return rows
+
+def build_tb_board():
+    rows = total_bases_rows()[:30]
+    if not rows:
+        return empty_market_section(
+            'tb-board',
+            '📏 Total Bases Board',
+            'Total Bases unavailable',
+            'Hit probability and batter projection rows are required to derive Total Bases honestly.',
+        )
+    body = []
+    for idx, row in enumerate(rows, 1):
+        body.append(
+            f'      <tr>'
+            f'<td>{idx}</td>'
+            f'<td><strong>{html.escape(row["name"])}</strong></td>'
+            f'<td>{html.escape(row["team"])}</td>'
+            f'<td>{html.escape(row["opp"])}</td>'
+            f'<td><strong>{row["e_tb"]:.2f}</strong></td>'
+            f'<td>{row["e_hits"]:.2f}</td>'
+            f'<td>Ov 1.5</td>'
+            f'<td><small>{html.escape(row["matchup"])}</small></td>'
+            f'</tr>'
+        )
+    return f'''<!-- TB BOARD -->
+<section id="tb-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">📏 Total Bases Board</div>
+      <span class="game-tag">Tap to expand · Daily Slate derived score · Ov 1.5 TB</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Daily Slate derived score</strong> estimates total-base volume from hit tail probabilities plus extra-base lift. It is a derived estimate, not a vendor projection. Phase 1: flat scoring, no tiers.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Opp</th><th>Daily Slate E_TB</th><th>E Hits</th><th>Line</th><th>Matchup</th></tr></thead>
+      <tbody>
+{chr(10).join(body)}
       </tbody>
     </table></div>
   </div></div>
@@ -2523,6 +2639,7 @@ if PROJECTED_MODE:
         'k-board':           with_projected_badge(build_k_board(), "Starter strikeout board rebuilt from live pitcher projections."),
         'hr-board':          build_projected_hr_board(),
         'oo5-board':         build_projected_oo5_board(),
+        'tb-board':          with_projected_badge(build_tb_board(), "Total Bases board uses a Daily Slate derived estimate from live hit and batter projection inputs."),
         'totals-board':      with_projected_badge(build_totals_board(), "Totals rebuilt from live team run projections."),
         'nrfi-board':        with_projected_badge(build_nrfi_board(), "YRFI/NRFI rebuilt from live first-inning probability where available."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
@@ -2547,6 +2664,7 @@ else:
         'k-board':           build_k_board(),
         'hr-board':          build_hr_board(),
         'oo5-board':         build_oo5_board(),
+        'tb-board':          build_tb_board(),
         'totals-board':      build_totals_board(),
         'nrfi-board':        build_nrfi_board(),
         'dfs-board':         build_dfs_board(),
