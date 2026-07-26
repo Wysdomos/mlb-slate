@@ -1766,6 +1766,26 @@ def pitcher_outs_line(bp):
         return {'line': 'Ov 14.5 outs', 'win_at': 15, 'projection': outs}
     return None
 
+def pitcher_hits_allowed_line(bp):
+    if not bp:
+        return None
+    hits = _sf(bp.get('HitsAllowed'))
+    if hits >= 6.0:
+        return {'line': 'Ov 5.5 H allowed', 'win_at': 6, 'projection': hits}
+    if hits >= 5.0:
+        return {'line': 'Ov 4.5 H allowed', 'win_at': 5, 'projection': hits}
+    return None
+
+def pitcher_runs_allowed_line(bp):
+    if not bp:
+        return None
+    runs = _sf(bp.get('RunsAllowed'))
+    if runs >= 3.5:
+        return {'line': 'Ov 3.5 ER', 'win_at': 4, 'projection': runs}
+    if runs >= 2.5:
+        return {'line': 'Ov 2.5 ER', 'win_at': 3, 'projection': runs}
+    return None
+
 def pitcher_is_short_leash(name):
     bp = pitcher_bp(name)
     if not bp:
@@ -1805,6 +1825,52 @@ def k_tier_for_projection(k_proj):
     if kf >= 4.0:
         return 2
     return 3
+
+def hitter_hrr_projection(hit_row, team, opp_team):
+    h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
+    rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
+    sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
+    era = _sf(sp.get('ERA', 4.25))
+    park_runs = park_runs_for_team(team)
+    if h1 <= 0 or rbi <= 0:
+        return None
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
+    return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
+
+def traffic_hitter_candidates():
+    out = []
+    for row in HIT:
+        name = _hit_full(row)
+        if not name:
+            continue
+        team = tn(row.get('Team'))
+        bp = BP_BAT_BY_NAME.get(name.lower())
+        opp_team = tn(bp.get('Opponent')) if bp else ''
+        if not opp_team:
+            match = str(row.get('Matchup') or '')
+            if ' vs. ' in match:
+                parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                if team == parts[0]:
+                    opp_team = parts[1]
+                elif team == parts[1]:
+                    opp_team = parts[0]
+        opp_sp = SP_BY_TEAM.get(opp_team, {}).get('Pitcher') if opp_team else ''
+        park_runs = park_runs_for_team(team)
+        hrr = hitter_hrr_projection(row, team, opp_team)
+        h1 = _sf(str(row.get('1+ Hit', '')).replace('%', ''))
+        if hrr is None or hrr < 78 or park_runs <= 0 or not opp_sp:
+            continue
+        out.append({
+            'name': name,
+            'team': team,
+            'opp': opp_team,
+            'opp_sp': opp_sp,
+            'game': game_key_for_team(team),
+            'hrr_pct': hrr,
+            'hit_pct': h1,
+        })
+    return out
 
 def parlay_leg_html(leg):
     name = html.escape(str(leg.get('name') or leg.get('game') or ''))
@@ -1905,11 +1971,114 @@ def build_combos_k():
 
 
 def build_combos_hrr():
-    return empty_parlay_section(
+    grouped = {}
+    for hitter in traffic_hitter_candidates():
+        key = (hitter['team'], hitter['opp_sp'])
+        grouped.setdefault(key, []).append(hitter)
+    parlays = []
+    for (team, opp_sp), hitters in sorted(
+        grouped.items(),
+        key=lambda item: -sum(h['hrr_pct'] for h in item[1]),
+    ):
+        hitters = sorted(hitters, key=lambda h: (-h['hrr_pct'], -h['hit_pct']))
+        if len(hitters) < 2:
+            continue
+        bp = pitcher_bp(opp_sp)
+        sp = pitcher_projection(opp_sp) or {}
+        vuln = get_vuln_for_pitcher(opp_sp)
+        vuln_score = _sf(vuln.get('VulnScore')) if vuln else 0
+        park_runs = park_runs_for_team(team)
+        hits_line = pitcher_hits_allowed_line(bp)
+        runs_line = pitcher_runs_allowed_line(bp)
+        era = _sf(sp.get('ERA') if sp else (vuln.get('ERA') if vuln else 0))
+
+        structure = None
+        pitcher_leg = None
+        if vuln_score >= 70:
+            structure = 'lineup_stack'
+        elif hits_line and hits_line['projection'] >= 5.5:
+            structure = 'both_sides'
+            pitcher_leg = {
+                'market': 'H_ALLOWED',
+                'name': opp_sp,
+                'team': tn(sp.get('Team')) if sp else '',
+                'opp': team,
+                'game': game_key_for_team(team),
+                'line': hits_line['line'],
+                'win_at': hits_line['win_at'],
+                'leg_role': 'satellite',
+                'confidence_rank': 3,
+                'detail': f'projected {hits_line["projection"]:.2f} hits allowed',
+            }
+        elif runs_line and (era >= 4.5 or park_runs >= 5):
+            structure = 'run_environment'
+            pitcher_leg = {
+                'market': 'ER_ALLOWED',
+                'name': opp_sp,
+                'team': tn(sp.get('Team')) if sp else '',
+                'opp': team,
+                'game': game_key_for_team(team),
+                'line': runs_line['line'],
+                'win_at': runs_line['win_at'],
+                'leg_role': 'satellite',
+                'confidence_rank': 3,
+                'detail': f'projected {runs_line["projection"]:.2f} runs allowed; park runs {park_runs:+d}%',
+            }
+        if not structure:
+            continue
+
+        legs = []
+        for hitter in hitters[:2]:
+            legs.append({
+                'market': 'HRR',
+                'name': hitter['name'],
+                'team': hitter['team'],
+                'opp': hitter['opp'],
+                'game': hitter['game'],
+                'line': 'Ov 0.5 HRR',
+                'win_at': 1,
+                'leg_role': 'satellite',
+                'confidence_rank': 1,
+                'detail': f'{hitter["hrr_pct"]:.1f}% HRR proxy',
+            })
+        if pitcher_leg:
+            legs.append(pitcher_leg)
+        else:
+            extra = next((h for h in hitters[2:] if h['name'] not in {leg['name'] for leg in legs}), None)
+            if extra and extra['hit_pct'] >= 70:
+                legs.append({
+                    'market': 'HIT',
+                    'name': extra['name'],
+                    'team': extra['team'],
+                    'opp': extra['opp'],
+                    'game': extra['game'],
+                    'line': 'Ov 0.5 H',
+                    'win_at': 1,
+                    'leg_role': 'satellite',
+                    'confidence_rank': 2,
+                    'detail': f'{extra["hit_pct"]:.1f}% 1+ hit',
+                })
+        ok, reason = validate_parlay(legs, structure, max_legs=3)
+        if not ok:
+            continue
+        label = {
+            'lineup_stack': 'Lineup Stack',
+            'both_sides': 'Both Sides',
+            'run_environment': 'Run Environment',
+        }[structure]
+        parlays.append({
+            'correlation_type': structure,
+            'badge': label,
+            'note': f'{team} traffic correlated against {opp_sp}.',
+            'legs': legs,
+        })
+    return render_parlay_board(
         'combos-hrr',
         'Traffic Stack',
-        'No qualifying lineup traffic stack yet',
-        'This board only renders HRR stacks with positive park run context and a matching pitcher vulnerability reason.',
+        'Tap to expand · HRR traffic structures · no 2B or SB legs',
+        'Eligibility: HRR proxy at least 78%, positive park Runs%, and one matching pitcher vulnerability reason. Hits-allowed and earned-runs legs are mutually exclusive.',
+        parlays,
+        'No lineup had two HRR legs with positive park run context and a matching pitcher vulnerability reason.',
     )
 
 
