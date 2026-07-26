@@ -2249,8 +2249,12 @@ def conviction_candidates():
                 'market': 'K',
                 'name': name,
                 'team': tn(sp.get('Team')),
+                'opp': tn(sp.get('Opp')),
+                'game': game_key_for_team(tn(sp.get('Team'))),
                 'line': k_alt_for(kf),
                 'win_at': 5 if '5' in k_alt_for(kf) else (4 if '3.5' in k_alt_for(kf) else 3),
+                'consensus': votes,
+                'consensus_max': 6,
                 'priority': priority,
                 'score': votes * 10 + kf,
                 'badge': 'K CONVICTION',
@@ -2262,8 +2266,12 @@ def conviction_candidates():
             'market': 'HRR',
             'name': hitter['name'],
             'team': hitter['team'],
+            'opp': hitter['opp'],
+            'game': hitter['game'],
             'line': 'Ov 0.5 HRR',
             'win_at': 1,
+            'consensus': 0,
+            'consensus_max': 1,
             'priority': 2,
             'score': hitter['hrr_pct'],
             'badge': 'HRR CONVICTION',
@@ -2280,8 +2288,12 @@ def conviction_candidates():
             'market': 'HIT',
             'name': name,
             'team': tn(row.get('Team')),
+            'opp': tn(row.get('Opp')),
+            'game': game_key_for_team(tn(row.get('Team'))),
             'line': 'Ov 0.5 H',
             'win_at': 1,
+            'consensus': 0,
+            'consensus_max': 1,
             'priority': 3,
             'score': pct,
             'badge': 'HIT CONVICTION',
@@ -2297,8 +2309,12 @@ def conviction_candidates():
             'market': 'HR',
             'name': name,
             'team': tn(row.get('Team')),
+            'opp': tn(row.get('Opp')),
+            'game': game_key_for_team(tn(row.get('Team'))),
             'line': 'Ov 0.5 HR',
             'win_at': 1,
+            'consensus': 0,
+            'consensus_max': 1,
             'priority': 4,
             'score': score,
             'badge': 'HR SATELLITE',
@@ -2315,10 +2331,29 @@ def conviction_candidates():
             candidates = [c for c in candidates if c['market'] != 'HR'] + [c for c in candidates if c['market'] == 'HR']
     return candidates[:12]
 
+def emit_conviction_picks(items):
+    for rank, item in enumerate(items, 1):
+        SLATE_PICKS.append({
+            'market': item['market'],
+            'pick': f"{item['name']} {item['line']}",
+            'name': item['name'],
+            'team': item.get('team', ''),
+            'opp': item.get('opp', ''),
+            'game': item.get('game', ''),
+            'line': item['line'],
+            'win_at': item['win_at'],
+            'consensus': item.get('consensus', 0),
+            'consensus_max': item.get('consensus_max', 1),
+            'pick_source': PICK_SOURCE,
+            'conviction_rank': rank,
+            **blank_chip_tiers(),
+        })
+
 def build_conviction():
     items = conviction_candidates()
     if not items:
         return conviction_empty()
+    emit_conviction_picks(items)
     li_html = ''.join(
         f'    <li><strong>#{i} {html.escape(item["name"])} {html.escape(item["line"])}</strong> '
         f'({html.escape(item["market"])}, {html.escape(item["team"])}) — {html.escape(item["why"])} '
