@@ -1882,9 +1882,41 @@ def parlay_leg_html(leg):
         parts.append(f'<small>{detail}</small>')
     return ' '.join(parts)
 
+def slate_id_for_parlays():
+    for row in DATA.get('BP_Games', []):
+        raw = str(row.get('GameDate', ''))[:10]
+        if raw:
+            return raw.replace('-', '')
+    return 'slate'
+
+def emit_parlay_legs(sec_id, parlays):
+    for idx, parlay in enumerate(parlays[:5], 1):
+        correlation_type = parlay.get('correlation_type', sec_id)
+        parlay_id = f'{slate_id_for_parlays()}-{sec_id}-{idx}-{correlation_type}'
+        for leg in parlay['legs']:
+            name = leg.get('name') or leg.get('game') or ''
+            SLATE_PICKS.append({
+                'market': leg.get('market'),
+                'pick': f'{name} {leg.get("line", "")}'.strip(),
+                'name': name,
+                'pick_source': PICK_SOURCE,
+                'team': leg.get('team'),
+                'opp': leg.get('opp'),
+                'game': leg.get('game'),
+                'line': leg.get('line', ''),
+                'win_at': leg.get('win_at'),
+                'consensus': leg.get('consensus', 0),
+                'consensus_max': leg.get('consensus_max', 1),
+                'parlay_id': parlay_id,
+                'correlation_type': correlation_type,
+                'leg_role': leg.get('leg_role', 'satellite'),
+                **blank_chip_tiers(),
+            })
+
 def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
     if not parlays:
         return empty_parlay_section(sec_id, title, tag, empty_message)
+    emit_parlay_legs(sec_id, parlays)
     blocks = []
     icons = ['1', '2', '3', '4', '5']
     for idx, parlay in enumerate(parlays[:5]):
@@ -1934,6 +1966,8 @@ def build_combos_k():
             'game': game_key_for_team(sp.get('Team')),
             'line': k_line,
             'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+            'consensus': votes,
+            'consensus_max': 6,
             'leg_role': 'anchor',
             'confidence_rank': 1,
             'detail': f'{votes}/6 lenses; projected {kf:.2f} K',
@@ -2111,6 +2145,8 @@ def build_parlays():
         'game': anchor_game,
         'line': k_line,
         'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+        'consensus': votes,
+        'consensus_max': 6,
         'leg_role': 'anchor',
         'confidence_rank': 1,
         'detail': f'tier 0; {votes}/6 lenses; projected {kf:.2f} K',

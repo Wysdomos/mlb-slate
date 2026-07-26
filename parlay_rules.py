@@ -42,6 +42,15 @@ def validate_parlay(
     if ranked and leg_market(ranked[0]) == "HR":
         return False, "HR cannot be the top-conviction leg"
 
+    pitcher_sides = defaultdict(set)
+    for leg in legs:
+        market = leg_market(leg)
+        if market in PITCHER_SIDE_MARKETS:
+            pitcher_sides[norm_name(leg.get("name"))].add(market)
+    for markets in pitcher_sides.values():
+        if {"H_ALLOWED", "ER_ALLOWED"} <= markets:
+            return False, "duplicate pitcher-side traffic legs"
+
     by_player = defaultdict(list)
     for leg in legs:
         key = norm_name(leg.get("name"))
@@ -60,15 +69,6 @@ def validate_parlay(
             if markets & BATTER_NESTED_MARKETS:
                 return False, "nested same-player batter legs"
             return False, "duplicate player leg"
-
-    pitcher_sides = defaultdict(set)
-    for leg in legs:
-        market = leg_market(leg)
-        if market in PITCHER_SIDE_MARKETS:
-            pitcher_sides[norm_name(leg.get("name"))].add(market)
-    for markets in pitcher_sides.values():
-        if {"H_ALLOWED", "ER_ALLOWED"} <= markets:
-            return False, "duplicate pitcher-side traffic legs"
     return True, "ok"
 
 
