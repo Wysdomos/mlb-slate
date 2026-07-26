@@ -69,6 +69,10 @@ def grade_pick(p, box):
     return win, got
 
 
+def pick_source(p):
+    return p.get('pick_source', 'workbook') or 'workbook'
+
+
 def fetch_box(date_iso):
     box = {}
     if BDL_KEY:
@@ -116,6 +120,7 @@ def main():
             store['graded'].append({
                 'date': date_iso,
                 'market': p.get('market'),
+                'pick_source': pick_source(p),
                 'name': p.get('name') or p.get('game') or p.get('pick', ''),
                 'line': p.get('line', ''),
                 'win_at': p.get('win_at'),

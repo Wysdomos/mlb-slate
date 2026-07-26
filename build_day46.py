@@ -14,6 +14,7 @@ def _sf(v, default=0.0):
 
 DATA = json.load(open('/home/user/workspace/day46_data.json'))
 PROJECTED_MODE = DATA.get('_mode') == 'projected'
+PICK_SOURCE = 'projected' if PROJECTED_MODE else 'workbook'
 
 # ---- Build lookup indexes ----
 SP_PROJ = DATA['SP_Projections']  # new 15-pitcher sheet (Team, Pitcher, Opp, Inn, BF, R, H, HR, K, BB)
@@ -844,6 +845,7 @@ def build_k_board():
         win_at = 5 if '5' in best_line else (4 if '3.5' in best_line else 3)
         SLATE_PICKS.append({
             'market': 'K', 'pick': f'{name} {best_line}', 'name': name,
+            'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': best_line, 'win_at': win_at,
             'consensus': votes, 'consensus_max': consensus_max,
             'ss_k': round(kf, 2), 'bpp_k': round(bpp_val, 2) if bp else None,
@@ -1118,6 +1120,7 @@ def build_hr_board():
         score = c['score']
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
+            'pick_source': PICK_SOURCE,
             'pitcher': c['pit_name'], 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': c['votes'], 'consensus_max': 7,
             'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
@@ -1243,12 +1246,14 @@ def build_oo5_board():
         else: tier = ''
         SLATE_PICKS.append({
             'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
+            'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 6,
             'h1_pct': h1, 'sim_hit': sim_hit,
             'bpp_api_hits': round(bpp_proj_hits, 2) if bpp_proj_hits else None,
         })
         SLATE_PICKS.append({
             'market': 'HRR', 'pick': f'{nm} Ov 0.5 HRR', 'name': nm, 'team': team,
+            'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
             'consensus': votes, 'consensus_max': 6,
             'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
@@ -1330,6 +1335,7 @@ def build_totals_board():
         else:              lean_dir, conf, lean = 'Neutral', max(over, under), '<span class="badge b-neutral">Neutral</span>'
         SLATE_PICKS.append({
             'market': 'TOTAL', 'pick': f'{away}@{home} {lean_dir} 8.5', 'game': f'{away}@{home}',
+            'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'ref_line': 8.5, 'consensus': conf, 'consensus_max': 4,
             'proj_total': round(total, 2), 'p_over_8_5': round(p_over, 3), 'f5': round(f5, 2),
         })
@@ -1385,6 +1391,7 @@ def build_nrfi_board():
         yrfi_disp = f'{yrfi*100:.0f}%' if yrfi else '—'
         SLATE_PICKS.append({
             'market': 'NRFI', 'pick': f'{away}@{home} {lean_dir}', 'game': f'{away}@{home}',
+            'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'consensus': conf, 'consensus_max': 4,
             'yrfi_prob': round(yrfi, 3) if yrfi else None,
         })
@@ -1435,6 +1442,7 @@ def build_sb_board():
         sb_pct = f'{sbp*100:.1f}%'
         SLATE_PICKS.append({
             'market': 'SB', 'pick': f'{r["FullName"]} Ov 0.5 SB', 'name': r['FullName'],
+            'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': votes, 'consensus_max': 3,
             'sb_prob': round(sbp, 3), 'sb_attempts': round(att, 2),
@@ -1491,6 +1499,7 @@ def build_doubles_board():
         tier = 'row-tier0' if votes >= 3 else ('row-tier1' if votes == 2 else '')
         SLATE_PICKS.append({
             'market': '2B', 'pick': f'{r["FullName"]} Ov 0.5 2B', 'name': r['FullName'],
+            'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': votes, 'consensus_max': 3,
             'proj_2b': round(dbls, 2), 'park_2b3b': xbh, 'opp_sp_h': round(opp_h, 2) if opp_sp else None,

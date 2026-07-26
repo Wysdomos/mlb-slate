@@ -77,6 +77,15 @@ def projected_marker():
     data["INDEX"] = [{"Sheet": key, "Rows": 0, "Cols": 0} for key in keys]
     return data
 
+def allow_projected_mode():
+    return os.environ.get("ALLOW_PROJECTED_MODE") == "1"
+
+def log_stale_as_projected(wb_date, today):
+    print(
+        f"stale workbook dated {wb_date} ignored; entering Projected Mode for {today}",
+        file=sys.stderr,
+    )
+
 def sheet_to_rows(ws):
     headers = None
     rows = []
@@ -164,6 +173,10 @@ if __name__ == "__main__":
             sys.exit(0)
         wb_date, today = _wb_date(chosen), _today_et()
         if wb_date != today:
+            if allow_projected_mode():
+                log_stale_as_projected(wb_date, today)
+                print(PROJECTED_SENTINEL)
+                sys.exit(0)
             print(f"ERROR: newest available slate file is dated {wb_date} "
                   f"but today (ET) is {today} -- no fresh upload found. "
                   f"Refusing to build a stale slate.", file=sys.stderr)
@@ -182,11 +195,16 @@ if __name__ == "__main__":
     else:
         wb_date, today = _wb_date(xlsx_path), _today_et()
         if wb_date != today:
-            print(f"ERROR: slate file is dated {wb_date} "
-                  f"but today (ET) is {today} -- refusing stale workbook.",
-                  file=sys.stderr)
-            sys.exit(1)
-        data = extract(xlsx_path)
+            if allow_projected_mode():
+                data = projected_marker()
+                log_stale_as_projected(wb_date, today)
+            else:
+                print(f"ERROR: slate file is dated {wb_date} "
+                      f"but today (ET) is {today} -- refusing stale workbook.",
+                      file=sys.stderr)
+                sys.exit(1)
+        else:
+            data = extract(xlsx_path)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2, default=str)
     total_rows = sum(len(v) for v in data.values() if isinstance(v, list))

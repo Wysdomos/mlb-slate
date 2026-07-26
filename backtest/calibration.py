@@ -12,6 +12,7 @@ Usage (from repo root):  python3 backtest/calibration.py
 import json
 import math
 import os
+import argparse
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -43,8 +44,16 @@ def line(w, l, label):
             f'{lo:.0%}–{hi:.0%}{flag} |')
 
 
-def build(store):
-    rows = [g for g in store['graded'] if g['win'] is not None]
+def pick_source(row):
+    return row.get('pick_source', 'workbook') or 'workbook'
+
+
+def build(store, source_filter=None):
+    rows = [
+        g for g in store['graded']
+        if g['win'] is not None
+        and (source_filter is None or pick_source(g) == source_filter)
+    ]
     dates = store.get('dates', {})
     md = []
     md.append('# The Daily Slate — Calibration Report')
@@ -105,13 +114,17 @@ def build(store):
     return '\n'.join(md) + '\n'
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--pick-source', choices=('workbook', 'projected'))
+    args = parser.parse_args(argv)
+
     if not os.path.exists(SRC):
         raise SystemExit('backtest/graded_picks.json missing -- run '
                          'backtest/backfill_grades.py first (needs network).')
     with open(SRC, encoding='utf-8') as f:
         store = json.load(f)
-    report = build(store)
+    report = build(store, source_filter=args.pick_source)
     with open(OUT, 'w', encoding='utf-8') as f:
         f.write(report)
     print(f'wrote {OUT} ({len(report)} bytes)')
