@@ -2344,33 +2344,68 @@ def build_conviction():
 
 
 # ---- BUILD: SKIP LIST ----
-def build_skip():
-    """Skip list in Day 44 flag-list format. Mix SKIP (b-bad) and DOWNGRADE (b-warn). Day 46 slate-specific."""
-    items = []
-    # SKIPs: pitchers with no projection / K < 3.5
-    skip_pitchers = sorted([r for r in SP_PROJ if (_sf(r.get('K'))) < 3.5], key=lambda r: (_sf(r.get('K'))))
-    for p in skip_pitchers:
-        items.append((f'<strong>{p["Pitcher"]} ({tn(p["Team"])}) ALL K props</strong> — SS K only {p["K"]}. Skip strikeout alts entirely — below the O 2.5 alt floor.', 'b-bad', 'SKIP — LOW K PROJ'))
-    # Bad-park HR skip: HR% ≤ -17%
-    skip_parks_hr = [p for p in PARKS if parse_pct(p.get('HR %')) <= -17]
-    for p in skip_parks_hr:
-        items.append((f'<strong>All {p.get("Venue", p.get("Game",""))} HR plays ({p.get("Game","")})</strong> — {p.get("Venue","Park")} <strong>{p.get("HR %","")} HR (slate suppressor)</strong>. Skip all HR props — pivot to 1+H / RBI / Runs.', 'b-bad', 'SKIP HR'))
-    # Downgrade HR parks: -10 < HR% <= -15
-    dn_parks = [p for p in PARKS if -17 < parse_pct(p.get('HR %')) <= -10]
-    for p in dn_parks:
-        items.append((f'<strong>{p.get("Game","")} HR plays</strong> — {p.get("Venue","Park")} <strong>{p.get("HR %","")} HR</strong>. Don’t pay HR park premium. Use 1+H / RBI / Runs props instead.', 'b-warn', 'DOWNGRADE HR'))
-    # Add a couple of editorial calls
-    items.append(('<strong>Mikolas K alts (vs CIN at GABP)</strong> — V76 slate-worst + GABP +8% HR. SS only 3.7 K. CIN bats target him — don’t play his Ks.', 'b-bad', 'SKIP MIKOLAS Ks'))
-    items.append(('<strong>Singer K alts (vs WSH)</strong> — V70 with Wood/Abrams in opp lineup. SS only 4.1 K. Fade Ks; WSH bats target him.', 'b-bad', 'SKIP SINGER Ks'))
-    items.append(('<strong>All Citi Field run props (DET@NYM)</strong> — Citi <strong>-15% Runs (slate-worst)</strong>. Skip Runs / Totals OVERs here. NRFI lean.', 'b-warn', 'DOWNGRADE RUNS AT CITI'))
+def skip_empty():
+    return empty_parlay_section(
+        'skip',
+        'Daily Skip List',
+        'No skip or downgrade flags cleared',
+        'No starter, park, or matchup crossed the live downgrade thresholds for this slate.',
+    )
 
-    li_html = ''.join(f'    <li>{body} <span class="badge {badge_cls}">{badge_text}</span></li>\n' for body, badge_cls, badge_text in items)
+def build_skip():
+    items = []
+    for sp in sorted(SP_PROJ, key=lambda row: _sf(row.get('K'))):
+        kf = _sf(sp.get('K'))
+        if kf < 4.0:
+            items.append((
+                f'<strong>{html.escape(str(sp.get("Pitcher","")))} K props</strong> — projected '
+                f'<strong>{kf:.2f}</strong> strikeouts, below the K board tier threshold.',
+                'b-bad',
+                'SKIP LOW K',
+            ))
+        elif pitcher_is_short_leash(sp.get('Pitcher')):
+            bp = pitcher_bp(sp.get('Pitcher'))
+            innings = _sf(bp.get('Innings')) if bp else 0
+            items.append((
+                f'<strong>{html.escape(str(sp.get("Pitcher","")))} outs/K ladder</strong> — projected '
+                f'<strong>{innings * 3:.1f}</strong> outs, triggering the short-leash downgrade.',
+                'b-warn',
+                'SHORT LEASH',
+            ))
+    for park in sorted(PARKS, key=lambda row: parse_pct(row.get('HR %'))):
+        hr = parse_pct(park.get('HR %'))
+        if hr > -10:
+            continue
+        badge = 'SKIP HR' if hr <= -17 else 'DOWNGRADE HR'
+        cls = 'b-bad' if hr <= -17 else 'b-warn'
+        items.append((
+            f'<strong>{html.escape(str(park.get("Game","")))} HR props</strong> — '
+            f'{html.escape(str(park.get("Venue","Park")))} is showing '
+            f'<strong>{html.escape(str(park.get("HR %","—")))}</strong> HR context on the park board.',
+            cls,
+            badge,
+        ))
+    top_arms = [
+        sp for sp in SP_PROJ
+        if k_consensus_for_pitcher(sp) >= 5 or _sf(sp.get('K')) >= 5.5
+    ]
+    for sp in sorted(top_arms, key=lambda row: (-k_consensus_for_pitcher(row), -_sf(row.get('K')))):
+        items.append((
+            f'<strong>{html.escape(tn(sp.get("Opp")))} batter props vs {html.escape(str(sp.get("Pitcher","")))}</strong> — '
+            f'the opposing starter shows <strong>{k_consensus_for_pitcher(sp)}/6</strong> K lenses and '
+            f'<strong>{_sf(sp.get("K")):.2f}</strong> projected strikeouts.',
+            'b-warn',
+            'TOP ARM',
+        ))
+    if not items:
+        return skip_empty()
+    li_html = ''.join(f'    <li>{body} <span class="badge {badge_cls}">{html.escape(badge_text)}</span></li>\n' for body, badge_cls, badge_text in items[:14])
     return f'''<!-- SKIP -->
 <section id="skip" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">📋 Daily Skip List</div>
-      <span class="game-tag">Tap to expand · plays to avoid today · park/data-driven downgrades</span>
+      <span class="game-tag">Tap to expand · {min(len(items), 14)} live skip and downgrade flags</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -2460,12 +2495,7 @@ if PROJECTED_MODE:
         'combos-hrr':        build_combos_hrr(),
         'parlays':           build_parlays(),
         'conviction':        build_conviction(),
-        'skip':              projected_unavailable_section(
-            'skip',
-            'Daily Skip List',
-            'Unavailable without workbook',
-            'The skip list includes editorial workbook context and is not reconstructed on missed-upload days.',
-        ),
+        'skip':              build_skip(),
         'sp-vuln-board':     projected_unavailable_section(
             'sp-vuln-board',
             "Pitcher's HR Risk Board",
