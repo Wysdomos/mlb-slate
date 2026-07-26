@@ -24,6 +24,7 @@ import time
 import requests
 from firebase_functions import https_fn, options
 from google import genai
+from log_retry import fetch_github_log_archive
 
 # ── ENVIRONMENT CONFIG ───────────────────────────────────────────
 # These must all be set as Firebase environment variables.
@@ -185,18 +186,14 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
     log_url = (
         f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/logs"
     )
-    log_resp = None
-    for attempt in range(1, 4):
-        log_resp = requests.get(
-            log_url, headers=headers, allow_redirects=True, timeout=30
-        )
-        if log_resp.status_code != 404:
-            break
-        # 404 here almost always means the run is still in progress and
-        # GitHub has not assembled the log archive yet. Wait it out.
-        print(f"Logs not ready for run {run_id} (attempt {attempt}/3); waiting.")
-        if attempt < 3:
-            time.sleep(10)
+    log_resp = fetch_github_log_archive(
+        log_url,
+        headers,
+        get=requests.get,
+        timeout_seconds=180,
+        initial_delay=8,
+        max_delay=45,
+    )
 
     if log_resp.status_code == 404:
         # Benign: run logs never became available in time. Not a

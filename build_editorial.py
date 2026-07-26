@@ -28,15 +28,15 @@ DATA     = json.load(open(DATA_FILE, encoding='utf-8'))
 SECTIONS = json.load(open(SECTIONS_FILE, encoding='utf-8'))
 
 # ---- Data lookups ----
-HR_LB    = DATA['HR_Leaderboard']
+HR_LB    = DATA.get('HR_Leaderboard', [])
 HR_BY_NAME = { (r.get('Batter') or '').strip().lower(): r for r in HR_LB if r.get('Batter') }
-HIT      = DATA['Hit_Probabilities']
-SP_PROJ  = DATA['SP_Projections']
-SS       = DATA['Sweet_Spot_Slate']
-BP_BAT   = DATA['BP_Batters']
-BP_PIT   = DATA['BP_Pitchers']
-PARKS    = DATA['Park_Factors']
-GAMES    = DATA['BP_Games']
+HIT      = DATA.get('Hit_Probabilities', [])
+SP_PROJ  = DATA.get('SP_Projections', [])
+SS       = DATA.get('Sweet_Spot_Slate', [])
+BP_BAT   = DATA.get('BP_Batters', [])
+BP_PIT   = DATA.get('BP_Pitchers', [])
+PARKS    = DATA.get('Park_Factors', [])
+GAMES    = DATA.get('BP_Games', [])
 
 TEAM_FIX = {'WSH':'WAS','WAS ':'WAS','WSH ':'WAS','AZ':'ARI','AZ ':'ARI',
             'CWS':'CHW','CHW ':'CHW','TB ':'TB','SF ':'SF','SD ':'SD','KC ':'KC'}
@@ -871,9 +871,9 @@ def build_skip():
                 'b-bad', 'SKIP K -- VULN + LOW K'))
 
     # Worst run environment: fade totals OVER
-    min_run_park = min(PARKS, key=lambda p: parse_pct(p.get('Runs %')))
-    min_runs = parse_pct(min_run_park.get('Runs %'))
-    if min_runs <= -10:
+    min_run_park = min(PARKS, key=lambda p: parse_pct(p.get('Runs %')), default=None)
+    min_runs = parse_pct(min_run_park.get('Runs %')) if min_run_park else 0
+    if min_run_park and min_runs <= -10:
         items.append((
             f"<strong>{min_run_park.get('Venue','')} run props ({min_run_park.get('Game','')})</strong> -- "
             f"<strong>{min_run_park.get('Runs %','')} Runs (slate-worst run environment)</strong>. "
@@ -884,7 +884,7 @@ def build_skip():
     for p in PARKS:
         hr  = parse_pct(p.get('HR %'))
         runs= parse_pct(p.get('Runs %'))
-        if hr <= -10 and runs <= -10 and p.get('Game') != min_run_park.get('Game'):
+        if hr <= -10 and runs <= -10 and (not min_run_park or p.get('Game') != min_run_park.get('Game')):
             items.append((
                 f"<strong>{p.get('Venue','')} double-suppressor ({p.get('Game','')})</strong> -- "
                 f"HR {p.get('HR %','')} AND Runs {p.get('Runs %','')}. "
