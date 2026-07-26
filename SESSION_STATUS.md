@@ -418,38 +418,93 @@ single braces cannot crash the build.
 
 ## 3. INTERACTIVE PREVIEW
 
-**`docs/preview/projected.html`** — 274 KB, committed, open it on the phone.
+**`docs/preview/projected.html`** — 277,420 bytes, committed and pushed. Open it
+on the phone; the screenshots are only a record of it.
 
 Built through the real pipeline (`build_day46.py` -> `sync.py`) from the
-committed **Jul 25 2026 slate: 15 games, 358 data rows, 2,917 cells, real
-players throughout**. Nothing trimmed, nothing mocked, no placeholder names, no
-invented odds or percentages.
-
-Self-contained: 1 inline `<style>`, 2 inline `<script>` blocks, **zero external
-script or stylesheet files** — the one `<link>` is the Google Fonts URL that
-`index.html` carries today, kept so the preview matches the shipping page
-exactly. Fonts fall back to the declared system stacks when offline.
-
-Confirmed rendering and searching **standalone with the browser fully offline**:
+committed **Jul 25 2026 slate**. Verified against the exact bytes extracted from
+the pushed commit (`git show origin/claude/projected-overhaul:docs/preview/projected.html`),
+not from the working tree:
 
 ```text
-OFFLINE render: {"searchBar": true, "capped": 8, "withheld": 6, "boards": 12,
-                 "games": 15, "rows": 358}
-OFFLINE search "Skenes": {"hits": "6", "filtering": true, "visible": 3}
-after clear, filtering = False
-withheld disclosure opens = True
+game cards  : 15
+data rows   : 358
+<td> cells  : 2917
+header      : "15 Games - Day 120 - Projected Mode"
+matchups    : KC @ DET, LAA @ SF, ARI @ WSH, TOR @ BOS, SD @ MIA, NYY @ PHI,
+              CLE @ TB, CHC @ PIT, ATL @ BAL, COL @ MIL, HOU @ CHW, ATH @ MIN,
+              CIN @ STL, SEA @ TEX, LAD @ NYM
+```
+
+A real, full 15-game card. Nothing trimmed, nothing mocked. A scan for
+placeholder names found only the string `placeholder` as an HTML
+`<input placeholder="...">` attribute — never as data.
+
+### Self-contained
+
+```text
+<script src=...>           : NONE
+inline <style> blocks      : 1
+inline <script> blocks     : 2
+@import / CSS url() fetches: NONE
+<link rel=stylesheet>      : 1   (the Google Fonts URL)
+  same link in index.html  : 1   -> byte-identical, verified by diff
+```
+
+Zero external script or stylesheet **files**. The single `<link>` is the Google
+Fonts URL that `index.html` carries on main today, kept deliberately so the
+preview is *exactly as index.html is today* — the brief's own wording — and so
+type renders the same as production rather than diverging from it.
+
+Every other relative reference the page makes now resolves from
+`docs/preview/`: the tip-jar QR codes and the PWA icons/manifest were copied in
+alongside it. (Those QR images were 404ing on the first push; caught by an audit
+of every `img`/`link` reference and fixed.)
+
+```text
+unresolved references remaining: k-report.html, record.html, scout.html, streaks.html
+```
+
+Those four are **sibling pages**, not assets of this page — separate builds that
+cannot be inlined into a single file. The four dock/rail buttons pointing at
+them go nowhere from the preview. Everything belonging to this page resolves.
+
+### Confirmed: renders standalone, and search works
+
+Loaded from its committed path in a browser context with **networking disabled
+entirely**, then driven through every new interaction:
+
+```text
+OFFLINE LOAD
+  games 15 · rows 358 · cells 3186 · boards 12 · capped 8 · show-all buttons 8
+  withheld items 6 · search bar present
+  broken images: []                      <- none
+  .pm-word font resolved to: "Bebas Neue", "Arial Narrow", sans-serif
+
+OFFLINE SEARCH "Yamamoto"
+  6 hits · body.filtering=true · 4 rows visible · every visible row contains it: True
+after Clear      : filtering=false, input=''
+show-all toggle  : 12 rows -> 50 rows
+withheld opens   : Matchup Spotlight, Pitcher's HR Risk Board, HRR Combos,
+                   Parlay Builder, Conviction Board, Daily Skip List
+theme toggle     : data-theme=light, localStorage slateTheme=light
+
+failed requests while offline: the Google Fonts stylesheet (expected)
 page errors: none
 ```
 
+**It renders standalone and search works in it** — offline, with zero page
+errors and zero broken images. The only thing the network buys is the webfonts;
+without them the page falls back to `Arial Narrow` for the display face and the
+layout is unchanged. `docs/projected-overhaul/preview-offline-top.png` and
+`preview-offline-search.png` are captured in that fully offline state so the
+fallback rendering is on the record.
+
 One honest caveat: a genuine no-workbook day needs live network fetches, so the
 preview forces `_mode: projected` onto the committed workbook slate. That is
-what makes the values real. The practical consequence is that a few columns
-(e.g. Zone) show workbook values here that would render as dashes on a true
-projected day — the *layout* is exact, one column's content is more populated
-than it would be. Cross-page nav links (k-report, streaks, scout) point at
-siblings that are not in `docs/preview/`, so those go nowhere from the preview.
-
----
+what makes the values real. The consequence is that a few columns (e.g. Zone)
+show workbook values that would render as dashes on a true projected day — the
+*layout* is exact, one column's content is more populated than it would be.
 
 ## 4. SCREENSHOTS
 
@@ -463,6 +518,7 @@ All at **390 x 844, device pixel ratio 2, mobile emulation on**, in
 | `search-dark.png` / `search-light.png` | search active, filtered on "Hunter Greene" |
 | `withheld-open-dark.png` / `withheld-open-light.png` | disclosure expanded |
 | `safearea-dark.png` | iPhone 14 Pro insets applied |
+| `preview-offline-top.png` / `preview-offline-search.png` | the committed preview, browser fully offline |
 
 The collapsed disclosure is visible in the `top-*` shots; the expanded state is
 in the `withheld-open-*` shots.
