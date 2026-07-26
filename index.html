@@ -986,6 +986,8 @@ body.sheet-open #scroll-track{display:none;}
 
 
 
+
+
 /* PROJECTED MODE CSS START */
 .projected-mode {
   --bg: #0d1117;
@@ -1080,13 +1082,209 @@ body.sheet-open #scroll-track{display:none;}
   margin: 6px 0 0;
   color: var(--text-soft);
 }
+/* ---------------------------------------------------------------------------
+   HEADER FIX (Projected Mode only)
+
+   (a) Safe-area collision. The banner is the first element on the page, so it
+       -- not the app bar -- is what sits under the iOS status bar. It had no
+       top inset, so "PROJECTED MODE" rendered over the clock and battery.
+       Measured at 390px with a 59px inset: banner text began at y=13.
+
+   (b) Dead gap. The app bar carries padding-top: env(safe-area-inset-top) so
+       its wordmark clears the notch once the bar sticks to the top. At scroll
+       0 the bar is NOT stuck -- the banner is above it -- so that reserve
+       renders as a blank band. Measured gap from banner bottom to wordmark: 69px.
+
+       Fix without touching the app bar or adding JS: let the banner overlap
+       the bar's reserve. The reserve is empty by definition, so nothing is
+       occluded, the gap closes to zero, and the reserve still does its job the
+       instant the bar pins to the top and the banner has scrolled away.
+   --------------------------------------------------------------------------- */
+.projected-mode-banner {
+  position: relative;
+  z-index: 61;                 /* paints over the app bar's empty inset reserve */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 13px);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 18px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 18px);
+  margin-bottom: calc(-1 * env(safe-area-inset-top, 0px));
+}
+
+/* ---------------------------------------------------------------------------
+   WITHHELD BOARDS DISCLOSURE
+   Replaces the per-section "unavailable" placeholder cards with one aggregate
+   row. The count is always on screen and the names are one tap away -- between
+   this and the banner, a projected page can never pass as a graded slate.
+   Styled with main's projected tokens: cyan on slate, 8px radii.
+   --------------------------------------------------------------------------- */
+.pm-withheld {
+  margin-top: 11px;
+  border: 1px solid rgba(125,211,252,0.3);
+  border-radius: 8px;
+  background: rgba(8,145,178,0.18);
+  overflow: hidden;
+}
+.pm-withheld-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  background: none;
+  border: 0;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+.pm-withheld-btn .pm-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: #67e8f9;
+  color: #06283a;
+  font-size: 13px;
+  font-weight: 900;
+}
+.pm-withheld-btn .pm-caret {
+  margin-left: auto;
+  font-size: 11px;
+  color: #cffafe;
+  transition: transform .25s;
+}
+.pm-withheld-btn[aria-expanded="true"] .pm-caret { transform: rotate(180deg); }
+.pm-withheld-body { display: none; padding: 0 12px 11px; }
+.pm-withheld-body.open { display: block; }
+.pm-withheld-body ul { margin: 0; padding: 0; list-style: none; }
+.pm-withheld-body li {
+  position: relative;
+  padding: 7px 0 7px 14px;
+  border-top: 1px solid rgba(125,211,252,0.22);
+  color: #f1f5f9;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.pm-withheld-body li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 14px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #67e8f9;
+}
+.pm-withheld-note {
+  margin: 9px 0 0;
+  color: #cffafe;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm-withheld-btn .pm-caret { transition: none; }
+}
+/* ===========================================================================
+   LIGHT THEME FOR PROJECTED MODE
+
+   Root cause this fixes: the block above defines ONE fixed palette with no
+   theme selectors at all. The site runs on data-theme="light"/"dark" driven by
+   slateTheme in localStorage, and because `.projected-mode` (0,1,0) is
+   injected after `[data-theme="light"]` (0,1,0), it won the cascade in BOTH
+   themes -- so toggling to light flipped the site's text to near-black while
+   these overrides held the surfaces dark. Table cells measured 1.0:1.
+
+   Scoped as `[data-theme="light"] .projected-mode` (0,2,0) so it beats the
+   dark block regardless of source order, and driven by the same attribute the
+   in-app toggle writes. Deliberately NOT prefers-color-scheme: that follows
+   the OS rather than the user's toggle and would desync all over again.
+
+   These values are designed, not auto-inverted. The ground is a cold blue-white
+   (blue channel runs 10-32 above red) rather than the muddy grey an inversion
+   produces, so the icy character survives into light. Cyan deepens to #0e7490
+   and amber to #8a5406 -- both clear WCAG AA on white and on the page ground,
+   which is what daylight on a phone actually needs.
+   =========================================================================== */
+[data-theme="light"] .projected-mode {
+  --bg: #eaf2f7;
+  --bg-grad-1: #d5ecf5;
+  --bg-grad-2: #e4edf6;
+  --bg-grad-3: #f7f1e4;
+  --surface: #ffffff;
+  --surface-2: #f1f7fb;
+  --glass: rgba(14,116,144,0.055);
+  --glass-strong: rgba(14,116,144,0.11);
+  --glass-elev: rgba(255,255,255,0.66);
+  --glass-border: rgba(12,74,110,0.16);
+  --glass-border-strong: rgba(161,98,7,0.34);
+  --border: rgba(12,74,110,0.18);
+  --accent: #0e7490;
+  --accent-soft: rgba(14,116,144,0.10);
+  --gold: #a16207;
+  --tier0: #0e7490;
+  --tier0-bg: rgba(14,116,144,0.10);
+  --tier0-border: rgba(14,116,144,0.42);
+  --tier0-solid: #dcf0f7;
+  --tier1: #8a5406;
+  --tier1-bg: rgba(161,98,7,0.11);
+  --tier1-border: rgba(161,98,7,0.42);
+  --tier1-solid: #f6edd8;
+  --pick-solid: #dcf0f7;
+  --header-bg: rgba(234,242,247,0.88);
+  --sheet-bg: #f7fbfd;
+  /* one step darker than the stock light theme's #5d6e79: dim text still has
+     to survive being read in direct sun */
+  --text-dim: #4e5f6b;
+}
+
+/* The rules below hard-code colours rather than reading a variable, so each
+   one needs its own light value or it stays dark on a light page. */
+[data-theme="light"] .projected-mode .app-bar {
+  border-bottom: 1px solid rgba(12,74,110,0.22);
+  background: rgba(234,242,247,0.9);
+}
+[data-theme="light"] .projected-mode .hero {
+  border-bottom: 1px solid rgba(12,74,110,0.16);
+  background: linear-gradient(180deg, rgba(14,116,144,0.07), rgba(161,98,7,0.035));
+}
+[data-theme="light"] .projected-mode .game-header {
+  border-color: rgba(12,74,110,0.16);
+  background: linear-gradient(90deg, rgba(14,116,144,0.08), rgba(161,98,7,0.035));
+}
+[data-theme="light"] .projected-mode .collapsible,
+[data-theme="light"] .projected-mode .game {
+  border-color: rgba(12,74,110,0.16);
+  box-shadow: 0 10px 26px -20px rgba(12,74,110,0.5);
+}
+[data-theme="light"] .projected-section-badge {
+  border-color: rgba(12,74,110,0.22);
+  background: rgba(14,116,144,0.08);
+}
+[data-theme="light"] .projected-section-badge span { color: #0b5f78; }
+[data-theme="light"] .unavailable-card {
+  border-color: rgba(161,98,7,0.5);
+  background: rgba(161,98,7,0.09);
+}
+[data-theme="light"] .unavailable-card strong { color: #8a5406; }
+
+/* The banner and its disclosure keep the same deep teal block in BOTH themes.
+   That is deliberate: it inverts against the light page exactly as it stands
+   out on the dark one, so the single loudest "this is Projected Mode" mark
+   never changes character when the theme is toggled. */
 /* PROJECTED MODE CSS END */
 
 </style>
 </head>
-<body class="projected-mode">
+<body class="projected-mode"><!-- PROJECTED CHROME START --><div class="projected-mode-banner">⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small><div class="pm-withheld"><button type="button" class="pm-withheld-btn" id="pmWithheldBtn" aria-expanded="false" aria-controls="pmWithheldBody"><span class="pm-count">4</span><span>boards withheld today</span><span class="pm-caret" aria-hidden="true">&#9662;</span></button><div class="pm-withheld-body" id="pmWithheldBody"><ul><li>Matchup Spotlight</li><li>Pitcher's HR Risk Board</li><li>Conviction Board</li><li>Daily Skip List</li></ul><p class="pm-withheld-note">These need the workbook. They are held back rather than estimated.</p></div></div></div><!-- PROJECTED CHROME END -->
 
-<div class="projected-mode-banner">⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small></div>
+
 <header class="app-bar">
   <button class="brand" id="brandBtn" aria-label="The Daily Slate — back to top">
     <span class="ball">⚾</span>
@@ -1106,7 +1304,7 @@ body.sheet-open #scroll-track{display:none;}
   <div class="subtitle-block">15 Games - Day 121 - Projected Mode</div>
   <div class="hero-chips" id="heroChips"></div>
   <div class="hero-tools">
-    <div class="last-updated">Jul 26 - <b>12:12 PM ET</b> - Day 121 - Sunday slate</div>
+    <div class="last-updated">Jul 26 - <b>1:52 PM ET</b> - Day 121 - Sunday slate</div>
     <button class="text-btn" id="expandAll">⊞ Expand all</button>
   </div>
   <div class="install-banner" id="installBanner">
@@ -1406,14 +1604,14 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;3</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
     </tbody>
   </table></div>
-  <div class="tldr-box"><h4>Jul 26 Park Summary</h4><p><strong>15-game Sunday card (Day 121).</strong> HR Boosters: American Family Field +20% (COL @ MIL), Citizens Bank Park +15% (NYY @ PHI), Rate Field +13% (HOU @ CHW), Nationals Park +10% (ARI @ WSH), Comerica Park +8% (KC @ DET), Target Field +7% (ATH @ MIN). HR Suppressed: loanDepot park -13% (SD @ MIA) -- fade HR alts here.</p></div>
+  <div class="tldr-box"><h4>Jul 26 Park Summary</h4><p><strong>15-game Sunday card (Day 121).</strong> HR Boosters: Citizens Bank Park +21% (NYY @ PHI), American Family Field +20% (COL @ MIL), Rate Field +13% (HOU @ CHW), Nationals Park +10% (ARI @ WSH), Comerica Park +8% (KC @ DET), Target Field +7% (ATH @ MIN). HR Suppressed: loanDepot park -13% (SD @ MIA) -- fade HR alts here.</p></div>
   </div></div>
 </section>
 
 <!-- HEADLINES -->
 <section id="headlines" class="headline-grid">
   <div class="projected-section-badge"><span>PROJECTED MODE</span><small>Top cards rebuilt from live sources; workbook-only signals are withheld.</small></div>
-  <div class="headline-card"><div class="hc-title">Projected HR Anchor</div><p><strong>Tyler Locklear</strong> leads the reconstructed HR board with a derived score of <strong>99</strong>. Zone is intentionally blank in Projected Mode.</p></div><div class="headline-card"><div class="hc-title">Projected Hit Anchor</div><p><strong>Luis Arraez</strong> tops the hit board at <strong>77.60%</strong>.</p></div><div class="headline-card"><div class="hc-title">Park Signal</div><p><strong>American Family Field</strong> is the top HR environment (COL @ MIL, +20% HR).</p></div>
+  <div class="headline-card"><div class="hc-title">Projected HR Anchor</div><p><strong>Tyler Locklear</strong> leads the reconstructed HR board with a derived score of <strong>99</strong>. Zone is intentionally blank in Projected Mode.</p></div><div class="headline-card"><div class="hc-title">Projected Hit Anchor</div><p><strong>Luis Arraez</strong> tops the hit board at <strong>79.70%</strong>.</p></div><div class="headline-card"><div class="hc-title">Park Signal</div><p><strong>Citizens Bank Park</strong> is the top HR environment (NYY @ PHI, +21% HR).</p></div>
 </section>
 
 <!-- PARK FACTORS BOARD -->
@@ -1431,8 +1629,8 @@ body.sheet-open #scroll-track{display:none;}
   <div class="table-wrap"><table>
     <thead><tr><th>Game</th><th>Venue</th><th>HR%</th><th>Runs%</th><th>2B/3B%</th><th>Notes</th><th>Lean</th></tr></thead>
     <tbody>
+      <tr class="row-tier1"><td>NYY @ PHI</td><td>Citizens Bank Park</td><td><strong style="color:var(--good)">+21%</strong></td><td>+7%</td><td>-3%</td><td>Slate-Top HR</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
       <tr class="row-tier1"><td>COL @ MIL</td><td>American Family Field</td><td><strong style="color:var(--good)">+20%</strong></td><td>+5%</td><td><strong style="color:var(--bad)">-10%</strong></td><td>Slate-Top HR</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
-      <tr class="row-tier1"><td>NYY @ PHI</td><td>Citizens Bank Park</td><td><strong style="color:var(--good)">+15%</strong></td><td>+7%</td><td>+3%</td><td>Slate-Top HR</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
       <tr class="row-tier1"><td>HOU @ CHW</td><td>Rate Field</td><td><strong style="color:var(--good)">+13%</strong></td><td>+6%</td><td>-8%</td><td>HR-Friendly</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
       <tr class="row-tier1"><td>ARI @ WSH</td><td>Nationals Park</td><td><strong style="color:var(--good)">+10%</strong></td><td>+6%</td><td>+8%</td><td>HR-Friendly</td><td><span class="badge b-tier0">HR-Friendly</span></td></tr>
       <tr class=""><td>KC @ DET</td><td>Comerica Park</td><td><strong style="color:var(--good)">+8%</strong></td><td><strong style="color:var(--good)">+10%</strong></td><td>+4%</td><td>HR-Friendly</td><td><span class="badge b-tier1">HR Lean Up</span></td></tr>
@@ -1632,15 +1830,15 @@ body.sheet-open #scroll-track{display:none;}
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">⚾ Game 11 — CIN @ STL · Andrew Abbott vs Kyle Leahy</div>
-        <span class="game-tag">📊 Total: 9.15 | F5: 5.03 · 🏟 Park: +3% HR · 🕒 2:15 PM ET</span>
+        <span class="game-tag">📊 Total: 8.93 | F5: 4.91 · 🏟 Park: +3% HR · 🕒 2:15 PM ET</span>
       </div>
       <span class="chevron">▾</span>
     </button>
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
-      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Andrew Abbott</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CIN vs STL</td><td>—</td><td>—</td><td>—</td><td><span style="color:var(--bad)">🔻 4.13</span></td><td>15.9</td><td>5.33</td><td>35%</td><td><strong style="color:var(--bad)">0.89</strong></td><td><span style="color:var(--text-dim)">—</span></td><td> · Skip K alts (K&lt;4.5)</td></tr><tr><td><strong>Kyle Leahy</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL vs CIN</td><td>—</td><td>—</td><td>—</td><td>4.66</td><td>16.5</td><td>4.60</td><td>35%</td><td><span style="color:var(--hot)">0.71</span></td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 3.5 (caution)</td></tr></tbody></table></div>
-      <div class="top-bats">🎯 <strong>Top Bats — CIN:</strong> <strong>Elly De La Cruz</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span>: 66.60% 1+H / 15.60% HR / 36.68% RBI · <strong>JJ Bleday</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 63.30% 1+H / 14.80% HR / 40.73% RBI · <strong>Spencer Steer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 66.00% 1+H / 16.00% HR / 41.73% RBI<br>
-      🎯 <strong>Top Bats — STL:</strong> <strong>Jordan Walker</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 67.70% 1+H / 17.90% HR / 45.01% RBI · <strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 72.40% 1+H / 17.30% HR / 48.06% RBI · <strong>Nelson Velazquez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 59.30% 1+H / 17.50% HR / 41.78% RBI<br>
+      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Andrew Abbott</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CIN vs STL</td><td>—</td><td>—</td><td>—</td><td><span style="color:var(--bad)">🔻 4.16</span></td><td>16.1</td><td>5.25</td><td>37%</td><td><span style="color:var(--hot)">0.83</span></td><td><span style="color:var(--text-dim)">—</span></td><td> · Skip K alts (K&lt;4.5)</td></tr><tr><td><strong>Kyle Leahy</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL vs CIN</td><td>—</td><td>—</td><td>—</td><td>4.63</td><td>16.4</td><td>4.55</td><td>34%</td><td>0.69</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 3.5 (caution)</td></tr></tbody></table></div>
+      <div class="top-bats">🎯 <strong>Top Bats — CIN:</strong> <strong>Elly De La Cruz</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span>: 66.40% 1+H / 15.70% HR / 37.37% RBI · <strong>Spencer Steer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 65.60% 1+H / 16.00% HR / 41.73% RBI · <strong>JJ Bleday</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 62.30% 1+H / 15.90% HR / 42.76% RBI<br>
+      🎯 <strong>Top Bats — STL:</strong> <strong>Jordan Walker</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 68.30% 1+H / 17.30% HR / 41.14% RBI · <strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 72.60% 1+H / 17.70% HR / 46.21% RBI · <strong>Nelson Velazquez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 56.70% 1+H / 16.90% HR / 40.19% RBI<br>
       <div class="tb-note">📝 Standard slate game.</div></div>
     </div></div>
   </div>
@@ -1649,15 +1847,15 @@ body.sheet-open #scroll-track{display:none;}
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">⚾ Game 12 — SEA @ TEX · Logan Gilbert vs Jacob deGrom</div>
-        <span class="game-tag">📊 Total: 7.12 | F5: 3.92 · 🏟 Park: -10% HR · 🕒 2:35 PM ET</span>
+        <span class="game-tag">📊 Total: 7.29 | F5: 4.01 · 🏟 Park: -10% HR · 🕒 2:35 PM ET</span>
       </div>
       <span class="chevron">▾</span>
     </button>
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
-      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Logan Gilbert</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA vs TEX</td><td>—</td><td>—</td><td>—</td><td><strong style="color:var(--good)">🟢 5.83</strong></td><td>15.4</td><td><strong style="color:var(--good)">3.86</strong></td><td>36%</td><td>0.68</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 5+</td></tr><tr><td><strong>Jacob deGrom</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX vs SEA</td><td>—</td><td>—</td><td>—</td><td><strong style="color:var(--good)">🟢 7.33</strong></td><td><strong style="color:var(--good)">🟢 18.6</strong></td><td><strong style="color:var(--good)">4.43</strong></td><td>61%</td><td><span style="color:var(--hot)">0.73</span></td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 5+</td></tr></tbody></table></div>
-      <div class="top-bats">🎯 <strong>Top Bats — SEA:</strong> <strong>Luke Raley</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 51.10% 1+H / 14.00% HR / 31.48% RBI · <strong>Dominic Canzone</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 58.00% 1+H / 10.60% HR / 31.75% RBI · <strong>Julio Rodriguez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 63.50% 1+H / 14.10% HR / 33.30% RBI<br>
-      🎯 <strong>Top Bats — TEX:</strong> <strong>Brandon Nimmo</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 58.80% 1+H / 13.40% HR / 36.05% RBI · <strong>Joc Pederson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 58.80% 1+H / 15.50% HR / 31.20% RBI · <strong>Wyatt Langford</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 63.60% 1+H / 16.50% HR / 35.73% RBI<br>
+      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Logan Gilbert</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA vs TEX</td><td>—</td><td>—</td><td>—</td><td><strong style="color:var(--good)">🟢 5.77</strong></td><td>15.2</td><td><strong style="color:var(--good)">3.85</strong></td><td>34%</td><td>0.69</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 5+</td></tr><tr><td><strong>Jacob deGrom</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX vs SEA</td><td>—</td><td>—</td><td>—</td><td><strong style="color:var(--good)">🟢 7.21</strong></td><td><strong style="color:var(--good)">🟢 18.5</strong></td><td><strong style="color:var(--good)">4.36</strong></td><td>60%</td><td><span style="color:var(--hot)">0.73</span></td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 5+</td></tr></tbody></table></div>
+      <div class="top-bats">🎯 <strong>Top Bats — SEA:</strong> <strong>Luke Raley</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 49.40% 1+H / 14.40% HR / 31.55% RBI · <strong>Dominic Canzone</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 59.10% 1+H / 12.10% HR / 32.09% RBI · <strong>Julio Rodriguez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 63.70% 1+H / 13.90% HR / 33.24% RBI<br>
+      🎯 <strong>Top Bats — TEX:</strong> <strong>Brandon Nimmo</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 61.60% 1+H / 14.50% HR / 37.75% RBI · <strong>Joc Pederson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 60.30% 1+H / 15.40% HR / 32.16% RBI · <strong>Wyatt Langford</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 62.70% 1+H / 16.80% HR / 35.40% RBI<br>
       <div class="tb-note">📝 Standard slate game.</div></div>
     </div></div>
   </div>
@@ -1666,15 +1864,15 @@ body.sheet-open #scroll-track{display:none;}
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">⚾ Game 13 — LAA @ SF · Jose Soriano vs Carson Whisenhunt</div>
-        <span class="game-tag">📊 Total: 9.49 | F5: 5.22 · 🏟 Park: -7% HR · 🕒 4:05 PM ET</span>
+        <span class="game-tag">📊 Total: 9.62 | F5: 5.29 · 🏟 Park: -7% HR · 🕒 4:05 PM ET</span>
       </div>
       <span class="chevron">▾</span>
     </button>
     <div class="game-body"><div class="game-body-inner">
       <h3>Pitchers</h3>
-      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Jose Soriano</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA vs SF</td><td>—</td><td>—</td><td>—</td><td>4.5</td><td>15.7</td><td><span style="color:var(--hot)">🔺 5.60</span></td><td>32%</td><td>0.49</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 3.5 (caution)</td></tr><tr><td><strong>Carson Whisenhunt</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>SF vs LAA</td><td>—</td><td>—</td><td>—</td><td><span style="color:var(--bad)">🔻 4.38</span></td><td><span style="color:var(--bad)">🔻 14.0</span></td><td>4.58</td><td>17%</td><td>0.69</td><td><span style="color:var(--text-dim)">—</span></td><td> · Skip K alts (K&lt;4.5)</td></tr></tbody></table></div>
-      <div class="top-bats">🎯 <strong>Top Bats — LAA:</strong> <strong>Mike Trout</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 67.20% 1+H / 18.30% HR / 42.65% RBI · <strong>Jo Adell</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 70.30% 1+H / 12.50% HR / 42.94% RBI · <strong>Vaughn Grissom</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 70.20% 1+H / 10.60% HR / 41.26% RBI<br>
-      🎯 <strong>Top Bats — SF:</strong> <strong>Rafael Devers</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 63.60% 1+H / 14.90% HR / 45.77% RBI · <strong>Luis Arraez</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 77.60% 1+H / 5.00% HR / 34.10% RBI · <strong>Casey Schmitt</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 70.10% 1+H / 13.80% HR / 43.95% RBI<br>
+      <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Jose Soriano</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA vs SF</td><td>—</td><td>—</td><td>—</td><td>4.95</td><td>15.5</td><td>5.33</td><td>31%</td><td>0.51</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 3.5 (caution)</td></tr><tr><td><strong>Carson Whisenhunt</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>SF vs LAA</td><td>—</td><td>—</td><td>—</td><td><span style="color:var(--bad)">🔻 4.06</span></td><td><span style="color:var(--bad)">🔻 13.9</span></td><td>4.73</td><td>17%</td><td>0.69</td><td><span style="color:var(--text-dim)">—</span></td><td> · Skip K alts (K&lt;4.5)</td></tr></tbody></table></div>
+      <div class="top-bats">🎯 <strong>Top Bats — LAA:</strong> <strong>Mike Trout</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 65.60% 1+H / 18.00% HR / 41.96% RBI · <strong>Vaughn Grissom</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 70.70% 1+H / 11.20% HR / 41.20% RBI · <strong>Nolan Schanuel</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 70.80% 1+H / 6.80% HR / 37.37% RBI<br>
+      🎯 <strong>Top Bats — SF:</strong> <strong>Rafael Devers</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 65.30% 1+H / 15.30% HR / 44.90% RBI · <strong>Luis Arraez</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 79.70% 1+H / 5.60% HR / 37.25% RBI · <strong>Heliot Ramos</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 69.90% 1+H / 13.00% HR / 39.71% RBI<br>
       <div class="tb-note">📝 Standard slate game.</div></div>
     </div></div>
   </div>
@@ -1683,7 +1881,7 @@ body.sheet-open #scroll-track{display:none;}
     <button class="game-header" aria-expanded="false">
       <div class="game-header-text">
         <div class="game-title">⚾ Game 14 — NYY @ PHI · Will Warren vs Cristopher Sanchez</div>
-        <span class="game-tag">📊 Total: 9.65 | F5: 5.31 · 🏟 Park: +15% HR · 🕒 7:20 PM ET</span>
+        <span class="game-tag">📊 Total: 9.65 | F5: 5.31 · 🏟 Park: +21% HR · 🕒 7:20 PM ET</span>
       </div>
       <span class="chevron">▾</span>
     </button>
@@ -1692,7 +1890,7 @@ body.sheet-open #scroll-track{display:none;}
       <div class="table-wrap"><table><thead><tr><th>Pitcher</th><th>T</th><th>Match</th><th>ERA</th><th>WHIP</th><th>K9</th><th>Proj K</th><th>Outs</th><th>Hits</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Note</th></tr></thead><tbody><tr><td><strong>Will Warren</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYY vs PHI</td><td>—</td><td>—</td><td>—</td><td><span style="color:var(--bad)">🔻 3.61</span></td><td><span style="color:var(--bad)">🔻 12.4</span></td><td>4.79</td><td>11%</td><td><span style="color:var(--hot)">0.84</span></td><td><span style="color:var(--text-dim)">—</span></td><td> · Skip K alts (K&lt;4.5)</td></tr><tr><td><strong>Cristopher Sanchez</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>PHI vs NYY</td><td>—</td><td>—</td><td>—</td><td><strong style="color:var(--good)">🟢 6.68</strong></td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td><span style="color:var(--hot)">🔺 5.89</span></td><td>50%</td><td>0.68</td><td><span style="color:var(--text-dim)">—</span></td><td> · K alt O 5+</td></tr></tbody></table></div>
       <div class="top-bats">🎯 <strong>Top Bats — NYY:</strong> <strong>Ben Rice</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 69.90% 1+H / 13.90% HR / 35.21% RBI · <strong>Trent Grisham</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 68.90% 1+H / 17.00% HR / 42.31% RBI · <strong>Amed Rosario</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span>: 70.60% 1+H / 12.30% HR / 32.70% RBI<br>
       🎯 <strong>Top Bats — PHI:</strong> <strong>Kyle Schwarber</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 66.80% 1+H / 24.10% HR / 47.27% RBI · <strong>Bryce Harper</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 70.00% 1+H / 19.70% HR / 47.53% RBI · <strong>Brandon Marsh</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span>: 66.40% 1+H / 15.60% HR / 46.69% RBI<br>
-      <div class="tb-note">📝 <strong>Park +15% HR booster — stack premium.</strong></div></div>
+      <div class="tb-note">📝 <strong>Park +21% HR booster — stack premium.</strong></div></div>
     </div></div>
   </div>
   <!-- GAME 15: CLE @ TB -->
@@ -1712,23 +1910,6 @@ body.sheet-open #scroll-track{display:none;}
       <div class="tb-note">📝 Standard slate game.</div></div>
     </div></div>
   </div>
-</section>
-
-<!-- PROJECTED UNAVAILABLE -->
-<section id="matchup-spotlight" class="collapsible projected-unavailable">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">Matchup Spotlight</div>
-      <span class="game-tag">Unavailable without workbook</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-    <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>The Sweet Spot danger-batter grid is workbook-only and cannot be reconstructed honestly. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
-    </div>
-  </div></div>
 </section>
 
 <!-- K BOARD -->
@@ -1751,30 +1932,30 @@ body.sheet-open #scroll-track{display:none;}
       <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
       <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Jacob Misiorowski</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIL</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">8.64</strong></td><td><strong style="color:var(--good)">8.64</strong></td><td><strong style="color:var(--good)">🟢 17.2</strong></td><td><strong style="color:var(--good)">3.36</strong></td><td>—</td><td><strong>55%</strong></td><td>0.64</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs COL · K anchor · BPP API K 8.64</small></td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Jacob deGrom</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">7.33</strong></td><td><strong style="color:var(--good)">7.33</strong></td><td><strong style="color:var(--good)">🟢 18.6</strong></td><td><strong style="color:var(--good)">4.43</strong></td><td>—</td><td><strong>61%</strong></td><td><span style="color:var(--hot)">0.73</span></td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs SEA · K anchor · BPP API K 7.33</small></td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Jacob deGrom</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TEX</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">7.21</strong></td><td><strong style="color:var(--good)">7.21</strong></td><td><strong style="color:var(--good)">🟢 18.5</strong></td><td><strong style="color:var(--good)">4.36</strong></td><td>—</td><td><strong>60%</strong></td><td><span style="color:var(--hot)">0.73</span></td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs SEA · K anchor · BPP API K 7.21</small></td></tr>
       <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Braxton Ashcraft</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>PIT</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">6.84</strong></td><td><strong style="color:var(--good)">6.84</strong></td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>5.27</td><td>—</td><td><strong>52%</strong></td><td>0.61</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs CHC · K anchor · BPP API K 6.84</small></td></tr>
       <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Cristopher Sanchez</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>PHI</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">6.68</strong></td><td><strong style="color:var(--good)">6.68</strong></td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td><span style="color:var(--hot)">🔺 5.89</span></td><td>—</td><td><strong>50%</strong></td><td>0.68</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs NYY · K anchor · BPP API K 6.68</small></td></tr>
       <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Drew Rasmussen</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TB</td><td><span style="color:var(--hot)">4/6</span></td><td><strong style="color:var(--good)">5.62</strong></td><td><strong style="color:var(--good)">5.62</strong></td><td><strong style="color:var(--good)">🟢 17.9</strong></td><td>4.70</td><td>—</td><td><strong>53%</strong></td><td>0.55</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs CLE · K anchor · BPP API K 5.62</small></td></tr>
-      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Logan Gilbert</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA</td><td><span style="color:var(--text-soft)">3/6</span></td><td><strong style="color:var(--good)">5.83</strong></td><td><strong style="color:var(--good)">5.83</strong></td><td>15.4</td><td><strong style="color:var(--good)">3.86</strong></td><td>—</td><td>36%</td><td>0.68</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs TEX · K anchor · BPP API K 5.83</small></td></tr>
+      <tr class="row-tier0"><td><span class="badge b-tier0">T0</span></td><td><strong>Logan Gilbert</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SEA</td><td><span style="color:var(--text-soft)">3/6</span></td><td><strong style="color:var(--good)">5.77</strong></td><td><strong style="color:var(--good)">5.77</strong></td><td>15.2</td><td><strong style="color:var(--good)">3.85</strong></td><td>—</td><td>34%</td><td>0.69</td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs TEX · K anchor · BPP API K 5.77</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Shane Baz</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>BAL</td><td><span style="color:var(--text-soft)">3/6</span></td><td><strong style="color:var(--good)">5.04</strong></td><td><span style="color:var(--hot)">5.04</span></td><td><strong style="color:var(--good)">🟢 18.0</strong></td><td><span style="color:var(--hot)">🔺 6.28</span></td><td>—</td><td><strong>50%</strong></td><td><span style="color:var(--hot)">0.72</span></td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs ATL · BPP API K 5.04</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Ronel Blanco</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>HOU</td><td><span style="color:var(--text-soft)">2/6</span></td><td><strong style="color:var(--good)">5.39</strong></td><td><span style="color:var(--hot)">5.39</span></td><td>15.9</td><td><strong style="color:var(--good)">4.32</strong></td><td>—</td><td>36%</td><td><span style="color:var(--hot)">0.83</span></td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs CHW · BPP API K 5.39</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Emmet Sheehan</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAD</td><td><span style="color:var(--text-soft)">2/6</span></td><td><strong style="color:var(--good)">5.0</strong></td><td><span style="color:var(--hot)">5.00</span></td><td>14.9</td><td><strong style="color:var(--good)">4.08</strong></td><td>—</td><td>21%</td><td><span style="color:var(--hot)">0.79</span></td><td>V—</td><td><strong>O 5+</strong></td><td><small>vs NYM · BPP API K 5.00</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Janson Junk</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>MIA</td><td><span style="color:var(--text-soft)">1/6</span></td><td><strong style="color:var(--bad)">4.18</strong></td><td><span style="color:var(--bad)">4.18</span></td><td><strong style="color:var(--good)">🟢 17.1</strong></td><td>5.25</td><td>—</td><td><strong>44%</strong></td><td>0.65</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs SD · BPP API K 4.18</small></td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Jose Soriano</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.95</strong></td><td><span style="color:var(--hot)">4.95</span></td><td>15.5</td><td>5.33</td><td>—</td><td>31%</td><td>0.51</td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs SF · BPP API K 4.95</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Connor Prielipp</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>MIN</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.86</strong></td><td><span style="color:var(--hot)">4.86</span></td><td>14.6</td><td>5.40</td><td>—</td><td>23%</td><td>0.69</td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs ATH · BPP API K 4.86</small></td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Kyle Leahy</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.66</strong></td><td><span style="color:var(--hot)">4.66</span></td><td>16.5</td><td>4.60</td><td>—</td><td>35%</td><td><span style="color:var(--hot)">0.71</span></td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs CIN · BPP API K 4.66</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Kevin Gausman</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>TOR</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.65</strong></td><td><span style="color:var(--hot)">4.65</span></td><td>15.5</td><td><span style="color:var(--hot)">🔺 5.85</span></td><td>—</td><td>31%</td><td><span style="color:var(--hot)">0.83</span></td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs BOS · BPP API K 4.65</small></td></tr>
+      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Kyle Leahy</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>STL</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.63</strong></td><td><span style="color:var(--hot)">4.63</span></td><td>16.4</td><td>4.55</td><td>—</td><td>34%</td><td>0.69</td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs CIN · BPP API K 4.63</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Freddy Peralta</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYM</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.54</strong></td><td><span style="color:var(--hot)">4.54</span></td><td>16.6</td><td>4.66</td><td>—</td><td><strong>42%</strong></td><td><strong style="color:var(--bad)">0.90</strong></td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs LAD · BPP API K 4.54</small></td></tr>
       <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Ranger Suarez</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>BOS</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.52</strong></td><td><span style="color:var(--hot)">4.52</span></td><td>14.7</td><td>5.25</td><td>—</td><td>22%</td><td>0.43</td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs TOR · BPP API K 4.52</small></td></tr>
-      <tr class="row-tier1"><td><span class="badge b-tier1">T1</span></td><td><strong>Jose Soriano</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>LAA</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--hot)">4.5</strong></td><td><span style="color:var(--hot)">4.50</span></td><td>15.7</td><td><span style="color:var(--hot)">🔺 5.60</span></td><td>—</td><td>32%</td><td>0.49</td><td>V—</td><td><strong>O 3.5</strong></td><td><small>vs SF · BPP API K 4.50</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Kohl Drake</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>ARI</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.4</strong></td><td><span style="color:var(--bad)">4.40</span></td><td><span style="color:var(--bad)">🔻 13.6</span></td><td>4.89</td><td>—</td><td>14%</td><td><strong style="color:var(--bad)">0.93</strong></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs WAS · BPP API K 4.40</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Jameson Taillon</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>CHC</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.38</strong></td><td><span style="color:var(--bad)">4.38</span></td><td>16.0</td><td>4.57</td><td>—</td><td>37%</td><td><span style="color:var(--hot)">0.74</span></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs PIT · BPP API K 4.38</small></td></tr>
-      <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Carson Whisenhunt</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>SF</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.38</strong></td><td><span style="color:var(--bad)">4.38</span></td><td><span style="color:var(--bad)">🔻 14.0</span></td><td>4.58</td><td>—</td><td>17%</td><td>0.69</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs LAA · BPP API K 4.38</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Reynaldo Lopez</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>ATL</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.33</strong></td><td><span style="color:var(--bad)">4.33</span></td><td><span style="color:var(--bad)">🔻 12.9</span></td><td>4.63</td><td>—</td><td>9%</td><td>0.67</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs BAL · BPP API K 4.33</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Kyle Freeland</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>COL</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.28</strong></td><td><span style="color:var(--bad)">4.28</span></td><td>16.7</td><td><span style="color:var(--hot)">🔺 5.66</span></td><td>—</td><td><strong>42%</strong></td><td><strong style="color:var(--bad)">0.89</strong></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs MIL · BPP API K 4.28</small></td></tr>
+      <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Andrew Abbott</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CIN</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.16</strong></td><td><span style="color:var(--bad)">4.16</span></td><td>16.1</td><td>5.25</td><td>—</td><td>37%</td><td><span style="color:var(--hot)">0.83</span></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs STL · BPP API K 4.16</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Jeffrey Springs</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>ATH</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.13</strong></td><td><span style="color:var(--bad)">4.13</span></td><td>15.0</td><td>5.02</td><td>—</td><td>25%</td><td><strong style="color:var(--bad)">1.08</strong></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs MIN · BPP API K 4.13</small></td></tr>
-      <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Andrew Abbott</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CIN</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.13</strong></td><td><span style="color:var(--bad)">4.13</span></td><td>15.9</td><td>5.33</td><td>—</td><td>35%</td><td><strong style="color:var(--bad)">0.89</strong></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs STL · BPP API K 4.13</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Walker Buehler</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>SD</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.12</strong></td><td><span style="color:var(--bad)">4.12</span></td><td>15.4</td><td>4.54</td><td>—</td><td>29%</td><td>0.63</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs MIA · BPP API K 4.12</small></td></tr>
       <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Luinder Avila</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>KC</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.06</strong></td><td><span style="color:var(--bad)">4.06</span></td><td><span style="color:var(--bad)">🔻 13.7</span></td><td>4.96</td><td>—</td><td>12%</td><td>0.69</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs DET · BPP API K 4.06</small></td></tr>
+      <tr class=""><td><span class="badge b-neutral">T2</span></td><td><strong>Carson Whisenhunt</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>SF</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">4.06</strong></td><td><span style="color:var(--bad)">4.06</span></td><td><span style="color:var(--bad)">🔻 13.9</span></td><td>4.73</td><td>—</td><td>17%</td><td>0.69</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs LAA · BPP API K 4.06</small></td></tr>
       <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td><strong>Framber Valdez</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>DET</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">3.96</strong></td><td><span style="color:var(--bad)">3.96</span></td><td>16.4</td><td><span style="color:var(--hot)">🔺 6.03</span></td><td>—</td><td>38%</td><td>0.60</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs KC · fade Ks · BPP API K 3.96</small></td></tr>
       <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td><strong>Parker Messick</strong></td><td style="text-align:center"><span style="color:#3b82f6;font-weight:600" title="throws L">🔵L</span></td><td>CLE</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">3.86</strong></td><td><span style="color:var(--bad)">3.86</span></td><td>16.0</td><td>4.81</td><td>—</td><td>38%</td><td>0.51</td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs TB · fade Ks · BPP API K 3.86</small></td></tr>
       <tr class="row-bad"><td><span class="badge b-bad">SKIP</span></td><td><strong>Will Warren</strong></td><td style="text-align:center"><span style="color:#ef4444;font-weight:600" title="throws R">🔴R</span></td><td>NYY</td><td><span style="color:var(--text-soft)">0/6</span></td><td><strong style="color:var(--bad)">3.61</strong></td><td><span style="color:var(--bad)">3.61</span></td><td><span style="color:var(--bad)">🔻 12.4</span></td><td>4.79</td><td>—</td><td>11%</td><td><span style="color:var(--hot)">0.84</span></td><td>V—</td><td><strong>O 2.5</strong></td><td><small>vs PHI · fade Ks · BPP API K 3.61</small></td></tr>
@@ -1783,23 +1964,6 @@ body.sheet-open #scroll-track{display:none;}
       </tbody>
     </table></div>
     <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">🟢 Outs ≥17. 🔻 Outs &lt;14. 🔺 Hits ≥5.5. Green Hits ≤4.5. QS% ≥40% bold. HRA ≥0.85 caution.</p>
-  </div></div>
-</section>
-
-<!-- PROJECTED UNAVAILABLE -->
-<section id="sp-vuln-board" class="collapsible projected-unavailable">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">Pitcher's HR Risk Board</div>
-      <span class="game-tag">Unavailable without workbook</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-    <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>The Sweet Spot pitcher vulnerability and danger-batter columns have no clean Projected Mode source. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
-    </div>
   </div></div>
 </section>
 
@@ -1823,23 +1987,23 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier0"><td>3</td><td><strong>James Wood</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>WAS</td><td>Kohl Drake</td><td>ARI</td><td><strong>96</strong></td><td>PRIME</td><td>—</td><td>4.90%</td><td>21.7%</td><td>0.420</td><td>5.69</td><td>+10%</td></tr>
       <tr class="row-tier0"><td>4</td><td><strong>Esmerlyn Valdez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>PIT</td><td>Jameson Taillon</td><td>CHC</td><td><strong>89</strong></td><td>PRIME</td><td>—</td><td>4.20%</td><td>27.9%</td><td>0.364</td><td>3.78</td><td>-9%</td></tr>
       <tr class="row-tier0"><td>5</td><td><strong>Christian En-Strand</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>BAL</td><td>Reynaldo Lopez</td><td>ATL</td><td><strong>86</strong></td><td>PRIME</td><td>—</td><td>3.90%</td><td>21.1%</td><td>0.406</td><td>5.45</td><td>-2%</td></tr>
-      <tr class="row-tier0"><td>6</td><td><strong>Shohei Ohtani</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>Freddy Peralta</td><td>NYM</td><td><strong>85</strong></td><td>PRIME</td><td>—</td><td>4.70%</td><td>16.5%</td><td>0.406</td><td>3.97</td><td>+1%</td></tr>
-      <tr class="row-tier0"><td>7</td><td><strong>Byron Buxton</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIN</td><td>Jeffrey Springs</td><td>ATH</td><td><strong>84</strong></td><td>PRIME</td><td>—</td><td>4.90%</td><td>18.0%</td><td>0.351</td><td>5.26</td><td>+7%</td></tr>
-      <tr class="row-tier0"><td>8</td><td><strong>Kyle Schwarber</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>Will Warren</td><td>NYY</td><td><strong>84</strong></td><td>PRIME</td><td>—</td><td>4.40%</td><td>18.3%</td><td>0.367</td><td>5.85</td><td>+15%</td></tr>
+      <tr class="row-tier0"><td>6</td><td><strong>Kyle Schwarber</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>Will Warren</td><td>NYY</td><td><strong>85</strong></td><td>PRIME</td><td>—</td><td>4.40%</td><td>18.3%</td><td>0.367</td><td>5.85</td><td>+21%</td></tr>
+      <tr class="row-tier0"><td>7</td><td><strong>Shohei Ohtani</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>Freddy Peralta</td><td>NYM</td><td><strong>85</strong></td><td>PRIME</td><td>—</td><td>4.70%</td><td>16.5%</td><td>0.406</td><td>3.97</td><td>+1%</td></tr>
+      <tr class="row-tier0"><td>8</td><td><strong>Byron Buxton</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIN</td><td>Jeffrey Springs</td><td>ATH</td><td><strong>84</strong></td><td>PRIME</td><td>—</td><td>4.90%</td><td>18.0%</td><td>0.351</td><td>5.26</td><td>+7%</td></tr>
       <tr class="row-tier0"><td>9</td><td><strong>Munetaka Murakami</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CHW</td><td>Ronel Blanco</td><td>HOU</td><td><strong>82</strong></td><td>PRIME</td><td>—</td><td>3.10%</td><td>19.7%</td><td>0.369</td><td>3.95</td><td>+13%</td></tr>
       <tr class="row-tier0"><td>10</td><td><strong>Miguel Vargas</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CHW</td><td>Ronel Blanco</td><td>HOU</td><td><strong>81</strong></td><td>PRIME</td><td>—</td><td>4.10%</td><td>14.5%</td><td>0.390</td><td>3.95</td><td>+13%</td></tr>
-      <tr class="row-tier0"><td>11</td><td><strong>Mike Trout</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAA</td><td>Carson Whisenhunt</td><td>SF</td><td><strong>81</strong></td><td>PRIME</td><td>—</td><td>3.80%</td><td>18.9%</td><td>0.403</td><td>4.50</td><td>-7%</td></tr>
+      <tr class="row-tier0"><td>11</td><td><strong>Mike Trout</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAA</td><td>Carson Whisenhunt</td><td>SF</td><td><strong>81</strong></td><td>PRIME</td><td>—</td><td>3.80%</td><td>18.9%</td><td>0.403</td><td>4.72</td><td>-7%</td></tr>
       <tr class="row-tier0"><td>12</td><td><strong>Nick Kurtz</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATH</td><td>Connor Prielipp</td><td>MIN</td><td><strong>80</strong></td><td>PRIME</td><td>—</td><td>3.80%</td><td>18.1%</td><td>0.375</td><td>4.72</td><td>+7%</td></tr>
       <tr class="row-tier0"><td>13</td><td><strong>Andres Chaparro</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>WAS</td><td>Kohl Drake</td><td>ARI</td><td><strong>79</strong></td><td>PRIME</td><td>—</td><td>4.30%</td><td>13.5%</td><td>0.377</td><td>5.69</td><td>+10%</td></tr>
       <tr class="row-tier0"><td>14</td><td><strong>Willson Contreras</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>BOS</td><td>Kevin Gausman</td><td>TOR</td><td><strong>79</strong></td><td>PRIME</td><td>—</td><td>4.90%</td><td>14.6%</td><td>0.389</td><td>5.13</td><td>-5%</td></tr>
       <tr class="row-tier0"><td>15</td><td><strong>Ryan Jeffers</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIN</td><td>Jeffrey Springs</td><td>ATH</td><td><strong>78</strong></td><td>PRIME</td><td>—</td><td>3.80%</td><td>13.7%</td><td>0.374</td><td>5.26</td><td>+7%</td></tr>
-      <tr class="row-tier1"><td>16</td><td><strong>Bryce Harper</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>Will Warren</td><td>NYY</td><td><strong>76</strong></td><td>CORE</td><td>—</td><td>4.20%</td><td>11.0%</td><td>0.380</td><td>5.85</td><td>+15%</td></tr>
-      <tr class="row-tier1"><td>17</td><td><strong>Jake Bauers</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>MIL</td><td>Kyle Freeland</td><td>COL</td><td><strong>76</strong></td><td>CORE</td><td>—</td><td>3.80%</td><td>13.3%</td><td>0.355</td><td>4.34</td><td>+20%</td></tr>
-      <tr class="row-tier1"><td>18</td><td><strong>Ben Rice</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>NYY</td><td>Cristopher Sanchez</td><td>PHI</td><td><strong>75</strong></td><td>CORE</td><td>—</td><td>2.40%</td><td>15.7%</td><td>0.378</td><td>3.71</td><td>+15%</td></tr>
+      <tr class="row-tier1"><td>16</td><td><strong>Bryce Harper</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>Will Warren</td><td>NYY</td><td><strong>77</strong></td><td>CORE</td><td>—</td><td>4.20%</td><td>11.0%</td><td>0.380</td><td>5.85</td><td>+21%</td></tr>
+      <tr class="row-tier1"><td>17</td><td><strong>Ben Rice</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>NYY</td><td>Cristopher Sanchez</td><td>PHI</td><td><strong>76</strong></td><td>CORE</td><td>—</td><td>2.40%</td><td>15.7%</td><td>0.378</td><td>3.71</td><td>+21%</td></tr>
+      <tr class="row-tier1"><td>18</td><td><strong>Jake Bauers</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>MIL</td><td>Kyle Freeland</td><td>COL</td><td><strong>76</strong></td><td>CORE</td><td>—</td><td>3.80%</td><td>13.3%</td><td>0.355</td><td>4.34</td><td>+20%</td></tr>
       <tr class="row-tier1"><td>19</td><td><strong>Hunter Goodman</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>COL</td><td>Jacob Misiorowski</td><td>MIL</td><td><strong>74</strong></td><td>CORE</td><td>—</td><td>2.60%</td><td>17.2%</td><td>0.339</td><td>2.16</td><td>+20%</td></tr>
-      <tr class="row-tier1"><td>20</td><td><strong>Jordan Walker</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>74</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>13.8%</td><td>0.364</td><td>4.78</td><td>+3%</td></tr>
+      <tr class="row-tier1"><td>20</td><td><strong>Jordan Walker</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>74</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>13.8%</td><td>0.364</td><td>4.50</td><td>+3%</td></tr>
       <tr class="row-tier1"><td>21</td><td><strong>Riley Greene</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>DET</td><td>Luinder Avila</td><td>KC</td><td><strong>74</strong></td><td>CORE</td><td>—</td><td>3.00%</td><td>15.6%</td><td>0.372</td><td>5.51</td><td>+8%</td></tr>
-      <tr class="row-tier1"><td>22</td><td><strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>73</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>11.2%</td><td>0.381</td><td>4.78</td><td>+3%</td></tr>
+      <tr class="row-tier1"><td>22</td><td><strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>73</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>11.2%</td><td>0.381</td><td>4.50</td><td>+3%</td></tr>
       <tr class="row-tier1"><td>23</td><td><strong>Drake Baldwin</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATL</td><td>Shane Baz</td><td>BAL</td><td><strong>73</strong></td><td>CORE</td><td>—</td><td>2.90%</td><td>15.1%</td><td>0.385</td><td>4.19</td><td>-2%</td></tr>
       <tr class="row-tier1"><td>24</td><td><strong>Griffin Conine</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>MIA</td><td>Walker Buehler</td><td>SD</td><td><strong>73</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>16.4%</td><td>0.378</td><td>3.96</td><td>-13%</td></tr>
       <tr class="row-tier1"><td>25</td><td><strong>Max Muncy</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAD</td><td>Freddy Peralta</td><td>NYM</td><td><strong>73</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>13.9%</td><td>0.357</td><td>3.97</td><td>+1%</td></tr>
@@ -1847,15 +2011,15 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier1"><td>27</td><td><strong>C.J. Abrams</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>WAS</td><td>Kohl Drake</td><td>ARI</td><td><strong>72</strong></td><td>CORE</td><td>—</td><td>4.20%</td><td>11.0%</td><td>0.350</td><td>5.69</td><td>+10%</td></tr>
       <tr class="row-tier1"><td>28</td><td><strong>Corbin Carroll</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ARI</td><td>Miles Mikolas</td><td>WSH</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.60%</td><td>12.4%</td><td>0.346</td><td>4.72</td><td>+10%</td></tr>
       <tr class="row-tier1"><td>29</td><td><strong>Dillon Dingler</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>DET</td><td>Luinder Avila</td><td>KC</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>11.4%</td><td>0.377</td><td>5.51</td><td>+8%</td></tr>
-      <tr class="row-tier1"><td>30</td><td><strong>Elly De La Cruz</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>CIN</td><td>Kyle Leahy</td><td>STL</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>2.80%</td><td>14.5%</td><td>0.368</td><td>3.54</td><td>+3%</td></tr>
+      <tr class="row-tier1"><td>30</td><td><strong>Elly De La Cruz</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>CIN</td><td>Kyle Leahy</td><td>STL</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>2.80%</td><td>14.5%</td><td>0.368</td><td>3.45</td><td>+3%</td></tr>
       <tr class="row-tier1"><td>31</td><td><strong>Jackson Chourio</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIL</td><td>Kyle Freeland</td><td>COL</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.40%</td><td>12.7%</td><td>0.330</td><td>4.34</td><td>+20%</td></tr>
       <tr class="row-tier1"><td>32</td><td><strong>Kody Clemens</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>MIN</td><td>Jeffrey Springs</td><td>ATH</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>4.20%</td><td>12.4%</td><td>0.326</td><td>5.26</td><td>+7%</td></tr>
       <tr class="row-tier1"><td>33</td><td><strong>Luis Garcia</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>WAS</td><td>Kohl Drake</td><td>ARI</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.60%</td><td>11.2%</td><td>0.354</td><td>5.69</td><td>+10%</td></tr>
-      <tr class="row-tier1"><td>34</td><td><strong>Nelson Velazquez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.80%</td><td>11.6%</td><td>0.357</td><td>4.78</td><td>+3%</td></tr>
-      <tr class="row-tier1"><td>35</td><td><strong>Pete Crow-Armstrong</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> <span style="font-size:11px;color:var(--hot)">HR2</span></td><td>CHC</td><td>Braxton Ashcraft</td><td>PIT</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>11.4%</td><td>0.364</td><td>3.41</td><td>-9%</td></tr>
-      <tr class="row-tier1"><td>36</td><td><strong>Cam Smith</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>HOU</td><td>Erick Fedde</td><td>CHW</td><td><strong>70</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>12.0%</td><td>0.333</td><td>4.95</td><td>+13%</td></tr>
-      <tr class="row-tier1"><td>37</td><td><strong>Freddie Freeman</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> <span style="font-size:11px;color:var(--hot)">H5</span></td><td>LAD</td><td>Freddy Peralta</td><td>NYM</td><td><strong>70</strong></td><td>CORE</td><td>—</td><td>3.40%</td><td>10.1%</td><td>0.385</td><td>3.97</td><td>+1%</td></tr>
-      <tr class="row-tier1"><td>38</td><td><strong>Brandon Nimmo</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>TEX</td><td>Logan Gilbert</td><td>SEA</td><td><strong>69</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>12.1%</td><td>0.375</td><td>3.06</td><td>-10%</td></tr>
+      <tr class="row-tier1"><td>34</td><td><strong>Pete Crow-Armstrong</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> <span style="font-size:11px;color:var(--hot)">HR2</span></td><td>CHC</td><td>Braxton Ashcraft</td><td>PIT</td><td><strong>71</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>11.4%</td><td>0.364</td><td>3.41</td><td>-9%</td></tr>
+      <tr class="row-tier1"><td>35</td><td><strong>Cam Smith</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>HOU</td><td>Erick Fedde</td><td>CHW</td><td><strong>70</strong></td><td>CORE</td><td>—</td><td>3.50%</td><td>12.0%</td><td>0.333</td><td>4.95</td><td>+13%</td></tr>
+      <tr class="row-tier1"><td>36</td><td><strong>Freddie Freeman</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span> <span style="font-size:11px;color:var(--hot)">H5</span></td><td>LAD</td><td>Freddy Peralta</td><td>NYM</td><td><strong>70</strong></td><td>CORE</td><td>—</td><td>3.40%</td><td>10.1%</td><td>0.385</td><td>3.97</td><td>+1%</td></tr>
+      <tr class="row-tier1"><td>37</td><td><strong>Nelson Velazquez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>STL</td><td>Andrew Abbott</td><td>CIN</td><td><strong>70</strong></td><td>CORE</td><td>—</td><td>3.80%</td><td>11.6%</td><td>0.357</td><td>4.50</td><td>+3%</td></tr>
+      <tr class="row-tier1"><td>38</td><td><strong>Brandon Nimmo</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>TEX</td><td>Logan Gilbert</td><td>SEA</td><td><strong>69</strong></td><td>CORE</td><td>—</td><td>3.90%</td><td>12.1%</td><td>0.375</td><td>3.05</td><td>-10%</td></tr>
       <tr class="row-tier1"><td>39</td><td><strong>Brice Turang</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>MIL</td><td>Kyle Freeland</td><td>COL</td><td><strong>69</strong></td><td>CORE</td><td>—</td><td>3.60%</td><td>8.7%</td><td>0.350</td><td>4.34</td><td>+20%</td></tr>
       <tr class="row-tier1"><td>40</td><td><strong>Junior Caminero</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>TB</td><td>Parker Messick</td><td>CLE</td><td><strong>69</strong></td><td>CORE</td><td>—</td><td>3.20%</td><td>13.4%</td><td>0.373</td><td>3.73</td><td>-3%</td></tr>
       <tr class="row-tier1"><td>41</td><td><strong>Ketel Marte</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>ARI</td><td>Miles Mikolas</td><td>WSH</td><td><strong>69</strong></td><td>CORE</td><td>—</td><td>3.40%</td><td>10.3%</td><td>0.358</td><td>4.72</td><td>+10%</td></tr>
@@ -1865,9 +2029,9 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier1"><td>45</td><td><strong>Gary Sanchez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIL</td><td>Kyle Freeland</td><td>COL</td><td><strong>68</strong></td><td>CORE</td><td>—</td><td>2.50%</td><td>8.7%</td><td>0.366</td><td>4.34</td><td>+20%</td></tr>
       <tr class="row-tier1"><td>46</td><td><strong>Jac Caglianone</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>KC</td><td>Framber Valdez</td><td>DET</td><td><strong>68</strong></td><td>CORE</td><td>—</td><td>2.30%</td><td>14.7%</td><td>0.352</td><td>4.66</td><td>+8%</td></tr>
       <tr class="row-tier1"><td>47</td><td><strong>Matt Olson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATL</td><td>Shane Baz</td><td>BAL</td><td><strong>68</strong></td><td>CORE</td><td>—</td><td>2.90%</td><td>13.8%</td><td>0.358</td><td>4.19</td><td>-2%</td></tr>
-      <tr class="row-tier1"><td>48</td><td><strong>JJ Bleday</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CIN</td><td>Kyle Leahy</td><td>STL</td><td><strong>67</strong></td><td>CORE</td><td>—</td><td>3.20%</td><td>10.3%</td><td>0.365</td><td>3.54</td><td>+3%</td></tr>
-      <tr class="row-tier1"><td>49</td><td><strong>Spencer Steer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CIN</td><td>Kyle Leahy</td><td>STL</td><td><strong>67</strong></td><td>CORE</td><td>—</td><td>3.30%</td><td>12.4%</td><td>0.343</td><td>3.54</td><td>+3%</td></tr>
-      <tr class="row-tier1"><td>50</td><td><strong>Brandon Lowe</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PIT</td><td>Jameson Taillon</td><td>CHC</td><td><strong>66</strong></td><td>CORE</td><td>—</td><td>4.20%</td><td>12.3%</td><td>0.336</td><td>3.78</td><td>-9%</td></tr>
+      <tr class="row-tier1"><td>48</td><td><strong>Brandon Marsh</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>Will Warren</td><td>NYY</td><td><strong>67</strong></td><td>CORE</td><td>—</td><td>4.00%</td><td>9.5%</td><td>0.317</td><td>5.85</td><td>+21%</td></tr>
+      <tr class="row-tier1"><td>49</td><td><strong>Spencer Steer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CIN</td><td>Kyle Leahy</td><td>STL</td><td><strong>67</strong></td><td>CORE</td><td>—</td><td>3.30%</td><td>12.4%</td><td>0.343</td><td>3.45</td><td>+3%</td></tr>
+      <tr class="row-tier1"><td>50</td><td><strong>Trent Grisham</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>NYY</td><td>Cristopher Sanchez</td><td>PHI</td><td><strong>67</strong></td><td>CORE</td><td>—</td><td>2.80%</td><td>10.5%</td><td>0.348</td><td>3.71</td><td>+21%</td></tr>
       </tbody>
     </table></div>
   </div></div>
@@ -1887,7 +2051,7 @@ body.sheet-open #scroll-track{display:none;}
     <div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
       <tbody>
-      <tr class="row-tier0"><td>1</td><td><strong>Luis Arraez</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>77.60%</strong></td><td>38.10%</td><td>34.10%</td><td>5.00%</td></tr>
+      <tr class="row-tier0"><td>1</td><td><strong>Luis Arraez</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>79.70%</strong></td><td>39.67%</td><td>37.25%</td><td>5.60%</td></tr>
       <tr class="row-tier0"><td>2</td><td><strong>Jacob Wilson</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>ATH</td><td>ATH vs. MIN</td><td><strong>76.30%</strong></td><td>37.92%</td><td>39.71%</td><td>11.90%</td></tr>
       <tr class="row-tier0"><td>3</td><td><strong>Yordan Alvarez</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>HOU</td><td>HOU vs. CHW</td><td><strong>76.00%</strong></td><td>36.79%</td><td>51.32%</td><td>25.90%</td></tr>
       <tr class="row-tier0"><td>4</td><td><strong>Vladimir Guerrero Jr.</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>TOR</td><td>TOR vs. BOS</td><td><strong>76.50%</strong></td><td>37.32%</td><td>38.18%</td><td>9.20%</td></tr>
@@ -1904,7 +2068,7 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier0"><td>15</td><td><strong>Jeremy Pena</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>HOU</td><td>HOU vs. CHW</td><td><strong>73.00%</strong></td><td>32.80%</td><td>39.47%</td><td>17.00%</td></tr>
       <tr class="row-tier0"><td>16</td><td><strong>Yainer Diaz</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>HOU</td><td>HOU vs. CHW</td><td><strong>73.50%</strong></td><td>33.30%</td><td>46.04%</td><td>14.90%</td></tr>
       <tr class="row-tier0"><td>17</td><td><strong>Michael Harris II</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATL</td><td>ATL vs. BAL</td><td><strong>73.70%</strong></td><td>33.09%</td><td>46.42%</td><td>14.70%</td></tr>
-      <tr class="row-tier0"><td>18</td><td><strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>STL</td><td>STL vs. CIN</td><td><strong>72.40%</strong></td><td>31.05%</td><td>48.06%</td><td>17.30%</td></tr>
+      <tr class="row-tier0"><td>18</td><td><strong>Alec Burleson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>STL</td><td>STL vs. CIN</td><td><strong>72.60%</strong></td><td>31.38%</td><td>46.21%</td><td>17.70%</td></tr>
       <tr class="row-tier0"><td>19</td><td><strong>Salvador Perez</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>KC</td><td>KC vs. DET</td><td><strong>72.30%</strong></td><td>32.76%</td><td>48.68%</td><td>15.80%</td></tr>
       <tr class="row-tier0"><td>20</td><td><strong>Lane Thomas</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>KC</td><td>KC vs. DET</td><td><strong>72.80%</strong></td><td>32.76%</td><td>38.37%</td><td>12.90%</td></tr>
       <tr class="row-tier0"><td>21</td><td><strong>Jose Altuve</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>HOU</td><td>HOU vs. CHW</td><td><strong>72.10%</strong></td><td>30.68%</td><td>45.17%</td><td>13.70%</td></tr>
@@ -1924,19 +2088,19 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier0"><td>35</td><td><strong>Max Kepler</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ARI</td><td>ARI vs. WSH</td><td><strong>70.50%</strong></td><td>30.35%</td><td>47.38%</td><td>17.10%</td></tr>
       <tr class="row-tier0"><td>36</td><td><strong>Gabriel Moreno</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>ARI</td><td>ARI vs. WSH</td><td><strong>70.70%</strong></td><td>30.76%</td><td>41.73%</td><td>9.40%</td></tr>
       <tr class="row-tier0"><td>37</td><td><strong>Geraldo Perdomo</strong> <span style="color:#a855f7;font-weight:600" title="bats S">🟣S</span></td><td>ARI</td><td>ARI vs. WSH</td><td><strong>70.60%</strong></td><td>30.65%</td><td>40.90%</td><td>11.90%</td></tr>
-      <tr class="row-tier0"><td>38</td><td><strong>Jo Adell</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAA</td><td>LAA vs. SF</td><td><strong>70.30%</strong></td><td>29.51%</td><td>42.94%</td><td>12.50%</td></tr>
-      <tr class="row-tier0"><td>39</td><td><strong>Casey Schmitt</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>70.10%</strong></td><td>28.96%</td><td>43.95%</td><td>13.80%</td></tr>
-      <tr class="row-tier0"><td>40</td><td><strong>Vaughn Grissom</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAA</td><td>LAA vs. SF</td><td><strong>70.20%</strong></td><td>30.10%</td><td>41.26%</td><td>10.60%</td></tr>
-      <tr class="row-tier0"><td>41</td><td><strong>Jung Hoo Lee</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>70.20%</strong></td><td>29.91%</td><td>35.34%</td><td>3.30%</td></tr>
-      <tr class="row-tier0"><td>42</td><td><strong>Bryce Harper</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>PHI vs. NYY</td><td><strong>70.00%</strong></td><td>29.47%</td><td>47.53%</td><td>19.70%</td></tr>
-      <tr class="row-tier0"><td>43</td><td><strong>Amed Rosario</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>NYY</td><td>NYY vs. PHI</td><td><strong>70.60%</strong></td><td>29.80%</td><td>32.70%</td><td>12.30%</td></tr>
-      <tr class="row-tier0"><td>44</td><td><strong>Byron Buxton</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIN</td><td>MIN vs. ATH</td><td><strong>70.60%</strong></td><td>29.40%</td><td>51.37%</td><td>23.70%</td></tr>
-      <tr class="row-tier0"><td>45</td><td><strong>George Springer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>TOR</td><td>TOR vs. BOS</td><td><strong>70.00%</strong></td><td>29.80%</td><td>46.85%</td><td>12.30%</td></tr>
-      <tr class="row-tier0"><td>46</td><td><strong>Dominic Smith</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATL</td><td>ATL vs. BAL</td><td><strong>70.70%</strong></td><td>30.02%</td><td>38.43%</td><td>10.40%</td></tr>
-      <tr class="row-tier0"><td>47</td><td><strong>Gunnar Henderson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>BAL</td><td>BAL vs. ATL</td><td><strong>70.00%</strong></td><td>30.06%</td><td>44.29%</td><td>13.40%</td></tr>
-      <tr class="row-tier0"><td>48</td><td><strong>Luis Garcia</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>WAS</td><td>WSH vs. ARI</td><td><strong>69.70%</strong></td><td>29.07%</td><td>45.17%</td><td>16.30%</td></tr>
-      <tr class="row-tier0"><td>49</td><td><strong>Steven Kwan</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CLE</td><td>CLE vs. TB</td><td><strong>69.60%</strong></td><td>29.14%</td><td>25.47%</td><td>6.10%</td></tr>
-      <tr class="row-tier0"><td>50</td><td><strong>Heliot Ramos</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>69.30%</strong></td><td>29.18%</td><td>42.48%</td><td>12.50%</td></tr>
+      <tr class="row-tier0"><td>38</td><td><strong>Vaughn Grissom</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>LAA</td><td>LAA vs. SF</td><td><strong>70.70%</strong></td><td>30.13%</td><td>41.20%</td><td>11.20%</td></tr>
+      <tr class="row-tier0"><td>39</td><td><strong>Nolan Schanuel</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>LAA</td><td>LAA vs. SF</td><td><strong>70.80%</strong></td><td>30.83%</td><td>37.37%</td><td>6.80%</td></tr>
+      <tr class="row-tier0"><td>40</td><td><strong>Bryce Harper</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>PHI</td><td>PHI vs. NYY</td><td><strong>70.00%</strong></td><td>29.47%</td><td>47.53%</td><td>19.70%</td></tr>
+      <tr class="row-tier0"><td>41</td><td><strong>Amed Rosario</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>NYY</td><td>NYY vs. PHI</td><td><strong>70.60%</strong></td><td>29.80%</td><td>32.70%</td><td>12.30%</td></tr>
+      <tr class="row-tier0"><td>42</td><td><strong>Byron Buxton</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>MIN</td><td>MIN vs. ATH</td><td><strong>70.60%</strong></td><td>29.40%</td><td>51.37%</td><td>23.70%</td></tr>
+      <tr class="row-tier0"><td>43</td><td><strong>George Springer</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>TOR</td><td>TOR vs. BOS</td><td><strong>70.00%</strong></td><td>29.80%</td><td>46.85%</td><td>12.30%</td></tr>
+      <tr class="row-tier0"><td>44</td><td><strong>Dominic Smith</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>ATL</td><td>ATL vs. BAL</td><td><strong>70.70%</strong></td><td>30.02%</td><td>38.43%</td><td>10.40%</td></tr>
+      <tr class="row-tier0"><td>45</td><td><strong>Gunnar Henderson</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>BAL</td><td>BAL vs. ATL</td><td><strong>70.00%</strong></td><td>30.06%</td><td>44.29%</td><td>13.40%</td></tr>
+      <tr class="row-tier0"><td>46</td><td><strong>Luis Garcia</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>WAS</td><td>WSH vs. ARI</td><td><strong>69.70%</strong></td><td>29.07%</td><td>45.17%</td><td>16.30%</td></tr>
+      <tr class="row-tier0"><td>47</td><td><strong>Steven Kwan</strong> <span style="color:#3b82f6;font-weight:600" title="bats L">🔵L</span></td><td>CLE</td><td>CLE vs. TB</td><td><strong>69.60%</strong></td><td>29.14%</td><td>25.47%</td><td>6.10%</td></tr>
+      <tr class="row-tier0"><td>48</td><td><strong>Heliot Ramos</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>SF</td><td>SF vs. LAA</td><td><strong>69.90%</strong></td><td>29.11%</td><td>39.71%</td><td>13.00%</td></tr>
+      <tr class="row-tier0"><td>49</td><td><strong>Nico Hoerner</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>CHC</td><td>CHC vs. PIT</td><td><strong>69.40%</strong></td><td>28.26%</td><td>34.75%</td><td>3.90%</td></tr>
+      <tr class="row-tier0"><td>50</td><td><strong>Alec Bohm</strong> <span style="color:#ef4444;font-weight:600" title="bats R">🔴R</span></td><td>PHI</td><td>PHI vs. NYY</td><td><strong>69.60%</strong></td><td>29.44%</td><td>45.12%</td><td>12.10%</td></tr>
       </tbody>
     </table></div>
   </div></div>
@@ -1957,18 +2121,18 @@ body.sheet-open #scroll-track{display:none;}
     <div class="table-wrap"><table>
       <thead><tr><th>Game</th><th>Total</th><th>P(O 8.5)</th><th>F5</th><th>Conf</th><th>Lean</th></tr></thead>
       <tbody>
-      <tr><td>SEA @ TEX<br><span style="font-size:10px;color:var(--text-dim)">SEA 3.5 · TEX 3.6</span></td><td><strong>7.12</strong></td><td>29%</td><td>3.62</td><td><strong style="color:var(--good)">🔒 4/4</strong></td><td><span class="badge b-bad">UNDER</span></td></tr>
+      <tr><td>SEA @ TEX<br><span style="font-size:10px;color:var(--text-dim)">SEA 3.6 · TEX 3.7</span></td><td><strong>7.29</strong></td><td>31%</td><td>3.58</td><td><strong style="color:var(--good)">🔒 4/4</strong></td><td><span class="badge b-bad">UNDER</span></td></tr>
       <tr><td>KC @ DET<br><span style="font-size:10px;color:var(--text-dim)">KC 5.1 · DET 5.9</span></td><td><strong>10.93</strong></td><td>76%</td><td>6.35</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>ARI @ WAS<br><span style="font-size:10px;color:var(--text-dim)">ARI 5.5 · WAS 5.2</span></td><td><strong>10.72</strong></td><td>74%</td><td>6.26</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>TOR @ BOS<br><span style="font-size:10px;color:var(--text-dim)">TOR 4.9 · BOS 5.2</span></td><td><strong>10.01</strong></td><td>67%</td><td>5.66</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>HOU @ CHW<br><span style="font-size:10px;color:var(--text-dim)">HOU 5.4 · CHW 4.3</span></td><td><strong>9.70</strong></td><td>63%</td><td>5.51</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>ATL @ BAL<br><span style="font-size:10px;color:var(--text-dim)">ATL 4.8 · BAL 4.9</span></td><td><strong>9.68</strong></td><td>63%</td><td>5.74</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>NYY @ PHI<br><span style="font-size:10px;color:var(--text-dim)">NYY 4.4 · PHI 5.3</span></td><td><strong>9.65</strong></td><td>63%</td><td>5.74</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
-      <tr><td>LAA @ SF<br><span style="font-size:10px;color:var(--text-dim)">LAA 4.8 · SF 4.7</span></td><td><strong>9.49</strong></td><td>61%</td><td>5.47</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
+      <tr><td>LAA @ SF<br><span style="font-size:10px;color:var(--text-dim)">LAA 5.0 · SF 4.6</span></td><td><strong>9.62</strong></td><td>62%</td><td>5.60</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>CLE @ TB<br><span style="font-size:10px;color:var(--text-dim)">CLE 3.6 · TB 4.0</span></td><td><strong>7.63</strong></td><td>36%</td><td>4.10</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-bad">UNDER</span></td></tr>
       <tr><td>ATH @ MIN<br><span style="font-size:10px;color:var(--text-dim)">ATH 5.3 · MIN 5.6</span></td><td><strong>10.86</strong></td><td>76%</td><td>6.16</td><td><span style="color:var(--text-soft)">2/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
-      <tr><td>CIN @ STL<br><span style="font-size:10px;color:var(--text-dim)">CIN 4.4 · STL 4.8</span></td><td><strong>9.15</strong></td><td>56%</td><td>5.13</td><td><span style="color:var(--text-soft)">2/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>COL @ MIL<br><span style="font-size:10px;color:var(--text-dim)">COL 3.3 · MIL 4.8</span></td><td><strong>8.06</strong></td><td>42%</td><td>4.04</td><td><span style="color:var(--text-soft)">2/4</span></td><td><span class="badge b-bad">UNDER</span></td></tr>
+      <tr><td>CIN @ STL<br><span style="font-size:10px;color:var(--text-dim)">CIN 4.4 · STL 4.6</span></td><td><strong>8.93</strong></td><td>53%</td><td>4.90</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-tier0">OVER</span></td></tr>
       <tr><td>LAD @ NYM<br><span style="font-size:10px;color:var(--text-dim)">LAD 4.6 · NYM 4.2</span></td><td><strong>8.86</strong></td><td>53%</td><td>4.84</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
       <tr><td>CHC @ PIT<br><span style="font-size:10px;color:var(--text-dim)">CHC 4.2 · PIT 4.1</span></td><td><strong>8.34</strong></td><td>45%</td><td>4.46</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-bad">UNDER</span></td></tr>
       <tr><td>SD @ MIA<br><span style="font-size:10px;color:var(--text-dim)">SD 4.1 · MIA 3.9</span></td><td><strong>8.06</strong></td><td>42%</td><td>4.66</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-bad">UNDER</span></td></tr>
@@ -1992,7 +2156,7 @@ body.sheet-open #scroll-track{display:none;}
     <div class="table-wrap"><table>
       <thead><tr><th>Game</th><th>Away SP</th><th>Home SP</th><th>1st-Inn Run%</th><th>Conf</th><th>Lean</th></tr></thead>
       <tbody>
-      <tr><td>SEA @ TEX</td><td>Logan Gilbert</td><td>Jacob deGrom</td><td>40%</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
+      <tr><td>SEA @ TEX</td><td>Logan Gilbert</td><td>Jacob deGrom</td><td>41%</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
       <tr><td>COL @ MIL</td><td>Kyle Freeland</td><td>Jacob Misiorowski</td><td>45%</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
       <tr><td>CHC @ PIT</td><td>Jameson Taillon</td><td>Braxton Ashcraft</td><td>49%</td><td><span style="color:var(--hot)">3/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
       <tr><td>CLE @ TB</td><td>Parker Messick</td><td>Drew Rasmussen</td><td>47%</td><td><span style="color:var(--text-soft)">2/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
@@ -2003,8 +2167,8 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td>NYY @ PHI</td><td>Will Warren</td><td>Cristopher Sanchez</td><td>55%</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
       <tr><td>KC @ DET</td><td>Luinder Avila</td><td>Framber Valdez</td><td>57%</td><td><span style="color:var(--text-soft)">1/4</span></td><td><span class="badge b-tier0">NRFI</span></td></tr>
       <tr><td>LAD @ NYM</td><td>Emmet Sheehan</td><td>Freddy Peralta</td><td>48%</td><td><span style="color:var(--text-soft)">0/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
+      <tr><td>CIN @ STL</td><td>Andrew Abbott</td><td>Kyle Leahy</td><td>52%</td><td><span style="color:var(--text-soft)">0/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
       <tr><td>HOU @ CHW</td><td>Ronel Blanco</td><td>Erick Fedde</td><td>53%</td><td><span style="color:var(--text-soft)">0/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
-      <tr><td>CIN @ STL</td><td>Andrew Abbott</td><td>Kyle Leahy</td><td>54%</td><td><span style="color:var(--text-soft)">0/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
       <tr><td>ATH @ MIN</td><td>Jeffrey Springs</td><td>Connor Prielipp</td><td>57%</td><td><span style="color:var(--text-soft)">0/4</span></td><td><span class="badge b-neutral">Neutral</span></td></tr>
       </tbody>
     </table></div>
@@ -2027,7 +2191,7 @@ body.sheet-open #scroll-track{display:none;}
       <thead><tr><th>#</th><th>Runner</th><th>Tm</th><th>Opp</th><th>SB %</th><th>Conv</th><th>Opp SP BB</th></tr></thead>
       <tbody>
       <tr class=""><td>1</td><td><strong>Pete Crow-Armstrong</strong></td><td>CHC</td><td>PIT</td><td><strong>29.5%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.91</td></tr>
-      <tr class=""><td>2</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>STL</td><td><strong>27.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.44</td></tr>
+      <tr class=""><td>2</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>STL</td><td><strong>28.0%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.42</td></tr>
       <tr class=""><td>3</td><td><strong>Esteury Ruiz</strong></td><td>MIA</td><td>SD</td><td><strong>27.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.97</td></tr>
       <tr class=""><td>4</td><td><strong>Tyler Tolbert</strong></td><td>KC</td><td>DET</td><td><strong>27.3%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.68</td></tr>
       <tr class=""><td>5</td><td><strong>Chandler Simpson</strong></td><td>TB</td><td>CLE</td><td><strong>24.2%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.74</td></tr>
@@ -2041,11 +2205,11 @@ body.sheet-open #scroll-track{display:none;}
       <tr class=""><td>13</td><td><strong>Xavier Edwards</strong></td><td>MIA</td><td>SD</td><td><strong>20.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.97</td></tr>
       <tr class=""><td>14</td><td><strong>Brice Turang</strong></td><td>MIL</td><td>COL</td><td><strong>20.7%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.21</td></tr>
       <tr class=""><td>15</td><td><strong>Jose Caballero</strong></td><td>NYY</td><td>PHI</td><td><strong>20.6%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.4</td></tr>
-      <tr class=""><td>16</td><td><strong>Zach Neto</strong></td><td>LAA</td><td>SF</td><td><strong>19.6%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.94</td></tr>
+      <tr class=""><td>16</td><td><strong>Zach Neto</strong></td><td>LAA</td><td>SF</td><td><strong>20.3%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>2.0</td></tr>
       <tr class=""><td>17</td><td><strong>Cooper Pratt</strong></td><td>MIL</td><td>COL</td><td><strong>19.2%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.21</td></tr>
       <tr class=""><td>18</td><td><strong>Lane Thomas</strong></td><td>KC</td><td>DET</td><td><strong>19.0%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.68</td></tr>
-      <tr class=""><td>19</td><td><strong>Julio Rodriguez</strong></td><td>SEA</td><td>TEX</td><td><strong>18.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.49</td></tr>
-      <tr class=""><td>20</td><td><strong>Travis Bazzana</strong></td><td>CLE</td><td>TB</td><td><strong>18.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.24</td></tr>
+      <tr class=""><td>19</td><td><strong>Travis Bazzana</strong></td><td>CLE</td><td>TB</td><td><strong>18.9%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.24</td></tr>
+      <tr class=""><td>20</td><td><strong>Steven Kwan</strong></td><td>CLE</td><td>TB</td><td><strong>18.8%</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>1.24</td></tr>
       </tbody>
     </table></div>
   </div></div>
@@ -2074,18 +2238,18 @@ body.sheet-open #scroll-track{display:none;}
       <tr class=""><td>6</td><td><strong>Brandon Lowe</strong></td><td>PIT</td><td>CHC</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+17%</strong></td></tr>
       <tr class=""><td>7</td><td><strong>Nick Gonzales</strong></td><td>PIT</td><td>CHC</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+17%</strong></td></tr>
       <tr class=""><td>8</td><td><strong>Vladimir Guerrero Jr.</strong></td><td>TOR</td><td>BOS</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+24%</strong></td></tr>
-      <tr class=""><td>9</td><td><strong>Lane Thomas</strong></td><td>KC</td><td>DET</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>+4%</td></tr>
-      <tr class=""><td>10</td><td><strong>Andres Gimenez</strong></td><td>TOR</td><td>BOS</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+24%</strong></td></tr>
-      <tr class=""><td>11</td><td><strong>William Contreras</strong></td><td>MIL</td><td>COL</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--bad)">-10%</strong></td></tr>
-      <tr class=""><td>12</td><td><strong>Ernie Clement</strong></td><td>TOR</td><td>BOS</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+24%</strong></td></tr>
-      <tr class=""><td>13</td><td><strong>Jonah Heim</strong></td><td>ATH</td><td>MIN</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
-      <tr class=""><td>14</td><td><strong>Manny Machado</strong></td><td>SD</td><td>MIA</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+3%</td></tr>
-      <tr class=""><td>15</td><td><strong>Pete Alonso</strong></td><td>BAL</td><td>ATL</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+4%</td></tr>
-      <tr class=""><td>16</td><td><strong>Jacob Young</strong></td><td>WAS</td><td>ARI</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+8%</td></tr>
-      <tr class=""><td>17</td><td><strong>Ivan Herrera</strong></td><td>STL</td><td>CIN</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+2%</td></tr>
-      <tr class=""><td>18</td><td><strong>Tyler Soderstrom</strong></td><td>ATH</td><td>MIN</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
-      <tr class=""><td>19</td><td><strong>Royce Lewis</strong></td><td>MIN</td><td>ATH</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
-      <tr class=""><td>20</td><td><strong>Max Kepler</strong></td><td>ARI</td><td>WAS</td><td><strong>0.22</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+8%</td></tr>
+      <tr class=""><td>9</td><td><strong>Vaughn Grissom</strong></td><td>LAA</td><td>SF</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+10%</strong></td></tr>
+      <tr class=""><td>10</td><td><strong>Lane Thomas</strong></td><td>KC</td><td>DET</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td>+4%</td></tr>
+      <tr class=""><td>11</td><td><strong>Andres Gimenez</strong></td><td>TOR</td><td>BOS</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+24%</strong></td></tr>
+      <tr class=""><td>12</td><td><strong>Luis Arraez</strong></td><td>SF</td><td>LAA</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--good)">+10%</strong></td></tr>
+      <tr class=""><td>13</td><td><strong>William Contreras</strong></td><td>MIL</td><td>COL</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">1/3</span></td><td><strong style="color:var(--bad)">-10%</strong></td></tr>
+      <tr class=""><td>14</td><td><strong>Jonah Heim</strong></td><td>ATH</td><td>MIN</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
+      <tr class=""><td>15</td><td><strong>Manny Machado</strong></td><td>SD</td><td>MIA</td><td><strong>0.25</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+3%</td></tr>
+      <tr class=""><td>16</td><td><strong>Pete Alonso</strong></td><td>BAL</td><td>ATL</td><td><strong>0.24</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+4%</td></tr>
+      <tr class=""><td>17</td><td><strong>Jacob Young</strong></td><td>WAS</td><td>ARI</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+8%</td></tr>
+      <tr class=""><td>18</td><td><strong>Jordan Walker</strong></td><td>STL</td><td>CIN</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+2%</td></tr>
+      <tr class=""><td>19</td><td><strong>Tyler Soderstrom</strong></td><td>ATH</td><td>MIN</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
+      <tr class=""><td>20</td><td><strong>Royce Lewis</strong></td><td>MIN</td><td>ATH</td><td><strong>0.23</strong></td><td><span style="color:var(--text-soft)">0/3</span></td><td>+1%</td></tr>
       </tbody>
     </table></div>
   </div></div>
@@ -2112,19 +2276,19 @@ body.sheet-open #scroll-track{display:none;}
       <tr class="row-tier0"><td>4</td><td><strong>Shohei Ohtani</strong></td><td>LAD</td><td>NYM</td><td><strong>10.05</strong></td><td>13.22</td><td>25.7%</td><td>67.9%</td></tr>
       <tr class="row-tier0"><td>5</td><td><strong>Byron Buxton</strong></td><td>MIN</td><td>ATH</td><td><strong>10.01</strong></td><td>13.23</td><td>23.7%</td><td>70.6%</td></tr>
       <tr class="row-tier0"><td>6</td><td><strong>Trea Turner</strong></td><td>PHI</td><td>NYY</td><td><strong>9.99</strong></td><td>12.92</td><td>17.3%</td><td>73.6%</td></tr>
-      <tr class="row-tier0"><td>7</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>STL</td><td><strong>9.62</strong></td><td>12.45</td><td>15.6%</td><td>66.6%</td></tr>
-      <tr class="row-tier0"><td>8</td><td><strong>Pete Crow-Armstrong</strong></td><td>CHC</td><td>PIT</td><td><strong>9.48</strong></td><td>12.28</td><td>16.8%</td><td>65.1%</td></tr>
-      <tr class="row-tier0"><td>9</td><td><strong>Lane Thomas</strong></td><td>KC</td><td>DET</td><td><strong>9.48</strong></td><td>12.31</td><td>12.9%</td><td>72.8%</td></tr>
-      <tr class="row-tier0"><td>10</td><td><strong>Kyle Schwarber</strong></td><td>PHI</td><td>NYY</td><td><strong>9.36</strong></td><td>12.59</td><td>24.1%</td><td>66.8%</td></tr>
-      <tr class="row-tier0"><td>11</td><td><strong>Mike Trout</strong></td><td>LAA</td><td>SF</td><td><strong>9.33</strong></td><td>12.42</td><td>18.3%</td><td>67.2%</td></tr>
+      <tr class="row-tier0"><td>7</td><td><strong>Elly De La Cruz</strong></td><td>CIN</td><td>STL</td><td><strong>9.66</strong></td><td>12.51</td><td>15.7%</td><td>66.4%</td></tr>
+      <tr class="row-tier0"><td>8</td><td><strong>Zach Neto</strong></td><td>LAA</td><td>SF</td><td><strong>9.48</strong></td><td>12.33</td><td>17.9%</td><td>68.6%</td></tr>
+      <tr class="row-tier0"><td>9</td><td><strong>Pete Crow-Armstrong</strong></td><td>CHC</td><td>PIT</td><td><strong>9.48</strong></td><td>12.28</td><td>16.8%</td><td>65.1%</td></tr>
+      <tr class="row-tier0"><td>10</td><td><strong>Lane Thomas</strong></td><td>KC</td><td>DET</td><td><strong>9.48</strong></td><td>12.31</td><td>12.9%</td><td>72.8%</td></tr>
+      <tr class="row-tier0"><td>11</td><td><strong>Kyle Schwarber</strong></td><td>PHI</td><td>NYY</td><td><strong>9.36</strong></td><td>12.59</td><td>24.1%</td><td>66.8%</td></tr>
       <tr class="row-tier0"><td>12</td><td><strong>Brice Turang</strong></td><td>MIL</td><td>COL</td><td><strong>9.28</strong></td><td>12.08</td><td>18.1%</td><td>69.9%</td></tr>
-      <tr class="row-tier0"><td>13</td><td><strong>Nick Kurtz</strong></td><td>ATH</td><td>MIN</td><td><strong>9.19</strong></td><td>12.26</td><td>21.3%</td><td>67.6%</td></tr>
-      <tr class="row-tier0"><td>14</td><td><strong>Kevin McGonigle</strong></td><td>DET</td><td>KC</td><td><strong>9.15</strong></td><td>12.13</td><td>13.1%</td><td>69.1%</td></tr>
-      <tr class="row-tier0"><td>15</td><td><strong>Bryce Harper</strong></td><td>PHI</td><td>NYY</td><td><strong>9.11</strong></td><td>12.04</td><td>19.7%</td><td>70.0%</td></tr>
-      <tr class="row-tier0"><td>16</td><td><strong>C.J. Abrams</strong></td><td>WAS</td><td>ARI</td><td><strong>9.10</strong></td><td>11.91</td><td>19.3%</td><td>68.8%</td></tr>
-      <tr class="row-tier0"><td>17</td><td><strong>Jeremy Pena</strong></td><td>HOU</td><td>CHW</td><td><strong>9.09</strong></td><td>11.75</td><td>17.0%</td><td>73.0%</td></tr>
-      <tr class="row-tier0"><td>18</td><td><strong>Riley Greene</strong></td><td>DET</td><td>KC</td><td><strong>9.08</strong></td><td>12.25</td><td>17.2%</td><td>67.0%</td></tr>
-      <tr class="row-tier0"><td>19</td><td><strong>Zach Neto</strong></td><td>LAA</td><td>SF</td><td><strong>9.06</strong></td><td>11.78</td><td>16.4%</td><td>68.9%</td></tr>
+      <tr class="row-tier0"><td>13</td><td><strong>Mike Trout</strong></td><td>LAA</td><td>SF</td><td><strong>9.24</strong></td><td>12.30</td><td>18.0%</td><td>65.6%</td></tr>
+      <tr class="row-tier0"><td>14</td><td><strong>Nick Kurtz</strong></td><td>ATH</td><td>MIN</td><td><strong>9.19</strong></td><td>12.26</td><td>21.3%</td><td>67.6%</td></tr>
+      <tr class="row-tier0"><td>15</td><td><strong>Kevin McGonigle</strong></td><td>DET</td><td>KC</td><td><strong>9.15</strong></td><td>12.13</td><td>13.1%</td><td>69.1%</td></tr>
+      <tr class="row-tier0"><td>16</td><td><strong>Bryce Harper</strong></td><td>PHI</td><td>NYY</td><td><strong>9.11</strong></td><td>12.04</td><td>19.7%</td><td>70.0%</td></tr>
+      <tr class="row-tier0"><td>17</td><td><strong>C.J. Abrams</strong></td><td>WAS</td><td>ARI</td><td><strong>9.10</strong></td><td>11.91</td><td>19.3%</td><td>68.8%</td></tr>
+      <tr class="row-tier0"><td>18</td><td><strong>Jeremy Pena</strong></td><td>HOU</td><td>CHW</td><td><strong>9.09</strong></td><td>11.75</td><td>17.0%</td><td>73.0%</td></tr>
+      <tr class="row-tier0"><td>19</td><td><strong>Riley Greene</strong></td><td>DET</td><td>KC</td><td><strong>9.08</strong></td><td>12.25</td><td>17.2%</td><td>67.0%</td></tr>
       <tr class="row-tier0"><td>20</td><td><strong>Tyler Soderstrom</strong></td><td>ATH</td><td>MIN</td><td><strong>9.03</strong></td><td>11.91</td><td>16.7%</td><td>73.5%</td></tr>
       <tr class="row-tier0"><td>21</td><td><strong>Wilyer Abreu</strong></td><td>BOS</td><td>TOR</td><td><strong>9.01</strong></td><td>11.95</td><td>17.9%</td><td>69.8%</td></tr>
       <tr class="row-tier1"><td>22</td><td><strong>Dylan Crews</strong></td><td>WAS</td><td>ARI</td><td><strong>8.99</strong></td><td>11.80</td><td>18.4%</td><td>67.0%</td></tr>
@@ -2136,93 +2300,57 @@ body.sheet-open #scroll-track{display:none;}
   </div></div>
 </section>
 
-<!-- COMBOS K -->
+<!-- PARLAY CORRELATION -->
 <section id="combos-k" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">⚡ Alt K Combos</div>
-      <span class="game-tag">Tap to expand · K-only combos · alts ≤5 per user rule</span>
+      <div class="game-title">Strikeout Stack</div>
+      <span class="game-tag">Tap to expand · same-pitcher K plus outs · 2 legs default</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <div class="projected-section-badge"><span>PROJECTED MODE</span><small>K combos rebuilt from projected starter rows.</small></div>
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">K-only combo cards. <strong>Every leg is a strikeout prop.</strong> Alt rule: proj ≥5.0 → O5+; 4.5–4.99 → O3.5; &lt;4.5 → O2.5. <strong>Never alt &gt;5.</strong> Same player max 2 legs.</p>
-  <div class="flag-row"><div class="icon">1⃣</div><div><strong>Skenes O 5+ K + Wheeler O 5+ K</strong> — <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL V14, PNC -20% HR irrelevant for Ks) + <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS Fenway, HR-suppressed favors strike-throwing). Different games (Game 6 + Game 5). Slate-best T0 K pair. <span class="badge b-tier0">2-leg T0</span></div></div>
-  <div class="flag-row"><div class="icon">2⃣</div><div><strong>Warren O 5+ K + Peralta O 5+ K</strong> — <strong>Will Warren</strong> O 5+ K (SS 5.8 NYY @ BAL Camden -15%) + <strong>Freddy Peralta</strong> O 5+ K (SS 5.7 NYM vs DET, Citi -14% HR). Different games. T0 K combo. <span class="badge b-tier0">2-leg T0</span></div></div>
-  <div class="flag-row"><div class="icon">3⃣</div><div><strong>Skenes O 5+ K + Wheeler O 5+ K + Warren O 5+ K</strong> — 3-leg T0 K monster. Skenes 6.9 / Wheeler 6.6 / Warren 5.8. All different games. Slate’s only three SS ≥5.8 K plays. <span class="badge b-tier0">3-leg T0 stack</span></div></div>
-  <div class="flag-row"><div class="icon">4⃣</div><div><strong>Yamamoto O 5+ K + Flaherty O 5+ K</strong> — <strong>Yoshinobu Yamamoto</strong> O 5+ K (SS 5.7 LAD vs SF, BB 1.3 elite control) + <strong>Jack Flaherty</strong> O 5+ K (SS 5.5 DET @ NYM, HR/9 0.79 watch). Different games. T1 alt-K combo. <span class="badge b-tier1">2-leg T1 alt-K</span></div></div>
-  <div class="flag-row"><div class="icon">5⃣</div><div><strong>Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Brandon Sproat</strong> O 5+ K (SS 5.3 MIL vs SD) + <strong>Bryan Woo</strong> O 5+ K (SS 5.0 SEA @ HOU, BB 1.3). Different games. Floor-of-5 plays. <span class="badge b-tier1">2-leg T1 alt-K</span></div></div>
-  <div class="flag-row"><div class="icon">6⃣</div><div><strong>Gore O 3.5 K + Lorenzen O 2.5 K</strong> — <strong>MacKenzie Gore</strong> O 3.5 K (SS 4.9 TEX vs ARI) + <strong>Michael Lorenzen</strong> O 2.5 K (SS 4.3 PIT host, V60 trap — fade for Ks but volume floor). Different games. Safe low-alt stack. <span class="badge b-warn">2-leg O 3.5/2.5</span></div></div>
-  <div class="flag-row"><div class="icon">7⃣</div><div><strong>Skenes O 5+ K + Yamamoto O 5+ K + Peralta O 5+ K</strong> — Skenes / Yamamoto / Peralta all 5.7+ K projections. Three different games (PIT / LAD / NYM). High-floor 3-leg T1 K stack. <span class="badge b-tier1">3-leg cross-game</span></div></div>
-  <div class="flag-row"><div class="icon">8⃣</div><div><strong>Pérez O 5+ K + Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Eury Pérez</strong> O 5+ K (SS 5.3, HR/9 1.02 caveat) + Sproat 5.3 + Woo 5.0. Three different games. T1 K saturation at the floor-of-5 tier. <span class="badge b-tier1">3-leg T1 floor</span></div></div>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Eligibility: at least four K lenses, tier 0-1, no short-leash flag, and a real projected outs leg. Alt K ladders stay capped at O 5+.</p>
+  <div class="flag-row"><div class="icon">1</div><div>Leg 1: <strong>Jacob Misiorowski</strong> O 5+ <span class="badge b-neutral">Anchor</span> <small>4/6 lenses; projected 8.64 K</small><br>Leg 2: <strong>Jacob Misiorowski</strong> Ov 16.5 outs <span class="badge b-neutral">Satellite</span> <small>projected 17.2 outs</small><br><em>Deeper starts mean more batters faced, so strikeouts and outs move together.</em> <span class="badge b-tier1">same pitcher K + outs</span></div></div>
+  <div class="flag-row"><div class="icon">2</div><div>Leg 1: <strong>Jacob deGrom</strong> O 5+ <span class="badge b-neutral">Anchor</span> <small>4/6 lenses; projected 7.21 K</small><br>Leg 2: <strong>Jacob deGrom</strong> Ov 16.5 outs <span class="badge b-neutral">Satellite</span> <small>projected 18.5 outs</small><br><em>Deeper starts mean more batters faced, so strikeouts and outs move together.</em> <span class="badge b-tier1">same pitcher K + outs</span></div></div>
+  <div class="flag-row"><div class="icon">3</div><div>Leg 1: <strong>Braxton Ashcraft</strong> O 5+ <span class="badge b-neutral">Anchor</span> <small>4/6 lenses; projected 6.84 K</small><br>Leg 2: <strong>Braxton Ashcraft</strong> Ov 16.5 outs <span class="badge b-neutral">Satellite</span> <small>projected 17.9 outs</small><br><em>Deeper starts mean more batters faced, so strikeouts and outs move together.</em> <span class="badge b-tier1">same pitcher K + outs</span></div></div>
+  <div class="flag-row"><div class="icon">4</div><div>Leg 1: <strong>Cristopher Sanchez</strong> O 5+ <span class="badge b-neutral">Anchor</span> <small>4/6 lenses; projected 6.68 K</small><br>Leg 2: <strong>Cristopher Sanchez</strong> Ov 16.5 outs <span class="badge b-neutral">Satellite</span> <small>projected 17.9 outs</small><br><em>Deeper starts mean more batters faced, so strikeouts and outs move together.</em> <span class="badge b-tier1">same pitcher K + outs</span></div></div>
+  <div class="flag-row"><div class="icon">5</div><div>Leg 1: <strong>Drew Rasmussen</strong> O 5+ <span class="badge b-neutral">Anchor</span> <small>4/6 lenses; projected 5.62 K</small><br>Leg 2: <strong>Drew Rasmussen</strong> Ov 16.5 outs <span class="badge b-neutral">Satellite</span> <small>projected 17.9 outs</small><br><em>Deeper starts mean more batters faced, so strikeouts and outs move together.</em> <span class="badge b-tier1">same pitcher K + outs</span></div></div>
   </div></div>
 </section>
 
-<!-- PROJECTED UNAVAILABLE -->
-<section id="combos-hrr" class="collapsible projected-unavailable">
+<!-- PARLAY CORRELATION -->
+<section id="combos-hrr" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">HRR Combos</div>
-      <span class="game-tag">Unavailable without workbook</span>
+      <div class="game-title">Traffic Stack</div>
+      <span class="game-tag">Tap to expand · HRR traffic structures · no 2B or SB legs</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Eligibility: HRR proxy at least 78%, positive park Runs%, and one matching pitcher vulnerability reason. Hits-allowed and earned-runs legs are mutually exclusive.</p>
+  <div class="flag-row"><div class="icon">1</div><div>Leg 1: <strong>Dillon Dingler</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>93.4% HRR proxy</small><br>Leg 2: <strong>Riley Greene</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>92.2% HRR proxy</small><br>Leg 3: <strong>Luinder Avila</strong> Ov 2.5 ER <span class="badge b-neutral">Satellite</span> <small>projected 2.80 runs allowed; park runs +10%</small><br><em>DET traffic correlated against Luinder Avila.</em> <span class="badge b-tier1">Run Environment</span></div></div>
+  <div class="flag-row"><div class="icon">2</div><div>Leg 1: <strong>Wilyer Abreu</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>91.5% HRR proxy</small><br>Leg 2: <strong>Caleb Durbin</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>91.1% HRR proxy</small><br>Leg 3: <strong>Kevin Gausman</strong> Ov 4.5 H allowed <span class="badge b-neutral">Satellite</span> <small>projected 5.85 hits allowed</small><br><em>BOS traffic correlated against Kevin Gausman.</em> <span class="badge b-tier1">Both Sides</span></div></div>
+  <div class="flag-row"><div class="icon">3</div><div>Leg 1: <strong>Byron Buxton</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>92.0% HRR proxy</small><br>Leg 2: <strong>Royce Lewis</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>90.6% HRR proxy</small><br>Leg 3: <strong>Jeffrey Springs</strong> Ov 2.5 ER <span class="badge b-neutral">Satellite</span> <small>projected 2.93 runs allowed; park runs +4%</small><br><em>MIN traffic correlated against Jeffrey Springs.</em> <span class="badge b-tier1">Run Environment</span></div></div>
+  <div class="flag-row"><div class="icon">4</div><div>Leg 1: <strong>Bryce Harper</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>91.0% HRR proxy</small><br>Leg 2: <strong>Trea Turner</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>90.1% HRR proxy</small><br>Leg 3: <strong>Will Warren</strong> Ov 2.5 ER <span class="badge b-neutral">Satellite</span> <small>projected 2.69 runs allowed; park runs +7%</small><br><em>PHI traffic correlated against Will Warren.</em> <span class="badge b-tier1">Run Environment</span></div></div>
+  <div class="flag-row"><div class="icon">5</div><div>Leg 1: <strong>Salvador Perez</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>91.8% HRR proxy</small><br>Leg 2: <strong>Nick Loftin</strong> Ov 0.5 HRR <span class="badge b-neutral">Satellite</span> <small>89.7% HRR proxy</small><br>Leg 3: <strong>Framber Valdez</strong> Ov 5.5 H allowed <span class="badge b-neutral">Satellite</span> <small>projected 6.03 hits allowed</small><br><em>KC traffic correlated against Framber Valdez.</em> <span class="badge b-tier1">Both Sides</span></div></div>
+  </div></div>
+</section>
+
+<!-- PARLAY EMPTY -->
+<section id="parlays" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">Anchor</div>
+      <span class="game-tag">No qualifying K anchor yet</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
     <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>The HRR combo board depends on full Sweet Spot and Dimers workbook context. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
-    </div>
-  </div></div>
-</section>
-
-<!-- PROJECTED UNAVAILABLE -->
-<section id="parlays" class="collapsible projected-unavailable">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">Parlay Builder</div>
-      <span class="game-tag">Unavailable without workbook</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-    <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>The full parlay builder is withheld in Projected Mode because several workbook-only signals are missing. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
-    </div>
-  </div></div>
-</section>
-
-<!-- PROJECTED UNAVAILABLE -->
-<section id="conviction" class="collapsible projected-unavailable">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">Conviction Board</div>
-      <span class="game-tag">Unavailable without workbook</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-    <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>Conviction rankings require the complete workbook signal stack. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
-    </div>
-  </div></div>
-</section>
-
-<!-- PROJECTED UNAVAILABLE -->
-<section id="skip" class="collapsible projected-unavailable">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">Daily Skip List</div>
-      <span class="game-tag">Unavailable without workbook</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-    <div class="unavailable-card">
-      <strong>Unavailable without workbook</strong>
-      <p>The skip list includes editorial workbook context and is not reconstructed on missed-upload days. Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
+      <strong>No qualifying correlation stack</strong>
+      <p>No pitcher cleared the tier-0, five-lens, no-short-leash anchor gate.</p>
     </div>
   </div></div>
 </section>
@@ -3213,6 +3341,30 @@ suggestForm.addEventListener('submit', function(e) {
 })();
 
 </script>
+
+
+<!-- PROJECTED JS START -->
+<script>
+/* Withheld-boards disclosure. Vanilla, no dependencies, no network. */
+(function () {
+  function wire() {
+    var btn = document.getElementById('pmWithheldBtn');
+    if (!btn) return;
+    var body = document.getElementById('pmWithheldBody');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (body) body.classList.toggle('open', !open);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+<!-- PROJECTED JS END -->
 
 </body>
 </html>
