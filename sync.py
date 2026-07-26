@@ -144,126 +144,861 @@ html = re.sub(r'<p class="method-intro">[\s\S]*?</p>', f'<p class="method-intro"
 
 print("  Updated header, titles, park summary")
 
+# ============================================================================
+# PROJECTED MODE -- "INSTRUMENT" overhaul
+# ----------------------------------------------------------------------------
+# Everything here renders ONLY when PROJECTED_MODE is true. The CSS and the JS
+# are both injected after the `if not PROJECTED_MODE: return html` guard in
+# apply_projected_theme(), so a workbook-backed build stays byte-identical.
+#
+# Thesis: the workbook did not arrive, so the slate is flown on instruments.
+# The language is a machined panel -- stepped plates, edge light, recessed
+# data wells. Depth comes from luminance geometry, never from blur or gloss,
+# because blur and gloss are exactly what vanish in sunlight on a phone.
+# ============================================================================
+
 PROJECTED_CSS = '''
 /* PROJECTED MODE CSS START */
+
+/* ---------------------------------------------------------------- tokens --
+   Violet keys the mode because it is the only high-chroma hue with no job on
+   this page: green/gold = tier, red/orange = risk and park, blue = info.
+   Steel is its quiet companion. --good/--bad/--hot/--warn/--cold/--info are
+   deliberately NOT redefined: they live inside cells and carry park and stat
+   meaning that has to survive the reskin.
+   ------------------------------------------------------------------------ */
 .projected-mode {
-  --bg: #0d1117;
-  --bg-grad-1: #102a35;
-  --bg-grad-2: #172033;
-  --bg-grad-3: #241f10;
-  --surface: #101720;
-  --surface-2: #14202b;
-  --glass: rgba(103,232,249,0.08);
-  --glass-strong: rgba(103,232,249,0.14);
-  --glass-border: rgba(125,211,252,0.24);
-  --glass-border-strong: rgba(251,191,36,0.32);
-  --border: rgba(125,211,252,0.2);
-  --accent: #22d3ee;
-  --accent-soft: rgba(34,211,238,0.14);
-  --gold: #fbbf24;
-  --tier0: #67e8f9;
-  --tier0-bg: rgba(103,232,249,0.13);
-  --tier0-border: rgba(103,232,249,0.44);
-  --tier0-solid: #102a35;
-  --tier1: #fbbf24;
-  --tier1-bg: rgba(251,191,36,0.12);
-  --tier1-border: rgba(251,191,36,0.42);
-  --tier1-solid: #2b2412;
+  --pm-key: #9d7bff;
+  --pm-key-lift: #b79aff;
+  --pm-steel: #8aa0bd;
+  --pm-edge: rgba(255,255,255,0.07);
+  --pm-edge-strong: rgba(255,255,255,0.11);
+  --pm-hair: rgba(157,123,255,0.22);
+  --pm-plate: #15131e;
+  --pm-plate-sunk: rgba(0,0,0,0.55);
+  --pm-lip: #1b1826;
+  --pm-stamp-bg: #2b1856;
+  --pm-stamp-ink: #f4efff;
+  --pm-stamp-soft: #cdb8ff;
+  --pm-drop: 0 1px 2px rgba(0,0,0,0.42);
+  --pm-searchbar-h: 60px;
+  --pm-dock-lift: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px));
+
+  --bg: #0c0a12;
+  --bg-grad-1: #1a1030;
+  --bg-grad-2: #110e1d;
+  --bg-grad-3: #1c1330;
+  --surface: #15131e;
+  --surface-2: #1b1826;
+  --glass: rgba(157,123,255,0.06);
+  --glass-strong: rgba(157,123,255,0.12);
+  --glass-elev: rgba(157,123,255,0.045);
+  --glass-border: rgba(157,123,255,0.17);
+  --glass-border-strong: rgba(157,123,255,0.28);
+  --border: rgba(157,123,255,0.19);
+  --accent: #9d7bff;
+  --accent-soft: rgba(157,123,255,0.14);
+  --gold: #b79aff;
+  --header-bg: rgba(12,10,18,0.92);
+  --sheet-bg: #14111d;
+
+  /* A derived rank is not a graded rank. It takes a hue with no tier meaning
+     AND a lighter weight -- a hairline rail instead of a filled band. */
+  --tier0: #9d7bff;
+  --tier0-bg: rgba(157,123,255,0.10);
+  --tier0-border: rgba(157,123,255,0.42);
+  --tier0-solid: #1d1730;
+  --tier1: #8aa0bd;
+  --tier1-bg: rgba(138,160,189,0.085);
+  --tier1-border: rgba(138,160,189,0.36);
+  --tier1-solid: #171c25;
+  --pick-solid: #1d1730;
 }
-.projected-mode .app-bar {
-  border-bottom: 1px solid rgba(125,211,252,0.28);
-  background: rgba(13,17,23,0.9);
+
+/* Light gets a full design, not a leftover. Specificity (0,2,0) beats the
+   block above regardless of source order, so the projected page stays
+   readable in daylight -- which is where this page is actually read. */
+[data-theme="light"] .projected-mode {
+  --pm-key: #6d28d9;
+  --pm-key-lift: #5b21b6;
+  --pm-steel: #3f5570;
+  --pm-edge: rgba(255,255,255,0.9);
+  --pm-edge-strong: #ffffff;
+  --pm-hair: rgba(109,40,217,0.20);
+  --pm-plate: #ffffff;
+  --pm-plate-sunk: rgba(38,20,84,0.13);
+  --pm-lip: #f5f1fb;
+  --pm-stamp-bg: #4c1d95;
+  --pm-stamp-ink: #f8f5ff;
+  --pm-stamp-soft: #d9c9f8;
+  --pm-drop: 0 1px 2px rgba(38,20,84,0.10);
+
+  --bg: #eeebf5;
+  --bg-grad-1: #e4dbf6;
+  --bg-grad-2: #eae6f3;
+  --bg-grad-3: #f1ecf9;
+  --surface: #ffffff;
+  --surface-2: #f5f1fb;
+  --glass: rgba(255,255,255,0.76);
+  --glass-strong: rgba(255,255,255,0.92);
+  --glass-elev: rgba(255,255,255,0.66);
+  --glass-border: rgba(48,22,92,0.13);
+  --glass-border-strong: rgba(48,22,92,0.21);
+  --border: rgba(48,22,92,0.15);
+  --accent: #6d28d9;
+  --accent-soft: rgba(109,40,217,0.09);
+  --gold: #5b21b6;
+  --text-dim: #55606e;
+  --header-bg: rgba(242,238,250,0.92);
+  --sheet-bg: #fcfaff;
+
+  --tier0: #6d28d9;
+  --tier0-bg: rgba(109,40,217,0.08);
+  --tier0-border: rgba(109,40,217,0.38);
+  --tier0-solid: #ece4fa;
+  --tier1: #3f5570;
+  --tier1-bg: rgba(63,85,112,0.075);
+  --tier1-border: rgba(63,85,112,0.34);
+  --tier1-solid: #e6ebf1;
+  --pick-solid: #ece4fa;
 }
-.projected-mode .hero {
-  border-bottom: 1px solid rgba(125,211,252,0.22);
-  background: linear-gradient(180deg, rgba(34,211,238,0.08), rgba(251,191,36,0.04));
+
+/* -------------------------------------------------------------- elevation --
+   E1 shell -> E2 header lip (raised) -> E3 data plate (recessed).
+   The recess is what reads as three-dimensional without any blur: the plate
+   sits BELOW the chrome plane instead of floating above it. In light mode the
+   edge light moves from the top of the step to the bottom, so the same
+   geometry still reads against a light ground.
+   ------------------------------------------------------------------------ */
+.projected-mode main > section {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: inset 0 1px 0 var(--pm-edge), var(--pm-drop);
+}
+[data-theme="light"] .projected-mode main > section {
+  box-shadow: inset 0 1px 0 var(--pm-edge-strong),
+              inset 0 -1px 0 rgba(38,20,84,0.05),
+              var(--pm-drop);
 }
 .projected-mode .game-header {
-  border-color: rgba(125,211,252,0.22);
-  background: linear-gradient(90deg, rgba(34,211,238,0.11), rgba(251,191,36,0.05));
+  background: var(--pm-lip);
+  box-shadow: inset 0 1px 0 var(--pm-edge);
+  min-height: 56px;
 }
-.projected-mode .collapsible,
+.projected-mode .collapsible.open > .game-header,
+.projected-mode .game.open > .game-header {
+  border-bottom: 1px solid var(--glass-border);
+}
+.projected-mode .table-wrap {
+  background-color: var(--pm-plate);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 2px 6px -3px var(--pm-plate-sunk);
+  /* local-attachment scroll shadow: the edge shading retracts only once the
+     table is scrolled to that end, so a 13-column board announces its extra
+     columns instead of hiding them off-screen */
+  background-image:
+    linear-gradient(to right, var(--pm-plate) 30%, rgba(0,0,0,0)),
+    linear-gradient(to left,  var(--pm-plate) 30%, rgba(0,0,0,0)),
+    linear-gradient(to right, var(--pm-plate-sunk), rgba(0,0,0,0)),
+    linear-gradient(to left,  var(--pm-plate-sunk), rgba(0,0,0,0));
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-size: 26px 100%, 26px 100%, 13px 100%, 13px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
 .projected-mode .game {
-  border-radius: 8px;
-  border-color: rgba(125,211,252,0.22);
-  box-shadow: 0 16px 40px -26px rgba(34,211,238,0.55);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--pm-edge), var(--pm-drop);
 }
+
+/* ------------------------------------------------------------- the stamp --
+   Inverts against the page in both themes: a lifted violet block on dark, a
+   deep violet block on light. The inversion, not the hue, is what survives a
+   half-second glance in the sun.
+   ------------------------------------------------------------------------ */
 .projected-mode-banner {
+  position: relative;
   margin: 0;
-  padding: 13px 18px;
-  border-bottom: 1px solid rgba(251,191,36,0.35);
-  background: linear-gradient(90deg, rgba(8,145,178,0.9), rgba(30,41,59,0.96));
-  color: #f8fafc;
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 1.35;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px)
+           16px 12px
+           calc(env(safe-area-inset-left, 0px) + 17px);
+  border-bottom: 2px solid var(--pm-key);
+  background: var(--pm-stamp-bg);
+  color: var(--pm-stamp-ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.projected-mode-banner .pm-stamp {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.84;
+}
+.projected-mode-banner .pm-word {
+  font-size: clamp(35px, 10.6vw, 46px);
+  letter-spacing: 2.5px;
+  color: var(--pm-stamp-ink);
+}
+.projected-mode-banner .pm-mode {
+  font-size: clamp(18px, 5.4vw, 24px);
+  letter-spacing: 4px;
+  color: var(--pm-key-lift);
+}
+[data-theme="light"] .projected-mode .pm-mode { color: #c9adff; }
+.projected-mode-banner .pm-status {
+  margin: 7px 0 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px; letter-spacing: 1.7px; text-transform: uppercase;
+  color: var(--pm-stamp-soft);
+}
+.projected-mode-banner .pm-body {
+  margin: 7px 0 0;
+  max-width: 62ch;
+  font-size: 12.5px; font-weight: 500; line-height: 1.42;
+  color: var(--pm-stamp-ink);
 }
 .projected-mode-banner small {
   display: block;
-  margin-top: 2px;
-  color: #cffafe;
-  font-weight: 600;
+  margin-top: 5px;
+  font-size: 12px; font-weight: 600; line-height: 1.42;
+  color: var(--pm-stamp-soft);
 }
+
+/* --------------------------------------------- withheld-boards disclosure --
+   One collapsed line, never silent: the count is always on screen and the
+   names are one tap away. This is the floor that stops a projected page from
+   passing itself off as a complete slate.
+   ------------------------------------------------------------------------ */
+.pm-withheld {
+  margin: 9px 0 0;
+  border: 1px solid rgba(255,255,255,0.17);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.20);
+  overflow: hidden;
+}
+[data-theme="light"] .projected-mode .pm-withheld {
+  border-color: rgba(255,255,255,0.26);
+  background: rgba(0,0,0,0.16);
+}
+.pm-withheld-btn {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%; min-height: 44px;
+  padding: 10px 13px;
+  background: none; border: 0;
+  color: var(--pm-stamp-ink);
+  font-family: var(--font-body);
+  font-size: 13px; font-weight: 700;
+  text-align: left; cursor: pointer;
+}
+.pm-withheld-btn .pm-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 25px; height: 25px; padding: 0 7px;
+  border-radius: 7px;
+  background: var(--pm-key-lift);
+  color: #1a0a36;
+  font-family: var(--font-display); font-size: 16px; letter-spacing: 0.5px;
+}
+[data-theme="light"] .projected-mode .pm-withheld-btn .pm-count {
+  background: #c9adff; color: #2a0f5c;
+}
+.pm-withheld-btn .pm-caret { margin-left: auto; font-size: 11px; transition: transform .26s; }
+.pm-withheld-btn[aria-expanded="true"] .pm-caret { transform: rotate(180deg); }
+.pm-withheld-body { display: none; padding: 0 13px 12px; }
+.pm-withheld-body.open { display: block; }
+.pm-withheld-body ul { margin: 0; padding: 0; list-style: none; }
+.pm-withheld-body li {
+  position: relative;
+  padding: 8px 0 8px 15px;
+  font-size: 12.5px; line-height: 1.4;
+  color: var(--pm-stamp-ink);
+  border-top: 1px solid rgba(255,255,255,0.11);
+}
+.pm-withheld-body li::before {
+  content: ""; position: absolute; left: 2px; top: 15px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--pm-key-lift);
+}
+[data-theme="light"] .projected-mode .pm-withheld-body li::before { background: #c9adff; }
+.pm-withheld-note {
+  margin: 10px 0 0;
+  font-size: 12px; line-height: 1.45;
+  color: var(--pm-stamp-soft);
+}
+
+/* -------------------------------------------------------- board  grammar --
+   One grammar: rail + eyebrow + title + summary strip + plate. Only the rail
+   and the eyebrow change between families, so board types stay instantly
+   distinguishable while obviously belonging to one system.
+   ------------------------------------------------------------------------ */
+.projected-mode main > section[data-board] > .game-header { position: relative; }
+.projected-mode main > section[data-board] > .game-header::before {
+  content: "";
+  position: absolute; left: 0; top: 10px; bottom: 10px;
+  width: 3px; border-radius: 0 3px 3px 0;
+}
+.projected-mode section[data-board="derived"] > .game-header::before { background: var(--pm-key); }
+.projected-mode section[data-board="pitcher"] > .game-header::before {
+  background: linear-gradient(180deg, var(--pm-key) 0 50%, var(--pm-steel) 50% 100%);
+}
+.projected-mode section[data-board="context"] > .game-header::before { background: var(--pm-steel); }
+
+.projected-mode main > section[data-board] .game-title::before {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500; letter-spacing: 1.6px;
+}
+.projected-mode section[data-board="derived"] .game-title::before {
+  content: "DERIVED RANKING"; color: var(--pm-key);
+}
+.projected-mode section[data-board="pitcher"] .game-title::before {
+  content: "STARTERS"; color: var(--pm-key);
+}
+.projected-mode section[data-board="context"] .game-title::before {
+  content: "CONTEXT"; color: var(--pm-steel);
+}
+.projected-mode .game-title {
+  font-family: var(--font-body);
+  font-size: 15.5px; font-weight: 700; line-height: 1.25;
+}
+/* the collapsed header already states what the board holds -- give that line
+   room to work so a board can be read without being opened at all */
+.projected-mode .game-tag {
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-size: 11.5px; line-height: 1.45; letter-spacing: 0.1px;
+  color: var(--text-dim);
+}
+
+/* headline cards: no shell, no plate. Editorial, not tabular. */
+.projected-mode #headlines {
+  background: none; border: 0; box-shadow: none;
+  border-radius: 0;
+}
+.projected-mode .headline-card {
+  position: relative;
+  display: block;
+  margin: 0 0 10px;
+  padding: 14px 15px 14px 17px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: inset 0 1px 0 var(--pm-edge), var(--pm-drop);
+}
+.projected-mode .headline-card::before {
+  content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--pm-key);
+}
+.projected-mode .hc-title {
+  margin-bottom: 5px;
+  font-family: var(--font-mono);
+  font-size: 10.5px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--pm-key);
+}
+.projected-mode .headline-card p {
+  margin: 0;
+  font-size: 14px; line-height: 1.5;
+  color: var(--text);
+}
+
+/* -------------------------------------------------------------- the plate --
+   Density is solved with structure, never by shrinking type: body cells go UP
+   from 12.5px to 13px, because 12.5px is not readable in direct sun.
+   ------------------------------------------------------------------------ */
+.projected-mode tbody td {
+  padding: 7px 10px;
+  font-size: 13px;
+  line-height: 1.3;
+  border-bottom: 1px solid var(--glass-border);
+}
+/* the name cell is the one that wraps; give it room before it does, and keep
+   its second line tight, so a row costs two lines instead of three */
+.projected-mode table.stick2 td:nth-child(2) { max-width: 168px; }
+.projected-mode tbody td span { line-height: 1.25; }
+.projected-mode thead th {
+  background: var(--pm-lip);
+  font-family: var(--font-mono);
+  font-size: 10.5px; font-weight: 500; letter-spacing: 0.9px;
+  color: var(--text-dim);
+  padding: 10px;
+  box-shadow: inset 0 -1px 0 var(--glass-border-strong);
+}
+.projected-mode thead th:first-child,
+.projected-mode table.stick2 thead th:nth-child(2) { background: var(--pm-lip); }
+
+/* derived tiers: hairline rail, no filled band */
+.projected-mode tr.row-tier0 td,
+.projected-mode tr.row-tier1 td { background: transparent; }
+.projected-mode tbody tr.row-tier0 td:first-child { background: var(--tier0-bg); }
+.projected-mode tbody tr.row-tier1 td:first-child { background: var(--tier1-bg); }
+.projected-mode table.stick2 tr.row-tier0 td:nth-child(2) { background: var(--tier0-bg); }
+.projected-mode table.stick2 tr.row-tier1 td:nth-child(2) { background: var(--tier1-bg); }
+.projected-mode tbody tr:nth-child(even) td { background-color: rgba(255,255,255,0.02); }
+[data-theme="light"] .projected-mode tbody tr:nth-child(even) td { background-color: rgba(38,20,84,0.024); }
+
+/* Bebas is reserved for rank numerals -- the one place a display face earns
+   its keep here, because a rank is scanned, not read */
+.projected-mode section[data-board="derived"] tbody td:first-child {
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--text-soft);
+}
+.projected-mode section[data-board="derived"] tbody tr.row-tier0 td:first-child { color: var(--pm-key); }
+
+/* ------------------------------------------------- progressive disclosure --
+   Long boards show their head; the rest is one 44px tap away. This is a plain
+   CSS rule, so it costs nothing per keystroke -- and it yields automatically
+   while a filter is active, so search always sees every row.
+   ------------------------------------------------------------------------ */
+body.projected-mode:not(.filtering) section.pm-capped:not(.pm-all) tbody tr:nth-child(n+13) {
+  display: none;
+}
+.pm-more {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; min-height: 44px;
+  margin: 8px 0 2px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--pm-lip);
+  box-shadow: inset 0 1px 0 var(--pm-edge);
+  color: var(--pm-key);
+  font-family: var(--font-body);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+}
+.pm-more:active { background: var(--accent-soft); }
+.pm-more .pm-more-sub {
+  font-family: var(--font-mono);
+  font-size: 11.5px; font-weight: 500;
+  color: var(--text-dim);
+}
+body.filtering .pm-more { display: none; }
+
+/* ---------------------------------------------------------- search dock ---
+   Sticky in the thumb zone, directly above the tab dock, always reachable.
+   It drives the page's existing filter engine instead of duplicating it.
+   ------------------------------------------------------------------------ */
+body.projected-mode {
+  padding-bottom: calc(var(--dock-h) + var(--pm-searchbar-h) + env(safe-area-inset-bottom, 0px) + 18px);
+}
+.pm-searchbar {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: var(--pm-dock-lift);
+  z-index: 68;
+  display: flex; align-items: center; gap: 8px;
+  height: var(--pm-searchbar-h);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 12px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 12px);
+  background: var(--header-bg);
+  border-top: 1px solid var(--glass-border);
+  box-shadow: 0 -6px 18px -12px rgba(0,0,0,0.7);
+}
+.pm-search-field { position: relative; flex: 1; display: flex; align-items: center; }
+.pm-search-field .pm-mag {
+  position: absolute; left: 11px;
+  font-size: 14px; pointer-events: none; opacity: 0.8;
+}
+.pm-searchbar input {
+  width: 100%; height: 44px;
+  padding: 0 44px 0 34px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 12px;
+  background: var(--pm-plate);
+  box-shadow: inset 0 2px 5px -3px var(--pm-plate-sunk);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px; /* 16px keeps iOS from zooming the page on focus */
+  -webkit-appearance: none;
+  appearance: none;
+}
+.pm-searchbar input::placeholder { color: var(--text-dim); }
+.pm-searchbar input::-webkit-search-cancel-button { display: none; }
+.pm-searchbar input:focus {
+  outline: none;
+  border-color: var(--pm-key);
+  box-shadow: inset 0 2px 5px -3px var(--pm-plate-sunk), 0 0 0 2px var(--accent-soft);
+}
+.pm-search-clear {
+  position: absolute; right: 2px;
+  width: 44px; height: 44px;
+  display: none; align-items: center; justify-content: center;
+  background: none; border: 0;
+  color: var(--text-dim); font-size: 15px;
+  cursor: pointer;
+}
+.pm-searchbar.has-q .pm-search-clear { display: flex; }
+.pm-search-count {
+  flex: 0 0 auto;
+  padding: 0 2px;
+  font-family: var(--font-mono);
+  font-size: 11.5px; letter-spacing: 0.2px;
+  white-space: nowrap;
+  color: var(--pm-key);
+}
+.pm-search-count:empty { display: none; }
+.pm-search-count::after { content: " hits"; color: var(--text-dim); }
+body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
+
+.projected-mode #scroll-thumb {
+  background: rgba(157,123,255,0.34);
+  border-color: rgba(157,123,255,0.62);
+}
+.projected-mode #scroll-thumb.dragging { background: rgba(157,123,255,0.85); }
+[data-theme="light"] .projected-mode #scroll-thumb {
+  background: rgba(109,40,217,0.30);
+  border-color: rgba(109,40,217,0.60);
+}
+
+/* ------------------------------------------------------------ tap size --
+   One thumb, standing up, often gloved. Every control the mode owns is at
+   least 44px; the rail grows to fit rather than the chips shrinking to fit.
+   ------------------------------------------------------------------------ */
+.projected-mode { --rail-h: 54px; }
+.projected-mode .rail .chip { height: 44px; min-width: 44px; justify-content: center; }
+.projected-mode .icon-btn { width: 44px; height: 44px; }
+.projected-mode .chevron { width: 36px; height: 36px; }
+.projected-mode .text-btn { min-height: 44px; }
+
+/* the persistent chrome carries the mode too, so it is never off-screen */
+.projected-mode .app-bar,
+.projected-mode .rail-wrap { border-bottom: 1px solid var(--pm-hair); }
+.projected-mode .rail .chip.active {
+  box-shadow: 0 0 12px rgba(157,123,255,0.22), inset 0 0 8px rgba(157,123,255,0.07);
+  text-shadow: 0 0 12px rgba(157,123,255,0.55);
+}
+[data-theme="light"] .projected-mode .rail .chip.active {
+  box-shadow: inset 0 0 0 1px var(--tier0-border);
+  text-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm-withheld-btn .pm-caret { transition: none; }
+}
+/* ---------------------------------------------------------- provenance ----
+   Every reconstructed board states what it was rebuilt from. That sentence
+   matters, but it is not what you opened the board to read -- so it is tucked
+   under the plate as a footnote instead of standing between you and the rows.
+   ------------------------------------------------------------------------ */
+.pm-note {
+  margin: 10px 0 2px;
+  padding: 11px 12px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-elev);
+  box-shadow: inset 0 1px 0 var(--pm-edge);
+}
+.pm-note > * + * { margin-top: 8px; }
+.pm-note p {
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.5;
+  color: var(--text-soft) !important;
+}
+.pm-note a { font-size: 12.5px; }
 .projected-section-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin: 0 0 12px;
-  padding: 9px 11px;
-  border: 1px solid rgba(125,211,252,0.28);
-  border-radius: 8px;
-  background: rgba(8,145,178,0.1);
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-soft);
 }
 .projected-section-badge span {
-  color: #67e8f9;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  display: inline-block;
+  margin-right: 7px;
+  padding: 2px 7px;
+  border: 1px solid var(--tier0-border);
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--pm-key);
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500; letter-spacing: 1.2px;
+  vertical-align: 1px;
 }
 .projected-section-badge small {
-  color: var(--text-soft);
-  font-size: 12px;
-}
-.unavailable-card {
-  border: 1px dashed rgba(251,191,36,0.45);
-  border-radius: 8px;
-  background: rgba(251,191,36,0.08);
-  padding: 16px;
-}
-.unavailable-card strong {
-  color: #fbbf24;
-  font-size: 14px;
-}
-.unavailable-card p {
-  margin: 6px 0 0;
+  font-size: 12.5px;
   color: var(--text-soft);
 }
 /* PROJECTED MODE CSS END */
 '''
 
+PROJECTED_JS = '''
+<!-- PROJECTED JS START -->
+<script>
+/* Projected Mode interaction. Vanilla, no dependencies, no network calls. */
+(function () {
+  var ROW_CAP = 12;
+
+  /* ---- put the data first ---------------------------------------------
+     Each board opens with a provenance badge and an explainer paragraph. Both
+     are worth keeping, neither is what you tapped the board to see, so they
+     move below the plate as a footnote. Text is moved, never altered.
+     -------------------------------------------------------------------- */
+  function tuckNotes() {
+    var inners = document.querySelectorAll('main .game-body-inner');
+    for (var i = 0; i < inners.length; i++) {
+      var inner = inners[i];
+      var plate = inner.querySelector('.table-wrap');
+      if (!plate) continue;
+      var move = [];
+      for (var n = inner.firstElementChild; n && n !== plate; n = n.nextElementSibling) {
+        if (n.classList.contains('projected-section-badge') || n.tagName === 'P') move.push(n);
+      }
+      if (!move.length) continue;
+      var note = document.createElement('div');
+      note.className = 'pm-note';
+      for (var k = 0; k < move.length; k++) note.appendChild(move[k]);
+      inner.appendChild(note);
+    }
+  }
+
+  /* ---- progressive disclosure on long boards -------------------------- */
+  function capBoards() {
+    var secs = document.querySelectorAll('main > section.collapsible');
+    for (var i = 0; i < secs.length; i++) {
+      var sec = secs[i];
+      if (sec.id === 'games') continue;
+      var tables = sec.querySelectorAll('.table-wrap table');
+      if (tables.length !== 1) continue;
+      var tbody = tables[0].tBodies[0];
+      if (!tbody) continue;
+      var total = tbody.rows.length;
+      if (total <= ROW_CAP + 2) continue;
+
+      sec.classList.add('pm-capped');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pm-more';
+      btn.setAttribute('aria-expanded', 'false');
+      var hidden = total - ROW_CAP;
+      btn.innerHTML = '<span class="pm-more-label"></span><span class="pm-more-sub"></span>';
+      btn.querySelector('.pm-more-label').textContent = 'Show all ' + total + ' rows';
+      btn.querySelector('.pm-more-sub').textContent = hidden + ' more';
+      (function (section, button, allRows, hiddenRows) {
+        button.addEventListener('click', function () {
+          var open = section.classList.toggle('pm-all');
+          button.setAttribute('aria-expanded', open ? 'true' : 'false');
+          button.querySelector('.pm-more-label').textContent =
+            open ? 'Show top ' + ROW_CAP : 'Show all ' + allRows + ' rows';
+          button.querySelector('.pm-more-sub').textContent =
+            open ? 'of ' + allRows : hiddenRows + ' more';
+        });
+      })(sec, btn, total, hidden);
+      var wrap = sec.querySelector('.table-wrap');
+      if (wrap && wrap.parentNode) wrap.parentNode.insertBefore(btn, wrap.nextSibling);
+    }
+  }
+
+  /* ---- withheld-boards disclosure ------------------------------------- */
+  function wireWithheld() {
+    var btn = document.getElementById('pmWithheldBtn');
+    if (!btn) return;
+    var body = document.getElementById('pmWithheldBody');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (body) body.classList.toggle('open', !open);
+    });
+  }
+
+  /* ---- search bar -----------------------------------------------------
+     The page already ships a filter engine behind the dock: it indexes every
+     matchable node once, debounces at 130ms, and filters by toggling a single
+     class -- it never rebuilds the DOM. Standing up a second engine would put
+     two of them in a fight over the same rows, so this bar drives that one.
+     Per keystroke the work here is one value copy and one event dispatch; the
+     debounce and the filtering pass stay exactly where they already were.
+     -------------------------------------------------------------------- */
+  function wireSearch() {
+    var bar = document.getElementById('pmSearchBar');
+    if (!bar) return;
+    var input = document.getElementById('pmSearchInput');
+    var clear = document.getElementById('pmSearchClear');
+    var count = document.getElementById('pmSearchCount');
+    var real = document.getElementById('searchInput');
+    var realClear = document.getElementById('searchClear');
+    var realCount = document.getElementById('searchCount');
+
+    function paint() { bar.classList.toggle('has-q', !!input.value); }
+
+    input.addEventListener('input', function () {
+      paint();
+      if (!real) return;
+      real.value = input.value;
+      real.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    if (clear) {
+      clear.addEventListener('click', function () {
+        input.value = '';
+        paint();
+        if (realClear) { realClear.click(); }
+        else if (real) { real.value = ''; real.dispatchEvent(new Event('input', { bubbles: true })); }
+        input.focus();
+      });
+    }
+
+    /* keep both inputs in step if the dock sheet gets used instead */
+    if (real) {
+      real.addEventListener('input', function () {
+        if (input.value !== real.value) { input.value = real.value; paint(); }
+      });
+    }
+
+    /* mirror the engine's own result count -- observer, not a poll */
+    if (realCount && count && window.MutationObserver) {
+      new MutationObserver(function () {
+        var m = (realCount.textContent || '').match(/^([0-9]+)\\s+match/);
+        count.textContent = m ? m[1] : '';
+      }).observe(realCount, { childList: true, characterData: true, subtree: true });
+    }
+  }
+
+  function init() { tuckNotes(); capBoards(); wireWithheld(); wireSearch(); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- PROJECTED JS END -->
+'''
+
+# Which visual family each board belongs to. Anything not listed keeps the
+# base styling -- the explainer sections (alignment, methodology, tip-jar)
+# are documentation, not boards, and must not wear a board eyebrow.
+BOARD_KIND = {
+    'headlines':     'headlines',
+    'games':         'games',
+    'hr-board':      'derived',
+    'oo5-board':     'derived',
+    'k-board':       'pitcher',
+    'park-board':    'context',
+    'totals-board':  'context',
+    'nrfi-board':    'context',
+    'sb-board':      'context',
+    'doubles-board': 'context',
+    'dfs-board':     'context',
+    'combos-k':      'context',
+}
+
+
 def apply_projected_theme(html):
+    # Strip whatever a previous build injected, so switching modes is clean.
     html = re.sub(
         r'\n?/\* PROJECTED MODE CSS START \*/[\s\S]*?/\* PROJECTED MODE CSS END \*/\n?',
         '\n',
         html,
     )
+    html = re.sub(
+        r'\n?<!-- PROJECTED JS START -->[\s\S]*?<!-- PROJECTED JS END -->\n?',
+        '\n',
+        html,
+    )
+    html = re.sub(
+        r'\n?<!-- PROJECTED CHROME START -->[\s\S]*?<!-- PROJECTED CHROME END -->\s*',
+        '\n',
+        html,
+    )
+    html = re.sub(r'\n?<div class="pm-searchbar" id="pmSearchBar">[\s\S]*?</div>\s*(?=<nav class="dock")', '', html)
     html = re.sub(r'\n?<div class="projected-mode-banner">[\s\S]*?</div>\s*', '\n', html)
+
+    # Everything past this point is projected-only. A workbook build returns
+    # here having only stripped markers a workbook build never emits, so its
+    # output is byte-identical to a build that never knew about any of this.
     if not PROJECTED_MODE:
         html = re.sub(r'<body class="projected-mode">', '<body>', html, count=1)
         return html
+
     html = html.replace('</style>', PROJECTED_CSS + '\n</style>', 1)
     html = re.sub(r'<body(?: class="[^"]*")?>', '<body class="projected-mode">', html, count=1)
     html = html.replace('Alignment — Sweet Spot Tier Logic', 'Projected Mode Alignment')
     html = html.replace('Tap to expand - tier thresholds + ' + f'{month_short} {day_of_mo} park notes', 'Tap to expand - reconstructed board boundaries')
-    banner = (
-        '<div class="projected-mode-banner">'
-        '⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. '
-        'Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.'
+
+    # -- lift the withheld boards out of the page, keeping their names -----
+    withheld = []
+
+    def _drop(m):
+        title = re.search(r'<div class="game-title">([^<]*)</div>', m.group(0))
+        if title:
+            withheld.append(title.group(1).strip())
+        return ''
+
+    html = re.sub(
+        r'(?:<!-- PROJECTED UNAVAILABLE -->\s*)?'
+        r'<section id="[a-z0-9-]+" class="collapsible projected-unavailable">[\s\S]*?</section>\s*',
+        _drop,
+        html,
+    )
+
+    # -- tag each surviving board with its family, for the card grammar ----
+    def _tag(m):
+        attrs = m.group(1)
+        sec_id = re.search(r'id="([^"]+)"', attrs)
+        kind = BOARD_KIND.get(sec_id.group(1)) if sec_id else None
+        if kind is None or 'data-board=' in attrs:
+            return m.group(0)
+        return '<section ' + attrs.strip() + f' data-board="{kind}">'
+
+    html = re.sub(r'<section ([^>]*)>', _tag, html)
+
+    print(f"  Projected: {len(withheld)} withheld board(s) folded into one disclosure")
+
+    items = ''.join('<li>%s</li>' % name for name in withheld)
+    n = len(withheld)
+    plural = 'board' if n == 1 else 'boards'
+    chrome = (
+        '<!-- PROJECTED CHROME START -->'
+        '<div class="projected-mode-banner" role="note" aria-label="Projected Mode">'
+        '<p class="pm-stamp"><span class="pm-word">PROJECTED</span><span class="pm-mode">MODE</span></p>'
+        '<p class="pm-status">Reconstructed &middot; not graded</p>'
+        '<p class="pm-body">No workbook uploaded. Boards are built from BallparkPal + Baseball Savant, '
+        'so rankings are model-derived. Sweet Spot / Dimers boards and some columns are unavailable today.</p>'
         '<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small>'
+        '<div class="pm-withheld">'
+        '<button type="button" class="pm-withheld-btn" id="pmWithheldBtn"'
+        ' aria-expanded="false" aria-controls="pmWithheldBody">'
+        f'<span class="pm-count">{n}</span>'
+        f'<span>{plural} withheld today</span>'
+        '<span class="pm-caret" aria-hidden="true">&#9662;</span>'
+        '</button>'
+        '<div class="pm-withheld-body" id="pmWithheldBody">'
+        f'<ul>{items}</ul>'
+        '<p class="pm-withheld-note">These need the workbook. They are held back rather than estimated.</p>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '<!-- PROJECTED CHROME END -->\n'
+    )
+    html = html.replace('<body class="projected-mode">', '<body class="projected-mode">' + chrome, 1)
+
+    # -- the search bar lives in the thumb zone, above the tab dock --------
+    searchbar = (
+        '<div class="pm-searchbar" id="pmSearchBar">'
+        '<label class="pm-search-field">'
+        '<span class="pm-mag" aria-hidden="true">&#128269;</span>'
+        '<input type="search" id="pmSearchInput" placeholder="Filter players, teams, pitchers"'
+        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"'
+        ' aria-label="Filter the slate">'
+        '<button type="button" class="pm-search-clear" id="pmSearchClear" aria-label="Clear filter">&#10005;</button>'
+        '</label>'
+        '<span class="pm-search-count" id="pmSearchCount" aria-live="polite"></span>'
         '</div>\n'
     )
-    return re.sub(r'(<body class="projected-mode">\s*)', r'\1' + banner, html, count=1)
+    html = html.replace('<nav class="dock"', searchbar + '<nav class="dock"', 1)
+
+    return html.replace('</body>', PROJECTED_JS + '\n</body>', 1)
 
 SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
