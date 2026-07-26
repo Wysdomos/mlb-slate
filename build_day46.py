@@ -6,6 +6,15 @@ Writes: /home/user/workspace/built_sections_d46.json
 """
 import json, re, os
 from datetime import datetime
+from shadow_chips import (
+    blank_chip_tiers,
+    chip_hall_a,
+    chip_hit_a,
+    chip_hr_a,
+    chip_hr_b,
+    chip_k_a,
+    percentile_lookup,
+)
 
 def _sf(v, default=0.0):
     """Safely convert any SP_PROJ numeric field to float — handles str, None, empty."""
@@ -152,6 +161,99 @@ def bpp_matchup_tier(value):
     if n <= -7: return 'minus'
     if n <= -3: return 'lean-minus'
     return 'neutral'
+
+def numeric_value(value):
+    if value in (None, '', 'None'): return None
+    try:
+        return float(str(value).replace('%', '').replace('+', '').strip())
+    except (TypeError, ValueError):
+        return None
+
+def avg(values):
+    nums = [v for v in (numeric_value(value) for value in values) if v is not None]
+    return (sum(nums) / len(nums)) if nums else None
+
+def bpp_percentile_field(field):
+    return percentile_lookup({
+        name: values.get(field)
+        for name, values in BPP_SUMMARY.items()
+        if isinstance(values, dict) and values.get(field) is not None
+    })
+
+BPP_PERCENTILES = {
+    field: bpp_percentile_field(field)
+    for field in (
+        'hr_prob',
+        'walk_prob',
+        'matchup_advantage',
+        'hr_vs_typical',
+        'park_hr_factor',
+        'hit_prob',
+        'k_prob',
+    )
+}
+
+def bpp_pct(name, field):
+    if not name: return None
+    return BPP_PERCENTILES.get(field, {}).get(str(name).strip().lower())
+
+def pitcher_key(name):
+    return str(name or '').strip().lower()
+
+def pitcher_metric_maps():
+    kbb = {}
+    innings = {}
+    hits_allowed = {}
+    rows = list(BP_PIT) + list(SP_PROJ)
+    for row in rows:
+        name = row.get('FullName') or row.get('Pitcher')
+        key = pitcher_key(name)
+        if not key:
+            continue
+        k = numeric_value(row.get('Strikeouts') if row.get('Strikeouts') is not None else row.get('K'))
+        bb = numeric_value(row.get('Walks') if row.get('Walks') is not None else row.get('BB'))
+        inn = numeric_value(row.get('Innings') if row.get('Innings') is not None else row.get('Inn'))
+        hits = numeric_value(row.get('HitsAllowed') if row.get('HitsAllowed') is not None else row.get('H'))
+        if k is not None and bb is not None and bb > 0:
+            kbb.setdefault(key, k / bb)
+        if inn is not None:
+            innings.setdefault(key, inn)
+        if hits is not None:
+            hits_allowed.setdefault(key, hits)
+    return kbb, innings, hits_allowed
+
+PITCHER_KBB, PITCHER_INNINGS, PITCHER_HITS_ALLOWED = pitcher_metric_maps()
+PITCHER_KBB_PCT = percentile_lookup(PITCHER_KBB)
+PITCHER_INNINGS_PCT = percentile_lookup(PITCHER_INNINGS)
+PITCHER_HITS_ALLOWED_PCT = percentile_lookup(PITCHER_HITS_ALLOWED)
+
+def team_contact_percentiles():
+    contact = {}
+    for row in HR_LB:
+        team = tn(row.get('Team'))
+        if not team:
+            continue
+        bucket = contact.setdefault(team, {'barrel': [], 'hard': []})
+        barrel = numeric_value(row.get('Barrel%'))
+        hard = numeric_value(row.get('HH%'))
+        if barrel is not None:
+            bucket['barrel'].append(barrel)
+        if hard is not None:
+            bucket['hard'].append(hard)
+    barrel_avg = {team: avg(bucket['barrel']) for team, bucket in contact.items()}
+    hard_avg = {team: avg(bucket['hard']) for team, bucket in contact.items()}
+    return percentile_lookup(barrel_avg), percentile_lookup(hard_avg)
+
+TEAM_BARREL_PCT, TEAM_HARD_HIT_PCT = team_contact_percentiles()
+
+def pitcher_chip_hall(pitcher_name, opp_team):
+    key = pitcher_key(pitcher_name)
+    opp = tn(opp_team)
+    return chip_hall_a(
+        TEAM_BARREL_PCT.get(opp),
+        TEAM_HARD_HIT_PCT.get(opp),
+        PITCHER_HITS_ALLOWED_PCT.get(key),
+    )
 
 def fmt_pct_cell(n, bold_pos=8, bold_neg=-10):
     sign = '+' if n >= 0 else ''
@@ -843,6 +945,14 @@ def build_k_board():
 
         # ── Structured pick record (For The Record backtest vs MLB Stats API box scores) ──
         win_at = 5 if '5' in best_line else (4 if '3.5' in best_line else 3)
+        chips = blank_chip_tiers()
+        pkey = pitcher_key(name)
+        chips['chip_k_a'] = chip_k_a(
+            votes,
+            PITCHER_KBB_PCT.get(pkey),
+            PITCHER_INNINGS_PCT.get(pkey),
+        )
+        chips['chip_hall_a'] = pitcher_chip_hall(name, opp)
         SLATE_PICKS.append({
             'market': 'K', 'pick': f'{name} {best_line}', 'name': name,
             'pick_source': PICK_SOURCE,
@@ -858,6 +968,7 @@ def build_k_board():
                 'proj_runs_allowed': round(_sf(bp.get('RunsAllowed')), 2) if bp else None,
                 'proj_era': era if era != '—' else None,
             },
+            **chips,
         })
 
         rows.append((votes, kf,
@@ -1118,6 +1229,17 @@ def build_hr_board():
     rows = []
     for i, c in enumerate(cands[:50], 1):
         score = c['score']
+        chips = blank_chip_tiers()
+        chips['chip_hra'] = chip_hr_a(
+            bpp_pct(c['nm'], 'hr_prob'),
+            bpp_pct(c['nm'], 'walk_prob'),
+            bpp_pct(c['nm'], 'matchup_advantage'),
+        )
+        chips['chip_hrb'] = chip_hr_b(
+            c['votes'],
+            bpp_pct(c['nm'], 'hr_vs_typical'),
+            bpp_pct(c['nm'], 'park_hr_factor'),
+        )
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
             'pick_source': PICK_SOURCE,
@@ -1126,6 +1248,7 @@ def build_hr_board():
             'score': c['score'], 'sim_hr': c['sim_hr'], 'to_hit_hr': c['hr_pct'], 'park_hr': c['park_hr'],
             'bpp_api_hr': round(c['bpp_proj_hr'], 2) if c['bpp_proj_hr'] else None,
             'calibration_tier': bpp_matchup_tier(c['bpp_match_adv']),
+            **chips,
         })
         if c['votes'] >= 6: tier = 'row-tier0'
         elif c['votes'] >= 5: tier = 'row-tier1'
@@ -1244,12 +1367,18 @@ def build_oo5_board():
         if votes >= 5: tier = 'row-tier0'
         elif votes >= 4: tier = 'row-tier1'
         else: tier = ''
+        hit_chips = blank_chip_tiers()
+        hit_chips['chip_hit_a'] = chip_hit_a(
+            bpp_pct(nm, 'hit_prob'),
+            bpp_pct(nm, 'k_prob'),
+        )
         SLATE_PICKS.append({
             'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
             'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 6,
             'h1_pct': h1, 'sim_hit': sim_hit,
             'bpp_api_hits': round(bpp_proj_hits, 2) if bpp_proj_hits else None,
+            **hit_chips,
         })
         SLATE_PICKS.append({
             'market': 'HRR', 'pick': f'{nm} Ov 0.5 HRR', 'name': nm, 'team': team,
@@ -1257,6 +1386,7 @@ def build_oo5_board():
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
             'consensus': votes, 'consensus_max': 6,
             'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
+            **blank_chip_tiers(),
         })
         batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
         # Matchup cell: add Vuln color/🔥 if pitcher resolved
@@ -1338,6 +1468,7 @@ def build_totals_board():
             'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'ref_line': 8.5, 'consensus': conf, 'consensus_max': 4,
             'proj_total': round(total, 2), 'p_over_8_5': round(p_over, 3), 'f5': round(f5, 2),
+            **blank_chip_tiers(),
         })
         away_r = g.get('RunsAway') or 0
         home_r = g.get('RunsHome') or 0
@@ -1394,6 +1525,7 @@ def build_nrfi_board():
             'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'consensus': conf, 'consensus_max': 4,
             'yrfi_prob': round(yrfi, 3) if yrfi else None,
+            **blank_chip_tiers(),
         })
         rows.append((conf, (yrfi or 1),
             f'      <tr><td>{away} @ {home}</td><td>{ap["Pitcher"]}</td><td>{hp["Pitcher"]}</td>'
@@ -1447,6 +1579,7 @@ def build_sb_board():
             'consensus': votes, 'consensus_max': 3,
             'sb_prob': round(sbp, 3), 'sb_attempts': round(att, 2),
             'opp_sp_bb': round(opp_bb_v, 2) if opp_sp else None,
+            **blank_chip_tiers(),
         })
         rows.append((votes, sbp, tier,
             f'<td><strong>{r["FullName"]}</strong></td>'
@@ -1503,6 +1636,7 @@ def build_doubles_board():
             'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': votes, 'consensus_max': 3,
             'proj_2b': round(dbls, 2), 'park_2b3b': xbh, 'opp_sp_h': round(opp_h, 2) if opp_sp else None,
+            **blank_chip_tiers(),
         })
         rows.append((votes, dbls, tier,
             f'<td><strong>{r["FullName"]}</strong></td>'

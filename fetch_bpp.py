@@ -23,6 +23,12 @@ BPP_MIN_GAP = float(os.environ.get("BPP_MIN_GAP", "1.0"))
 BPP_MONTHLY_BUDGET = 15000
 
 ALLOWED_FIELDS = {
+    "hr_prob",
+    "hit_prob",
+    "k_prob",
+    "walk_prob",
+    "hr_vs_typical",
+    "k_vs_typical",
     "proj_hits",
     "proj_hr",
     "proj_k",
@@ -31,7 +37,19 @@ ALLOWED_FIELDS = {
     "park_hits_factor",
     "matchup_advantage",
 }
-RAW_FIELD_MARKERS = {"marketKey", "matchupAdvantage", "requestId", "asOf"}
+RAW_FIELD_MARKERS = {
+    "marketKey",
+    "matchupAdvantage",
+    "requestId",
+    "asOf",
+    "homeRunProbability",
+    "strikeoutProbability",
+    "singleProbability",
+    "doubleTripleProbability",
+    "walkProbability",
+    "homeRunVsTypical",
+    "strikeoutVsTypical",
+}
 
 
 class CallCounter:
@@ -195,12 +213,20 @@ def index_matchup_rows(payload: Mapping[str, Any]) -> Dict[str, Dict[str, float]
         key = norm_name(row.get("batterName"))
         if not key:
             continue
+        entry = out.setdefault(key, {})
+        set_round(entry, "hr_prob", row.get("homeRunProbability"))
+        set_round(entry, "k_prob", row.get("strikeoutProbability"))
+        set_round(entry, "walk_prob", row.get("walkProbability"))
+        hit_prob = sum_present([row.get("singleProbability"), row.get("doubleTripleProbability")])
+        if hit_prob is not None:
+            set_round(entry, "hit_prob", hit_prob)
+        set_round(entry, "hr_vs_typical", row.get("homeRunVsTypical"))
+        set_round(entry, "k_vs_typical", row.get("strikeoutVsTypical"))
         raw = as_float(row.get("homeRunVsTypical"))
         if raw is None:
             raw = as_float(row.get("runsCreatedVsTypical"))
-        if raw is None:
-            continue
-        out.setdefault(key, {})["matchup_advantage"] = clamp(round(raw / 2), -10, 10)
+        if raw is not None:
+            entry["matchup_advantage"] = clamp(round(raw / 2), -10, 10)
     return out
 
 
@@ -272,6 +298,13 @@ def average_numbers(values: Iterable[Any]) -> Optional[float]:
     if not nums:
         return None
     return sum(nums) / len(nums)
+
+
+def sum_present(values: Iterable[Any]) -> Optional[float]:
+    nums = [v for v in (as_float(value) for value in values) if v is not None]
+    if not nums:
+        return None
+    return sum(nums)
 
 
 def multiplier_to_pct(value: Any) -> Optional[float]:

@@ -18,6 +18,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grade_results as G   # fetch_bdl, fetch_box_results, fetch_games, norm, gamekey
+from shadow_chips import CHIP_FIELDS
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'graded_picks.json')
 BDL_KEY = os.environ.get('BDL_KEY', '')
@@ -117,7 +118,7 @@ def main():
         n_graded = 0
         for p in picks:
             win, got = grade_pick(p, box)
-            store['graded'].append({
+            row = {
                 'date': date_iso,
                 'market': p.get('market'),
                 'pick_source': pick_source(p),
@@ -128,7 +129,10 @@ def main():
                 'consensus_max': p.get('consensus_max', 6),
                 'win': win,
                 'got': got,
-            })
+            }
+            for field in CHIP_FIELDS:
+                row[field] = p.get(field, None)
+            store['graded'].append(row)
             n_graded += win is not None
         store['dates'][date_iso] = {'picks': len(picks), 'graded': n_graded}
         print(f'   graded {n_graded}/{len(picks)}')
