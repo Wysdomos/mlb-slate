@@ -52,7 +52,13 @@ class FetchBppReducerTests(unittest.TestCase):
                     "items": [
                         {
                             "batterName": "Example Hitter",
+                            "homeRunProbability": 0.157,
+                            "strikeoutProbability": 0.222,
+                            "singleProbability": 0.321,
+                            "doubleTripleProbability": 0.045,
+                            "walkProbability": 0.111,
                             "homeRunVsTypical": 18,
+                            "strikeoutVsTypical": -4,
                             "matchupAdvantage": "must-not-leak",
                         }
                     ]
@@ -69,16 +75,40 @@ class FetchBppReducerTests(unittest.TestCase):
                 "proj_hr",
                 "proj_k",
                 "proj_bb",
+                "hr_prob",
+                "hit_prob",
+                "k_prob",
+                "walk_prob",
+                "hr_vs_typical",
+                "k_vs_typical",
                 "park_hr_factor",
                 "park_hits_factor",
                 "matchup_advantage",
             },
         )
         self.assertEqual(clean["example hitter"]["proj_hits"], 1.23)
+        self.assertEqual(clean["example hitter"]["hr_prob"], 0.16)
+        self.assertEqual(clean["example hitter"]["hit_prob"], 0.37)
+        self.assertEqual(clean["example hitter"]["k_prob"], 0.22)
+        self.assertEqual(clean["example hitter"]["walk_prob"], 0.11)
+        self.assertEqual(clean["example hitter"]["hr_vs_typical"], 18)
+        self.assertEqual(clean["example hitter"]["k_vs_typical"], -4)
         self.assertEqual(clean["example hitter"]["park_hr_factor"], 12.0)
         self.assertEqual(clean["example hitter"]["matchup_advantage"], 9)
         serialized = json.dumps(clean)
-        for raw in ("marketKey", "matchupAdvantage", "requestId", "asOf"):
+        for raw in (
+            "marketKey",
+            "matchupAdvantage",
+            "requestId",
+            "asOf",
+            "homeRunProbability",
+            "strikeoutProbability",
+            "singleProbability",
+            "doubleTripleProbability",
+            "walkProbability",
+            "homeRunVsTypical",
+            "strikeoutVsTypical",
+        ):
             self.assertNotIn(raw, serialized)
 
     def test_main_counts_one_projection_call_per_slate_game_plus_context_calls(self):

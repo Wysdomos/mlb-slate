@@ -12,12 +12,15 @@ Usage (from repo root):  python3 backtest/calibration.py
 import json
 import math
 import os
+import sys
 import argparse
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, 'graded_picks.json')
 OUT = os.path.join(HERE, 'CALIBRATION.md')
+sys.path.insert(0, os.path.dirname(HERE))
+from shadow_chips import CHIP_FIELDS, CHIP_LABELS, TIER_ORDER
 
 MARKET_ORDER = ['K', 'HR', 'HIT', 'HRR', '2B', 'SB', 'NRFI', 'TOTAL']
 BANDS = [(5, 6, '5-6 lenses'), (4, 4, '4 lenses'), (0, 3, '<=3 lenses')]
@@ -46,6 +49,21 @@ def line(w, l, label):
 
 def pick_source(row):
     return row.get('pick_source', 'workbook') or 'workbook'
+
+
+def append_chip_buckets(md, rows):
+    md.append('\n## Shadow chip candidates\n')
+    md.append('These buckets are shadow-only. Missing historical labels are ignored.\n')
+    for field in CHIP_FIELDS:
+        labeled = [g for g in rows if g.get(field) is not None]
+        status = 'ready for interval review' if len(labeled) >= 100 else 'insufficient data -- keep accumulating'
+        md.append(f'\n### {CHIP_LABELS[field]} (`{field}`) -- {status}\n')
+        md.append('| Tier | W-L | n | Hit rate | 95% CI |')
+        md.append('|---|---|---|---|---|')
+        for tier in TIER_ORDER:
+            band = [g for g in labeled if g.get(field) == tier]
+            w = sum(1 for g in band if g['win'])
+            md.append(line(w, len(band) - w, tier))
 
 
 def build(store, source_filter=None):
@@ -93,6 +111,8 @@ def build(store, source_filter=None):
                 band = [g for g in sub if g.get('win_at') == wa]
                 w = sum(1 for g in band if g['win'])
                 md.append(line(w, len(band) - w, f'O {wa - 0.5}'))
+
+    append_chip_buckets(md, rows)
 
     md.append('\n## Break-even reference (for eyeballing edge)\n')
     md.append('*Reference math only — historical book prices were not stored, '
