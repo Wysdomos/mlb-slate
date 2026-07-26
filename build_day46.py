@@ -6,7 +6,7 @@ Writes: /home/user/workspace/built_sections_d46.json
 """
 import html, json, re, os
 from datetime import datetime
-from parlay_rules import validate_board_people, validate_parlay
+from parlay_rules import FORBIDDEN_MARKETS, validate_board_people, validate_parlay
 from shadow_chips import (
     blank_chip_tiers,
     chip_hall_a,
@@ -2230,26 +2230,108 @@ def build_parlays():
 
 
 # ---- BUILD: CONVICTION BOARD ----
+def conviction_empty():
+    return empty_parlay_section(
+        'conviction',
+        'Full Conviction Board',
+        'No conviction entries cleared',
+        'No K, HRR, hit, or HR candidate cleared the conviction thresholds from the live slate data.',
+    )
+
+def conviction_candidates():
+    candidates = []
+    for sp in SP_PROJ:
+        name = sp.get('Pitcher', '')
+        kf = _sf(sp.get('K'))
+        votes = k_consensus_for_pitcher(sp)
+        if votes >= 4 and k_tier_for_projection(kf) <= 1 and 'K' not in FORBIDDEN_MARKETS:
+            priority = 0 if votes >= 5 else 1
+            candidates.append({
+                'market': 'K',
+                'name': name,
+                'team': tn(sp.get('Team')),
+                'line': k_alt_for(kf),
+                'win_at': 5 if '5' in k_alt_for(kf) else (4 if '3.5' in k_alt_for(kf) else 3),
+                'priority': priority,
+                'score': votes * 10 + kf,
+                'badge': 'K CONVICTION',
+                'badge_cls': 'b-tier0' if votes >= 5 else 'b-tier1',
+                'why': f'{votes}/6 K lenses; projected {kf:.2f} strikeouts',
+            })
+    for hitter in traffic_hitter_candidates():
+        candidates.append({
+            'market': 'HRR',
+            'name': hitter['name'],
+            'team': hitter['team'],
+            'line': 'Ov 0.5 HRR',
+            'win_at': 1,
+            'priority': 2,
+            'score': hitter['hrr_pct'],
+            'badge': 'HRR CONVICTION',
+            'badge_cls': 'b-tier1',
+            'why': f'{hitter["hrr_pct"]:.1f}% HRR proxy; park Runs {park_runs_for_team(hitter["team"]):+d}%',
+        })
+    hit_rows = sorted(HIT, key=lambda row: -parse_pct(row.get('1+ Hit')))[:12]
+    for row in hit_rows:
+        pct = parse_pct(row.get('1+ Hit'))
+        if pct < 70:
+            continue
+        name = _hit_full(row)
+        candidates.append({
+            'market': 'HIT',
+            'name': name,
+            'team': tn(row.get('Team')),
+            'line': 'Ov 0.5 H',
+            'win_at': 1,
+            'priority': 3,
+            'score': pct,
+            'badge': 'HIT CONVICTION',
+            'badge_cls': 'b-tier1',
+            'why': f'{pct}% 1+ hit projection',
+        })
+    for row in HR_LB[:20]:
+        score = _sf(row.get('Score'))
+        if score < 80:
+            continue
+        name = row.get('Batter', '')
+        candidates.append({
+            'market': 'HR',
+            'name': name,
+            'team': tn(row.get('Team')),
+            'line': 'Ov 0.5 HR',
+            'win_at': 1,
+            'priority': 4,
+            'score': score,
+            'badge': 'HR SATELLITE',
+            'badge_cls': 'b-warn',
+            'why': f'HR board score {score:.0f}; HR legs are satellite-only until calibration promotes a replacement',
+        })
+    candidates = [c for c in candidates if c['market'] not in FORBIDDEN_MARKETS]
+    candidates.sort(key=lambda c: (c['priority'], -c['score'], c['name']))
+    if candidates and candidates[0]['market'] == 'HR':
+        ok, reason = validate_parlay([
+            {'market': 'HR', 'name': candidates[0]['name'], 'leg_role': 'satellite', 'confidence_rank': 1}
+        ], 'conviction')
+        if not ok:
+            candidates = [c for c in candidates if c['market'] != 'HR'] + [c for c in candidates if c['market'] == 'HR']
+    return candidates[:12]
+
 def build_conviction():
-    """9-pick conviction board in Day 44 flag-list format. Day 46 slate-specific."""
-    items = [
-        ('<strong>Elly De La Cruz HR (GABP +8%)</strong> — Score 92 (slate-top), ⚡7 Zone, vs <strong>Mikolas V76 (slate-worst SP)</strong> at GABP +8% HR. Day 46 slate-best HR play.', 'b-tier0', 'T0 HR CONVICTION'),
-        ('<strong>Sal Stewart HR (CIN vs Mikolas V76)</strong> — Score 87, ⚡7 Zone, same-game stack w/ DLC. GABP +8% HR boost. T0 conviction.', 'b-tier0', 'T0 HR CONVICTION'),
-        ('<strong>Paul Skenes O 5+ K</strong> — SS 6.9 K (slate-top) vs COL anemic offense at PNC. K9 elite, BB only 1.4. Top conviction K of the slate.', 'b-tier0', 'T0 K CONVICTION'),
-        ('<strong>James Wood HR (WSH vs Singer V70)</strong> — Score 85, ⚡8 Zone (slate-top Zone). LHB vs RHP Singer. Same-game stack w/ Abrams. T0 conviction.', 'b-tier0', 'T0 HR CONVICTION'),
-        ('<strong>Jacob Wilson 1+H 71.3%</strong> — Slate-top single-batter hit prop. ATH at <strong>Sutter +29% HR / +18% Runs (slate volcano)</strong> vs Pallante V28. Volume + contact lock.', 'b-tier0', 'T0 HIT CONVICTION'),
-        ('<strong>Zack Wheeler O 5+ K</strong> — SS 6.6 K (slate #2) @ BOS Fenway. BB 1.8 control, HR/9 0.52. Different-game complement to Skenes. T1 K floor.', 'b-tier1', 'T1 K CONVICTION'),
-        ('<strong>Spencer Steer HR/RBI (CIN vs Mikolas V76)</strong> — Score 87, #3 of HR Board, ⚡4. Floor leg in the CIN saturation stack. T1 HR/RBI.', 'b-tier1', 'T1 HR/RBI'),
-        ('<strong>Max Muncy HR (LAD +8%)</strong> — Score 78, ⚡7, vs Houser. Dodger Stadium +8% HR + LAD top-of-order. Cross-game complement to CIN stack. T1 HR.', 'b-tier1', 'T1 HR'),
-        ('<strong>Brent Rooker Ov 0.5 HRR (Sutter volcano)</strong> — 1+H 66.7%, <strong>HR 22.9%</strong> at <strong>Sutter +29% HR / +18% Runs</strong>. Best park environment of slate. T1 HRR.', 'b-tier1', 'T1 HRR CONVICTION'),
-    ]
-    li_html = ''.join(f'    <li>{body} <span class="badge {badge_cls}">{badge_text}</span></li>\n' for body, badge_cls, badge_text in items)
+    items = conviction_candidates()
+    if not items:
+        return conviction_empty()
+    li_html = ''.join(
+        f'    <li><strong>#{i} {html.escape(item["name"])} {html.escape(item["line"])}</strong> '
+        f'({html.escape(item["market"])}, {html.escape(item["team"])}) — {html.escape(item["why"])} '
+        f'<span class="badge {item["badge_cls"]}">{html.escape(item["badge"])}</span></li>\n'
+        for i, item in enumerate(items, 1)
+    )
     return f'''<!-- CONVICTION -->
 <section id="conviction" class="collapsible">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">✅ Full Conviction Board</div>
-      <span class="game-tag">Tap to expand · highest confidence plays · all 3 floors passed</span>
+      <span class="game-tag">Tap to expand · {len(items)} live-ranked conviction entries · K and HRR first</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -2377,12 +2459,7 @@ if PROJECTED_MODE:
         'combos-k':          build_combos_k(),
         'combos-hrr':        build_combos_hrr(),
         'parlays':           build_parlays(),
-        'conviction':        projected_unavailable_section(
-            'conviction',
-            'Conviction Board',
-            'Unavailable without workbook',
-            'Conviction rankings require the complete workbook signal stack.',
-        ),
+        'conviction':        build_conviction(),
         'skip':              projected_unavailable_section(
             'skip',
             'Daily Skip List',
