@@ -988,6 +988,8 @@ body.sheet-open #scroll-track{display:none;}
 
 
 
+
+
 /* PROJECTED MODE CSS START */
 .projected-mode {
   --bg: #0d1117;
@@ -1282,8 +1284,7 @@ body.sheet-open #scroll-track{display:none;}
 
 </style>
 </head>
-<body class="projected-mode"><!-- PROJECTED CHROME START --><div class="projected-mode-banner">⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small><div class="pm-withheld"><button type="button" class="pm-withheld-btn" id="pmWithheldBtn" aria-expanded="false" aria-controls="pmWithheldBody"><span class="pm-count">4</span><span>boards withheld today</span><span class="pm-caret" aria-hidden="true">&#9662;</span></button><div class="pm-withheld-body" id="pmWithheldBody"><ul><li>Matchup Spotlight</li><li>Pitcher's HR Risk Board</li><li>Conviction Board</li><li>Daily Skip List</li></ul><p class="pm-withheld-note">These need the workbook. They are held back rather than estimated.</p></div></div></div><!-- PROJECTED CHROME END -->
-
+<body class="projected-mode"><!-- PROJECTED CHROME START --><div class="projected-mode-banner">⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small><div class="pm-withheld"><button type="button" class="pm-withheld-btn" id="pmWithheldBtn" aria-expanded="false" aria-controls="pmWithheldBody"><span class="pm-count">1</span><span>board withheld today</span><span class="pm-caret" aria-hidden="true">&#9662;</span></button><div class="pm-withheld-body" id="pmWithheldBody"><ul><li>Pitcher's HR Risk Board</li></ul><p class="pm-withheld-note">These need the workbook. They are held back rather than estimated.</p></div></div></div><!-- PROJECTED CHROME END -->
 
 <header class="app-bar">
   <button class="brand" id="brandBtn" aria-label="The Daily Slate — back to top">
@@ -1304,7 +1305,7 @@ body.sheet-open #scroll-track{display:none;}
   <div class="subtitle-block">15 Games - Day 121 - Projected Mode</div>
   <div class="hero-chips" id="heroChips"></div>
   <div class="hero-tools">
-    <div class="last-updated">Jul 26 - <b>1:52 PM ET</b> - Day 121 - Sunday slate</div>
+    <div class="last-updated">Jul 26 - <b>2:04 PM ET</b> - Day 121 - Sunday slate</div>
     <button class="text-btn" id="expandAll">⊞ Expand all</button>
   </div>
   <div class="install-banner" id="installBanner">
@@ -1610,8 +1611,8 @@ body.sheet-open #scroll-track{display:none;}
 
 <!-- HEADLINES -->
 <section id="headlines" class="headline-grid">
-  <div class="projected-section-badge"><span>PROJECTED MODE</span><small>Top cards rebuilt from live sources; workbook-only signals are withheld.</small></div>
-  <div class="headline-card"><div class="hc-title">Projected HR Anchor</div><p><strong>Tyler Locklear</strong> leads the reconstructed HR board with a derived score of <strong>99</strong>. Zone is intentionally blank in Projected Mode.</p></div><div class="headline-card"><div class="hc-title">Projected Hit Anchor</div><p><strong>Luis Arraez</strong> tops the hit board at <strong>79.70%</strong>.</p></div><div class="headline-card"><div class="hc-title">Park Signal</div><p><strong>Citizens Bank Park</strong> is the top HR environment (NYY @ PHI, +21% HR).</p></div>
+  <div class="projected-section-badge"><span>PROJECTED MODE</span><small>Top cards rebuilt from live sources; workbook-only signals are omitted.</small></div>
+  <div class="headline-card"><div class="hc-title">Top HR Park</div><p><strong>Citizens Bank Park</strong> leads park HR context at <strong>+21%</strong> for NYY @ PHI.</p></div><div class="headline-card"><div class="hc-title">HR Fade Park</div><p><strong>loanDepot park</strong> is the slate HR suppressor at <strong>-13%</strong> for SD @ MIA.</p></div><div class="headline-card"><div class="hc-title">Run Environment</div><p><strong>Fenway Park</strong> carries the top run context at <strong>+14%</strong> for TOR @ BOS.</p></div><div class="headline-card"><div class="hc-title">Top K Projection</div><p><strong>Jacob Misiorowski</strong> leads the K board at <strong>8.64</strong> projected strikeouts, mapped to <strong>O 5+</strong>.</p></div><div class="headline-card"><div class="hc-title">K Consensus</div><p><strong>Jacob Misiorowski</strong> leads K consensus at <strong>4/6 lenses</strong> with a <strong>8.64</strong> strikeout projection.</p></div>
 </section>
 
 <!-- PARK FACTORS BOARD -->
@@ -1625,7 +1626,7 @@ body.sheet-open #scroll-track{display:none;}
   </button>
   <div class="game-body"><div class="game-body-inner">
     <div class="projected-section-badge"><span>PROJECTED MODE</span><small>Park factors rebuilt from live park/weather context.</small></div>
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:12px;">Sourced from <strong>Park_Factors</strong> sheet (stadium baseline + day-of weather). <strong>Sutter Health Park +29% HR</strong> is the slate's clear HR volcano (STL@ATH 9:40 ET). <strong>Rate Field +18%</strong> (KC@CHW) is the secondary HR booster. Only <strong>3 parks above +5% HR</strong>: Sutter, Rate, Great American (+8%). Fenway / Truist / Citi / PNC all suppressed -14% to -23% HR. <strong>Fenway +18% 2B/3B</strong> and PNC +13% 2B/3B = doubles plays in those parks instead.</p>
+  <p style="font-size:13px; color:var(--text-soft); margin-bottom:12px;">Sourced from <strong>Park_Factors</strong> sheet (stadium baseline + day-of weather). Top HR context: <strong>Citizens Bank Park</strong> +21% for NYY @ PHI. 6 parks are at least +5% HR, and 2 parks are at -10% HR or lower. Top extra-base context: <strong>Fenway Park</strong> +24%.</p>
   <div class="table-wrap"><table>
     <thead><tr><th>Game</th><th>Venue</th><th>HR%</th><th>Runs%</th><th>2B/3B%</th><th>Notes</th><th>Lean</th></tr></thead>
     <tbody>
@@ -3341,6 +3342,8 @@ suggestForm.addEventListener('submit', function(e) {
 })();
 
 </script>
+
+
 
 
 <!-- PROJECTED JS START -->
