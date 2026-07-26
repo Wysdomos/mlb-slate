@@ -369,31 +369,87 @@ SUBTITLE = "Day 46 · 15-game card · Skenes & Wheeler headline · Mikolas/Pére
 
 # ---- BUILD: HEADLINES ----
 def build_headlines():
-    # Top story drivers from data:
-    # 1. Sutter Health Park +29% HR (STL@ATH)
-    # 2. Skenes 6.9 K (PIT vs COL, weak lineup)
-    # 3. Mikolas + Pérez = 1.02 HR/9 — most vulnerable arms
-    # 4. CIN stack vs Mikolas (Sutter +29%? no — GAB +8%, Mikolas V76)
-    # 5. PHI @ BOS Fenway -23% HR but Wheeler shoves K's
-    # Wait — verify Sutter Health Park hosts STL@ATH? Yes, ATH plays at Sutter.
-
-    return '''<!-- HEADLINES -->
-<section id="headlines">
-  <h2>📅 Slate Headlines + Flags</h2>
-  <div class="flag-row"><div class="icon">🌋</div><div><strong>Sutter Health Park +29% HR — slate's lone HR volcano.</strong> STL @ ATH (9:40 PM ET). Park HR booster paired with Andre Pallante (V28, 5.1 IP, 0.82 HR/9) and Jeffrey Springs (V21, ATH home). <strong>Stack ATH bats</strong> — Kurtz, Langeliers, Rooker, Soderstrom, Butler all over 64% 1+H. Park is the slate's clearest weather/HR window.</div></div>
-  <div class="flag-row"><div class="icon">🔥</div><div><strong>CIN stack vs Mikolas (V76 — most vulnerable SP).</strong> Mikolas projects 1.02 HR/9 (slate-worst tied) at Great American BP +8% HR. <strong>Top 14 HR Board has 6 Reds</strong>: Elly De La Cruz (#1, 92 score), Sal Stewart (#2, 87), Spencer Steer (#3, 87), Nathaniel Lowe (#11), Tyler Stephenson (#14), Matt McLain (#19). Best stack of the night.</div></div>
-  <div class="flag-row"><div class="icon">⚡</div><div><strong>K Board: Skenes 6.9 leads slate; Wheeler 6.6 close behind.</strong> Skenes (PIT vs COL, V14) projects 6.9 K — gets O 5+ alt. Wheeler (PHI @ BOS, V14) 6.6 K. Will Warren (NYY 5.8), Peralta (NYM 5.7), Yamamoto (LAD 5.7), Flaherty (DET 5.5), Sproat (MIL 5.3), Pérez (MIA 5.3) — eight starters at O 5+. Per user rule: ≥5 K → O5+, 4.5-4.99 → O3.5, &lt;4.5 → O2.5.</div></div>
-  <div class="flag-row"><div class="icon">🎯</div><div><strong>Pitcher's HR Risk Board:</strong> Eury Pérez 1.02 HR/9 (vs MIN, V46), Miles Mikolas 1.02 (vs CIN, V76), Erick Fedde 0.86 (vs KC, V29), Slade Cecconi 0.86 (vs LAA, V56), Bailey Ober 0.85 (vs MIA, V25). All five have <strong>HR-stack potential</strong> — see new "Pitcher's HR Risk Board" section.</div></div>
-  <div class="flag-row"><div class="icon">🥶</div><div><strong>Fenway -23% / Truist -23% / PNC -20% HR all FADED.</strong> Phillies @ BOS (Fenway weather suppressed -23% HR but +18% 2B/3B — doubles play). CHC @ ATL (Truist -23%) and COL @ PIT (-20%) skip HR alts. Citi Field -14% HR / -29% 2B/3B = full suppressor — DET @ NYM is the under spot (NRFI 56%+).</div></div>
-  <div class="flag-row"><div class="icon">📋</div><div><strong>SKIP arms / fades:</strong> Walbert Urena (LAA, K only 4.0 — skip K alts), Erick Fedde (CHW, K 2.6 — skip K alts entirely), Brayan Bello (BOS, K 2.9 — skip), Patrick Corbin (TOR, K 3.0 — skip). All HR plays at Citi/Fenway/Truist/PNC. Pivot to 1+H / RBI plays in suppressed parks.</div></div>
-  <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
-    <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
-  </div>
-  <div style="text-align:center;margin-top:14px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:10px;">
-    <a href="scout.html" style="color:#FFD700;font-weight:700;text-decoration:none;font-size:14px;">⚡ SSJ (The Zone) — Matchup Intelligence →</a>
-    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;">Zone scores · DANGER tags · platoon · projections · Fusion parlays</div>
-  </div>
-  <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
+    cards = []
+    parks_by_hr = sorted(PARKS, key=lambda p: parse_pct(p.get('HR %')), reverse=True)
+    if parks_by_hr and parse_pct(parks_by_hr[0].get('HR %')) >= 10:
+        park = parks_by_hr[0]
+        cards.append((
+            'Top HR Park',
+            f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> leads park HR context at "
+            f"<strong>{html.escape(str(park.get('HR %','—')))}</strong> for "
+            f"{html.escape(str(park.get('Game','')))}."
+        ))
+    if parks_by_hr and parse_pct(parks_by_hr[-1].get('HR %')) <= -10:
+        park = parks_by_hr[-1]
+        cards.append((
+            'HR Fade Park',
+            f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> is the slate HR suppressor at "
+            f"<strong>{html.escape(str(park.get('HR %','—')))}</strong> for "
+            f"{html.escape(str(park.get('Game','')))}."
+        ))
+    parks_by_runs = sorted(PARKS, key=lambda p: parse_pct(p.get('Runs %')), reverse=True)
+    if parks_by_runs and parse_pct(parks_by_runs[0].get('Runs %')) >= 8:
+        park = parks_by_runs[0]
+        cards.append((
+            'Run Environment',
+            f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> carries the top run context at "
+            f"<strong>{html.escape(str(park.get('Runs %','—')))}</strong> for "
+            f"{html.escape(str(park.get('Game','')))}."
+        ))
+    vuln_rows = []
+    for sp in SP_PROJ:
+        v = get_vuln_for_pitcher(sp.get('Pitcher'))
+        if v:
+            vuln_rows.append((_sf(v.get('VulnScore')), sp, v))
+    vuln_rows.sort(key=lambda item: -item[0])
+    if vuln_rows and vuln_rows[0][0] >= 50:
+        score, sp, v = vuln_rows[0]
+        reasons = []
+        if _sf(sp.get('HR')) >= 0.8:
+            reasons.append(f"{_sf(sp.get('HR')):.2f} HR/9")
+        if _sf(sp.get('BB')) >= 2.5:
+            reasons.append(f"{_sf(sp.get('BB')):.2f} BB")
+        reason = ' and '.join(reasons) if reasons else f"ERA {html.escape(str(v.get('ERA','—')))}"
+        cards.append((
+            'Starter Vulnerability',
+            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> has the top VulnScore at "
+            f"<strong>V{score:.0f}</strong>; board context shows {reason}."
+        ))
+    k_rows = sorted(SP_PROJ, key=lambda sp: -_sf(sp.get('K')))
+    if k_rows and _sf(k_rows[0].get('K')) >= 5.0:
+        sp = k_rows[0]
+        cards.append((
+            'Top K Projection',
+            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> leads the K board at "
+            f"<strong>{_sf(sp.get('K')):.2f}</strong> projected strikeouts, mapped to "
+            f"<strong>{html.escape(k_alt_for(sp.get('K')))}</strong>."
+        ))
+    consensus_rows = sorted(SP_PROJ, key=lambda sp: (-k_consensus_for_pitcher(sp), -_sf(sp.get('K'))))
+    if consensus_rows and k_consensus_for_pitcher(consensus_rows[0]) >= 4:
+        sp = consensus_rows[0]
+        votes = k_consensus_for_pitcher(sp)
+        cards.append((
+            'K Consensus',
+            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> leads K consensus at "
+            f"<strong>{votes}/6 lenses</strong> with a "
+            f"<strong>{_sf(sp.get('K')):.2f}</strong> strikeout projection."
+        ))
+    if not cards:
+        return empty_parlay_section(
+            'headlines',
+            'Slate Headlines',
+            'No slate-level flags cleared',
+            'No park, starter, K, or run-environment signal cleared its headline threshold.',
+        )
+    body = ''.join(
+        f'<div class="headline-card"><div class="hc-title">{title}</div><p>{text}</p></div>'
+        for title, text in cards[:6]
+    )
+    badge = projected_badge("Top cards rebuilt from live sources; workbook-only signals are omitted.") if PROJECTED_MODE else ''
+    return f'''<!-- HEADLINES -->
+<section id="headlines" class="headline-grid">
+  {badge}
+  {body}
 </section>
 '''
 
@@ -1059,38 +1115,7 @@ def projected_unavailable_section(sec_id, title, tag, reason):
 '''
 
 def build_projected_headlines():
-    top_hr = HR_LB[0] if HR_LB else {}
-    top_hit = sorted(HIT, key=lambda r: -parse_pct(r.get('1+ Hit')), reverse=False)[0] if HIT else {}
-    parks = sorted(PARKS, key=lambda p: parse_pct(p.get('HR %')), reverse=True)
-    top_park = parks[0] if parks else {}
-    cards = [
-        (
-            "Projected HR Anchor",
-            f"<strong>{top_hr.get('Batter','—')}</strong> leads the reconstructed HR board "
-            f"with a derived score of <strong>{top_hr.get('Score','—')}</strong>. "
-            "Zone is intentionally blank in Projected Mode."
-        ),
-        (
-            "Projected Hit Anchor",
-            f"<strong>{_hit_full(top_hit) or '—'}</strong> tops the hit board at "
-            f"<strong>{top_hit.get('1+ Hit','—')}</strong>."
-        ),
-        (
-            "Park Signal",
-            f"<strong>{top_park.get('Venue','—')}</strong> is the top HR environment "
-            f"({top_park.get('Game','')}, {top_park.get('HR %','—')} HR)."
-        ),
-    ]
-    body = ''.join(
-        f'<div class="headline-card"><div class="hc-title">{title}</div><p>{text}</p></div>'
-        for title, text in cards
-    )
-    return f'''<!-- HEADLINES -->
-<section id="headlines" class="headline-grid">
-  {projected_badge("Top cards rebuilt from live sources; workbook-only signals are withheld.")}
-  {body}
-</section>
-'''
+    return build_headlines()
 
 def build_projected_hr_board():
     rows = []
