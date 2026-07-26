@@ -138,6 +138,7 @@ def main():
                 'parlay_id': p.get('parlay_id'),
                 'correlation_type': p.get('correlation_type'),
                 'leg_role': p.get('leg_role'),
+                'conviction_rank': p.get('conviction_rank'),
             }
             for field in CHIP_FIELDS:
                 row[field] = p.get(field, None)

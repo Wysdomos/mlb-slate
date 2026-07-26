@@ -80,6 +80,21 @@ def append_correlation_buckets(md, rows):
         md.append(line(w, len(band) - w, correlation_type))
 
 
+def append_conviction_rank_buckets(md, rows):
+    labeled = [g for g in rows if g.get('conviction_rank') is not None]
+    md.append('\n## Conviction rank buckets\n')
+    if not labeled:
+        md.append('No conviction ranks have been backfilled yet.\n')
+        return
+    md.append('| Conviction rank | W-L | n | Hit rate | 95% CI |')
+    md.append('|---|---|---|---|---|')
+    ranks = sorted({int(g.get('conviction_rank')) for g in labeled})
+    for rank in ranks:
+        band = [g for g in labeled if int(g.get('conviction_rank')) == rank]
+        w = sum(1 for g in band if g['win'])
+        md.append(line(w, len(band) - w, f'Rank {rank}'))
+
+
 def build(store, source_filter=None):
     rows = [
         g for g in store['graded']
@@ -128,6 +143,7 @@ def build(store, source_filter=None):
 
     append_chip_buckets(md, rows)
     append_correlation_buckets(md, rows)
+    append_conviction_rank_buckets(md, rows)
 
     md.append('\n## Break-even reference (for eyeballing edge)\n')
     md.append('*Reference math only — historical book prices were not stored, '
