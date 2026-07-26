@@ -985,106 +985,165 @@ body.sheet-open #scroll-track{display:none;}
 /* PROJECTED MODE CSS START */
 
 /* ---------------------------------------------------------------- tokens --
-   Violet keys the mode because it is the only high-chroma hue with no job on
-   this page: green/gold = tier, red/orange = risk and park, blue = info.
-   Steel is its quiet companion. --good/--bad/--hot/--warn/--cold/--info are
+   Ice keys the material. --good/--bad/--hot/--warn/--cold/--info are
    deliberately NOT redefined: they live inside cells and carry park and stat
-   meaning that has to survive the reskin.
+   meaning that has to survive the reskin. Steel is the quiet companion.
+   Because the palette is now blue and --info/--cold are blue too, hue alone
+   cannot say "projected" -- the mode signal is structural (see below).
    ------------------------------------------------------------------------ */
 .projected-mode {
-  --pm-key: #9d7bff;
-  --pm-key-lift: #b79aff;
-  --pm-steel: #8aa0bd;
-  --pm-edge: rgba(255,255,255,0.07);
-  --pm-edge-strong: rgba(255,255,255,0.11);
-  --pm-hair: rgba(157,123,255,0.22);
-  --pm-plate: #15131e;
-  --pm-plate-sunk: rgba(0,0,0,0.55);
-  --pm-lip: #1b1826;
-  --pm-stamp-bg: #2b1856;
-  --pm-stamp-ink: #f4efff;
-  --pm-stamp-soft: #cdb8ff;
-  --pm-drop: 0 1px 2px rgba(0,0,0,0.42);
+  /* Ice, not sky. The mode key is pushed colder and less saturated than
+     --info/--cold (#56a8ff), which already means something inside cells --
+     these have to read as two different materials, not one colour twice.
+     The brand accent itself is green (#2de38f), so nothing here collides
+     with it; the mode signal is carried structurally regardless. */
+  --pm-key: #6fd7e9;
+  --pm-key-lift: #a8e9f5;
+  --pm-steel: #8fa6bd;
+  --pm-frost: rgba(190,235,250,0.10);
+  --pm-frost-strong: rgba(190,235,250,0.16);
+  --pm-edge: rgba(190,235,250,0.09);
+  --pm-edge-strong: rgba(190,235,250,0.14);
+  --pm-hair: rgba(111,215,233,0.26);
+  --pm-stripe: rgba(111,215,233,0.50);
+  --pm-stripe-soft: rgba(111,215,233,0.10);
+  --pm-spine-bg: #07222c;
+  --pm-plate: #0d1621;
+  --pm-plate-sunk: rgba(0,0,0,0.58);
+  --pm-lip: #14232f;
+  --pm-stamp-bg: #08222c;
+  --pm-stamp-lift: #0d5f77;
+  --pm-stamp-ink: #eefaff;
+  --pm-stamp-soft: #a8dbe8;
+  --pm-drop: 0 1px 2px rgba(0,0,0,0.46);
   --pm-searchbar-h: 60px;
   --pm-dock-lift: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px));
+  --pm-cordon: repeating-linear-gradient(135deg, var(--pm-stripe) 0 5px, transparent 5px 11px);
+  --pm-wash: repeating-linear-gradient(135deg, var(--pm-stripe-soft) 0 7px, transparent 7px 17px);
 
-  --bg: #0c0a12;
-  --bg-grad-1: #1a1030;
-  --bg-grad-2: #110e1d;
-  --bg-grad-3: #1c1330;
-  --surface: #15131e;
-  --surface-2: #1b1826;
-  --glass: rgba(157,123,255,0.06);
-  --glass-strong: rgba(157,123,255,0.12);
-  --glass-elev: rgba(157,123,255,0.045);
-  --glass-border: rgba(157,123,255,0.17);
-  --glass-border-strong: rgba(157,123,255,0.28);
-  --border: rgba(157,123,255,0.19);
-  --accent: #9d7bff;
-  --accent-soft: rgba(157,123,255,0.14);
-  --gold: #b79aff;
-  --header-bg: rgba(12,10,18,0.92);
-  --sheet-bg: #14111d;
+  --bg: #0a1016;
+  --bg-grad-1: #0c2029;
+  --bg-grad-2: #0d1822;
+  --bg-grad-3: #0a1f27;
+  --surface: #0e1720;
+  --surface-2: #132230;
+  --glass: rgba(111,215,233,0.055);
+  --glass-strong: rgba(111,215,233,0.11);
+  --glass-elev: rgba(111,215,233,0.04);
+  --glass-border: rgba(140,200,220,0.17);
+  --glass-border-strong: rgba(140,200,220,0.28);
+  --border: rgba(140,200,220,0.19);
+  --accent: #6fd7e9;
+  --accent-soft: rgba(111,215,233,0.13);
+  --gold: #a8e9f5;
+  --header-bg: rgba(10,16,22,0.92);
+  --sheet-bg: #0d1720;
 
-  /* A derived rank is not a graded rank. It takes a hue with no tier meaning
-     AND a lighter weight -- a hairline rail instead of a filled band. */
-  --tier0: #9d7bff;
-  --tier0-bg: rgba(157,123,255,0.10);
-  --tier0-border: rgba(157,123,255,0.42);
-  --tier0-solid: #1d1730;
-  --tier1: #8aa0bd;
-  --tier1-bg: rgba(138,160,189,0.085);
-  --tier1-border: rgba(138,160,189,0.36);
-  --tier1-solid: #171c25;
-  --pick-solid: #1d1730;
+  /* A derived rank is not a graded rank: ice + steel instead of green + gold,
+     AND a hairline rail instead of a filled band. */
+  --tier0: #6fd7e9;
+  --tier0-bg: rgba(111,215,233,0.10);
+  --tier0-border: rgba(111,215,233,0.42);
+  --tier0-solid: #0d2c38;
+  --tier1: #8fa6bd;
+  --tier1-bg: rgba(143,166,189,0.085);
+  --tier1-border: rgba(143,166,189,0.36);
+  --tier1-solid: #16202b;
+  --pick-solid: #0d2c38;
 }
 
 /* Light gets a full design, not a leftover. Specificity (0,2,0) beats the
    block above regardless of source order, so the projected page stays
    readable in daylight -- which is where this page is actually read. */
 [data-theme="light"] .projected-mode {
-  --pm-key: #6d28d9;
-  --pm-key-lift: #5b21b6;
-  --pm-steel: #3f5570;
+  --pm-key: #0b6981;
+  --pm-key-lift: #085466;
+  --pm-steel: #3d5468;
+  --pm-frost: rgba(255,255,255,0.92);
+  --pm-frost-strong: #ffffff;
   --pm-edge: rgba(255,255,255,0.9);
   --pm-edge-strong: #ffffff;
-  --pm-hair: rgba(109,40,217,0.20);
+  --pm-hair: rgba(11,105,129,0.22);
+  --pm-stripe: rgba(11,105,129,0.52);
+  --pm-stripe-soft: rgba(11,105,129,0.09);
+  --pm-spine-bg: #d3e9f0;
   --pm-plate: #ffffff;
-  --pm-plate-sunk: rgba(38,20,84,0.13);
-  --pm-lip: #f5f1fb;
-  --pm-stamp-bg: #4c1d95;
-  --pm-stamp-ink: #f8f5ff;
-  --pm-stamp-soft: #d9c9f8;
-  --pm-drop: 0 1px 2px rgba(38,20,84,0.10);
+  --pm-plate-sunk: rgba(12,52,68,0.14);
+  --pm-lip: #eef4f8;
+  --pm-stamp-bg: #07323f;
+  --pm-stamp-lift: #0b6981;
+  --pm-stamp-ink: #f2fbff;
+  --pm-stamp-soft: #a8dbe8;
+  --pm-drop: 0 1px 2px rgba(12,52,68,0.11);
 
-  --bg: #eeebf5;
-  --bg-grad-1: #e4dbf6;
-  --bg-grad-2: #eae6f3;
-  --bg-grad-3: #f1ecf9;
+  --bg: #eaf1f5;
+  --bg-grad-1: #d9ecf2;
+  --bg-grad-2: #e6eef4;
+  --bg-grad-3: #e2f0f4;
   --surface: #ffffff;
-  --surface-2: #f5f1fb;
-  --glass: rgba(255,255,255,0.76);
-  --glass-strong: rgba(255,255,255,0.92);
-  --glass-elev: rgba(255,255,255,0.66);
-  --glass-border: rgba(48,22,92,0.13);
-  --glass-border-strong: rgba(48,22,92,0.21);
-  --border: rgba(48,22,92,0.15);
-  --accent: #6d28d9;
-  --accent-soft: rgba(109,40,217,0.09);
-  --gold: #5b21b6;
-  --text-dim: #55606e;
-  --header-bg: rgba(242,238,250,0.92);
-  --sheet-bg: #fcfaff;
+  --surface-2: #eef4f8;
+  --glass: rgba(255,255,255,0.78);
+  --glass-strong: rgba(255,255,255,0.93);
+  --glass-elev: rgba(255,255,255,0.68);
+  --glass-border: rgba(16,58,76,0.14);
+  --glass-border-strong: rgba(16,58,76,0.22);
+  --border: rgba(16,58,76,0.16);
+  --accent: #0b6981;
+  --accent-soft: rgba(11,105,129,0.10);
+  --gold: #085466;
+  --text-dim: #4d5f6b;
+  --header-bg: rgba(236,244,248,0.93);
+  --sheet-bg: #f8fcfe;
 
-  --tier0: #6d28d9;
-  --tier0-bg: rgba(109,40,217,0.08);
-  --tier0-border: rgba(109,40,217,0.38);
-  --tier0-solid: #ece4fa;
-  --tier1: #3f5570;
-  --tier1-bg: rgba(63,85,112,0.075);
-  --tier1-border: rgba(63,85,112,0.34);
-  --tier1-solid: #e6ebf1;
-  --pick-solid: #ece4fa;
+  --tier0: #0b6981;
+  --tier0-bg: rgba(11,105,129,0.09);
+  --tier0-border: rgba(11,105,129,0.40);
+  --tier0-solid: #dcedf3;
+  --tier1: #3d5468;
+  --tier1-bg: rgba(61,84,104,0.075);
+  --tier1-border: rgba(61,84,104,0.34);
+  --tier1-solid: #e4eaef;
+  --pick-solid: #dcedf3;
+}
+
+/* --------------------------------------------------------- mode signal ---
+   The palette is now cold blue, and the site's own --info/--cold are blue
+   too, so hue cannot be trusted to say "projected". The signal is carried by
+   structure that no colour choice can dilute: a fixed hatched spine down the
+   left edge of the viewport, the same hatch closing the sticky header stack
+   and marking every provenance chip, plus the stamp at the top.
+   ------------------------------------------------------------------------ */
+.projected-mode::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: env(safe-area-inset-left, 0px);
+  width: 8px;
+  z-index: 65;
+  pointer-events: none;
+  background: var(--pm-cordon), var(--pm-spine-bg);
+}
+.projected-mode-banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--pm-cordon), var(--pm-spine-bg);
+  pointer-events: none;
+}
+.projected-mode .rail-wrap { border-bottom: none; }
+.projected-mode .rail-wrap::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 4px;
+  background: var(--pm-cordon), var(--pm-spine-bg);
+  pointer-events: none;
 }
 
 /* -------------------------------------------------------------- elevation --
@@ -1138,13 +1197,17 @@ body.sheet-open #scroll-track{display:none;}
 }
 
 /* ------------------------------------------------------------- the stamp --
-   Inverts against the page in both themes: a lifted violet block on dark, a
-   deep violet block on light. The inversion, not the hue, is what survives a
-   half-second glance in the sun.
+   Inverts against the page in both themes: a lifted ice block on dark, a deep
+   one on light. The inversion, not the hue, is what survives a half-second
+   glance in the sun.
    ------------------------------------------------------------------------ */
 .projected-mode-banner {
   position: relative;
   margin: 0;
+  /* the stamp always inverts against the ground -- a lifted ice block on the
+     dark theme, a deep one on light. That inversion, not the hue, is what
+     survives a half-second glance in the sun now that the palette is blue. */
+  background-image: linear-gradient(100deg, var(--pm-stamp-lift) 0%, var(--pm-stamp-bg) 78%);
   padding: calc(env(safe-area-inset-top, 0px) + 12px)
            16px 12px
            calc(env(safe-area-inset-left, 0px) + 17px);
@@ -1170,7 +1233,7 @@ body.sheet-open #scroll-track{display:none;}
   letter-spacing: 4px;
   color: var(--pm-key-lift);
 }
-[data-theme="light"] .projected-mode .pm-mode { color: #c9adff; }
+[data-theme="light"] .projected-mode .pm-mode { color: #a8e9f5; }
 .projected-mode-banner .pm-status {
   margin: 7px 0 0;
   font-family: var(--font-mono);
@@ -1225,7 +1288,7 @@ body.sheet-open #scroll-track{display:none;}
   font-family: var(--font-display); font-size: 16px; letter-spacing: 0.5px;
 }
 [data-theme="light"] .projected-mode .pm-withheld-btn .pm-count {
-  background: #c9adff; color: #2a0f5c;
+  background: #a8e9f5; color: #04222b;
 }
 .pm-withheld-btn .pm-caret { margin-left: auto; font-size: 11px; transition: transform .26s; }
 .pm-withheld-btn[aria-expanded="true"] .pm-caret { transform: rotate(180deg); }
@@ -1244,7 +1307,7 @@ body.sheet-open #scroll-track{display:none;}
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--pm-key-lift);
 }
-[data-theme="light"] .projected-mode .pm-withheld-body li::before { background: #c9adff; }
+[data-theme="light"] .projected-mode .pm-withheld-body li::before { background: #a8e9f5; }
 .pm-withheld-note {
   margin: 10px 0 0;
   font-size: 12px; line-height: 1.45;
@@ -1268,20 +1331,22 @@ body.sheet-open #scroll-track{display:none;}
 }
 .projected-mode section[data-board="context"] > .game-header::before { background: var(--pm-steel); }
 
-.projected-mode main > section[data-board] .game-title::before {
-  display: block;
-  margin-bottom: 3px;
+/* The real "PROJECTED MODE" chip is lifted out of the board body and into the
+   header by tuckNotes(), so a board is marked derived before you reach a
+   single number. It replaces the generated-content eyebrow the previous
+   revision used -- real DOM, announced by screen readers, and one label in
+   the header instead of two. Board family is carried by the rail colour. */
+.projected-mode .game-header-text .pm-chip {
+  display: inline-block;
+  margin: 0 0 4px;
+  padding: 2px 7px;
+  border: 1px solid var(--tier0-border);
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--pm-key);
   font-family: var(--font-mono);
-  font-size: 10px; font-weight: 500; letter-spacing: 1.6px;
-}
-.projected-mode section[data-board="derived"] .game-title::before {
-  content: "DERIVED RANKING"; color: var(--pm-key);
-}
-.projected-mode section[data-board="pitcher"] .game-title::before {
-  content: "STARTERS"; color: var(--pm-key);
-}
-.projected-mode section[data-board="context"] .game-title::before {
-  content: "CONTEXT"; color: var(--pm-steel);
+  font-size: 10px; font-weight: 500; letter-spacing: 1.2px;
+  white-space: nowrap;
 }
 .projected-mode .game-title {
   font-family: var(--font-body);
@@ -1334,9 +1399,9 @@ body.sheet-open #scroll-track{display:none;}
    from 12.5px to 13px, because 12.5px is not readable in direct sun.
    ------------------------------------------------------------------------ */
 .projected-mode tbody td {
-  padding: 7px 10px;
+  padding: 5px 9px;
   font-size: 13px;
-  line-height: 1.3;
+  line-height: 1.26;
   border-bottom: 1px solid var(--glass-border);
 }
 /* the name cell is the one that wraps; give it room before it does, and keep
@@ -1348,7 +1413,7 @@ body.sheet-open #scroll-track{display:none;}
   font-family: var(--font-mono);
   font-size: 10.5px; font-weight: 500; letter-spacing: 0.9px;
   color: var(--text-dim);
-  padding: 10px;
+  padding: 7px 9px;
   box-shadow: inset 0 -1px 0 var(--glass-border-strong);
 }
 .projected-mode thead th:first-child,
@@ -1375,35 +1440,15 @@ body.sheet-open #scroll-track{display:none;}
 }
 .projected-mode section[data-board="derived"] tbody tr.row-tier0 td:first-child { color: var(--pm-key); }
 
-/* ------------------------------------------------- progressive disclosure --
-   Long boards show their head; the rest is one 44px tap away. This is a plain
-   CSS rule, so it costs nothing per keystroke -- and it yields automatically
-   while a filter is active, so search always sees every row.
+/* ----------------------------------------------------------- more rows ----
+   The previous revision capped boards at 12 rows behind a "Show all" tap.
+   That was wrong for this brief: the plate is already a scroll container with
+   its own max-height, so capping shrank the container AND added a tap -- it
+   showed strictly less, which is the opposite of what was asked for. The cap
+   is gone. Instead the plate is taller and the row rhythm is tighter, so more
+   rows land on one screen with nothing hidden.
    ------------------------------------------------------------------------ */
-body.projected-mode:not(.filtering) section.pm-capped:not(.pm-all) tbody tr:nth-child(n+13) {
-  display: none;
-}
-.pm-more {
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  width: 100%; min-height: 44px;
-  margin: 8px 0 2px;
-  padding: 0 14px;
-  border: 1px solid var(--glass-border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--pm-lip);
-  box-shadow: inset 0 1px 0 var(--pm-edge);
-  color: var(--pm-key);
-  font-family: var(--font-body);
-  font-size: 13px; font-weight: 700;
-  cursor: pointer;
-}
-.pm-more:active { background: var(--accent-soft); }
-.pm-more .pm-more-sub {
-  font-family: var(--font-mono);
-  font-size: 11.5px; font-weight: 500;
-  color: var(--text-dim);
-}
-body.filtering .pm-more { display: none; }
+.projected-mode .table-wrap { max-height: min(78vh, 760px); }
 
 /* ---------------------------------------------------------- search dock ---
    Sticky in the thumb zone, directly above the tab dock, always reachable.
@@ -1472,13 +1517,13 @@ body.projected-mode {
 body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
 
 .projected-mode #scroll-thumb {
-  background: rgba(157,123,255,0.34);
-  border-color: rgba(157,123,255,0.62);
+  background: rgba(111,215,233,0.34);
+  border-color: rgba(111,215,233,0.62);
 }
-.projected-mode #scroll-thumb.dragging { background: rgba(157,123,255,0.85); }
+.projected-mode #scroll-thumb.dragging { background: rgba(111,215,233,0.85); }
 [data-theme="light"] .projected-mode #scroll-thumb {
-  background: rgba(109,40,217,0.30);
-  border-color: rgba(109,40,217,0.60);
+  background: rgba(11,105,129,0.30);
+  border-color: rgba(11,105,129,0.60);
 }
 
 /* ------------------------------------------------------------ tap size --
@@ -1495,8 +1540,8 @@ body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
 .projected-mode .app-bar,
 .projected-mode .rail-wrap { border-bottom: 1px solid var(--pm-hair); }
 .projected-mode .rail .chip.active {
-  box-shadow: 0 0 12px rgba(157,123,255,0.22), inset 0 0 8px rgba(157,123,255,0.07);
-  text-shadow: 0 0 12px rgba(157,123,255,0.55);
+  box-shadow: 0 0 12px rgba(111,215,233,0.22), inset 0 0 8px rgba(111,215,233,0.07);
+  text-shadow: 0 0 12px rgba(111,215,233,0.55);
 }
 [data-theme="light"] .projected-mode .rail .chip.active {
   box-shadow: inset 0 0 0 1px var(--tier0-border);
@@ -1579,7 +1624,7 @@ body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
   <div class="subtitle-block">15 Games - Day 120 - Projected Mode</div>
   <div class="hero-chips" id="heroChips"></div>
   <div class="hero-tools">
-    <div class="last-updated">Jul 25 - <b>2:45 AM ET</b> - Day 120 - Saturday slate</div>
+    <div class="last-updated">Jul 25 - <b>12:06 PM ET</b> - Day 120 - Saturday slate</div>
     <button class="text-btn" id="expandAll">⊞ Expand all</button>
   </div>
   <div class="install-banner" id="installBanner">
@@ -2246,7 +2291,7 @@ body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
 <section id="hr-board" class="collapsible reconstructed-board" data-board="derived">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">Top 50 HR Board</div>
+      <div class="game-title">🏆 Top 50 HR Board</div>
       <span class="game-tag">Tap to expand · Projected Mode · derived rankings + Savant contact metrics</span>
     </div>
     <span class="chevron">▾</span>
@@ -2316,7 +2361,7 @@ body.sheet-open .pm-searchbar { opacity: 0; pointer-events: none; }
 <section id="oo5-board" class="collapsible reconstructed-board" data-board="derived">
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">Top 50 Hits Board</div>
+      <div class="game-title">☄️ Top 50 Hits Board</div>
       <span class="game-tag">Tap to expand · Projected Mode · live hit probabilities</span>
     </div>
     <span class="chevron">▾</span>
@@ -3609,47 +3654,22 @@ suggestForm.addEventListener('submit', function(e) {
         if (n.classList.contains('projected-section-badge') || n.tagName === 'P') move.push(n);
       }
       if (!move.length) continue;
+
+      /* lift the compact PROJECTED MODE chip into the board header, so the
+         board is marked derived without scrolling past the numbers */
+      var badge = inner.querySelector('.projected-section-badge');
+      var chip = badge ? badge.querySelector('span') : null;
+      var host = inner.closest ? inner.closest('.collapsible, .game') : null;
+      var slot = host ? host.querySelector('.game-header .game-header-text') : null;
+      if (chip && slot && !slot.querySelector('.pm-chip')) {
+        chip.className = 'pm-chip';
+        slot.insertBefore(chip, slot.firstChild);
+      }
+
       var note = document.createElement('div');
       note.className = 'pm-note';
       for (var k = 0; k < move.length; k++) note.appendChild(move[k]);
       inner.appendChild(note);
-    }
-  }
-
-  /* ---- progressive disclosure on long boards -------------------------- */
-  function capBoards() {
-    var secs = document.querySelectorAll('main > section.collapsible');
-    for (var i = 0; i < secs.length; i++) {
-      var sec = secs[i];
-      if (sec.id === 'games') continue;
-      var tables = sec.querySelectorAll('.table-wrap table');
-      if (tables.length !== 1) continue;
-      var tbody = tables[0].tBodies[0];
-      if (!tbody) continue;
-      var total = tbody.rows.length;
-      if (total <= ROW_CAP + 2) continue;
-
-      sec.classList.add('pm-capped');
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'pm-more';
-      btn.setAttribute('aria-expanded', 'false');
-      var hidden = total - ROW_CAP;
-      btn.innerHTML = '<span class="pm-more-label"></span><span class="pm-more-sub"></span>';
-      btn.querySelector('.pm-more-label').textContent = 'Show all ' + total + ' rows';
-      btn.querySelector('.pm-more-sub').textContent = hidden + ' more';
-      (function (section, button, allRows, hiddenRows) {
-        button.addEventListener('click', function () {
-          var open = section.classList.toggle('pm-all');
-          button.setAttribute('aria-expanded', open ? 'true' : 'false');
-          button.querySelector('.pm-more-label').textContent =
-            open ? 'Show top ' + ROW_CAP : 'Show all ' + allRows + ' rows';
-          button.querySelector('.pm-more-sub').textContent =
-            open ? 'of ' + allRows : hiddenRows + ' more';
-        });
-      })(sec, btn, total, hidden);
-      var wrap = sec.querySelector('.table-wrap');
-      if (wrap && wrap.parentNode) wrap.parentNode.insertBefore(btn, wrap.nextSibling);
     }
   }
 
@@ -3718,7 +3738,7 @@ suggestForm.addEventListener('submit', function(e) {
     }
   }
 
-  function init() { tuckNotes(); capBoards(); wireWithheld(); wireSearch(); }
+  function init() { tuckNotes(); wireWithheld(); wireSearch(); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

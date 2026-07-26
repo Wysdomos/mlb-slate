@@ -46,17 +46,65 @@ try:
     if PROJECTED_MODE:
         with open('scout.html', 'w', encoding='utf-8') as f:
             f.write('''<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SSJ The Zone - Projected Mode</title>
 <style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#111827;color:#f8fafc;display:grid;min-height:100vh;place-items:center;padding:24px}
-.card{max-width:720px;border:1px solid rgba(125,211,252,.35);background:linear-gradient(135deg,rgba(14,165,233,.16),rgba(20,184,166,.12));padding:28px;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
-h1{margin:0 0 10px;font-size:28px}p{color:#cbd5e1;line-height:1.55}.badge{display:inline-block;margin-bottom:14px;padding:5px 9px;border:1px solid rgba(125,211,252,.45);border-radius:999px;color:#7dd3fc;font-size:12px;font-weight:800;letter-spacing:.08em}
-a{color:#67e8f9}
-</style></head><body><main class="card"><div class="badge">PROJECTED MODE</div>
-<h1>SSJ The Zone is unavailable without the workbook</h1>
-<p>The Zone, Sweet Spot grades, Best Spots, and Scout core tabs require the uploaded workbook. Today's main slate still includes reconstructed HR and Hits boards built from live BallparkPal and Baseball Savant inputs.</p>
-<p><a href="index.html">Back to The Daily Slate</a></p></main></body></html>''')
+/* Matches the Projected Mode withheld treatment on the slate: same language,
+   same ice palette, same hatched cordon marking a reconstructed surface. */
+:root{
+  --pm-key:#6fd7e9; --pm-key-lift:#a8e9f5; --pm-steel:#8fa6bd;
+  --pm-stripe:rgba(111,215,233,.50); --pm-spine:#07222c;
+  --bg:#0a1016; --surface:#0e1720; --lip:#14232f;
+  --text:#eaf3f7; --text-soft:#b6c8d3; --text-dim:#8aa0ad;
+  --border:rgba(140,200,220,.19);
+  --cordon:repeating-linear-gradient(135deg,var(--pm-stripe) 0 5px,transparent 5px 11px);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --pm-key:#0b6981; --pm-key-lift:#085466; --pm-steel:#3d5468;
+    --pm-stripe:rgba(11,105,129,.52); --pm-spine:#d3e9f0;
+    --bg:#eaf1f5; --surface:#fff; --lip:#eef4f8;
+    --text:#0d1b24; --text-soft:#3c4d59; --text-dim:#4d5f6b;
+    --border:rgba(16,58,76,.16);
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;
+  padding:calc(env(safe-area-inset-top,0px) + 24px) calc(env(safe-area-inset-right,0px) + 20px)
+          calc(env(safe-area-inset-bottom,0px) + 24px) calc(env(safe-area-inset-left,0px) + 28px);
+  background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+body::before{content:"";position:fixed;top:0;bottom:0;left:env(safe-area-inset-left,0px);
+  width:8px;background:var(--cordon),var(--pm-spine);pointer-events:none}
+.card{position:relative;max-width:560px;width:100%;padding:22px 20px;
+  border:1px solid var(--border);border-radius:16px;background:var(--surface);
+  box-shadow:inset 0 1px 0 rgba(190,235,250,.09),0 1px 2px rgba(0,0,0,.42);overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+  background:var(--cordon),var(--pm-spine)}
+.chip{display:inline-block;margin-bottom:12px;padding:3px 8px;
+  border:1px solid rgba(111,215,233,.42);border-radius:5px;
+  background:rgba(111,215,233,.13);color:var(--pm-key);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:10.5px;font-weight:500;letter-spacing:1.2px}
+h1{margin:0 0 8px;font-size:21px;line-height:1.25;letter-spacing:.2px}
+p{margin:0 0 10px;color:var(--text-soft);font-size:14px}
+p:last-of-type{margin-bottom:0}
+.back{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:18px;min-height:44px;padding:0 16px;
+  border:1px solid rgba(111,215,233,.42);border-radius:11px;
+  background:rgba(111,215,233,.13);box-shadow:inset 0 1px 0 rgba(190,235,250,.09);
+  color:var(--pm-key);font-size:14px;font-weight:700;text-decoration:none}
+.back:active{background:rgba(111,215,233,.22)}
+</style></head><body><main class="card">
+<span class="chip">PROJECTED MODE</span>
+<h1>SSJ The Zone is withheld today</h1>
+<p>No workbook was uploaded, so The Zone, Sweet Spot grades, Best Spots and the
+Scout core tabs have no honest source. They are held back rather than estimated.</p>
+<p>Today&rsquo;s slate still carries reconstructed HR and Hits boards built from live
+BallparkPal and Baseball Savant inputs.</p>
+<a class="back" href="index.html">&larr;&nbsp; Back to the top of the slate</a>
+</main></body></html>''')
         print('build_scout: wrote Projected Mode unavailable page')
     else:
         import datetime as _dt_mod
