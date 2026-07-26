@@ -504,6 +504,13 @@ def build_headlines():
 
 # ---- BUILD: PARK BOARD ----
 def build_park_board():
+    if not PARKS:
+        return empty_market_section(
+            'park-board',
+            '🏟 Park Factors Board',
+            'Park factors unavailable',
+            'Park_Factors returned no rows. Park-driven leans are omitted rather than approximated.',
+        )
     rows = []
     parks_sorted = sorted(PARKS, key=lambda p: -parse_pct(p.get('HR %')))
     for p in parks_sorted:
@@ -560,10 +567,10 @@ def build_park_board():
 
     return f'''<!-- PARK FACTORS BOARD -->
 <section id="park-board" class="collapsible">
-  <button class="game-header" aria-expanded="false">
+      <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🏟 Park Factors Board</div>
-      <span class="game-tag">Tap to expand · 15 venues · stadium + day-of weather</span>
+      <span class="game-tag">Tap to expand · {len(PARKS)} venues · stadium + day-of weather</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -1095,6 +1102,31 @@ def build_k_board():
             **chips,
         })
 
+        for market_key, rec, projection, label in (
+            ('OUTS_ALT', outs_rec, outs_proj, 'outs'),
+            ('H_ALLOWED_ALT', hits_rec, hits_proj, 'H allowed'),
+        ):
+            if not rec or not rec.get('alt_fires'):
+                continue
+            line_text = f'{rec["direction"]} {format_line_point(rec["alt_line"])} {label}'
+            SLATE_PICKS.append({
+                'market': market_key,
+                'pick': f'{name} {line_text}',
+                'name': name,
+                'pick_source': PICK_SOURCE,
+                'team': team,
+                'opp': opp,
+                'line': line_text,
+                'win_at': rec.get('alt_win_at'),
+                'projection': projection,
+                'main_line': rec.get('main_line'),
+                'direction': rec.get('direction'),
+                'alt_margin': rec.get('alt_margin'),
+                'consensus': votes,
+                'consensus_max': consensus_max,
+                **blank_chip_tiers(),
+            })
+
         rows.append((votes, kf,
             f'      <tr class="{tier_cls}">'
             f'<td>{tier_badge}</td>'
@@ -1351,6 +1383,21 @@ def build_tb_board():
         )
     body = []
     for idx, row in enumerate(rows, 1):
+        SLATE_PICKS.append({
+            'market': 'TB',
+            'pick': f'{row["name"]} Ov 1.5 TB',
+            'name': row['name'],
+            'pick_source': PICK_SOURCE,
+            'team': row['team'],
+            'opp': row['opp'],
+            'line': 'Ov 1.5',
+            'win_at': 2,
+            'projection': row['e_tb'],
+            'main_line': 1.5,
+            'direction': 'Over',
+            'alt_margin': None,
+            **blank_chip_tiers(),
+        })
         body.append(
             f'      <tr>'
             f'<td>{idx}</td>'

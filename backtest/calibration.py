@@ -22,8 +22,16 @@ OUT = os.path.join(HERE, 'CALIBRATION.md')
 sys.path.insert(0, os.path.dirname(HERE))
 from shadow_chips import CHIP_FIELDS, CHIP_LABELS, TIER_ORDER
 
-MARKET_ORDER = ['K', 'HR', 'HIT', 'HRR', '2B', 'SB', 'NRFI', 'TOTAL']
+MARKET_ORDER = [
+    'K', 'OUTS', 'OUTS_ALT', 'H_ALLOWED', 'H_ALLOWED_ALT',
+    'HR', 'TB', 'HIT', 'HRR', '2B', 'SB', 'NRFI', 'TOTAL',
+]
 BANDS = [(5, 6, '5-6 lenses'), (4, 4, '4 lenses'), (0, 3, '<=3 lenses')]
+ALT_MARGIN_BANDS = [
+    (0.0, 1.99, '<2.0 alt margin'),
+    (2.0, 2.99, '2.0-2.99 alt margin'),
+    (3.0, 99.0, '>=3.0 alt margin'),
+]
 
 
 def wilson(w, n, z=1.96):
@@ -94,6 +102,28 @@ def append_conviction_rank_buckets(md, rows):
         w = sum(1 for g in band if g['win'])
         md.append(line(w, len(band) - w, f'Rank {rank}'))
 
+def append_alt_margin_buckets(md, rows):
+    labeled = [
+        g for g in rows
+        if g.get('market') in ('H_ALLOWED_ALT', 'OUTS_ALT')
+        and g.get('alt_margin') is not None
+    ]
+    md.append('\n## Pitcher alt margin buckets\n')
+    if not labeled:
+        md.append('No pitcher alt margins have been backfilled yet.\n')
+        return
+    for mkt in ('H_ALLOWED_ALT', 'OUTS_ALT'):
+        sub = [g for g in labeled if g.get('market') == mkt]
+        if not sub:
+            continue
+        md.append(f'\n### {mkt}\n')
+        md.append('| Alt margin | W-L | n | Hit rate | 95% CI |')
+        md.append('|---|---|---|---|---|')
+        for lo, hi, label_text in ALT_MARGIN_BANDS:
+            band = [g for g in sub if lo <= float(g.get('alt_margin')) <= hi]
+            w = sum(1 for g in band if g['win'])
+            md.append(line(w, len(band) - w, label_text))
+
 
 def build(store, source_filter=None):
     rows = [
@@ -144,6 +174,7 @@ def build(store, source_filter=None):
     append_chip_buckets(md, rows)
     append_correlation_buckets(md, rows)
     append_conviction_rank_buckets(md, rows)
+    append_alt_margin_buckets(md, rows)
 
     md.append('\n## Break-even reference (for eyeballing edge)\n')
     md.append('*Reference math only — historical book prices were not stored, '

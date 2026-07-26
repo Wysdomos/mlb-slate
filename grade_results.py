@@ -91,7 +91,8 @@ def fetch_bdl(date, key):
                         out['batters'][nm] = {
                             'h': _g(e, 'hits', 'h'), 'hr': _g(e, 'home_runs', 'homeruns', 'hr'),
                             'r': _g(e, 'runs', 'runs_scored', 'r'), 'rbi': _g(e, 'rbi', 'runs_batted_in', 'rbis'),
-                            'sb': _g(e, 'stolen_bases', 'sb'), 'd': _g(e, 'doubles', 'double', '2b')}
+                            'sb': _g(e, 'stolen_bases', 'sb'), 'd': _g(e, 'doubles', 'double', '2b'),
+                            't': _g(e, 'triples', 'triple', '3b')}
                     # pitching — strikeouts decide the K market; rest is context
                     k_ = _g(e, 'strikeouts_pitching', 'pitching_strikeouts', 'strike_outs', 'strikeouts', 'so', default=None)
                     if k_ is not None and (e.get('innings_pitched') or e.get('ip') or e.get('batters_faced')):
@@ -128,7 +129,8 @@ def fetch_box_results(date):
                             out['batters'][nm] = {
                                 'h': bs.get('hits', 0), 'hr': bs.get('homeRuns', 0),
                                 'r': bs.get('runs', 0), 'rbi': bs.get('rbi', 0),
-                                'sb': bs.get('stolenBases', 0), 'd': bs.get('doubles', 0)}
+                                'sb': bs.get('stolenBases', 0), 'd': bs.get('doubles', 0),
+                                't': bs.get('triples', 0)}
                         if ps:
                             out['pitchers'][nm] = {
                                 'k': ps.get('strikeOuts', 0), 'h': ps.get('hits', 0),
@@ -285,6 +287,13 @@ def grade():
         mkt = p['market']; nm = norm(p['name']) if p.get('name') else ''
         win, got = None, '—'
         detail = {}
+        def directional(actual):
+            direction = (p.get('direction') or 'Over').lower()
+            target = p.get('win_at')
+            if target is None:
+                return None
+            return actual <= target if direction == 'under' else actual >= target
+
         if mkt == 'HR':
             b = box.get('batters', {}).get(nm)
             if b is not None:
@@ -315,6 +324,9 @@ def grade():
                 detail['actual'] = f'{b["h"]}H · {b["r"]}R · {b["rbi"]}RBI'
             elif mkt == 'SB' and b: win = b['sb'] >= 1; got = f'{b["sb"]} SB'
             elif mkt == '2B' and b: win = b['d'] >= 1; got = f'{b["d"]} 2B'
+            elif mkt == 'TB' and b:
+                tb = b['h'] + b['d'] + (2 * b.get('t', 0)) + (3 * b['hr'])
+                win = tb >= p.get('win_at', 99); got = f'{tb} TB'
             elif mkt == 'K' and pi:
                 win = pi['k'] >= p.get('win_at', 99); got = f'{pi["k"]} K'
                 detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
@@ -323,6 +335,12 @@ def grade():
                 detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
             elif mkt == 'H_ALLOWED' and pi:
                 win = pi['h'] >= p.get('win_at', 99); got = f'{pi["h"]} H allowed'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+            elif mkt == 'OUTS_ALT' and pi:
+                win = directional(pi['outs']); got = f'{pi["outs"]} outs'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+            elif mkt == 'H_ALLOWED_ALT' and pi:
+                win = directional(pi['h']); got = f'{pi["h"]} H allowed'
                 detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
             elif mkt == 'ER_ALLOWED' and pi:
                 win = pi['er'] >= p.get('win_at', 99); got = f'{pi["er"]} ER'
@@ -340,7 +358,9 @@ def grade():
             disp_line = (p.get('lean') or 'NRFI')
         graded.append({'market': mkt, 'name': disp_name, 'line': disp_line,
                        'consensus': p.get('consensus', 0), 'max': p.get('consensus_max', 6),
-                       'win': win, 'got': got, 'pick': p.get('pick', ''), 'detail': detail})
+                       'win': win, 'got': got, 'pick': p.get('pick', ''), 'detail': detail,
+                       'projection': p.get('projection'), 'main_line': p.get('main_line'),
+                       'direction': p.get('direction'), 'alt_margin': p.get('alt_margin')})
 
     # ---- HR consensus buckets (real where graded) ----
     hr = [g for g in graded if g['market'] == 'HR' and g['win'] is not None]
@@ -377,7 +397,8 @@ def grade():
 
     # ---- per-market summary (for the markets grid) ----
     META = [('HR','HR','🏆'),('K','K','⚡'),('OUTS','Outs','📏'),('HIT','Hits','🎯'),('HRR','HRR','💥'),
-            ('H_ALLOWED','Hits Allowed','🚦'),('ER_ALLOWED','ER Allowed','📈'),
+            ('TB','Total Bases','📏'),('H_ALLOWED','Hits Allowed','🚦'),('ER_ALLOWED','ER Allowed','📈'),
+            ('H_ALLOWED_ALT','Hits Allowed Alt','🚦'),('OUTS_ALT','Outs Alt','📏'),
             ('TOTAL','Totals','📈'),('NRFI','NRFI','🥶'),('SB','SB','🏃'),('2B','2B','💎')]
     markets = []
     for key, label, icon in META:
