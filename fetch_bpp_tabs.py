@@ -19,15 +19,18 @@ import copy
 import json
 import os
 import sys
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
-from services.bpp_client import BppClient
+from services.bpp_client import BppApiError, BppClient
 
 DATA_FILE = os.environ.get("DATA_FILE", "day_data.json")
-BPP_MIN_GAP = float(os.environ.get("BPP_MIN_GAP", "1.0"))
+BPP_MIN_GAP = float(os.environ.get("BPP_MIN_GAP", "6.2"))
+BPP_TABS_MAX_RETRIES = int(os.environ.get("BPP_TABS_MAX_RETRIES", "3"))
+BPP_RATE_LIMIT_BACKOFF = float(os.environ.get("BPP_RATE_LIMIT_BACKOFF", "20"))
 BPP_MONTHLY_BUDGET = 15000
 MLB_BASE = "https://statsapi.mlb.com/api/v1"
 
@@ -83,13 +86,27 @@ class CallCounter:
         self.mlb_count = 0
 
     def bpp(self, label: str, func: Any) -> Dict[str, Any]:
-        self.bpp_count += 1
-        print(
-            f"[bpp-tabs] BPP call {self.bpp_count} "
-            f"(monthly budget {BPP_MONTHLY_BUDGET}): {label}",
-            file=sys.stderr,
-        )
-        return func()
+        for attempt in range(1, BPP_TABS_MAX_RETRIES + 1):
+            self.bpp_count += 1
+            print(
+                f"[bpp-tabs] BPP call {self.bpp_count} "
+                f"(monthly budget {BPP_MONTHLY_BUDGET}): {label}"
+                f"{'' if attempt == 1 else f' retry {attempt}/{BPP_TABS_MAX_RETRIES}'}",
+                file=sys.stderr,
+            )
+            try:
+                return func()
+            except BppApiError as exc:
+                if not is_rate_limit_error(exc) or attempt >= BPP_TABS_MAX_RETRIES:
+                    raise
+                wait = BPP_RATE_LIMIT_BACKOFF * attempt
+                print(
+                    f"[bpp-tabs] rate limited while fetching {label}; "
+                    f"sleeping {wait:.0f}s before retry",
+                    file=sys.stderr,
+                )
+                time.sleep(wait)
+        raise RuntimeError(f"unreachable BPP retry state for {label}")
 
     def mlb_json(self, label: str, url: str) -> Dict[str, Any]:
         self.mlb_count += 1
@@ -164,24 +181,34 @@ def build_overrides(
     apply_park_rows(updated, slate_date, park_rows, game_meta, counter)
 
     averages_by_game: Dict[int, Mapping[str, Any]] = {}
-    probabilities_by_game: Dict[int, Mapping[str, Any]] = {}
     for game_id in sorted(game_meta):
         averages_by_game[game_id] = counter.bpp(
             f"projection_averages({game_id})",
             lambda game_id=game_id: counter.client.projection_averages(game_id, force_refresh=True),
         )
-        probabilities_by_game[game_id] = counter.bpp(
-            f"projection_probabilities({game_id})",
-            lambda game_id=game_id: counter.client.projection_probabilities(
-                game_id,
-                force_refresh=True,
-            ),
-        )
 
     hands = fetch_handedness(collect_player_ids(averages_by_game), counter)
     updated["SP_Projections"] = build_sp_rows(averages_by_game, game_meta, hands)
-    apply_batter_overrides(updated, averages_by_game, probabilities_by_game, hands)
     apply_pitcher_overrides(updated, averages_by_game, hands)
+
+    probabilities_by_game: Dict[int, Mapping[str, Any]] = {}
+    for game_id in sorted(game_meta):
+        try:
+            probabilities_by_game[game_id] = counter.bpp(
+                f"projection_probabilities({game_id})",
+                lambda game_id=game_id: counter.client.projection_probabilities(
+                    game_id,
+                    force_refresh=True,
+                ),
+            )
+        except BppApiError as exc:
+            print(
+                f"[bpp-tabs] warning: optional projection_probabilities({game_id}) "
+                f"failed after critical tabs were rebuilt: {exc}",
+                file=sys.stderr,
+            )
+            break
+    apply_batter_overrides(updated, averages_by_game, probabilities_by_game, hands)
     return updated
 
 
@@ -489,6 +516,11 @@ def iter_items(payload: Mapping[str, Any]) -> Iterable[Mapping[str, Any]]:
         for row in data:
             if isinstance(row, Mapping):
                 yield row
+
+
+def is_rate_limit_error(exc: BppApiError) -> bool:
+    blob = f"{exc.status or ''} {exc.code or ''} {exc}".lower()
+    return "429" in blob or "rate limit" in blob or "too many requests" in blob
 
 
 def opponent_for(team: str, meta: Mapping[str, Any]) -> str:

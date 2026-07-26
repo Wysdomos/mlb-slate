@@ -59,8 +59,19 @@ jobs:
         continue-on-error: true
         env:
           BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          BPP_MIN_GAP: '6.2'
           DATA_FILE: day_data.json
         run: python3 fetch_bpp_tabs.py
+
+      - name: Alert on empty critical tabs
+        if: always()
+        env:
+          DATA_FILE: day_data.json
+          CRITICAL_TABS: Park_Factors,SP_Projections
+          GITHUB_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 tools/check_critical_tabs.py
 
       - name: Fetch real K lines
         timeout-minutes: 4
