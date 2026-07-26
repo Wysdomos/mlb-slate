@@ -1,466 +1,311 @@
-# SESSION STATUS - 2026-07-25 - Codex
+# SESSION STATUS - 2026-07-26 - Projected Mode skin bake-off (alternate)
 
-## 0. CHAPTER G ADD-ON - PICK PROVENANCE
-- Stayed on `codex/chapter-g-early-build`; this is an add-on for the existing PR #22.
-- Added `PICK_SOURCE = 'projected' if PROJECTED_MODE else 'workbook'` in `build_day46.py`.
-- Added `pick_source` to all 8 `SLATE_PICKS.append({...})` payloads.
-- Added historical compatibility in `backtest/backfill_grades.py`: missing `pick_source` defaults to `workbook` when new graded rows are written.
-- Added calibration segmentation in `backtest/calibration.py`: `build(store, source_filter=...)` and CLI `--pick-source workbook|projected`, with missing historical values treated as `workbook`.
-- Did not modify any existing `slate_picks*.json`, `backtest/graded_picks.json`, or generated public HTML/JSON files.
+Branch: `claude/projected-mode-skin-alt-keuhaf`
+Scope: **skin only.** A competing visual treatment for the Projected Mode that
+Chapter F already shipped to main. Nothing else changes. Loser's branch gets
+deleted.
 
-### Add-On Verification
+---
 
-a. Workbook-backed build -> every pick record has `pick_source == 'workbook'`; count matches total picks:
+## 1. WHAT THIS IS
+
+A second skin for the same feature, built so the owner can compare the two on
+his phone and pick one. The data, the reconstruction, the freshness gate, the
+section list, the row counts and every rendered value are identical to main.
+The only thing that differs is how it looks.
+
+### Design direction: **Cordon**
+
+The page is a *reconstruction*, so it is **cordoned, not recolored**.
+
+One hazard hatch is drawn at four scales:
+
+| scale | where | why |
+|---|---|---|
+| 8px | fixed spine down the left edge of the viewport | on screen at every scroll position |
+| inset | fills the iOS status-bar inset | first thing on the screen, above the wordmark |
+| 4px | rule closing the sticky header stack | marks the chrome/content boundary |
+| 5px | leading edge of every projected badge and held card | marks each reconstructed surface |
+
+**Palette.** Violet carries the mode because nothing else on this page uses it
+— green, gold, red and orange all already mean something about a *play*. Six
+named values: Cordon Violet `#b98cff` / `#5b21b6`, Stamp Ground `#2a1152` /
+`#4c1d95`, Blueprint Ink `#0a0713` / `#efeaf7`, Held Steel `#8ea6c8` /
+`#3f5570`, Chalk `#f4eeff`, and the hatch (Cordon Violet at 58% on a 5px/11px
+135 degree repeat).
+
+**Type.** Existing stack only, no new fonts, no new dependencies. Bebas Neue
+for the one stamp wordmark — the same display role `.brand .wordmark` and every
+`.hero h1` already give it. DM Mono, uppercase and tracked, for every *mode*
+label (badge label, held-section tags, status line): a machine voice for
+machine-reconstructed surfaces. DM Sans for all prose. See section 5 for a note
+on the brief's font line.
+
+**Tiers.** `--tier0` / `--tier1` drop to violet + steel. These ranks are
+*derived*; wearing the same green a Sweet Spot grade wears is exactly the
+confusion the brief warns about. That is content-true, not decoration.
+
+---
+
+## 2. WHERE IT DELIBERATELY DIVERGES FROM MAIN
+
+**1. The signal persists instead of scrolling away.**
+Main's mark is a banner at the top of the body. Scroll past it and there is
+nothing projected-looking left on screen — the page is a normal dark slate with
+a cyan accent instead of a green one. That is a hue shift you have to *compare
+against memory* to notice. This skin adds a fixed spine and a hatch rule in the
+sticky header, so the mark is present at any scroll position. See
+`docs/projected-skin-alt/compare-scrolled.png` — that pair is the whole
+argument.
+
+**2. Light mode works.**
+Main's `.projected-mode` block hard-codes dark surfaces (`--bg: #0d1117`,
+`--surface: #101720`, `.app-bar { background: rgba(13,17,23,0.9) }`) at
+specificity (0,1,0) and is appended after `[data-theme="light"]`, so it wins in
+*both* themes while `--text` stays the light theme's near-black. In daylight —
+the owner's actual use case — the wordmark, the hero date, the games chip, the
+install banner and the held-card headings all render near-invisible. Measured
+below: **9 of 12 probes under WCAG AA, five of them at ~1.1:1.** This skin
+scopes the light values under `[data-theme="light"] .projected-mode`
+(specificity (0,2,0), so it wins regardless of source order). All 12 probes
+clear AA in both themes.
+
+**3. The banner clears the notch.**
+Main's banner is `padding: 13px 18px` with no `env(safe-area-inset-top)`, and
+it sits above the app bar — so on a real iPhone its first line runs under the
+status bar / Dynamic Island. This skin pads by
+`calc(env(safe-area-inset-top, 0px) + 13px)` and fills the inset with the
+hatch. `docs/projected-skin-alt/alt-dark-safearea.png` is rendered with the
+insets substituted (59px top / 34px bottom).
+
+**4. Held-back sections stop looking broken.**
+Main uses a dashed amber border on `.unavailable-card` — the universal
+warning/error idiom. Nothing is wrong: the workbook simply is not there. This
+skin uses a solid, fully built panel carrying the same cordon edge as every
+other reconstructed surface, in normal text colours, no dash and no amber. The
+panel field is deliberately left un-hatched — hatching *inside* the box would
+read as struck through rather than reserved.
+
+**5. Banner hierarchy is inverted; the wording is not.**
+Main leads with four lines of bold body copy you have to read. This skin leads
+with a stamp you *recognise* (`PROJECTED` / `MODE`, then a tracked mono
+`RECONSTRUCTED · NOT GRADED`), and demotes the same facts to small print
+underneath, ending on the one action that fixes it. Every fact main states is
+still stated; only the emphasis moved. The `⚡ PROJECTED MODE —` prefix was
+dropped because the stamp above it now carries that. **No data value changed**
+— proven in (a) below, where all 4,263 visible text nodes in `<main>` are
+byte-identical.
+
+**6. Kept on purpose:** the house corner radius. Main flattens
+`.collapsible` / `.game` from the site's 18px to 8px. This skin leaves the
+product's form language alone so that only the *mode* chrome differs. The
+distinction is carried by the cordon and the stamp, which are stronger signals
+than a corner radius.
+
+**7. No animation.** No glow, no pulse, no drift. The one bold move is the
+cordon; everything around it stays quiet.
+
+---
+
+## 3. VERIFICATION
+
+### (a) Projected page differs from main VISUALLY ONLY
+
+Both branches rendered through the same pipeline (`build_day46.py` -> `sync.py`)
+from the same `day_data.json` with `_mode: projected`.
+
 ```text
-python3 extract_xlsx.py MLB_Slate_7-25-26.xlsx /tmp/chapterg-addon-current-day_data.json
-HR_Leaderboard: 270 rows
-Hit_Probabilities: 258 rows
-Done. 1508 total rows -> /tmp/chapterg-addon-current-day_data.json
+sections in main : 21
+sections in alt  : 21
+section ids identical : True
+sections byte-identical: 21/21  (all)
 
-build_day46.py temp-output execution
-Wrote 205 pick records -> /tmp/chapterg-addon-current-picks.json (+ slate_picks_7-25.json)
+structural element counts   main / alt
+  OK  <section           21 /     21
+  OK  <table             27 /     27
+  OK  <tr               385 /    385
+  OK  <td              2917 /   2917
+  OK  <th               288 /    288
+  OK  collapsible        18 /     18
 
-workbook picks=205 pick_source_workbook=205 missing=0
+visible text nodes in <main>  main=4263  alt=4263  identical=True
+
+HTML with <style>, banner and build-clock masked out:
+  main sha=c67c3943e7e5c0c4  alt sha=c67c3943e7e5c0c4  identical=True
 ```
 
-b. Projected build -> every pick record has `pick_source == 'projected'`; count matches total picks:
+All 21 `<section>` blocks are byte-identical, every structural count matches,
+and every one of the 4,263 rendered text values in `<main>` matches. With the
+`<style>` block, the mode banner and the build clock masked out, the two
+documents hash the same. The entire difference between the two renders is the
+CSS block and the banner chrome.
+
+### (b) Workbook-backed (non-projected) rendering is byte-identical to main
+
+Same pristine `index.html`, same `built_sections.json`, same `day_data.json`
+(no `_mode` key), both runs inside the same clock minute so the build timestamp
+matches:
+
 ```text
-ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py /tmp/chapterg-addon-projected-day_data.json
-Projected Mode marker written for 2026-07-25 because no workbook was uploaded and ALLOW_PROJECTED_MODE=1.
-Done. 14 total rows -> /tmp/chapterg-addon-projected-day_data.json
-
-DATA_FILE=/tmp/chapterg-addon-projected-day_data.json STREAKS_OUT=streaks_live.json BPP_MIN_GAP=0.1 python3 fetch_projected_mode.py
-[projected] rebuilt 2026-07-25: HR=270, Hits=270, Savant=573 batters
-[projected] calls/run BPP=33, MLB=5; 3 runs/day BPP ~= 99; 4 runs/day BPP ~= 132; monthly budget 15000
-Projected Mode BPP API calls this run: 33
-
-build_day46.py temp-output execution
-Wrote 99 pick records -> /tmp/chapterg-addon-projected-picks.json (+ slate_picks_7-25.json)
-
-projected picks=99 pick_source_projected=99 missing=0 other=[]
+both renders inside clock minute 05:43
+  main : 340,598 bytes  sha256=449c50e8c415789f726f9a36470f7491f8e7955f005cbfbf653ec36a3dc75c33
+  alt  : 340,598 bytes  sha256=449c50e8c415789f726f9a36470f7491f8e7955f005cbfbf653ec36a3dc75c33
+  BYTE-IDENTICAL: True
+  unified diff lines: 0   -> EMPTY
+  "projected" string occurrences: main=10 alt=10
 ```
 
-c. Upload-day HR and Hits HTML section diffs still empty vs `origin/main`:
+**The diff is empty.** On a normal workbook day this branch produces the same
+bytes as main. All new CSS is gated behind `PROJECTED_MODE`.
+
+### (c) No file outside the presentation layer is modified
+
 ```text
-main hr-board 25735
-main oo5-board 18954
-current hr-board 25735
-current oo5-board 18954
+$ git diff --stat origin/main
+ sync.py | 369 +++++++++++++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 305 insertions(+), 64 deletions(-)
 
-diff -u /tmp/chapterg-addon-main-hr.html /tmp/chapterg-addon-current-hr.html
-exit 0, empty
-
-diff -u /tmp/chapterg-addon-main-hits.html /tmp/chapterg-addon-current-hits.html
-exit 0, empty
+$ git diff --name-status origin/main
+M	sync.py
 ```
 
-d. `slate_picks.json` diff vs main shows the added key and nothing else:
+One file. Every off-limits path confirmed untouched:
+
 ```text
-workbook picks=205 pick_source_workbook=205 missing=0
-stripped_equals_main True
-main_has_pick_source False
-current_keys_delta_only_pick_source True
+  UNCHANGED  fetch_projected_mode.py
+  UNCHANGED  extract_xlsx.py
+  UNCHANGED  tools/projected_publish_guard.py
+  UNCHANGED  tools/check_bpp_compliance.py
+  UNCHANGED  build_day46.py
+  UNCHANGED  build.py
+  UNCHANGED  grade_results.py
+  UNCHANGED  .github/workflows/*
 ```
 
-e. `calibration.py` and `backfill_grades.py` run clean against existing historical `graded_picks.json` with no `pick_source` present:
+The three changed hunks in `sync.py` are all inside the presentation layer:
+`PROJECTED_CSS` (the `.projected-mode` block), and two hunks in
+`apply_projected_theme()` (the banner strip regex and the banner markup).
+
+Also added: `docs/projected-skin-alt/*.png` — the screenshot deliverables. New
+files only, not on any code path.
+
+> Note for the record: `build_day46.py` writes `slate_picks.json` /
+> `slate_picks_7-25.json` as a side effect, so an early render run dirtied them.
+> They were restored from `origin/main` and the render harness was moved to an
+> isolated clone. The re-render is identical to the one screenshotted (verified
+> after masking the build clock). Working tree is clean apart from `sync.py`,
+> this file, and the new `docs/` images.
+
+### (d) 390px width, safe areas respected
+
 ```text
-historical graded rows 2660
-pick_source present before 0
-
-python3 backtest/calibration.py
-wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (3299 bytes)
-
-python3 backtest/calibration.py --pick-source workbook
-wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (3299 bytes)
-
-python3 backtest/calibration.py --pick-source projected
-wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (1206 bytes)
-
-python3 backtest/backfill_grades.py
-1 slate files · 11 date(s) already backfilled
-wrote /private/tmp/chapterg-addon-backtest/backtest/graded_picks.json: 2660 rows, 2443 gradable, 11 dates
-
-historical graded rows after 2660
-pick_source present after 0
+  main dark   scrollWidth=390px  horizontal overflow=False  3 smallest tap targets=[28, 30, 30]px
+  main light  scrollWidth=390px  horizontal overflow=False  3 smallest tap targets=[28, 30, 30]px
+  ALT  dark   scrollWidth=390px  horizontal overflow=False  3 smallest tap targets=[28, 30, 30]px
+  ALT  light  scrollWidth=390px  horizontal overflow=False  3 smallest tap targets=[28, 30, 30]px
 ```
 
-Additional backtest mock:
+Measured with every collapsible expanded. No horizontal overflow; tap-target
+sizes are unchanged from main (they come from base CSS this skin does not
+touch).
+
+Safe areas — the skin uses `env(safe-area-inset-*)` in three new places: the
+banner's top padding, the banner's inset hatch, and the left offset of the
+fixed spine (so the cordon sits inside the notch cutout in landscape).
+Headless Chromium *defines* the insets as `0`, so `env()` fallbacks never fire
+and cannot be used to test this; the proof render substitutes the literals
+(59px top / 34px bottom, iPhone 14 Pro portrait) instead —
+`docs/projected-skin-alt/alt-dark-safearea.png`.
+
+One bug found and fixed during this pass: the hatch was originally also applied
+to `.app-bar`'s inset reserve, which painted a stray band mid-page at scroll 0
+because the bar is not pinned to the top until you scroll. Removed — the fixed
+spine already covers that region.
+
+### (e) Light and dark both work
+
+Text contrast against its **composited** background (every translucent layer
+from the element up to an opaque ancestor is alpha-composited; a naive
+`backgroundColor` read gives garbage on this page's glass surfaces).
+Thresholds are WCAG AA: 3.0 for large text, 4.5 otherwise.
+
 ```text
-python3 backtest/test_backtest_mock.py
-ALL TESTS PASSED
+                      main dark  main light   ALT dark  ALT light   verdict
+------------------------------------------------------------------------------
+brand wordmark             16.5         1.1       17.4       15.7   AA restored in light
+hero h1                    16.5         1.1       17.4       15.2   AA restored in light
+hero games chip             9.8         1.4       11.2       10.9   AA restored in light
+last updated                6.2         3.6        6.6        5.2   AA restored in light
+install banner             14.1         1.1       16.1       17.2   AA restored in light
+section title              15.6         7.2       16.5       16.9
+section tag                 5.9         2.1        6.2        5.8   AA restored in light
+badge label                11.0         1.8        6.8        7.6   AA restored in light
+badge detail                9.7         4.3       10.5        9.7   AA restored in light
+held card title             9.2         1.4       16.2       16.0   AA restored in light
+held card body              9.3         4.7       11.3       10.1
+banner body                18.1        18.1       14.2       10.0
+
+  main dark   below WCAG AA -> none
+  main light  below WCAG AA -> brand wordmark (1.1), hero h1 (1.1), hero games chip (1.4),
+                               last updated (3.6), install banner (1.1), section tag (2.1),
+                               badge label (1.8), badge detail (4.3), held card title (1.4)
+  ALT  dark   below WCAG AA -> none
+  ALT  light  below WCAG AA -> none
 ```
 
-f. BPP compliance:
+Dark mode is fine on both. Light mode is where they part: main fails 9 of 12
+probes, five at roughly 1.1:1 (invisible). This skin clears AA on all 12 in
+both themes. `--text-dim` is nudged one step darker (`#5d6e79` -> `#55646e`) in
+projected light mode only, because the projected ground is slightly deeper than
+the stock light theme's.
+
+### (f) ast.parse and py_compile
+
 ```text
-python3 tools/check_bpp_compliance.py --base origin/main
-BPP compliance OK (0 changed JSON/HTML files checked against eb82870cec59)
+ast.parse(sync.py)      OK  -- 21049 bytes, 539 lines
+py_compile sync.py      OK
+curly quotes in sync.py: none
+PROJECTED_CSS is an f-string: False (single braces are safe)
 ```
 
-g. `ast.parse` and `py_compile`:
-```text
-ast OK extract_xlsx.py
-ast OK fetch_projected_mode.py
-ast OK build.py
-ast OK build_day46.py
-ast OK sync.py
-ast OK backtest/calibration.py
-ast OK backtest/backfill_grades.py
-ast OK tools/check_bpp_compliance.py
-ast OK tools/projected_publish_guard.py
+Last two lines cover AGENTS.md rules 5 and 3 — straight quotes only, and the
+CSS block is a plain triple-quoted string, not an f-string, so its single
+braces cannot crash the build.
 
-python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py backtest/calibration.py backtest/backfill_grades.py tools/check_bpp_compliance.py tools/projected_publish_guard.py
-exit 0
-```
+---
 
-## 1. WHAT I DID
-- Branch: `codex/chapter-g-early-build` from `origin/main` after Chapter F PR #21 was merged as `eb82870 Add Chapter F Projected Mode (#21)`.
-- Changed stale workbook handling in `extract_xlsx.py`:
-  - With `ALLOW_PROJECTED_MODE=1`, a stale newest workbook is left untouched and treated like an absent workbook.
-  - With the flag unset, existing hard-fail behavior and messages are unchanged.
-  - A same-day workbook still extracts normally.
-- Added `tools/projected_publish_guard.py` for non-degenerate Projected Mode publishing:
-  - Workbook-backed builds are never guarded.
-  - Projected builds log slate date, HR rows, Hits rows, and thresholds.
-  - Projected builds below `PROJECTED_MIN_HR` or `PROJECTED_MIN_HITS` set `SKIP_PROJECTED_PUBLISH=1` and exit 0.
-- Updated `.github/workflows/daily.yml`:
-  - Added `0 7 * * *` early cron for 3:00 AM ET.
-  - Inserted the publish guard after `sync.py`.
-  - Skips compliance and commit/push when the guard marks a thin Projected Mode run.
+## 4. SCREENSHOTS
 
-## 2. INTENTIONAL REQUIREMENT REVERSAL
-- Chapter F required stale workbooks to hard-fail even with Projected Mode enabled.
-- Chapter G deliberately reverses that owner-approved requirement: stale workbooks are now treated as absent only when `ALLOW_PROJECTED_MODE=1`.
-- Commit message must say this is owner-approved.
+All rendered at **390 x 844, device pixel ratio 2, mobile emulation on**.
 
-## 3. RAW VERIFICATION OUTPUT
+| file | what |
+|---|---|
+| `docs/projected-skin-alt/compare-top.png` | **main vs this branch, dark and light, top of page** |
+| `docs/projected-skin-alt/compare-scrolled.png` | **main vs this branch, scrolled 2,600px in** |
+| `docs/projected-skin-alt/alt-dark-390.png` | this branch, dark |
+| `docs/projected-skin-alt/alt-light-390.png` | this branch, light |
+| `docs/projected-skin-alt/alt-dark-scrolled.png` | this branch, scrolled deep |
+| `docs/projected-skin-alt/alt-dark-safearea.png` | this branch with iPhone 14 Pro insets applied |
 
-a. Stale workbook present, `ALLOW_PROJECTED_MODE=1` -> projected marker written, exit 0, stale file untouched:
-```text
-ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py --which
-allow which exit=0
-__PROJECTED_MODE__
-stale workbook dated 2026-07-24 ignored; entering Projected Mode for 2026-07-25
+---
 
-ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py day_data.json
-allow extract exit=0
-stale workbook dated 2026-07-24 ignored; entering Projected Mode for 2026-07-25
-Done. 14 total rows -> day_data.json
-projected 2026-07-25 0 0
+## 5. NOTES / JUDGEMENT CALLS
 
-shasum -a 256 /tmp/chapterg-stale-allow/MLB_Slate_7-24-26.xlsx
-b1987229e0b1ecd570e0d2598ab72e8ae897afc6292f896ca123fbe78b23ed56
-```
+- **The brief's font line.** It asks to keep "Bebas Neue for zone and rank
+  numbers only, Rajdhani for stats and labels". The live `index.html` does not
+  work that way: it loads Bebas Neue + DM Sans + DM Mono, has no Rajdhani, and
+  already uses Bebas for the wordmark, every `.hero h1` and every rail chip.
+  Adding Rajdhani would have violated the binding constraint ("no new fonts"),
+  so this skin keeps the stack that actually ships and uses Bebas only in the
+  role the page already gives it — a display wordmark. Flagging it rather than
+  quietly picking one reading.
 
-b. Stale workbook present, flag unset -> exit 1, messages unchanged:
-```text
-python3 extract_xlsx.py --which
-unset which exit=1
-ERROR: newest available slate file is dated 2026-07-24 but today (ET) is 2026-07-25 -- no fresh upload found. Refusing to build a stale slate.
+- **Banner height.** 219px vs main's 136px at 390px wide. That is the cost of
+  leading with a stamp instead of a paragraph. It scrolls away either way, and
+  the persistent signal is the cordon, not the banner.
 
-python3 extract_xlsx.py day_data.json
-unset extract exit=1
-ERROR: slate file is dated 2026-07-24 but today (ET) is 2026-07-25 -- refusing stale workbook.
-```
+- **Colour is not the load-bearing signal.** The hatch is a *pattern*, so the
+  distinction survives for a colour-blind reader and in washed-out direct
+  sunlight, where a hue shift would not.
 
-c. Today's workbook present -> HR and Hits section diffs empty vs `origin/main`:
-```text
-python3 extract_xlsx.py MLB_Slate_7-25-26.xlsx day_data.json
-HR_Leaderboard: 270 rows
-Hit_Probabilities: 258 rows
-Done. 1508 total rows -> day_data.json
-
-origin/main hr-board 25735
-origin/main oo5-board 18954
-chapter-g hr-board 25735
-chapter-g oo5-board 18954
-
-diff -u /tmp/chapterg-main-hr.html /tmp/chapterg-current-hr.html
-exit 0, empty
-
-diff -u /tmp/chapterg-main-hits.html /tmp/chapterg-current-hits.html
-exit 0, empty
-```
-
-d. Simulated thin reconstruction (`HR=4`) -> no commit, exit 0, counts logged:
-```text
-GITHUB_ENV=/tmp/chapterg-guard/thin.env GITHUB_OUTPUT=/tmp/chapterg-guard/thin.out DATA_FILE=/tmp/chapterg-guard/thin.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
-[projected-guard] slate_date=2026-07-25 hr_rows=4 hits_rows=60 min_hr=50 min_hits=50
-[projected-guard] skipping commit/push: Projected Mode reconstruction is below non-degenerate publish thresholds
-thin guard exit=0
-SKIP_PROJECTED_PUBLISH=1
-skip_publish=1
-thin simulated commit step: skipped, workflow remains success
-```
-
-e. Simulated full reconstruction -> commits normally:
-```text
-GITHUB_ENV=/tmp/chapterg-guard/full.env GITHUB_OUTPUT=/tmp/chapterg-guard/full.out DATA_FILE=/tmp/chapterg-guard/full.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
-[projected-guard] slate_date=2026-07-25 hr_rows=51 hits_rows=50 min_hr=50 min_hits=50
-[projected-guard] projected reconstruction meets publish thresholds
-full guard exit=0
-SKIP_PROJECTED_PUBLISH=0
-skip_publish=0
-full simulated commit step: would run normally
-
-GITHUB_ENV=/tmp/chapterg-guard/workbook.env GITHUB_OUTPUT=/tmp/chapterg-guard/workbook.out DATA_FILE=/tmp/chapterg-guard/workbook.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
-[projected-guard] workbook-backed build; publish guard not applied
-workbook guard exit=0
-workbook simulated commit step: would run normally
-```
-
-f. Syntax and compliance:
-```text
-python3 - <<'PY'
-import ast
-from pathlib import Path
-for path in [
-    'extract_xlsx.py',
-    'fetch_projected_mode.py',
-    'build.py',
-    'build_day46.py',
-    'sync.py',
-    'tools/check_bpp_compliance.py',
-    'tools/projected_publish_guard.py',
-]:
-    ast.parse(Path(path).read_text(encoding='utf-8'), filename=path)
-    print(f'ast OK {path}')
-PY
-ast OK extract_xlsx.py
-ast OK fetch_projected_mode.py
-ast OK build.py
-ast OK build_day46.py
-ast OK sync.py
-ast OK tools/check_bpp_compliance.py
-ast OK tools/projected_publish_guard.py
-
-python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py tools/check_bpp_compliance.py tools/projected_publish_guard.py
-exit 0
-
-python3 tools/check_bpp_compliance.py --base origin/main
-BPP compliance OK (0 changed JSON/HTML files checked against eb82870cec59)
-```
-
-Projected Mode measurement logging:
-```text
-fetch_projected_mode.py already prints the BPP call count and reconstructed HR/Hits rows in Projected Mode:
-[projected] rebuilt <slate-date>: HR=<count>, Hits=<count>, Savant=<count> batters
-[projected] calls/run BPP=<count>, MLB=<count>; ...
-Projected Mode BPP API calls this run: <count>
-
-tools/projected_publish_guard.py additionally logs slate_date, hr_rows, hits_rows, and thresholds before any commit/push decision, including skip cases.
-```
-
-## 4. EXACT FINAL DAILY.YML
-
-```yaml
-name: Daily MLB Slate Build
-
-on:
-  push:
-    paths:
-      - '**.xlsx'
-  schedule:
-    - cron: '0 7 * * *'    # 3:00 AM ET - early build
-    - cron: '30 10 * * *'   # 6:30 AM ET  - morning build
-    - cron: '0 15 * * *'    # 11:00 AM ET - mid-morning line posts
-    - cron: '0 20 * * *'    # 4:00 PM ET  - late lines + confirmed lineups
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install openpyxl
-
-      - name: Find slate file
-        env:
-          ALLOW_PROJECTED_MODE: '1'
-        run: |
-          XLSX=$(python3 extract_xlsx.py --which)
-          if [ -z "$XLSX" ]; then echo "No xlsx found" && exit 1; fi
-          echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
-          echo "Using newest slate by date: $XLSX"
-
-      - name: Extract slate data
-        env:
-          ALLOW_PROJECTED_MODE: '1'
-        run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
-
-      - name: Rebuild Projected Mode data
-        timeout-minutes: 8
-        continue-on-error: true
-        env:
-          ALLOW_PROJECTED_MODE: '1'
-          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
-          DATA_FILE: day_data.json
-          STREAKS_OUT: streaks_live.json
-        run: python3 fetch_projected_mode.py
-
-      - name: Fetch BallparkPal tab overrides
-        timeout-minutes: 6
-        continue-on-error: true
-        env:
-          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
-          DATA_FILE: day_data.json
-        run: python3 fetch_bpp_tabs.py
-
-      - name: Fetch real K lines
-        timeout-minutes: 4
-        continue-on-error: true
-        env:
-          BDL_KEY: ${{ secrets.BDL_KEY }}
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-          K_PROPS_FILE: k_props.json
-          DATA_FILE: day_data.json
-        run: python3 fetch_props.py
-
-      - name: Fetch Phase 2 metrics
-        timeout-minutes: 8
-        continue-on-error: true
-        env:
-          BDL_KEY: ${{ secrets.BDL_KEY }}
-          K_SAVANT_FILE: k_savant_data.json
-          DATA_FILE: day_data.json
-          BDL_MIN_GAP: '0.1'
-        run: python3 fetch_phase2.py
-
-      - name: Fetch BallparkPal projections
-        timeout-minutes: 5
-        continue-on-error: true
-        env:
-          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
-          DATA_FILE: day_data.json
-        run: python3 fetch_bpp.py
-
-      - name: Fetch live streaks
-        timeout-minutes: 6
-        continue-on-error: true
-        env:
-          BDL_KEY: ${{ secrets.BDL_KEY }}
-          STREAKS_OUT: streaks_live.json
-          STREAK_DAYS: '10'
-          BDL_MIN_GAP: '0.2'
-        run: python3 fetch_streaks.py
-
-      - name: Build slate
-        env:
-          DATA_FILE: day_data.json
-          SECTIONS_FILE: built_sections.json
-          K_REPORT_FILE: k-report.html
-          K_PROPS_FILE: k_props.json
-          K_SAVANT_FILE: k_savant_data.json
-          BPP_SUMMARY_FILE: bpp_summary.json
-          BDL_KEY: ${{ secrets.BDL_KEY }}
-          STREAKS_OUT: streaks_live.json
-          STREAK_DAYS: '10'
-        run: python3 build.py
-
-      - name: Sync to HTML
-        run: python3 sync.py
-
-      - name: Guard projected publish
-        id: projected_publish_guard
-        env:
-          DATA_FILE: day_data.json
-          PROJECTED_MIN_HR: '50'
-          PROJECTED_MIN_HITS: '50'
-        run: python3 tools/projected_publish_guard.py
-
-      - name: Fetch compliance baseline
-        if: steps.projected_publish_guard.outputs.skip_publish != '1'
-        run: git fetch origin +main:refs/remotes/origin/main
-
-      - name: BPP public-output compliance
-        if: steps.projected_publish_guard.outputs.skip_publish != '1'
-        run: python3 tools/check_bpp_compliance.py --base origin/main
-
-      - name: Commit and push
-        if: steps.projected_publish_guard.outputs.skip_publish != '1'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.email "mrwwright9@gmail.com"
-          git config user.name "Wysdomos"
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
-          git add index.html k-report.html streaks.html day_data.json built_sections.json
-          git add scout.html 2>/dev/null || true
-          git add streaks_live.json 2>/dev/null || true
-          git add slate_picks*.json 2>/dev/null || true
-          git add k_props.json 2>/dev/null || true
-          git add k_savant_data.json 2>/dev/null || true
-          git add bpp_summary.json 2>/dev/null || true
-          if ! git diff --staged --quiet; then
-            git commit -m "Auto-update: $XLSX_FILE"
-            # Generated files (index.html etc.) can't be line-merged with a parallel build,
-            # so merge the remote keeping OUR freshly-built versions, and retry the push.
-            pushed=0
-            for i in 1 2 3 4 5; do
-              git fetch origin main || true
-              git merge -X ours --no-edit origin/main || git merge --abort || true
-              if git push origin main; then pushed=1; echo "pushed on attempt $i"; break; fi
-              echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
-            done
-            [ "$pushed" = 1 ] || { echo "push failed after retries"; exit 1; }
-          else
-            echo "No changes to commit"
-          fi
-
-      - name: Telegram alert on failure
-        if: failure()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode text="🚨 Daily Slate FAILED: ${{ github.workflow }} — https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-      - name: Notify Firebase Auto-Healer on Failure
-        if: failure()
-        run: |
-          PAYLOAD=$(printf '{"repository":"%s","run_id":"%s","sha":"%s"}' \
-            "${{ github.repository }}" \
-            "${{ github.run_id }}" \
-            "${{ github.sha }}")
-          SIG=$(printf '%s' "$PAYLOAD" | openssl dgst -sha256 \
-            -hmac "${{ secrets.WEBHOOK_SECRET }}" | awk '{print $2}')
-          HTTP=$(curl -s -o /tmp/heal_resp.txt -w '%{http_code}' \
-            -X POST "${{ secrets.FIREBASE_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -H "X-Hub-Signature-256: sha256=$SIG" \
-            -d "$PAYLOAD")
-          echo "healer responded HTTP $HTTP"
-          cat /tmp/heal_resp.txt || true
-          if [ "$HTTP" -lt 200 ] || [ "$HTTP" -ge 300 ]; then
-            curl -s -X POST \
-              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-              -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-              --data-urlencode text="⚠️ Auto-healer webhook returned HTTP $HTTP — the safety net may be down."
-          fi
-```
-
-## 5. LOCAL STATE
-- Branch: `codex/chapter-g-early-build`.
-- Intended files:
-  - `.github/workflows/daily.yml`
-  - `extract_xlsx.py`
-  - `tools/projected_publish_guard.py`
-  - `SESSION_STATUS.md`
-- Temporary verification files:
-  - `/tmp/chapterg-stale-allow`
-  - `/tmp/chapterg-stale-unset`
-  - `/tmp/chapterg-guard`
-  - `/tmp/chapterg-main-hr.html`
-  - `/tmp/chapterg-current-hr.html`
-  - `/tmp/chapterg-main-hits.html`
-  - `/tmp/chapterg-current-hits.html`
+- Nothing was merged. Draft PR only, per the brief.
