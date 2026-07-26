@@ -348,6 +348,93 @@ PROJECTED_CSS = '''
 @media (prefers-reduced-motion: reduce) {
   .pm-withheld-btn .pm-caret { transition: none; }
 }
+/* ===========================================================================
+   LIGHT THEME FOR PROJECTED MODE
+
+   Root cause this fixes: the block above defines ONE fixed palette with no
+   theme selectors at all. The site runs on data-theme="light"/"dark" driven by
+   slateTheme in localStorage, and because `.projected-mode` (0,1,0) is
+   injected after `[data-theme="light"]` (0,1,0), it won the cascade in BOTH
+   themes -- so toggling to light flipped the site's text to near-black while
+   these overrides held the surfaces dark. Table cells measured 1.0:1.
+
+   Scoped as `[data-theme="light"] .projected-mode` (0,2,0) so it beats the
+   dark block regardless of source order, and driven by the same attribute the
+   in-app toggle writes. Deliberately NOT prefers-color-scheme: that follows
+   the OS rather than the user's toggle and would desync all over again.
+
+   These values are designed, not auto-inverted. The ground is a cold blue-white
+   (blue channel runs 10-32 above red) rather than the muddy grey an inversion
+   produces, so the icy character survives into light. Cyan deepens to #0e7490
+   and amber to #8a5406 -- both clear WCAG AA on white and on the page ground,
+   which is what daylight on a phone actually needs.
+   =========================================================================== */
+[data-theme="light"] .projected-mode {
+  --bg: #eaf2f7;
+  --bg-grad-1: #d5ecf5;
+  --bg-grad-2: #e4edf6;
+  --bg-grad-3: #f7f1e4;
+  --surface: #ffffff;
+  --surface-2: #f1f7fb;
+  --glass: rgba(14,116,144,0.055);
+  --glass-strong: rgba(14,116,144,0.11);
+  --glass-elev: rgba(255,255,255,0.66);
+  --glass-border: rgba(12,74,110,0.16);
+  --glass-border-strong: rgba(161,98,7,0.34);
+  --border: rgba(12,74,110,0.18);
+  --accent: #0e7490;
+  --accent-soft: rgba(14,116,144,0.10);
+  --gold: #a16207;
+  --tier0: #0e7490;
+  --tier0-bg: rgba(14,116,144,0.10);
+  --tier0-border: rgba(14,116,144,0.42);
+  --tier0-solid: #dcf0f7;
+  --tier1: #8a5406;
+  --tier1-bg: rgba(161,98,7,0.11);
+  --tier1-border: rgba(161,98,7,0.42);
+  --tier1-solid: #f6edd8;
+  --pick-solid: #dcf0f7;
+  --header-bg: rgba(234,242,247,0.88);
+  --sheet-bg: #f7fbfd;
+  /* one step darker than the stock light theme's #5d6e79: dim text still has
+     to survive being read in direct sun */
+  --text-dim: #4e5f6b;
+}
+
+/* The rules below hard-code colours rather than reading a variable, so each
+   one needs its own light value or it stays dark on a light page. */
+[data-theme="light"] .projected-mode .app-bar {
+  border-bottom: 1px solid rgba(12,74,110,0.22);
+  background: rgba(234,242,247,0.9);
+}
+[data-theme="light"] .projected-mode .hero {
+  border-bottom: 1px solid rgba(12,74,110,0.16);
+  background: linear-gradient(180deg, rgba(14,116,144,0.07), rgba(161,98,7,0.035));
+}
+[data-theme="light"] .projected-mode .game-header {
+  border-color: rgba(12,74,110,0.16);
+  background: linear-gradient(90deg, rgba(14,116,144,0.08), rgba(161,98,7,0.035));
+}
+[data-theme="light"] .projected-mode .collapsible,
+[data-theme="light"] .projected-mode .game {
+  border-color: rgba(12,74,110,0.16);
+  box-shadow: 0 10px 26px -20px rgba(12,74,110,0.5);
+}
+[data-theme="light"] .projected-section-badge {
+  border-color: rgba(12,74,110,0.22);
+  background: rgba(14,116,144,0.08);
+}
+[data-theme="light"] .projected-section-badge span { color: #0b5f78; }
+[data-theme="light"] .unavailable-card {
+  border-color: rgba(161,98,7,0.5);
+  background: rgba(161,98,7,0.09);
+}
+[data-theme="light"] .unavailable-card strong { color: #8a5406; }
+
+/* The banner and its disclosure keep the same deep teal block in BOTH themes.
+   That is deliberate: it inverts against the light page exactly as it stands
+   out on the dark one, so the single loudest "this is Projected Mode" mark
+   never changes character when the theme is toggled. */
 /* PROJECTED MODE CSS END */
 '''
 

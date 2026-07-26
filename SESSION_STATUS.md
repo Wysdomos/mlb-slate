@@ -1,10 +1,10 @@
-# SESSION STATUS - 2026-07-26 - Projected Mode header fix + withheld dropdown
+# SESSION STATUS - 2026-07-26 - Projected Mode: header fix, withheld dropdown, light/dark
 
 Branch: `claude/projected-header-withheld`
 Base:   `origin/main` @ `deb0120` (Chapter I)
 Status: draft PR, not merged.
 
-Targeted fix on main's shipped skin. **One file changed: `sync.py` (+193 / -2).**
+Targeted fix on main's shipped skin. **One file changed: `sync.py` (+280 / -2).**
 The `claude/projected-overhaul` branch was not built on and is not revived.
 
 ---
@@ -46,6 +46,8 @@ guard:
 2. Added 13 new `.pm-withheld*` CSS rules for the disclosure.
 3. Added `PROJECTED_JS` (a 20-line vanilla toggle) and the markup/strip logic
    for the disclosure and the four placeholder sections.
+4. Added a full light theme for the projected skin, scoped
+   `[data-theme="light"] .projected-mode` (section 6).
 
 Nothing else. Proof in (g).
 
@@ -83,8 +85,8 @@ both rendered inside clock minute 17:16
 ### (b) Diffstat shows nothing outside the presentation layer
 
 ```text
- sync.py | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 193 insertions(+), 2 deletions(-)
+ sync.py | 282 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 280 insertions(+), 2 deletions(-)
 
 M	sync.py
 ```
@@ -187,17 +189,13 @@ as a graded slate, and the four missing boards are named on demand.
   <th>       main= 288  branch= 288   OK
 
   CSS rules in main's projected block   : 13
-  CSS rules on this branch              : 27
+  CSS rules on this branch              : 34
   rules REMOVED from main's skin        : none
   main's rules all still present verbatim: True
   main rules whose declarations changed : ['.projected-mode-banner']
 
-  rules ADDED (13, all the disclosure):
-     .pm-withheld, .pm-withheld-btn, .pm-withheld-btn .pm-count,
-     .pm-withheld-btn .pm-caret, .pm-withheld-btn[aria-expanded="true"] .pm-caret,
-     .pm-withheld-body, .pm-withheld-body.open, .pm-withheld-body ul,
-     .pm-withheld-body li, .pm-withheld-body li::before, .pm-withheld-note,
-     @media (prefers-reduced-motion: reduce)
+  rules ADDED: 21  ->  12 disclosure (.pm-withheld*, reduced-motion)
+                       9 light-theme ([data-theme="light"] .projected-mode ...)
 
   sections removed : conviction, matchup-spotlight, skip, sp-vuln-board
   sections added   : none
@@ -207,6 +205,10 @@ as a graded slate, and the four missing boards are named on demand.
 verbatim.** Exactly one — `.projected-mode-banner` — had its declarations
 changed, and that change *is* the header fix. Every rendered value is identical:
 all 358 data rows, all 2,917 cells.
+
+The 21 added rules are purely additive: 12 for the disclosure and 9 for the
+light theme. The light-theme rules are all scoped `[data-theme="light"]`, so
+they are inert in dark mode — dark is byte-for-byte the skin main ships.
 
 No palette, card system, spine, hatch or search dock came across from the
 scrapped branch.
@@ -281,7 +283,7 @@ on main.
 ### (j) ast.parse and py_compile
 
 ```text
-  ast.parse(sync.py) OK -- 19,152 bytes, 489 lines
+  ast.parse(sync.py) OK -- 22,943 bytes, 576 lines
   py_compile sync.py OK
   curly quotes: none
   PROJECTED_CSS f-string: False | PROJECTED_JS f-string: False
@@ -306,6 +308,8 @@ are plain triple-quoted strings, so their single braces cannot crash the build.
 | `after-safearea-light.png` | same, light |
 | `top-dark.png` / `top-light.png` | top of page, disclosure collapsed |
 | `withheld-open-dark.png` / `withheld-open-light.png` | disclosure expanded, naming the four boards |
+| `theme-dark.png` / `theme-light.png` | both themes after the light/dark fix |
+| `theme-light-mid.png` | light, mid-scroll with a board open |
 
 ---
 
@@ -322,3 +326,137 @@ are plain triple-quoted strings, so their single braces cannot crash the build.
   would break "no new fonts". No font declarations were added at all this pass —
   the disclosure inherits the page's existing stack.
 - Nothing merged. Draft PR only.
+
+---
+
+## 6. LIGHT / DARK — PROJECTED CSS HAD NO THEME SUPPORT
+
+### Root cause, confirmed in the code
+
+```text
+  [data-theme= selectors in PROJECTED_CSS : 0
+  prefers-color-scheme blocks             : 0
+  variables overridden on one fixed palette: 22
+```
+
+`.projected-mode` (specificity 0,1,0) is injected *after* `[data-theme="light"]`
+(also 0,1,0), so it won the cascade in **both** themes. Toggling to light
+flipped the site's text to near-black while these overrides held the surfaces
+dark. Measured before the fix: page background `rgb(13,17,23)` in light mode,
+table cells at **1.0:1 — invisible**, 12 elements below AA.
+
+Ten further rules hard-coded colours rather than reading a variable
+(`.app-bar` background, `.projected-section-badge span`, `.unavailable-card
+strong`, the hero and game-header gradients, the card shadows), so each needed
+its own light value too.
+
+### The fix
+
+A full light palette scoped `[data-theme="light"] .projected-mode` (0,2,0), so
+it beats the dark block regardless of source order, driven by the same
+attribute the in-app toggle writes.
+
+**No `prefers-color-scheme` anywhere** — verified against the shipped page with
+comments stripped, so the one textual occurrence (this rationale) is not
+counted:
+
+```text
+  data-theme selectors in shipped CSS : 10
+  prefers-color-scheme @media rules   : 0
+```
+
+**Designed, not auto-inverted.** An inversion of the dark values produces muddy
+greys and loses the icy character. The light ground is a cold blue-white — the
+blue channel runs 10-32 above red across the three ground tones — and the
+accents deepen rather than desaturate:
+
+| role | dark | light | contrast vs white / paper |
+|---|---|---|---|
+| accent, tier0 | `#22d3ee` / `#67e8f9` | `#0e7490` | 5.36 / 4.73 |
+| tier1, gold | `#fbbf24` | `#8a5406` (text), `#a16207` (fills) | 6.27 / 5.53 |
+| badge label | `#67e8f9` | `#0b5f78` | 7.19 / 6.35 |
+| page ground | `#0d1117` | `#eaf2f7` | — |
+| surface | `#101720` | `#ffffff` | — |
+| text-dim | inherited | `#4e5f6b` (deepened for sun) | 6.62 / 5.84 |
+
+The banner and its disclosure keep the same deep teal block in **both** themes.
+That is deliberate: it inverts against the light page exactly as it stands out
+on the dark one, so the loudest "this is Projected Mode" mark never changes
+character when the theme is toggled.
+
+### Result
+
+```text
+                      main dk  main lt   NEW dk   NEW lt   verdict
+brand wordmark           16.5      1.1     16.5     15.8   FIXED in light
+hero h1                  16.5      1.1     16.5     15.8   FIXED in light
+games chip                9.8      1.4      9.8      9.3   FIXED in light
+last updated              6.2      3.6      6.2      5.8   FIXED in light
+install banner           14.1      1.1     14.1     14.7   FIXED in light
+section title            15.6      7.2     15.6     17.2
+section tag               5.9      2.1      5.9      6.3   FIXED in light
+table cell               15.7      1.0     15.7     17.9   FIXED in light
+table header              5.4      3.1      5.4      6.1   FIXED in light
+rail chip                 6.2      4.5      6.2      6.3   FIXED in light
+badge label              11.0      1.8     11.0      6.2   FIXED in light
+badge detail              9.7      4.3      9.7      9.8   FIXED in light
+unavailable strong        9.2      1.4      9.2      5.4   FIXED in light
+unavailable body          9.3      4.7      9.3      9.7
+method intro             10.8      4.6     10.8     10.9
+count chip                 --       --     10.6     10.6
+
+  main light : 12 elements below AA
+  NEW  light : none
+  NEW  dark  : none
+
+  page background   main light = rgb(13, 17, 23)     <- the bug
+                    NEW  light = rgb(234, 242, 247)
+```
+
+The banner, its `<small>` and the withheld row initially read as failures here.
+That was a measurement artifact, not a regression: their background is a CSS
+**gradient**, which `getComputedStyle().backgroundColor` reports as
+transparent, so the probe composited the text against the page behind it.
+Re-measured from rendered pixels, sampling the banner's background at
+text-free points:
+
+```text
+  dark   banner bg (28,41,58)   text 14.1   small 13.1
+  light  banner bg (37,50,67)   text 12.4   small 11.6
+```
+
+Both themes clear AA on every probe.
+
+### The page follows the in-app toggle, not the OS
+
+Tested all four combinations of stored `slateTheme` against the OS
+`prefers-color-scheme`. Rows 2 and 3 are the decisive ones — OS set opposite to
+the toggle:
+
+```text
+slateTheme  OS scheme   data-theme  page bg                 reads as follows
+dark        dark        dark        rgb(13, 17, 23)         dark     YES
+dark        light       dark        rgb(13, 17, 23)         dark     YES
+light       dark        light       rgb(234, 242, 247)      light    YES
+light       light       light       rgb(234, 242, 247)      light    YES
+
+page follows the in-app toggle in all 4 combinations: True
+
+live toggle with OS=dark: ['light', 'rgb(234,242,247)'] -> ['dark', 'rgb(13,17,23)', 'dark']
+toggle flips the page and persists to localStorage: True
+```
+
+The rebuilt preview was re-checked the same way, offline:
+
+```text
+OFFLINE preview  toggle=light  OS=dark  -> theme light, bg rgb(234,242,247), dropdown 4, 0 broken, no errors
+OFFLINE preview  toggle=dark   OS=light -> theme dark,  bg rgb(13,17,23),    dropdown 4, 0 broken, no errors
+```
+
+Screenshots: `theme-dark.png`, `theme-light.png`, `theme-light-mid.png`.
+
+### Note on (h) above
+
+Section (h) recorded these four light failures as "flagged, not fixed" because
+they were outside the two items in that brief. Item 3 put them in scope and
+they are now fixed; the table in this section supersedes that note.
