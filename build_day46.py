@@ -1,6 +1,5 @@
-"""Day 46 Build — May 12, 2026 — Full Slate (15 games) + new SP_Projections integration.
+"""Daily MLB slate builder.
 
-Structure: Day 44 board depth + Day 45 canonical section labels.
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
@@ -363,10 +362,6 @@ def format_danger_batter(s):
         parts.append(z_html)
     return ' · '.join(parts)
 
-# ---- TITLE / META ----
-TITLE = "The Daily Slate — May 12 Full Slate"
-SUBTITLE = "Day 46 · 15-game card · Skenes & Wheeler headline · Mikolas/Pérez vulnerable"
-
 # ---- BUILD: HEADLINES ----
 def build_headlines():
     cards = []
@@ -486,13 +481,17 @@ def build_park_board():
         )
     table_body = '\n'.join(rows)
 
+    top_hr = parks_sorted[0] if parks_sorted else {}
+    top_xbh = max(PARKS, key=lambda p: parse_pct(p.get('2B/3B %')), default={})
+    hr_boosters = sum(1 for p in PARKS if parse_pct(p.get('HR %')) >= 5)
+    hr_suppressors = sum(1 for p in PARKS if parse_pct(p.get('HR %')) <= -10)
     intro = (
         'Sourced from <strong>Park_Factors</strong> sheet (stadium baseline + day-of weather). '
-        '<strong>Sutter Health Park +29% HR</strong> is the slate\'s clear HR volcano (STL@ATH 9:40 ET). '
-        '<strong>Rate Field +18%</strong> (KC@CHW) is the secondary HR booster. '
-        'Only <strong>3 parks above +5% HR</strong>: Sutter, Rate, Great American (+8%). '
-        'Fenway / Truist / Citi / PNC all suppressed -14% to -23% HR. '
-        '<strong>Fenway +18% 2B/3B</strong> and PNC +13% 2B/3B = doubles plays in those parks instead.'
+        f'Top HR context: <strong>{html.escape(str(top_hr.get("Venue","—")))}</strong> '
+        f'{html.escape(str(top_hr.get("HR %","—")))} for {html.escape(str(top_hr.get("Game","")))}. '
+        f'{hr_boosters} parks are at least +5% HR, and {hr_suppressors} parks are at -10% HR or lower. '
+        f'Top extra-base context: <strong>{html.escape(str(top_xbh.get("Venue","—")))}</strong> '
+        f'{html.escape(str(top_xbh.get("2B/3B %","—")))}.'
     )
     footer = (
         'HR%, Runs%, 2B/3B% are <strong>combined stadium + day-of weather</strong> factors. '
@@ -880,7 +879,7 @@ def build_matchup_spotlight():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Sorted by <strong>VulnScore desc</strong>. <strong>EDGE</strong> = batter has opposite-hand platoon advantage. ISO color: <strong style="color:var(--bad)">≥.280</strong> elite · <strong style="color:var(--hot)">≥.250</strong> hot · <strong style="color:var(--good)">≥.200</strong> good. Mikolas V76 leads — 6 Reds in HR Top-19.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Sorted by <strong>VulnScore desc</strong>. <strong>EDGE</strong> = batter has opposite-hand platoon advantage. ISO color: <strong style="color:var(--bad)">≥.280</strong> elite · <strong style="color:var(--hot)">≥.250</strong> hot · <strong style="color:var(--good)">≥.200</strong> good.</p>
     <div class="table-wrap"><table>
       <thead><tr>
         <th>Pitcher</th><th>ERA</th><th>K9</th><th>Vuln</th><th>Park</th>
