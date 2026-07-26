@@ -6,7 +6,7 @@ Writes: /home/user/workspace/built_sections_d46.json
 """
 import html, json, re, os
 from datetime import datetime
-from parlay_rules import validate_parlay
+from parlay_rules import validate_board_people, validate_parlay
 from shadow_chips import (
     blank_chip_tiers,
     chip_hall_a,
@@ -2083,11 +2083,88 @@ def build_combos_hrr():
 
 
 def build_parlays():
-    return empty_parlay_section(
+    anchors = []
+    for sp in SP_PROJ:
+        name = sp.get('Pitcher', '')
+        kf = _sf(sp.get('K'))
+        votes = k_consensus_for_pitcher(sp)
+        if k_tier_for_projection(kf) == 0 and votes >= 5 and not pitcher_is_short_leash(name):
+            anchors.append((votes, kf, sp))
+    anchors.sort(key=lambda item: (-item[0], -item[1]))
+    if not anchors:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'No qualifying K anchor yet',
+            'No pitcher cleared the tier-0, five-lens, no-short-leash anchor gate.',
+        )
+
+    votes, kf, anchor_sp = anchors[0]
+    anchor_name = anchor_sp.get('Pitcher', '')
+    anchor_game = game_key_for_team(anchor_sp.get('Team'))
+    k_line = k_alt_for(kf)
+    anchor_leg = {
+        'market': 'K',
+        'name': anchor_name,
+        'team': tn(anchor_sp.get('Team')),
+        'opp': tn(anchor_sp.get('Opp')),
+        'game': anchor_game,
+        'line': k_line,
+        'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+        'leg_role': 'anchor',
+        'confidence_rank': 1,
+        'detail': f'tier 0; {votes}/6 lenses; projected {kf:.2f} K',
+    }
+    satellites = []
+    for hitter in sorted(traffic_hitter_candidates(), key=lambda h: (-h['hrr_pct'], -h['hit_pct'])):
+        if hitter['game'] != anchor_game:
+            continue
+        satellites.append({
+            'market': 'HRR',
+            'name': hitter['name'],
+            'team': hitter['team'],
+            'opp': hitter['opp'],
+            'game': hitter['game'],
+            'line': 'Ov 0.5 HRR',
+            'win_at': 1,
+            'leg_role': 'satellite',
+            'confidence_rank': 2,
+            'detail': f'same game; {hitter["hrr_pct"]:.1f}% HRR proxy',
+        })
+        if len(satellites) == 2:
+            break
+    if not satellites:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'No correlated satellites for the K anchor',
+            'A tier-0 K anchor qualified, but no same-game or vulnerable-pitcher satellite passed the traffic gates.',
+        )
+    legs = [anchor_leg] + satellites[:2]
+    ok, reason = validate_parlay(legs, 'anchor', max_legs=3)
+    board_ok, board_reason = validate_board_people(legs, max_count=2)
+    if not ok or not board_ok:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'Anchor stack rejected by guard',
+            reason if not ok else board_reason,
+        )
+    vuln = get_vuln_for_pitcher(anchor_name)
+    danger = vuln.get('DangerBatter1') if vuln else ''
+    danger_note = f'DANGER: {danger}' if danger else 'DANGER label unavailable without Matchup Spotlight workbook context.'
+    return render_parlay_board(
         'parlays',
         'Anchor',
-        'No qualifying K anchor yet',
-        'This board requires one tier-0 K anchor with at least five lenses and correlated same-game or vulnerable-pitcher satellites.',
+        'Tap to expand · one K anchor · correlated satellites only',
+        'Anchor must be a tier-0 K leg with at least five lenses. Satellites must be same-game or against the same vulnerable pitcher; no HR anchors are allowed.',
+        [{
+            'correlation_type': 'anchor',
+            'badge': 'K anchor',
+            'note': danger_note,
+            'legs': legs,
+        }],
+        'No tier-0, five-lens K anchor had valid correlated satellites.',
     )
 
 
