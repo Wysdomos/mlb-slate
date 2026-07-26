@@ -2506,6 +2506,9 @@ def build_sp_vuln():
 '''
 
 # ---- ASSEMBLE ALL SECTIONS ----
+build_sb_board()       # Shadow market: emit picks, do not render board.
+build_doubles_board()  # Shadow market: emit picks, do not render board.
+
 if PROJECTED_MODE:
     SECTIONS = {
         'headlines':         build_projected_headlines(),
@@ -2522,8 +2525,6 @@ if PROJECTED_MODE:
         'oo5-board':         build_projected_oo5_board(),
         'totals-board':      with_projected_badge(build_totals_board(), "Totals rebuilt from live team run projections."),
         'nrfi-board':        with_projected_badge(build_nrfi_board(), "YRFI/NRFI rebuilt from live first-inning probability where available."),
-        'sb-board':          with_projected_badge(build_sb_board(), "Stolen-base board rebuilt from live projection probabilities."),
-        'doubles-board':     with_projected_badge(build_doubles_board(), "Extra-base board rebuilt from live doubles and park context."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
         'combos-k':          build_combos_k(),
         'combos-hrr':        build_combos_hrr(),
@@ -2548,8 +2549,6 @@ else:
         'oo5-board':         build_oo5_board(),
         'totals-board':      build_totals_board(),
         'nrfi-board':        build_nrfi_board(),
-        'sb-board':          build_sb_board(),
-        'doubles-board':     build_doubles_board(),
         'dfs-board':         build_dfs_board(),
         'combos-k':          build_combos_k(),
         'combos-hrr':        build_combos_hrr(),

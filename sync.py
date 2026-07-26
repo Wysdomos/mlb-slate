@@ -546,10 +546,31 @@ def apply_projected_theme(html):
 SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
     'k-board', 'sp-vuln-board', 'hr-board', 'oo5-board',
-    'totals-board', 'nrfi-board', 'sb-board', 'doubles-board',
+    'totals-board', 'nrfi-board',
     'dfs-board', 'combos-k', 'combos-hrr', 'parlays',
     'conviction', 'skip'
 ]
+RETIRED_SECTION_IDS = ('sb-board', 'doubles-board')
+
+def remove_section(html, sec_id):
+    pattern = re.compile(
+        r'(?:<!--[^>]*-->\s*)?<section id="' + re.escape(sec_id) + r'"[\s\S]*?</section>\s*\n?',
+        re.MULTILINE
+    )
+    return pattern.sub('', html)
+
+def remove_retired_nav(html, sec_id):
+    html = re.sub(
+        r'\s*<a href="#' + re.escape(sec_id) + r'"><span>[^<]*</span> <span class="arrow">›</span></a>\n?',
+        '\n',
+        html,
+    )
+    html = re.sub(
+        r"\s*\['" + re.escape(sec_id) + r"',\s*'[^']*',\s*'[^']*'\],\n?",
+        '\n',
+        html,
+    )
+    return html
 
 for sec_id in SECTION_ORDER:
     if sec_id not in SECTIONS:
@@ -557,6 +578,11 @@ for sec_id in SECTION_ORDER:
         continue
     html, ok = replace_section(html, sec_id, SECTIONS[sec_id])
     print(f"  {'OK' if ok else 'MISS'} #{sec_id}")
+
+for sec_id in RETIRED_SECTION_IDS:
+    html = remove_section(html, sec_id)
+    html = remove_retired_nav(html, sec_id)
+    print(f"  retired #{sec_id}: removed rendered section and nav links")
 
 if 'sp-vuln-board' in SECTIONS and '<section id="sp-vuln-board"' not in html:
     pattern = re.compile(r'(<section id="k-board"[\s\S]*?</section>\s*\n)', re.MULTILINE)
