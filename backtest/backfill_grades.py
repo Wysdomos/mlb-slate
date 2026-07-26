@@ -67,6 +67,12 @@ def grade_pick(p, box):
             win = b['d'] >= 1; got = f"{b['d']} 2B"
         elif mkt == 'K' and pi:
             win = pi['k'] >= p.get('win_at', 99); got = f"{pi['k']} K"
+        elif mkt == 'OUTS' and pi:
+            win = pi['outs'] >= p.get('win_at', 99); got = f"{pi['outs']} outs"
+        elif mkt == 'H_ALLOWED' and pi:
+            win = pi['h'] >= p.get('win_at', 99); got = f"{pi['h']} H allowed"
+        elif mkt == 'ER_ALLOWED' and pi:
+            win = pi['er'] >= p.get('win_at', 99); got = f"{pi['er']} ER"
     return win, got
 
 
@@ -129,6 +135,9 @@ def main():
                 'consensus_max': p.get('consensus_max', 6),
                 'win': win,
                 'got': got,
+                'parlay_id': p.get('parlay_id'),
+                'correlation_type': p.get('correlation_type'),
+                'leg_role': p.get('leg_role'),
             }
             for field in CHIP_FIELDS:
                 row[field] = p.get(field, None)

@@ -4,8 +4,9 @@ Structure: Day 44 board depth + Day 45 canonical section labels.
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
-import json, re, os
+import html, json, re, os
 from datetime import datetime
+from parlay_rules import validate_board_people, validate_parlay
 from shadow_chips import (
     blank_chip_tiers,
     chip_hall_a,
@@ -1716,152 +1717,491 @@ def build_dfs_board():
 </section>
 '''
 
-# ---- BUILD: COMBOS K ----
+# ---- BUILD: CORRELATION PARLAY BOARDS ----
+def empty_parlay_section(sec_id, title, tag, message):
+    return f'''<!-- PARLAY EMPTY -->
+<section id="{sec_id}" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">{tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <div class="unavailable-card">
+      <strong>No qualifying correlation stack</strong>
+      <p>{message}</p>
+    </div>
+  </div></div>
+</section>
+'''
+
+def game_key_for_team(team):
+    team = tn(team)
+    for game in GAMES_RAW:
+        away = tn(game.get('AwayTeam'))
+        home = tn(game.get('HomeTeam'))
+        if team in (away, home):
+            return f'{away}@{home}'
+    return ''
+
+def park_runs_for_team(team):
+    park = PARK_BY_TEAM.get(tn(team))
+    return parse_pct(park.get('Runs %')) if park else 0
+
+def pitcher_bp(name):
+    return BP_PIT_BY_NAME.get(str(name or '').strip().lower())
+
+def pitcher_projection(name):
+    return SP_BY_NAME.get(str(name or '').strip().lower())
+
+def pitcher_outs_line(bp):
+    if not bp:
+        return None
+    outs = _sf(bp.get('Innings')) * 3
+    if outs >= 17:
+        return {'line': 'Ov 16.5 outs', 'win_at': 17, 'projection': outs}
+    if outs >= 15:
+        return {'line': 'Ov 14.5 outs', 'win_at': 15, 'projection': outs}
+    return None
+
+def pitcher_hits_allowed_line(bp):
+    if not bp:
+        return None
+    hits = _sf(bp.get('HitsAllowed'))
+    if hits >= 6.0:
+        return {'line': 'Ov 5.5 H allowed', 'win_at': 6, 'projection': hits}
+    if hits >= 5.0:
+        return {'line': 'Ov 4.5 H allowed', 'win_at': 5, 'projection': hits}
+    return None
+
+def pitcher_runs_allowed_line(bp):
+    if not bp:
+        return None
+    runs = _sf(bp.get('RunsAllowed'))
+    if runs >= 3.5:
+        return {'line': 'Ov 3.5 ER', 'win_at': 4, 'projection': runs}
+    if runs >= 2.5:
+        return {'line': 'Ov 2.5 ER', 'win_at': 3, 'projection': runs}
+    return None
+
+def pitcher_is_short_leash(name):
+    bp = pitcher_bp(name)
+    if not bp:
+        return True
+    innings = _sf(bp.get('Innings'))
+    qs = _sf(bp.get('QualityStart'))
+    return innings < 4.5 or (qs and qs < 0.15)
+
+def k_consensus_for_pitcher(sp):
+    name = sp.get('Pitcher', '')
+    kf = _sf(sp.get('K'))
+    bp = pitcher_bp(name)
+    bpp_val = _sf(bp.get('Strikeouts')) if bp else 0
+    outs_val = (_sf(bp.get('Innings')) * 3) if bp else 0
+    v = get_vuln_for_pitcher(name)
+    k9 = _sf(v.get('K9')) if v else 0
+    opp = tn(sp.get('Opp'))
+    opp_row = BP_TEAMS_BY_TEAM.get(opp) or BP_TEAMS_BY_TEAM.get((sp.get('Opp') or '').strip())
+    opp_k = _sf(opp_row.get('Strikeouts')) if opp_row else 0
+    bpp_api = bpp_entry(name)
+    bpp_api_k = _sf(bpp_api.get('proj_k')) if bpp_api else 0
+    votes = 0
+    if kf >= 5.5: votes += 1
+    if bpp_val >= 5.0: votes += 1
+    if k9 >= 9.0: votes += 1
+    if outs_val >= 17: votes += 1
+    if opp_k >= 9.0: votes += 1
+    if bpp_api_k >= 5.0: votes += 1
+    return votes
+
+def k_tier_for_projection(k_proj):
+    kf = _sf(k_proj)
+    if kf >= 5.5:
+        return 0
+    if kf >= 4.5:
+        return 1
+    if kf >= 4.0:
+        return 2
+    return 3
+
+def hitter_hrr_projection(hit_row, team, opp_team):
+    h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
+    rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
+    sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
+    era = _sf(sp.get('ERA', 4.25))
+    park_runs = park_runs_for_team(team)
+    if h1 <= 0 or rbi <= 0:
+        return None
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
+    return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
+
+def traffic_hitter_candidates():
+    out = []
+    for row in HIT:
+        name = _hit_full(row)
+        if not name:
+            continue
+        team = tn(row.get('Team'))
+        bp = BP_BAT_BY_NAME.get(name.lower())
+        opp_team = tn(bp.get('Opponent')) if bp else ''
+        if not opp_team:
+            match = str(row.get('Matchup') or '')
+            if ' vs. ' in match:
+                parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                if team == parts[0]:
+                    opp_team = parts[1]
+                elif team == parts[1]:
+                    opp_team = parts[0]
+        opp_sp = SP_BY_TEAM.get(opp_team, {}).get('Pitcher') if opp_team else ''
+        park_runs = park_runs_for_team(team)
+        hrr = hitter_hrr_projection(row, team, opp_team)
+        h1 = _sf(str(row.get('1+ Hit', '')).replace('%', ''))
+        if hrr is None or hrr < 78 or park_runs <= 0 or not opp_sp:
+            continue
+        out.append({
+            'name': name,
+            'team': team,
+            'opp': opp_team,
+            'opp_sp': opp_sp,
+            'game': game_key_for_team(team),
+            'hrr_pct': hrr,
+            'hit_pct': h1,
+        })
+    return out
+
+def parlay_leg_html(leg):
+    name = html.escape(str(leg.get('name') or leg.get('game') or ''))
+    line = html.escape(str(leg.get('line') or ''))
+    detail = html.escape(str(leg.get('detail') or ''))
+    role = html.escape(str(leg.get('leg_role') or 'satellite').title())
+    parts = [f'<strong>{name}</strong> {line}', f'<span class="badge b-neutral">{role}</span>']
+    if detail:
+        parts.append(f'<small>{detail}</small>')
+    return ' '.join(parts)
+
+def slate_id_for_parlays():
+    for row in DATA.get('BP_Games', []):
+        raw = str(row.get('GameDate', ''))[:10]
+        if raw:
+            return raw.replace('-', '')
+    return 'slate'
+
+def emit_parlay_legs(sec_id, parlays):
+    for idx, parlay in enumerate(parlays[:5], 1):
+        correlation_type = parlay.get('correlation_type', sec_id)
+        parlay_id = f'{slate_id_for_parlays()}-{sec_id}-{idx}-{correlation_type}'
+        for leg in parlay['legs']:
+            name = leg.get('name') or leg.get('game') or ''
+            SLATE_PICKS.append({
+                'market': leg.get('market'),
+                'pick': f'{name} {leg.get("line", "")}'.strip(),
+                'name': name,
+                'pick_source': PICK_SOURCE,
+                'team': leg.get('team'),
+                'opp': leg.get('opp'),
+                'game': leg.get('game'),
+                'line': leg.get('line', ''),
+                'win_at': leg.get('win_at'),
+                'consensus': leg.get('consensus', 0),
+                'consensus_max': leg.get('consensus_max', 1),
+                'parlay_id': parlay_id,
+                'correlation_type': correlation_type,
+                'leg_role': leg.get('leg_role', 'satellite'),
+                **blank_chip_tiers(),
+            })
+
+def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
+    if not parlays:
+        return empty_parlay_section(sec_id, title, tag, empty_message)
+    emit_parlay_legs(sec_id, parlays)
+    blocks = []
+    icons = ['1', '2', '3', '4', '5']
+    for idx, parlay in enumerate(parlays[:5]):
+        badge = html.escape(parlay.get('badge', 'correlated'))
+        note = html.escape(parlay.get('note', ''))
+        legs = '<br>'.join(f'Leg {i}: {parlay_leg_html(leg)}' for i, leg in enumerate(parlay['legs'], 1))
+        note_html = f'<br><em>{note}</em>' if note else ''
+        blocks.append(
+            f'  <div class="flag-row"><div class="icon">{icons[idx]}</div>'
+            f'<div>{legs}{note_html} <span class="badge b-tier1">{badge}</span></div></div>'
+        )
+    return f'''<!-- PARLAY CORRELATION -->
+<section id="{sec_id}" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">{tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">{intro}</p>
+{chr(10).join(blocks)}
+  </div></div>
+</section>
+'''
+
 def build_combos_k():
-    """8 K-only combos in Day 44 flag-row format. Slate-specific Day 46 content."""
-    rows = [
-        ('1⃣', '<strong>Skenes O 5+ K + Wheeler O 5+ K</strong> — <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL V14, PNC -20% HR irrelevant for Ks) + <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS Fenway, HR-suppressed favors strike-throwing). Different games (Game 6 + Game 5). Slate-best T0 K pair.', 'b-tier0', '2-leg T0'),
-        ('2⃣', '<strong>Warren O 5+ K + Peralta O 5+ K</strong> — <strong>Will Warren</strong> O 5+ K (SS 5.8 NYY @ BAL Camden -15%) + <strong>Freddy Peralta</strong> O 5+ K (SS 5.7 NYM vs DET, Citi -14% HR). Different games. T0 K combo.', 'b-tier0', '2-leg T0'),
-        ('3⃣', '<strong>Skenes O 5+ K + Wheeler O 5+ K + Warren O 5+ K</strong> — 3-leg T0 K monster. Skenes 6.9 / Wheeler 6.6 / Warren 5.8. All different games. Slate’s only three SS ≥5.8 K plays.', 'b-tier0', '3-leg T0 stack'),
-        ('4⃣', '<strong>Yamamoto O 5+ K + Flaherty O 5+ K</strong> — <strong>Yoshinobu Yamamoto</strong> O 5+ K (SS 5.7 LAD vs SF, BB 1.3 elite control) + <strong>Jack Flaherty</strong> O 5+ K (SS 5.5 DET @ NYM, HR/9 0.79 watch). Different games. T1 alt-K combo.', 'b-tier1', '2-leg T1 alt-K'),
-        ('5⃣', '<strong>Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Brandon Sproat</strong> O 5+ K (SS 5.3 MIL vs SD) + <strong>Bryan Woo</strong> O 5+ K (SS 5.0 SEA @ HOU, BB 1.3). Different games. Floor-of-5 plays.', 'b-tier1', '2-leg T1 alt-K'),
-        ('6⃣', '<strong>Gore O 3.5 K + Lorenzen O 2.5 K</strong> — <strong>MacKenzie Gore</strong> O 3.5 K (SS 4.9 TEX vs ARI) + <strong>Michael Lorenzen</strong> O 2.5 K (SS 4.3 PIT host, V60 trap — fade for Ks but volume floor). Different games. Safe low-alt stack.', 'b-warn', '2-leg O 3.5/2.5'),
-        ('7⃣', '<strong>Skenes O 5+ K + Yamamoto O 5+ K + Peralta O 5+ K</strong> — Skenes / Yamamoto / Peralta all 5.7+ K projections. Three different games (PIT / LAD / NYM). High-floor 3-leg T1 K stack.', 'b-tier1', '3-leg cross-game'),
-        ('8⃣', '<strong>Pérez O 5+ K + Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Eury Pérez</strong> O 5+ K (SS 5.3, HR/9 1.02 caveat) + Sproat 5.3 + Woo 5.0. Three different games. T1 K saturation at the floor-of-5 tier.', 'b-tier1', '3-leg T1 floor'),
-    ]
-    blocks = []
-    for icon, body, badge_cls, badge_text in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} <span class="badge {badge_cls}">{badge_text}</span></div></div>')
-    return f'''<!-- COMBOS K -->
-<section id="combos-k" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">⚡ Alt K Combos</div>
-      <span class="game-tag">Tap to expand · K-only combos · alts ≤5 per user rule</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">K-only combo cards. <strong>Every leg is a strikeout prop.</strong> Alt rule: proj ≥5.0 → O5+; 4.5–4.99 → O3.5; &lt;4.5 → O2.5. <strong>Never alt &gt;5.</strong> Same player max 2 legs.</p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    parlays = []
+    for sp in sorted(SP_PROJ, key=lambda row: (-k_consensus_for_pitcher(row), -_sf(row.get('K')))):
+        name = sp.get('Pitcher', '')
+        kf = _sf(sp.get('K'))
+        votes = k_consensus_for_pitcher(sp)
+        tier = k_tier_for_projection(kf)
+        if votes < 4 or tier > 1 or pitcher_is_short_leash(name):
+            continue
+        bp = pitcher_bp(name)
+        outs = pitcher_outs_line(bp)
+        if not outs:
+            continue
+        k_line = k_alt_for(kf)
+        k_leg = {
+            'market': 'K',
+            'name': name,
+            'team': tn(sp.get('Team')),
+            'opp': tn(sp.get('Opp')),
+            'game': game_key_for_team(sp.get('Team')),
+            'line': k_line,
+            'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+            'consensus': votes,
+            'consensus_max': 6,
+            'leg_role': 'anchor',
+            'confidence_rank': 1,
+            'detail': f'{votes}/6 lenses; projected {kf:.2f} K',
+        }
+        outs_leg = {
+            'market': 'OUTS',
+            'name': name,
+            'team': tn(sp.get('Team')),
+            'opp': tn(sp.get('Opp')),
+            'game': game_key_for_team(sp.get('Team')),
+            'line': outs['line'],
+            'win_at': outs['win_at'],
+            'leg_role': 'satellite',
+            'confidence_rank': 2,
+            'detail': f'projected {outs["projection"]:.1f} outs',
+        }
+        legs = [k_leg, outs_leg]
+        ok, reason = validate_parlay(legs, 'same_pitcher_k_outs', max_legs=3)
+        if not ok:
+            continue
+        parlays.append({
+            'correlation_type': 'same_pitcher_k_outs',
+            'badge': 'same pitcher K + outs',
+            'note': 'Deeper starts mean more batters faced, so strikeouts and outs move together.',
+            'legs': legs,
+        })
+    return render_parlay_board(
+        'combos-k',
+        'Strikeout Stack',
+        'Tap to expand · same-pitcher K plus outs · 2 legs default',
+        'Eligibility: at least four K lenses, tier 0-1, no short-leash flag, and a real projected outs leg. Alt K ladders stay capped at O 5+.',
+        parlays,
+        'No pitcher cleared the K lens, tier, short-leash, and outs-availability gates.',
+    )
 
 
-# ---- BUILD: COMBOS HRR ----
 def build_combos_hrr():
-    """8 HRR-only combos in Day 44 flag-row format. Day 46 slate-specific."""
-    rows = [
-        ('1⃣', '<strong>Elly De La Cruz Ov 0.5 HRR + Sal Stewart Ov 0.5 HRR</strong> — CIN top of order vs <strong>Mikolas V76</strong> (slate-worst). GABP <strong>+8% HR / +3% Runs</strong>. DLC #1 HR Board (Score 92, ⚡7) + Stewart #2 (87, ⚡7). Same-game CIN stack.', 'b-tier0', '2-leg CIN stack'),
-        ('2⃣', '<strong>James Wood Ov 0.5 HRR + CJ Abrams Ov 0.5 HRR</strong> — WSH top of order vs <strong>Brady Singer V70</strong>. Wood #4 HR Board (Score 85, ⚡8) + Abrams #5 (82, ⚡5). Both LHB hammering RHP. Same-game WSH stack.', 'b-tier0', '2-leg WSH stack'),
-        ('3⃣', '<strong>Elly De La Cruz + Sal Stewart + Spencer Steer Ov 0.5 HRR</strong> — CIN trio vs Mikolas V76. Top 3 of HR Board (DLC 92, Stewart 87, Steer 87). Saturation same-game stack at GABP +8%.', 'b-tier0', '3-leg CIN stack'),
-        ('4⃣', '<strong>Brent Rooker + Tyler Soderstrom + Shea Langeliers Ov 0.5 HRR</strong> — ATH trio at <strong>Sutter Health Park +29% HR / +18% Runs (slate volcano)</strong> vs Pallante V28. Top hit-board names with massive HR upside (Rooker 22.92% HR, Soderstrom 20.73%, Langeliers 24.76%).', 'b-tier0', '3-leg ATH volcano'),
-        ('5⃣', '<strong>De La Cruz + Wood Ov 0.5 HRR</strong> — #1 and #4 HR Board names — cross-game stack of slate’s two highest scores. DLC vs Mikolas (V76) + Wood vs Singer (V70). Two different games. Floor-y double anchor.', 'b-tier0', '2-leg cross-game'),
-        ('6⃣', '<strong>Max Muncy + Andy Pages Ov 0.5 HRR</strong> — LAD vs Adrian Houser at <strong>Dodger Stadium +8% HR</strong>. Muncy #8 (Score 78, ⚡7) + Pages #12 (73, ⚡7). Same-game LAD stack.', 'b-tier1', '2-leg LAD stack'),
-        ('7⃣', '<strong>Trout + Soler Ov 0.5 HRR</strong> — LAA top vs Slade Cecconi V56. Trout #7 HR Board (78, ⚡7) + Soler #10 (75, ⚡5). Same-game LAA pair on a vulnerable RHP — progressive field still neutral.', 'b-tier1', '2-leg LAA stack'),
-        ('8⃣', '<strong>Stewart + DLC + Wood + Abrams Ov 0.5 HRR</strong> — 4-leg saturation across CIN (vs Mikolas V76 / GABP +8%) and WSH (vs Singer V70). The Day 46 HRR Mt. Rushmore — #1, #2, #4, #5 of HR Board.', 'b-tier1', '4-leg 2-stack'),
-    ]
-    blocks = []
-    for icon, body, badge_cls, badge_text in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} <span class="badge {badge_cls}">{badge_text}</span></div></div>')
-    return f'''<!-- COMBOS HRR -->
-<section id="combos-hrr" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">🎯 H+R+RBI Combos</div>
-      <span class="game-tag">Tap to expand · HRR-only combos · every leg is an Ov 0.5 H+R+RBI</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">H+R+RBI-only combos. <strong>Every leg is an Ov 0.5 HRR.</strong> Sourced from BP HRR proxy on the Hits Board, cross-referenced to HR Board and park factors.</p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    grouped = {}
+    for hitter in traffic_hitter_candidates():
+        key = (hitter['team'], hitter['opp_sp'])
+        grouped.setdefault(key, []).append(hitter)
+    parlays = []
+    for (team, opp_sp), hitters in sorted(
+        grouped.items(),
+        key=lambda item: -sum(h['hrr_pct'] for h in item[1]),
+    ):
+        hitters = sorted(hitters, key=lambda h: (-h['hrr_pct'], -h['hit_pct']))
+        if len(hitters) < 2:
+            continue
+        bp = pitcher_bp(opp_sp)
+        sp = pitcher_projection(opp_sp) or {}
+        vuln = get_vuln_for_pitcher(opp_sp)
+        vuln_score = _sf(vuln.get('VulnScore')) if vuln else 0
+        park_runs = park_runs_for_team(team)
+        hits_line = pitcher_hits_allowed_line(bp)
+        runs_line = pitcher_runs_allowed_line(bp)
+        era = _sf(sp.get('ERA') if sp else (vuln.get('ERA') if vuln else 0))
+
+        structure = None
+        pitcher_leg = None
+        if vuln_score >= 70:
+            structure = 'lineup_stack'
+        elif hits_line and hits_line['projection'] >= 5.5:
+            structure = 'both_sides'
+            pitcher_leg = {
+                'market': 'H_ALLOWED',
+                'name': opp_sp,
+                'team': tn(sp.get('Team')) if sp else '',
+                'opp': team,
+                'game': game_key_for_team(team),
+                'line': hits_line['line'],
+                'win_at': hits_line['win_at'],
+                'leg_role': 'satellite',
+                'confidence_rank': 3,
+                'detail': f'projected {hits_line["projection"]:.2f} hits allowed',
+            }
+        elif runs_line and (era >= 4.5 or park_runs >= 5):
+            structure = 'run_environment'
+            pitcher_leg = {
+                'market': 'ER_ALLOWED',
+                'name': opp_sp,
+                'team': tn(sp.get('Team')) if sp else '',
+                'opp': team,
+                'game': game_key_for_team(team),
+                'line': runs_line['line'],
+                'win_at': runs_line['win_at'],
+                'leg_role': 'satellite',
+                'confidence_rank': 3,
+                'detail': f'projected {runs_line["projection"]:.2f} runs allowed; park runs {park_runs:+d}%',
+            }
+        if not structure:
+            continue
+
+        legs = []
+        for hitter in hitters[:2]:
+            legs.append({
+                'market': 'HRR',
+                'name': hitter['name'],
+                'team': hitter['team'],
+                'opp': hitter['opp'],
+                'game': hitter['game'],
+                'line': 'Ov 0.5 HRR',
+                'win_at': 1,
+                'leg_role': 'satellite',
+                'confidence_rank': 1,
+                'detail': f'{hitter["hrr_pct"]:.1f}% HRR proxy',
+            })
+        if pitcher_leg:
+            legs.append(pitcher_leg)
+        else:
+            extra = next((h for h in hitters[2:] if h['name'] not in {leg['name'] for leg in legs}), None)
+            if extra and extra['hit_pct'] >= 70:
+                legs.append({
+                    'market': 'HIT',
+                    'name': extra['name'],
+                    'team': extra['team'],
+                    'opp': extra['opp'],
+                    'game': extra['game'],
+                    'line': 'Ov 0.5 H',
+                    'win_at': 1,
+                    'leg_role': 'satellite',
+                    'confidence_rank': 2,
+                    'detail': f'{extra["hit_pct"]:.1f}% 1+ hit',
+                })
+        ok, reason = validate_parlay(legs, structure, max_legs=3)
+        if not ok:
+            continue
+        label = {
+            'lineup_stack': 'Lineup Stack',
+            'both_sides': 'Both Sides',
+            'run_environment': 'Run Environment',
+        }[structure]
+        parlays.append({
+            'correlation_type': structure,
+            'badge': label,
+            'note': f'{team} traffic correlated against {opp_sp}.',
+            'legs': legs,
+        })
+    return render_parlay_board(
+        'combos-hrr',
+        'Traffic Stack',
+        'Tap to expand · HRR traffic structures · no 2B or SB legs',
+        'Eligibility: HRR proxy at least 78%, positive park Runs%, and one matching pitcher vulnerability reason. Hits-allowed and earned-runs legs are mutually exclusive.',
+        parlays,
+        'No lineup had two HRR legs with positive park run context and a matching pitcher vulnerability reason.',
+    )
 
 
-# ---- BUILD: PARLAY ANCHORS ----
 def build_parlays():
-    """10 anchors in Day 44 flag-row format with custom emoji icons + multi-line legs + game times. Day 46 slate-specific."""
-    rows = [
-        ('🏆',
-         '<strong>4-Leg HR Parlay: Elly DLC + Stewart + Wood + Muncy</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, <strong>GABP +8%</strong>, Score 92 ⚡7) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> HR (CIN vs Mikolas V76, GABP +8%, Score 87 ⚡7) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>James Wood</strong> HR (WSH vs Singer V70, Score 85 ⚡8) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>Max Muncy</strong> HR (LAD vs Houser, <strong>LAD +8% HR</strong>, Score 78 ⚡7) — Game 10 SF@LAD (10:10 ET)'
-         '<br><em>Two-game saturation — WAS@CIN slate-worst SP (V76) + LAD park boost. Day 46 HR mountain.</em>'),
-        ('☄️',
-         '<strong>4-Leg Hits Parlay: Wilson + Stewart + DLC + McNeil</strong>'
-         '<br>Leg 1: <strong>Jacob Wilson</strong> 1+H 71.3% (ATH vs Pallante V28, <strong>Sutter +29% HR / +18% Runs</strong>) — Game 1 STL@ATH (9:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> 1+H 68.9% (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>Elly De La Cruz</strong> 1+H 68.2% (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>Jeff McNeil</strong> 1+H 67.4% (ATH vs Pallante V28, Sutter +29%) — Game 1 STL@ATH (9:40 ET)'
-         '<br><em>4 of top-5 1+H% rates on slate at the two best parks (Sutter +29% HR + GABP +8%).</em>'),
-        ('🔥',
-         '<strong>4-Leg HRR Parlay: DLC + Stewart + Wood + Abrams Ov 0.5 HRR</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> Ov 0.5 HRR (CIN vs Mikolas V76, <strong>GABP +8%</strong>) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> Ov 0.5 HRR (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>James Wood</strong> Ov 0.5 HRR (WSH vs Singer V70) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>CJ Abrams</strong> Ov 0.5 HRR (WSH vs Singer V70) — Game 3 WAS@CIN (6:40 ET)'
-         '<br><em>Single-game double-stack — both teams’ SPs are top-2 most vulnerable on slate. Top 4 of HR Board rolled into HRR ladder.</em>'),
-        ('⚡',
-         '<strong>2-Leg HR Parlay #1: DLC + Wood</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, <strong>GABP +8%</strong>, Score 92) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>James Wood</strong> HR (WSH vs Singer V70, Score 85 ⚡8) — Game 3 WAS@CIN (6:40 ET)'
-         '<br><em>Same-game opposite-dugout HR stack. The two most vulnerable SPs are facing each other. Highest-scoring HR pair on slate.</em>'),
-        ('💥',
-         '<strong>2-Leg HR Parlay #2: Stewart + Muncy</strong>'
-         '<br>Leg 1: <strong>Sal Stewart</strong> HR (CIN vs Mikolas V76, GABP +8%, Score 87) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Max Muncy</strong> HR (LAD vs Houser, <strong>LAD +8% HR</strong>, Score 78 ⚡7) — Game 10 SF@LAD (10:10 ET)'
-         '<br><em>Different games. Both at slate’s only two HR-friendly parks (GABP + LAD, both +8% HR).</em>'),
-        ('🎯',
-         '<strong>4-Leg Alt K Parlay: Skenes + Wheeler + Warren + Peralta</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS) — Game 5 PHI@BOS (6:45 ET)'
-         '<br>Leg 3: <strong>Will Warren</strong> O 5+ K (SS 5.8 NYY @ BAL) — Game 8 NYY@BAL (6:35 ET)'
-         '<br>Leg 4: <strong>Freddy Peralta</strong> O 5+ K (SS 5.7 NYM vs DET) — Game 9 DET@NYM (7:10 ET)'
-         '<br><em>4 different games. All proj ≥5.0 → O5+ alt per user rule. Never alt &gt;5.</em>'),
-        ('⚾',
-         '<strong>2-Leg Alt K Combo: Skenes + Wheeler O 5+</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL, K9 elite) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS Fenway) — Game 5 PHI@BOS (6:45 ET)'
-         '<br><em>Different games. Day 46 slate-best K pair — both projections clear 6.5.</em>'),
-        ('🥶',
-         '<strong>NRFI Anchor: DET@NYM NRFI</strong>'
-         '<br>Leg 1: <strong>DET @ NYM NRFI</strong> — Flaherty (SS 5.5) + Peralta (SS 5.7) both K-friendly at <strong>Citi -14% HR / -15% Runs (slate-worst run park)</strong>. — Game 9 DET@NYM (7:10 ET)'
-         '<br><em>Single-leg conviction NRFI play — worst run-scoring environment on slate.</em>'),
-        ('📈',
-         '<strong>Free Conviction Pick: STL@ATH OVER (Sutter volcano)</strong>'
-         '<br>Leg 1: <strong>STL @ ATH OVER</strong> — <strong>Sutter Health Park +29% HR / +18% Runs (slate-best both)</strong>. Pallante V28 + Springs V21. Best run/HR environment on slate. — Game 1 (9:40 ET)'
-         '<br><em>Conviction total. The slate’s only +25% HR park is also the slate’s only +15% Runs park.</em>'),
-        ('🔥',
-         '<strong>3-Leg Value: Skenes O 5+ K + DLC HR + Wilson 1+H</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>Jacob Wilson</strong> 1+H 71.3% (ATH vs Pallante, <strong>Sutter +29%</strong>) — Game 1 STL@ATH (9:40 ET)'
-         '<br><em>3 different games. K + HR + Hit mix. Each leg at a park-boosted or slate-best environment.</em>'),
-    ]
-    blocks = []
-    for icon, body in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body}</div></div>')
-    return f'''<!-- PARLAYS -->
-<section id="parlays" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">💣 Parlay Anchors</div>
-      <span class="game-tag">Tap to expand · 10 anchors · T0 legs · max 2× same player · alts ≤5 per parlay</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Rules: Anchor = T0 play. Min 2 different games. Same player max 2 legs. Alts ≤5 total per parlay. <strong>Never alt &gt;5.</strong></p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    anchors = []
+    for sp in SP_PROJ:
+        name = sp.get('Pitcher', '')
+        kf = _sf(sp.get('K'))
+        votes = k_consensus_for_pitcher(sp)
+        if k_tier_for_projection(kf) == 0 and votes >= 5 and not pitcher_is_short_leash(name):
+            anchors.append((votes, kf, sp))
+    anchors.sort(key=lambda item: (-item[0], -item[1]))
+    if not anchors:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'No qualifying K anchor yet',
+            'No pitcher cleared the tier-0, five-lens, no-short-leash anchor gate.',
+        )
+
+    votes, kf, anchor_sp = anchors[0]
+    anchor_name = anchor_sp.get('Pitcher', '')
+    anchor_game = game_key_for_team(anchor_sp.get('Team'))
+    k_line = k_alt_for(kf)
+    anchor_leg = {
+        'market': 'K',
+        'name': anchor_name,
+        'team': tn(anchor_sp.get('Team')),
+        'opp': tn(anchor_sp.get('Opp')),
+        'game': anchor_game,
+        'line': k_line,
+        'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+        'consensus': votes,
+        'consensus_max': 6,
+        'leg_role': 'anchor',
+        'confidence_rank': 1,
+        'detail': f'tier 0; {votes}/6 lenses; projected {kf:.2f} K',
+    }
+    satellites = []
+    for hitter in sorted(traffic_hitter_candidates(), key=lambda h: (-h['hrr_pct'], -h['hit_pct'])):
+        if hitter['game'] != anchor_game:
+            continue
+        satellites.append({
+            'market': 'HRR',
+            'name': hitter['name'],
+            'team': hitter['team'],
+            'opp': hitter['opp'],
+            'game': hitter['game'],
+            'line': 'Ov 0.5 HRR',
+            'win_at': 1,
+            'leg_role': 'satellite',
+            'confidence_rank': 2,
+            'detail': f'same game; {hitter["hrr_pct"]:.1f}% HRR proxy',
+        })
+        if len(satellites) == 2:
+            break
+    if not satellites:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'No correlated satellites for the K anchor',
+            'A tier-0 K anchor qualified, but no same-game or vulnerable-pitcher satellite passed the traffic gates.',
+        )
+    legs = [anchor_leg] + satellites[:2]
+    ok, reason = validate_parlay(legs, 'anchor', max_legs=3)
+    board_ok, board_reason = validate_board_people(legs, max_count=2)
+    if not ok or not board_ok:
+        return empty_parlay_section(
+            'parlays',
+            'Anchor',
+            'Anchor stack rejected by guard',
+            reason if not ok else board_reason,
+        )
+    vuln = get_vuln_for_pitcher(anchor_name)
+    danger = vuln.get('DangerBatter1') if vuln else ''
+    danger_note = f'DANGER: {danger}' if danger else 'DANGER label unavailable without Matchup Spotlight workbook context.'
+    return render_parlay_board(
+        'parlays',
+        'Anchor',
+        'Tap to expand · one K anchor · correlated satellites only',
+        'Anchor must be a tier-0 K leg with at least five lenses. Satellites must be same-game or against the same vulnerable pitcher; no HR anchors are allowed.',
+        [{
+            'correlation_type': 'anchor',
+            'badge': 'K anchor',
+            'note': danger_note,
+            'legs': legs,
+        }],
+        'No tier-0, five-lens K anchor had valid correlated satellites.',
+    )
 
 
 # ---- BUILD: CONVICTION BOARD ----
@@ -2009,19 +2349,9 @@ if PROJECTED_MODE:
         'sb-board':          with_projected_badge(build_sb_board(), "Stolen-base board rebuilt from live projection probabilities."),
         'doubles-board':     with_projected_badge(build_doubles_board(), "Extra-base board rebuilt from live doubles and park context."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
-        'combos-k':          with_projected_badge(build_combos_k(), "K combos rebuilt from projected starter rows."),
-        'combos-hrr':        projected_unavailable_section(
-            'combos-hrr',
-            'HRR Combos',
-            'Unavailable without workbook',
-            'The HRR combo board depends on full Sweet Spot and Dimers workbook context.',
-        ),
-        'parlays':           projected_unavailable_section(
-            'parlays',
-            'Parlay Builder',
-            'Unavailable without workbook',
-            'The full parlay builder is withheld in Projected Mode because several workbook-only signals are missing.',
-        ),
+        'combos-k':          build_combos_k(),
+        'combos-hrr':        build_combos_hrr(),
+        'parlays':           build_parlays(),
         'conviction':        projected_unavailable_section(
             'conviction',
             'Conviction Board',

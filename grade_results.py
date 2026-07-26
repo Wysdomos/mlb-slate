@@ -318,6 +318,15 @@ def grade():
             elif mkt == 'K' and pi:
                 win = pi['k'] >= p.get('win_at', 99); got = f'{pi["k"]} K'
                 detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+            elif mkt == 'OUTS' and pi:
+                win = pi['outs'] >= p.get('win_at', 99); got = f'{pi["outs"]} outs'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+            elif mkt == 'H_ALLOWED' and pi:
+                win = pi['h'] >= p.get('win_at', 99); got = f'{pi["h"]} H allowed'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
+            elif mkt == 'ER_ALLOWED' and pi:
+                win = pi['er'] >= p.get('win_at', 99); got = f'{pi["er"]} ER'
+                detail['actual'] = f'{pi["h"]}H · {pi["er"]}ER · {pi["outs"]} outs'
         # K projected peripherals (the "added context") — shown graded or not
         ctx = p.get('context') or {}
         if mkt == 'K' and ctx:
@@ -367,7 +376,8 @@ def grade():
     other_graded = any(g['win'] is not None for g in graded if g['market'] != 'HR')
 
     # ---- per-market summary (for the markets grid) ----
-    META = [('HR','HR','🏆'),('K','K','⚡'),('HIT','Hits','🎯'),('HRR','HRR','💥'),
+    META = [('HR','HR','🏆'),('K','K','⚡'),('OUTS','Outs','📏'),('HIT','Hits','🎯'),('HRR','HRR','💥'),
+            ('H_ALLOWED','Hits Allowed','🚦'),('ER_ALLOWED','ER Allowed','📈'),
             ('TOTAL','Totals','📈'),('NRFI','NRFI','🥶'),('SB','SB','🏃'),('2B','2B','💎')]
     markets = []
     for key, label, icon in META:

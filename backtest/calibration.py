@@ -66,6 +66,20 @@ def append_chip_buckets(md, rows):
             md.append(line(w, len(band) - w, tier))
 
 
+def append_correlation_buckets(md, rows):
+    labeled = [g for g in rows if g.get('correlation_type')]
+    md.append('\n## Parlay correlation buckets\n')
+    if not labeled:
+        md.append('No parlay correlation labels have been backfilled yet.\n')
+        return
+    md.append('| Correlation type | W-L | n | Hit rate | 95% CI |')
+    md.append('|---|---|---|---|---|')
+    for correlation_type in sorted({g.get('correlation_type') for g in labeled}):
+        band = [g for g in labeled if g.get('correlation_type') == correlation_type]
+        w = sum(1 for g in band if g['win'])
+        md.append(line(w, len(band) - w, correlation_type))
+
+
 def build(store, source_filter=None):
     rows = [
         g for g in store['graded']
@@ -113,6 +127,7 @@ def build(store, source_filter=None):
                 md.append(line(w, len(band) - w, f'O {wa - 0.5}'))
 
     append_chip_buckets(md, rows)
+    append_correlation_buckets(md, rows)
 
     md.append('\n## Break-even reference (for eyeballing edge)\n')
     md.append('*Reference math only — historical book prices were not stored, '
