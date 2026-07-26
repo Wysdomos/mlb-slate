@@ -1,5 +1,117 @@
 # SESSION STATUS - 2026-07-25 - Codex
 
+## 0. CHAPTER G ADD-ON - PICK PROVENANCE
+- Stayed on `codex/chapter-g-early-build`; this is an add-on for the existing PR #22.
+- Added `PICK_SOURCE = 'projected' if PROJECTED_MODE else 'workbook'` in `build_day46.py`.
+- Added `pick_source` to all 8 `SLATE_PICKS.append({...})` payloads.
+- Added historical compatibility in `backtest/backfill_grades.py`: missing `pick_source` defaults to `workbook` when new graded rows are written.
+- Added calibration segmentation in `backtest/calibration.py`: `build(store, source_filter=...)` and CLI `--pick-source workbook|projected`, with missing historical values treated as `workbook`.
+- Did not modify any existing `slate_picks*.json`, `backtest/graded_picks.json`, or generated public HTML/JSON files.
+
+### Add-On Verification
+
+a. Workbook-backed build -> every pick record has `pick_source == 'workbook'`; count matches total picks:
+```text
+python3 extract_xlsx.py MLB_Slate_7-25-26.xlsx /tmp/chapterg-addon-current-day_data.json
+HR_Leaderboard: 270 rows
+Hit_Probabilities: 258 rows
+Done. 1508 total rows -> /tmp/chapterg-addon-current-day_data.json
+
+build_day46.py temp-output execution
+Wrote 205 pick records -> /tmp/chapterg-addon-current-picks.json (+ slate_picks_7-25.json)
+
+workbook picks=205 pick_source_workbook=205 missing=0
+```
+
+b. Projected build -> every pick record has `pick_source == 'projected'`; count matches total picks:
+```text
+ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py /tmp/chapterg-addon-projected-day_data.json
+Projected Mode marker written for 2026-07-25 because no workbook was uploaded and ALLOW_PROJECTED_MODE=1.
+Done. 14 total rows -> /tmp/chapterg-addon-projected-day_data.json
+
+DATA_FILE=/tmp/chapterg-addon-projected-day_data.json STREAKS_OUT=streaks_live.json BPP_MIN_GAP=0.1 python3 fetch_projected_mode.py
+[projected] rebuilt 2026-07-25: HR=270, Hits=270, Savant=573 batters
+[projected] calls/run BPP=33, MLB=5; 3 runs/day BPP ~= 99; 4 runs/day BPP ~= 132; monthly budget 15000
+Projected Mode BPP API calls this run: 33
+
+build_day46.py temp-output execution
+Wrote 99 pick records -> /tmp/chapterg-addon-projected-picks.json (+ slate_picks_7-25.json)
+
+projected picks=99 pick_source_projected=99 missing=0 other=[]
+```
+
+c. Upload-day HR and Hits HTML section diffs still empty vs `origin/main`:
+```text
+main hr-board 25735
+main oo5-board 18954
+current hr-board 25735
+current oo5-board 18954
+
+diff -u /tmp/chapterg-addon-main-hr.html /tmp/chapterg-addon-current-hr.html
+exit 0, empty
+
+diff -u /tmp/chapterg-addon-main-hits.html /tmp/chapterg-addon-current-hits.html
+exit 0, empty
+```
+
+d. `slate_picks.json` diff vs main shows the added key and nothing else:
+```text
+workbook picks=205 pick_source_workbook=205 missing=0
+stripped_equals_main True
+main_has_pick_source False
+current_keys_delta_only_pick_source True
+```
+
+e. `calibration.py` and `backfill_grades.py` run clean against existing historical `graded_picks.json` with no `pick_source` present:
+```text
+historical graded rows 2660
+pick_source present before 0
+
+python3 backtest/calibration.py
+wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (3299 bytes)
+
+python3 backtest/calibration.py --pick-source workbook
+wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (3299 bytes)
+
+python3 backtest/calibration.py --pick-source projected
+wrote /private/tmp/chapterg-addon-backtest/backtest/CALIBRATION.md (1206 bytes)
+
+python3 backtest/backfill_grades.py
+1 slate files · 11 date(s) already backfilled
+wrote /private/tmp/chapterg-addon-backtest/backtest/graded_picks.json: 2660 rows, 2443 gradable, 11 dates
+
+historical graded rows after 2660
+pick_source present after 0
+```
+
+Additional backtest mock:
+```text
+python3 backtest/test_backtest_mock.py
+ALL TESTS PASSED
+```
+
+f. BPP compliance:
+```text
+python3 tools/check_bpp_compliance.py --base origin/main
+BPP compliance OK (0 changed JSON/HTML files checked against eb82870cec59)
+```
+
+g. `ast.parse` and `py_compile`:
+```text
+ast OK extract_xlsx.py
+ast OK fetch_projected_mode.py
+ast OK build.py
+ast OK build_day46.py
+ast OK sync.py
+ast OK backtest/calibration.py
+ast OK backtest/backfill_grades.py
+ast OK tools/check_bpp_compliance.py
+ast OK tools/projected_publish_guard.py
+
+python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py backtest/calibration.py backtest/backfill_grades.py tools/check_bpp_compliance.py tools/projected_publish_guard.py
+exit 0
+```
+
 ## 1. WHAT I DID
 - Branch: `codex/chapter-g-early-build` from `origin/main` after Chapter F PR #21 was merged as `eb82870 Add Chapter F Projected Mode (#21)`.
 - Changed stale workbook handling in `extract_xlsx.py`:
