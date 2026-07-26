@@ -1,155 +1,324 @@
-# SESSION STATUS - 2026-07-26 - Codex
+# SESSION STATUS - 2026-07-26 - Projected Mode header fix + withheld dropdown
 
-## Chapter I - Parlay Rebuild
+Branch: `claude/projected-header-withheld`
+Base:   `origin/main` @ `deb0120` (Chapter I)
+Status: draft PR, not merged.
 
-- Branch: `codex/chapter-i-parlays`
-- Base: `origin/main` at `2c1ee69e15cb`
-- Ordered commits landed:
-  1. `2f49997 Remove stale parlay board content`
-  2. `40a8cec Add correlation-based Strikeout Stack`
-  3. `cdeb443 Add Traffic Stack parlay board`
-  4. `9104adb Add K-anchor parlay board`
-  5. Pending commit: emission, grading, calibration, tests, and this report
-- Removed hardcoded static parlay/combo content from `build_combos_k()`, `build_combos_hrr()`, and `build_parlays()`.
-- Removed the false Projected Mode badge text `K combos rebuilt from projected starter rows.`
-- Added executable parlay guards in `parlay_rules.py`.
-- Added measurable parlay leg emission with `parlay_id`, `correlation_type`, `leg_role`, and existing `pick_source`.
-- Added grading/copy-through for `OUTS`, `H_ALLOWED`, and `ER_ALLOWED` legs.
-- Added calibration bucketing by `correlation_type`.
-- Did not touch `fetch_projected_mode.py`, `tools/check_bpp_compliance.py`, `tools/projected_publish_guard.py`, `shadow_chips.py`, or SSJ/Zone logic.
-- Did not modify historical `slate_picks*.json` or `backtest/graded_picks.json`.
+Targeted fix on main's shipped skin. **One file changed: `sync.py` (+193 / -2).**
+The `claude/projected-overhaul` branch was not built on and is not revived.
 
-## Verification
+---
 
-a. Combo-builder grep: zero hardcoded player names remain in any combo/parlay builder:
+## 1. THE WITHHELD COUNT IS 4, NOT 6 — AND THAT DISTINCTION MATTERS
+
+The projected page carries **six** `unavailable-card` elements, but they say two
+different things:
+
+| section | card text | meaning |
+|---|---|---|
+| Matchup Spotlight | Unavailable without workbook | genuinely withheld |
+| Pitcher's HR Risk Board | Unavailable without workbook | genuinely withheld |
+| Conviction Board | Unavailable without workbook | genuinely withheld |
+| Daily Skip List | Unavailable without workbook | genuinely withheld |
+| Strikeout Stack | **No qualifying correlation stack** | board ran, nothing qualified |
+| Anchor | **No qualifying correlation stack** | board ran, nothing qualified |
+
+The last two are Chapter I's correlation parlay boards. They are **not**
+withheld — they executed and produced no qualifying output today. Folding them
+into "boards withheld today" would tell you a working board is missing because
+of the workbook, which is false and is exactly the class of misinformation the
+banner exists to prevent.
+
+So: **only the four `projected-unavailable` sections are removed and counted.
+The two "No qualifying correlation stack" cards are deliberately left in place.**
+The disclosure reads **"4 boards withheld today"**, which also happens to match
+the example in the brief.
+
+---
+
+## 2. WHAT I TOUCHED
+
+Exactly three things in `sync.py`, all behind the `if not PROJECTED_MODE`
+guard:
+
+1. `.projected-mode-banner` — added safe-area padding and a negative bottom
+   margin (the two header fixes).
+2. Added 13 new `.pm-withheld*` CSS rules for the disclosure.
+3. Added `PROJECTED_JS` (a 20-line vanilla toggle) and the markup/strip logic
+   for the disclosure and the four placeholder sections.
+
+Nothing else. Proof in (g).
+
+---
+
+## 3. VERIFICATION
+
+### (a) Workbook-backed rendering byte-identical to main
+
 ```text
-awk '/CORRELATION PARLAY BOARDS/,/CONVICTION BOARD/' build_day46.py | rg -n "Will Warren|Freddy Peralta|Yamamoto|Flaherty|Elly De La Cruz|Sal Stewart|James Wood|Jacob Wilson|Paul Skenes|Mikolas|DLC|Wheeler"
-exit 1, empty output
+both rendered inside clock minute 17:16
+  main   : 246,742 bytes  sha256=ea8d40c6fc8afde4bff2e60391fe7b3962fa357a064d93852fa863c27cabb742
+  branch : 246,742 bytes  sha256=ea8d40c6fc8afde4bff2e60391fe7b3962fa357a064d93852fa863c27cabb742
+  BYTE-IDENTICAL: True
+  unified diff lines: 0  -> EMPTY
+
+  workbook page contains 'pm-withheld'            : False
+  workbook page contains 'PROJECTED MODE CSS START': False
+  workbook page contains 'PROJECTED JS START'      : False
+  workbook page contains 'PROJECTED CHROME START'  : False
+  workbook page contains 'pmWithheldBtn'           : False
 ```
 
-b. False projected badge is gone:
+**The diff is empty.**
+
+> Worth recording: my first run of this check reported a 281-line diff, and the
+> bug was in the *test*, not the code. Main's committed `day_data.json` now
+> carries `_mode: 'projected'` (Chapter I committed a projected build), so
+> feeding it in was exercising the projected path twice rather than the
+> workbook path at all. The harness now strips `_mode` first. The committed
+> `index.html` is itself a projected build, so this check also proves the
+> strip-and-rebuild path is idempotent: a projected page fed back through a
+> workbook build comes out clean.
+
+### (b) Diffstat shows nothing outside the presentation layer
+
 ```text
-rg -n "rebuilt from projected starter rows" build_day46.py
-exit 1, empty output
+ sync.py | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 193 insertions(+), 2 deletions(-)
+
+M	sync.py
 ```
 
-c. Rule 1 enforced - nested same-player pair rejected:
 ```text
-python3 tools/test_parlay_rules.py
-rejected: nested same-player batter legs
+  UNCHANGED  fetch_projected_mode.py     UNCHANGED  tools/
+  UNCHANGED  extract_xlsx.py             UNCHANGED  backtest/
+  UNCHANGED  shadow_chips.py             UNCHANGED  .github/
+  UNCHANGED  parlay_rules.py
+  UNCHANGED  build_day46.py
+  UNCHANGED  build.py
+  UNCHANGED  grade_results.py
 ```
 
-d. Rule 2 enforced - hits-allowed plus earned-runs on one pitcher rejected:
+`build_day46.py` untouched means no scoring and no `SLATE_PICKS` emission could
+have moved. The withheld list is derived at render time from the sections'
+own titles — no list is hard-coded and no build file was edited.
+
+### (c) Banner clears the iOS status bar
+
+Measured at 390 × 844 with a 59px top inset substituted (headless Chromium
+*defines* the insets as 0, so `env()` fallbacks cannot test this):
+
 ```text
-python3 tools/test_parlay_rules.py
-rejected: duplicate pitcher-side traffic legs
+BEFORE (main)   bannerTextTop=14   appbarTop=136  brandTop=205  gap=69
+AFTER  (fixed)  bannerTextTop=73   appbarTop=193  brandTop=262  gap=10
+
+  banner text starts at y : 14px -> 73px   (status bar = 59px)
+  clears the status bar   : False -> True
 ```
 
-e. HR leg cannot anchor or be top-conviction:
-```text
-python3 tools/test_parlay_rules.py
-rejected: HR cannot anchor a parlay
-rejected: HR cannot be the top-conviction leg
+Screenshots: `before-safearea-dark.png` vs `after-safearea-dark.png`.
 
-generated parlay artifact check:
-HR anchor legs []
+### (d) Dead gap closed — and what was producing it
+
+The gap was **not** a stray margin. Diagnosed by measuring the header stack:
+
+```text
+  appbar  padding-top: 59px   min-height: 111px   position: sticky
 ```
 
-f. No 2B or SB leg appears in any parlay:
+The app bar reserves `env(safe-area-inset-top)` so its wordmark clears the
+notch **once it is stuck to the top**. In Projected Mode the banner sits above
+it, so at scroll 0 the bar is *not* stuck and that 59px reserve renders as a
+blank band. It is dead only in that one state.
+
+Fix, without touching the app bar and without JS: the banner overlaps the
+reserve with `margin-bottom: calc(-1 * env(safe-area-inset-top, 0px))` and
+`z-index: 61`. The reserve is empty by definition so nothing is occluded, and
+the reserve still does its job the instant the bar pins and the banner has
+scrolled away.
+
 ```text
-generated parlay artifact check:
-2B/SB parlay legs []
+  dead gap banner->brand : 69px -> 10px
 ```
 
-g. All three boards render in both modes:
+The residual 10px is the wordmark's own 4px padding plus line leading — normal
+spacing, not dead space. Before/after screenshots as above.
+
+### (e) Withheld dropdown renders, counts, and expands
+
 ```text
-Projected Mode from current day_data.json:
-combos-k bytes 632 empty True
-combos-hrr bytes 3585 empty False
-parlays bytes 582 empty True
-
-Workbook-backed temp build from /tmp/MLB_Slate_7-26-26.xlsx:
-combos-k bytes 632 empty True
-combos-hrr bytes 656 empty True
-parlays bytes 582 empty True
-```
-Workbook note: the repo workbook is dated 2026-07-25 and is stale on 2026-07-26, so I copied it to `/tmp/MLB_Slate_7-26-26.xlsx` to exercise workbook-backed rendering without changing workbook contents or tracked files. That workbook lacks `Park_Factors`, so Traffic Stack correctly rendered empty there.
-
-h. Empty state renders honestly when nothing qualifies:
-```text
-Projected Mode:
-combos-k empty True
-parlays empty True
-
-Workbook-backed temp build:
-combos-k empty True
-combos-hrr empty True
-parlays empty True
+  dropdown present : True
+  count            : "4"
+  label            : "boards withheld today"
+  tap target       : 44px tall
+  expanded         : aria-expanded="true", body .open
+  names            : ["Matchup Spotlight", "Pitcher's HR Risk Board",
+                      "Conviction Board", "Daily Skip List"]
+  note             : "These need the workbook. They are held back rather than estimated."
+  collapses again  : True
+  page errors      : none
 ```
 
-i. `parlay_id`, `correlation_type`, `leg_role` present in `slate_picks` and after backfill:
+Placement is directly under the banner text and above the site header, as
+specified. Styled with main's projected tokens — cyan on slate, 8px radii — not
+the overhaul's palette.
+
+### (f) Per-section cards removed; banner and dropdown both present
+
 ```text
-Generated Projected Mode slate_picks:
-total picks 114
-parlay leg picks 15
-correlations ['both_sides', 'run_environment']
-roles ['satellite']
-markets ['ER_ALLOWED', 'HRR', 'H_ALLOWED']
-missing fields 0
-
-Temp backfill copy with final box-score date:
-python3 backtest/backfill_grades.py
-1 slate files · 0 date(s) already backfilled
--- 2026-07-25: 114 picks
-games: 15 totals, 15 first-inning; keys=['ARI@WSH', 'ATL@BAL', 'CHC@PIT', 'CIN@STL', 'CLE@TB', 'COL@MIL', 'HOU@CWS', 'KC@DET', 'LAA@SF', 'LAD@NYM', 'NYY@PHI', 'OAK@MIN', 'SD@MIA', 'SEA@TEX', 'TOR@BOS']
-   graded 76/114
-
-wrote /private/tmp/chapteri-backfill-final/backtest/graded_picks.json: 114 rows, 76 gradable, 1 dates
-graded rows 114
-graded parlay legs 15
-parlay fields present 15 / 15
-correlations ['both_sides', 'run_environment']
-roles ['satellite']
-```
-Backfill note: the live slate is 2026-07-26 and games were not final, so a temp-only copy of generated picks was dated 2026-07-25 to exercise the existing final box-score path. No tracked historical JSON was changed.
-
-j. `calibration.py` buckets by `correlation_type`:
-```text
-python3 backtest/calibration.py
-wrote /private/tmp/chapteri-backfill-final/backtest/CALIBRATION.md (3974 bytes)
-
-rg -n "Parlay correlation buckets|both_sides|run_environment|same_pitcher_k_outs|anchor" backtest/CALIBRATION.md
-108:## Parlay correlation buckets
-112:| both_sides | 3-3 | 6 | **50.0%** | 19%–81% ⚠ small n |
-113:| run_environment | 2-2 | 4 | **50.0%** | 15%–85% ⚠ small n |
+                            main (before)   branch (after)
+  projected-unavailable sections     4              0
+  "Unavailable without workbook"     4              0
+  "No qualifying correlation stack"  2              2   <- deliberately kept
+  <section> count                   21             17
+  banner present                  True           True
+  dropdown present               False           True
 ```
 
-k. Compliance, AST, and compile:
+The banner stays and the dropdown stays. Between them the page can never pass
+as a graded slate, and the four missing boards are named on demand.
+
+### (g) Nothing else about main's projected look changed
+
 ```text
-python3 tools/check_bpp_compliance.py --base origin/main
-BPP compliance OK (0 changed JSON/HTML files checked against 2c1ee69e15cb)
+  data rows            main=358  branch=358  identical=True
+  <table>    main=  27  branch=  27   OK
+  <td>       main=2917  branch=2917   OK
+  <th>       main= 288  branch= 288   OK
 
-git diff --quiet origin/main -- 'slate_picks*.json' backtest/graded_picks.json
-historical pick/grade JSON byte-identical to origin/main
+  CSS rules in main's projected block   : 13
+  CSS rules on this branch              : 27
+  rules REMOVED from main's skin        : none
+  main's rules all still present verbatim: True
+  main rules whose declarations changed : ['.projected-mode-banner']
 
-python3 - <<'PY'
-import ast
-paths=['build_day46.py','parlay_rules.py','backtest/backfill_grades.py','backtest/calibration.py','grade_results.py','tools/test_parlay_rules.py']
-for path in paths:
-    ast.parse(open(path, encoding='utf-8').read())
-print('ast.parse OK:', ', '.join(paths))
-PY
-ast.parse OK: build_day46.py, parlay_rules.py, backtest/backfill_grades.py, backtest/calibration.py, grade_results.py, tools/test_parlay_rules.py
+  rules ADDED (13, all the disclosure):
+     .pm-withheld, .pm-withheld-btn, .pm-withheld-btn .pm-count,
+     .pm-withheld-btn .pm-caret, .pm-withheld-btn[aria-expanded="true"] .pm-caret,
+     .pm-withheld-body, .pm-withheld-body.open, .pm-withheld-body ul,
+     .pm-withheld-body li, .pm-withheld-body li::before, .pm-withheld-note,
+     @media (prefers-reduced-motion: reduce)
 
-python3 -m py_compile build_day46.py parlay_rules.py backtest/backfill_grades.py backtest/calibration.py grade_results.py tools/test_parlay_rules.py
-exit 0
+  sections removed : conviction, matchup-spotlight, skip, sp-vuln-board
+  sections added   : none
 ```
 
-Additional generated parlay invariant check:
+**Zero of main's 13 projected CSS rules were removed, and all 13 are present
+verbatim.** Exactly one — `.projected-mode-banner` — had its declarations
+changed, and that change *is* the header fix. Every rendered value is identical:
+all 358 data rows, all 2,917 cells.
+
+No palette, card system, spine, hatch or search dock came across from the
+scrapped branch.
+
+### (h) Light and dark
+
+The five new components, measured against composited backgrounds:
+
 ```text
-parlay legs 15
-2B/SB parlay legs []
-HR anchor legs []
-same-player violations []
-pitcher-side duplicate violations []
+                          dark   light   AA
+withheld row              14.7    14.7   pass
+count chip                10.6    10.6   pass
+board name                14.0    14.0   pass
+disclosure note           13.7    13.7   pass
+caret                     13.7    13.7   pass
 ```
+
+Identical in both themes, because the disclosure sits on the banner's own
+gradient, which is theme-independent — the same reason the banner text itself
+reads at 18.1 in both.
+
+**Flagged, not fixed — a pre-existing defect in main's projected skin:**
+
+```text
+— brand wordmark —        16.5     1.1   FAIL
+— hero h1 —               16.5     1.1   FAIL
+— games chip —             9.8     1.4   FAIL
+— table cell —            15.7     1.0   FAIL
+```
+
+In light mode main's `.projected-mode` block hard-codes dark surfaces at
+specificity (0,1,0), so it also wins under `[data-theme="light"]` while text
+stays near-black. Table cells sit at **1.0:1 — invisible** — on the page you
+read in daylight. It is visible in `withheld-open-light.png` ("THE DAILY"
+almost disappears).
+
+I did **not** fix it: the brief says port only the two items and leave
+everything else about main's look exactly as it is, and this would be a third
+change. Flagging it so it is your call, not silently absorbed. It is a small
+fix (scope the light values at `[data-theme="light"] .projected-mode`) whenever
+you want it.
+
+### (i) Preview file rebuilt and self-contained
+
+`docs/preview/projected.html` — 250,693 bytes, committed with its own assets.
+
+```text
+  <script src=...>          : NONE
+  inline <style> / <script> : 1 / 2
+  games 15 | data rows 358
+  banner: True | dropdown: True | projected-unavailable sections left: 0
+  unresolved refs: k-report.html, record.html, scout.html, streaks.html  (sibling pages)
+```
+
+Loaded from its committed path with **networking disabled entirely**:
+
+```text
+OFFLINE LOAD: {"games":15,"rows":358,"banner":true,"dropdown":true,"count":"4","broken":[]}
+dropdown expands -> ["Matchup Spotlight","Pitcher's HR Risk Board",
+                     "Conviction Board","Daily Skip List"]
+dock search "Aaron Judge": {"count":"1 match on the slate","visible":1,"allMatch":true}
+after clear, filtering: False
+page errors: none
+```
+
+Real Jul 26 slate — 15 games, 358 data rows, real players, no placeholders and
+no invented values. Renders standalone, the dropdown works, the page's existing
+dock search still works, zero broken images, zero page errors. The only request
+the browser attempts is the Google Fonts stylesheet `index.html` already carries
+on main.
+
+### (j) ast.parse and py_compile
+
+```text
+  ast.parse(sync.py) OK -- 19,152 bytes, 489 lines
+  py_compile sync.py OK
+  curly quotes: none
+  PROJECTED_CSS f-string: False | PROJECTED_JS f-string: False
+  guard before CSS inject : True
+  guard before JS inject  : True
+  guard before card strip : True
+```
+
+AGENTS.md rules 3 and 5 hold — straight quotes only, and both injected blocks
+are plain triple-quoted strings, so their single braces cannot crash the build.
+
+---
+
+## 4. SCREENSHOTS
+
+390 × 844, mobile emulation, in `docs/projected-header-withheld/`.
+
+| file | what |
+|---|---|
+| `before-safearea-dark.png` | main today, 59px inset — text under the status bar, 69px dead gap |
+| `after-safearea-dark.png` | fixed — text clears the bar, gap closed |
+| `after-safearea-light.png` | same, light |
+| `top-dark.png` / `top-light.png` | top of page, disclosure collapsed |
+| `withheld-open-dark.png` / `withheld-open-light.png` | disclosure expanded, naming the four boards |
+
+---
+
+## 5. NOTES
+
+- **Withheld count is 4, not 6** — see section 1. The two "No qualifying
+  correlation stack" cards belong to Chapter I's parlay boards and are a
+  different statement; they were left alone.
+- **The dead gap was the app bar's safe-area reserve**, not a margin — diagnosed
+  by measurement before any change was made.
+- **Main's light mode is broken independently of this work** — measured and
+  flagged in (h), deliberately not fixed, since it is outside the two items.
+- **Fonts:** the brief again asks for Rajdhani, which is not loaded; adding it
+  would break "no new fonts". No font declarations were added at all this pass —
+  the disclosure inherits the page's existing stack.
+- Nothing merged. Draft PR only.

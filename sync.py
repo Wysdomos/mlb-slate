@@ -239,12 +239,157 @@ PROJECTED_CSS = '''
   margin: 6px 0 0;
   color: var(--text-soft);
 }
+/* ---------------------------------------------------------------------------
+   HEADER FIX (Projected Mode only)
+
+   (a) Safe-area collision. The banner is the first element on the page, so it
+       -- not the app bar -- is what sits under the iOS status bar. It had no
+       top inset, so "PROJECTED MODE" rendered over the clock and battery.
+       Measured at 390px with a 59px inset: banner text began at y=13.
+
+   (b) Dead gap. The app bar carries padding-top: env(safe-area-inset-top) so
+       its wordmark clears the notch once the bar sticks to the top. At scroll
+       0 the bar is NOT stuck -- the banner is above it -- so that reserve
+       renders as a blank band. Measured gap from banner bottom to wordmark: 69px.
+
+       Fix without touching the app bar or adding JS: let the banner overlap
+       the bar's reserve. The reserve is empty by definition, so nothing is
+       occluded, the gap closes to zero, and the reserve still does its job the
+       instant the bar pins to the top and the banner has scrolled away.
+   --------------------------------------------------------------------------- */
+.projected-mode-banner {
+  position: relative;
+  z-index: 61;                 /* paints over the app bar's empty inset reserve */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 13px);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 18px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 18px);
+  margin-bottom: calc(-1 * env(safe-area-inset-top, 0px));
+}
+
+/* ---------------------------------------------------------------------------
+   WITHHELD BOARDS DISCLOSURE
+   Replaces the per-section "unavailable" placeholder cards with one aggregate
+   row. The count is always on screen and the names are one tap away -- between
+   this and the banner, a projected page can never pass as a graded slate.
+   Styled with main's projected tokens: cyan on slate, 8px radii.
+   --------------------------------------------------------------------------- */
+.pm-withheld {
+  margin-top: 11px;
+  border: 1px solid rgba(125,211,252,0.3);
+  border-radius: 8px;
+  background: rgba(8,145,178,0.18);
+  overflow: hidden;
+}
+.pm-withheld-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  background: none;
+  border: 0;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+.pm-withheld-btn .pm-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: #67e8f9;
+  color: #06283a;
+  font-size: 13px;
+  font-weight: 900;
+}
+.pm-withheld-btn .pm-caret {
+  margin-left: auto;
+  font-size: 11px;
+  color: #cffafe;
+  transition: transform .25s;
+}
+.pm-withheld-btn[aria-expanded="true"] .pm-caret { transform: rotate(180deg); }
+.pm-withheld-body { display: none; padding: 0 12px 11px; }
+.pm-withheld-body.open { display: block; }
+.pm-withheld-body ul { margin: 0; padding: 0; list-style: none; }
+.pm-withheld-body li {
+  position: relative;
+  padding: 7px 0 7px 14px;
+  border-top: 1px solid rgba(125,211,252,0.22);
+  color: #f1f5f9;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.pm-withheld-body li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 14px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #67e8f9;
+}
+.pm-withheld-note {
+  margin: 9px 0 0;
+  color: #cffafe;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm-withheld-btn .pm-caret { transition: none; }
+}
 /* PROJECTED MODE CSS END */
 '''
+
+PROJECTED_JS = '''
+<!-- PROJECTED JS START -->
+<script>
+/* Withheld-boards disclosure. Vanilla, no dependencies, no network. */
+(function () {
+  function wire() {
+    var btn = document.getElementById('pmWithheldBtn');
+    if (!btn) return;
+    var body = document.getElementById('pmWithheldBody');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      if (body) body.classList.toggle('open', !open);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+<!-- PROJECTED JS END -->
+'''
+
 
 def apply_projected_theme(html):
     html = re.sub(
         r'\n?/\* PROJECTED MODE CSS START \*/[\s\S]*?/\* PROJECTED MODE CSS END \*/\n?',
+        '\n',
+        html,
+    )
+    html = re.sub(
+        r'\n?<!-- PROJECTED CHROME START -->[\s\S]*?<!-- PROJECTED CHROME END -->\s*',
+        '\n',
+        html,
+    )
+    html = re.sub(
+        r'\n?<!-- PROJECTED JS START -->[\s\S]*?<!-- PROJECTED JS END -->\n?',
         '\n',
         html,
     )
@@ -256,14 +401,60 @@ def apply_projected_theme(html):
     html = re.sub(r'<body(?: class="[^"]*")?>', '<body class="projected-mode">', html, count=1)
     html = html.replace('Alignment — Sweet Spot Tier Logic', 'Projected Mode Alignment')
     html = html.replace('Tap to expand - tier thresholds + ' + f'{month_short} {day_of_mo} park notes', 'Tap to expand - reconstructed board boundaries')
+
+    # -- Pull the workbook-only placeholder sections out of the page, keeping
+    #    their names for the aggregate disclosure. Only sections marked
+    #    `projected-unavailable` are removed: those are the boards that cannot
+    #    be reconstructed without the workbook. Boards that ran and simply had
+    #    no qualifying output (the correlation parlay boards' "No qualifying
+    #    correlation stack" cards) are a different statement and are left alone
+    #    -- folding them in here would report a working board as missing.
+    withheld = []
+
+    def _drop(m):
+        title = re.search(r'<div class="game-title">([^<]*)</div>', m.group(0))
+        if title:
+            withheld.append(title.group(1).strip())
+        return ''
+
+    html = re.sub(
+        r'(?:<!-- PROJECTED UNAVAILABLE -->\s*)?'
+        r'<section id="[a-z0-9-]+" class="collapsible projected-unavailable">[\s\S]*?</section>\s*',
+        _drop,
+        html,
+    )
+    print(f"  Projected: {len(withheld)} withheld board(s) -> one disclosure")
+
+    items = ''.join('<li>%s</li>' % name for name in withheld)
+    n = len(withheld)
+    disclosure = (
+        '<div class="pm-withheld">'
+        '<button type="button" class="pm-withheld-btn" id="pmWithheldBtn"'
+        ' aria-expanded="false" aria-controls="pmWithheldBody">'
+        f'<span class="pm-count">{n}</span>'
+        f'<span>{"board" if n == 1 else "boards"} withheld today</span>'
+        '<span class="pm-caret" aria-hidden="true">&#9662;</span>'
+        '</button>'
+        '<div class="pm-withheld-body" id="pmWithheldBody">'
+        f'<ul>{items}</ul>'
+        '<p class="pm-withheld-note">These need the workbook. They are held back '
+        'rather than estimated.</p>'
+        '</div>'
+        '</div>'
+    ) if n else ''
+
     banner = (
+        '<!-- PROJECTED CHROME START -->'
         '<div class="projected-mode-banner">'
         '⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. '
         'Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.'
         '<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small>'
-        '</div>\n'
+        + disclosure +
+        '</div>'
+        '<!-- PROJECTED CHROME END -->\n'
     )
-    return re.sub(r'(<body class="projected-mode">\s*)', r'\1' + banner, html, count=1)
+    html = html.replace('<body class="projected-mode">', '<body class="projected-mode">' + banner, 1)
+    return html.replace('</body>', PROJECTED_JS + '\n</body>', 1)
 
 SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
