@@ -264,6 +264,15 @@ for sp in slate_pitchers:
 # Fires ONLY when ODDS_API_KEY is set. Must never kill the build: any failure
 # here is logged and we proceed with whatever balldontlie matched above.
 ODDS_META = None
+EXTRA_ODDS_META = None
+prev_entries = {}
+if os.path.exists(K_PROPS_FILE):
+    try:
+        _prev = json.load(open(K_PROPS_FILE, encoding='utf-8'))
+        if isinstance(_prev, dict) and (_prev.get('_meta') or {}).get('date') == DATE_STR:
+            prev_entries = _prev
+    except Exception:
+        prev_entries = {}
 if unmatched and not ODDS_API_KEY:
     print(f"  (no ODDS_API_KEY set -- {len(unmatched)} pitcher(s) stay line-less; "
           "add the ODDS_API_KEY secret to enable The Odds API fallback)")
@@ -273,15 +282,6 @@ elif unmatched and ODDS_API_KEY:
 
         # Same-day reuse: only trust prior fallback entries written for THIS
         # slate date (the committed file is otherwise yesterday's slate).
-        prev_entries = {}
-        if os.path.exists(K_PROPS_FILE):
-            try:
-                _prev = json.load(open(K_PROPS_FILE, encoding='utf-8'))
-                if isinstance(_prev, dict) and (_prev.get('_meta') or {}).get('date') == DATE_STR:
-                    prev_entries = _prev
-            except Exception:
-                prev_entries = {}
-
         team_of = {}
         for r in DATA.get('SP_Projections', []):
             _nm = (r.get('Pitcher') or '').strip()
@@ -310,6 +310,58 @@ elif unmatched and ODDS_API_KEY:
     except Exception as e:
         print(f"  \u26a0 Odds API fallback failed ({e}) -- continuing with balldontlie data only")
 
+if ODDS_API_KEY:
+    try:
+        import fetch_odds_api
+
+        pitcher_team_of = {}
+        for r in DATA.get('SP_Projections', []):
+            _nm = (r.get('Pitcher') or '').strip()
+            _tm = (r.get('Team') or '').strip().upper()
+            if _nm and _tm:
+                pitcher_team_of[_nm] = _tm
+
+        batter_names = []
+        team_of = dict(pitcher_team_of)
+        for r in DATA.get('BP_Batters', []):
+            _nm = (r.get('FullName') or '').strip()
+            _tm = (r.get('Team') or '').strip().upper()
+            if _nm:
+                batter_names.append(_nm)
+                if _tm:
+                    team_of[_nm] = _tm
+
+        needs_by_market = {
+            'pitcher_hits_allowed': slate_pitchers,
+            'pitcher_outs': slate_pitchers,
+            'batter_total_bases': batter_names,
+        }
+        print("\nFetching Chapter H Odds API main lines "
+              "(pitcher_hits_allowed, pitcher_outs, batter_total_bases)...")
+        _extra_filled, EXTRA_ODDS_META = fetch_odds_api.fill_market_lines(
+            api_key=ODDS_API_KEY,
+            date_str=DATE_STR,
+            needs_by_market=needs_by_market,
+            norm=norm,
+            vendor_priority=VENDOR_PRIORITY,
+            team_of=team_of,
+            prev_entries=prev_entries,
+        )
+        for _lname, _entry in _extra_filled.get('pitcher_hits_allowed', {}).items():
+            k_props.setdefault(_lname, {})['hits_allowed'] = _entry
+        for _lname, _entry in _extra_filled.get('pitcher_outs', {}).items():
+            k_props.setdefault(_lname, {})['outs'] = _entry
+        if _extra_filled.get('batter_total_bases'):
+            tb = k_props.setdefault('_batter_total_bases', {})
+            for _lname, _entry in _extra_filled['batter_total_bases'].items():
+                tb[_lname] = _entry
+        print(f"  Odds API Chapter H request count: "
+              f"{EXTRA_ODDS_META.get('request_count_this_run', 0)}")
+    except Exception as e:
+        print(f"  \u26a0 Chapter H Odds API main-line fetch failed ({e}) -- continuing without those lines")
+else:
+    print("\nOdds API Chapter H request count: 0 (no ODDS_API_KEY set)")
+
 if not k_props and not prop_by_player:
     raise SystemExit(
         "\n\n==================== BUILD STOPPED ====================\n"
@@ -319,8 +371,14 @@ if not k_props and not prop_by_player:
         "=======================================================\n"
     )
 
+meta = {'date': DATE_STR}
 if ODDS_META:
-    k_props['_meta'] = ODDS_META
+    meta.update(ODDS_META)
+if EXTRA_ODDS_META:
+    meta['chapter_h_markets'] = EXTRA_ODDS_META
+    meta['oddsapi_extra_market_request_count'] = EXTRA_ODDS_META.get('request_count_this_run', 0)
+if meta:
+    k_props['_meta'] = meta
 
 with open(K_PROPS_FILE, 'w', encoding='utf-8') as f:
     json.dump(k_props, f, ensure_ascii=False, indent=1)
