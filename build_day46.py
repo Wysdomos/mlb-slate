@@ -1716,152 +1716,51 @@ def build_dfs_board():
 </section>
 '''
 
-# ---- BUILD: COMBOS K ----
+# ---- BUILD: CORRELATION PARLAY BOARDS ----
+def empty_parlay_section(sec_id, title, tag, message):
+    return f'''<!-- PARLAY EMPTY -->
+<section id="{sec_id}" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">{tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <div class="unavailable-card">
+      <strong>No qualifying correlation stack</strong>
+      <p>{message}</p>
+    </div>
+  </div></div>
+</section>
+'''
+
 def build_combos_k():
-    """8 K-only combos in Day 44 flag-row format. Slate-specific Day 46 content."""
-    rows = [
-        ('1⃣', '<strong>Skenes O 5+ K + Wheeler O 5+ K</strong> — <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL V14, PNC -20% HR irrelevant for Ks) + <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS Fenway, HR-suppressed favors strike-throwing). Different games (Game 6 + Game 5). Slate-best T0 K pair.', 'b-tier0', '2-leg T0'),
-        ('2⃣', '<strong>Warren O 5+ K + Peralta O 5+ K</strong> — <strong>Will Warren</strong> O 5+ K (SS 5.8 NYY @ BAL Camden -15%) + <strong>Freddy Peralta</strong> O 5+ K (SS 5.7 NYM vs DET, Citi -14% HR). Different games. T0 K combo.', 'b-tier0', '2-leg T0'),
-        ('3⃣', '<strong>Skenes O 5+ K + Wheeler O 5+ K + Warren O 5+ K</strong> — 3-leg T0 K monster. Skenes 6.9 / Wheeler 6.6 / Warren 5.8. All different games. Slate’s only three SS ≥5.8 K plays.', 'b-tier0', '3-leg T0 stack'),
-        ('4⃣', '<strong>Yamamoto O 5+ K + Flaherty O 5+ K</strong> — <strong>Yoshinobu Yamamoto</strong> O 5+ K (SS 5.7 LAD vs SF, BB 1.3 elite control) + <strong>Jack Flaherty</strong> O 5+ K (SS 5.5 DET @ NYM, HR/9 0.79 watch). Different games. T1 alt-K combo.', 'b-tier1', '2-leg T1 alt-K'),
-        ('5⃣', '<strong>Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Brandon Sproat</strong> O 5+ K (SS 5.3 MIL vs SD) + <strong>Bryan Woo</strong> O 5+ K (SS 5.0 SEA @ HOU, BB 1.3). Different games. Floor-of-5 plays.', 'b-tier1', '2-leg T1 alt-K'),
-        ('6⃣', '<strong>Gore O 3.5 K + Lorenzen O 2.5 K</strong> — <strong>MacKenzie Gore</strong> O 3.5 K (SS 4.9 TEX vs ARI) + <strong>Michael Lorenzen</strong> O 2.5 K (SS 4.3 PIT host, V60 trap — fade for Ks but volume floor). Different games. Safe low-alt stack.', 'b-warn', '2-leg O 3.5/2.5'),
-        ('7⃣', '<strong>Skenes O 5+ K + Yamamoto O 5+ K + Peralta O 5+ K</strong> — Skenes / Yamamoto / Peralta all 5.7+ K projections. Three different games (PIT / LAD / NYM). High-floor 3-leg T1 K stack.', 'b-tier1', '3-leg cross-game'),
-        ('8⃣', '<strong>Pérez O 5+ K + Sproat O 5+ K + Woo O 5+ K</strong> — <strong>Eury Pérez</strong> O 5+ K (SS 5.3, HR/9 1.02 caveat) + Sproat 5.3 + Woo 5.0. Three different games. T1 K saturation at the floor-of-5 tier.', 'b-tier1', '3-leg T1 floor'),
-    ]
-    blocks = []
-    for icon, body, badge_cls, badge_text in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} <span class="badge {badge_cls}">{badge_text}</span></div></div>')
-    return f'''<!-- COMBOS K -->
-<section id="combos-k" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">⚡ Alt K Combos</div>
-      <span class="game-tag">Tap to expand · K-only combos · alts ≤5 per user rule</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">K-only combo cards. <strong>Every leg is a strikeout prop.</strong> Alt rule: proj ≥5.0 → O5+; 4.5–4.99 → O3.5; &lt;4.5 → O2.5. <strong>Never alt &gt;5.</strong> Same player max 2 legs.</p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    return empty_parlay_section(
+        'combos-k',
+        'Strikeout Stack',
+        'No qualifying K plus outs correlation yet',
+        'This board only renders pitchers with at least four K lenses, tier 0-1 status, and an available outs-recorded leg.',
+    )
 
 
-# ---- BUILD: COMBOS HRR ----
 def build_combos_hrr():
-    """8 HRR-only combos in Day 44 flag-row format. Day 46 slate-specific."""
-    rows = [
-        ('1⃣', '<strong>Elly De La Cruz Ov 0.5 HRR + Sal Stewart Ov 0.5 HRR</strong> — CIN top of order vs <strong>Mikolas V76</strong> (slate-worst). GABP <strong>+8% HR / +3% Runs</strong>. DLC #1 HR Board (Score 92, ⚡7) + Stewart #2 (87, ⚡7). Same-game CIN stack.', 'b-tier0', '2-leg CIN stack'),
-        ('2⃣', '<strong>James Wood Ov 0.5 HRR + CJ Abrams Ov 0.5 HRR</strong> — WSH top of order vs <strong>Brady Singer V70</strong>. Wood #4 HR Board (Score 85, ⚡8) + Abrams #5 (82, ⚡5). Both LHB hammering RHP. Same-game WSH stack.', 'b-tier0', '2-leg WSH stack'),
-        ('3⃣', '<strong>Elly De La Cruz + Sal Stewart + Spencer Steer Ov 0.5 HRR</strong> — CIN trio vs Mikolas V76. Top 3 of HR Board (DLC 92, Stewart 87, Steer 87). Saturation same-game stack at GABP +8%.', 'b-tier0', '3-leg CIN stack'),
-        ('4⃣', '<strong>Brent Rooker + Tyler Soderstrom + Shea Langeliers Ov 0.5 HRR</strong> — ATH trio at <strong>Sutter Health Park +29% HR / +18% Runs (slate volcano)</strong> vs Pallante V28. Top hit-board names with massive HR upside (Rooker 22.92% HR, Soderstrom 20.73%, Langeliers 24.76%).', 'b-tier0', '3-leg ATH volcano'),
-        ('5⃣', '<strong>De La Cruz + Wood Ov 0.5 HRR</strong> — #1 and #4 HR Board names — cross-game stack of slate’s two highest scores. DLC vs Mikolas (V76) + Wood vs Singer (V70). Two different games. Floor-y double anchor.', 'b-tier0', '2-leg cross-game'),
-        ('6⃣', '<strong>Max Muncy + Andy Pages Ov 0.5 HRR</strong> — LAD vs Adrian Houser at <strong>Dodger Stadium +8% HR</strong>. Muncy #8 (Score 78, ⚡7) + Pages #12 (73, ⚡7). Same-game LAD stack.', 'b-tier1', '2-leg LAD stack'),
-        ('7⃣', '<strong>Trout + Soler Ov 0.5 HRR</strong> — LAA top vs Slade Cecconi V56. Trout #7 HR Board (78, ⚡7) + Soler #10 (75, ⚡5). Same-game LAA pair on a vulnerable RHP — progressive field still neutral.', 'b-tier1', '2-leg LAA stack'),
-        ('8⃣', '<strong>Stewart + DLC + Wood + Abrams Ov 0.5 HRR</strong> — 4-leg saturation across CIN (vs Mikolas V76 / GABP +8%) and WSH (vs Singer V70). The Day 46 HRR Mt. Rushmore — #1, #2, #4, #5 of HR Board.', 'b-tier1', '4-leg 2-stack'),
-    ]
-    blocks = []
-    for icon, body, badge_cls, badge_text in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body} <span class="badge {badge_cls}">{badge_text}</span></div></div>')
-    return f'''<!-- COMBOS HRR -->
-<section id="combos-hrr" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">🎯 H+R+RBI Combos</div>
-      <span class="game-tag">Tap to expand · HRR-only combos · every leg is an Ov 0.5 H+R+RBI</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">H+R+RBI-only combos. <strong>Every leg is an Ov 0.5 HRR.</strong> Sourced from BP HRR proxy on the Hits Board, cross-referenced to HR Board and park factors.</p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    return empty_parlay_section(
+        'combos-hrr',
+        'Traffic Stack',
+        'No qualifying lineup traffic stack yet',
+        'This board only renders HRR stacks with positive park run context and a matching pitcher vulnerability reason.',
+    )
 
 
-# ---- BUILD: PARLAY ANCHORS ----
 def build_parlays():
-    """10 anchors in Day 44 flag-row format with custom emoji icons + multi-line legs + game times. Day 46 slate-specific."""
-    rows = [
-        ('🏆',
-         '<strong>4-Leg HR Parlay: Elly DLC + Stewart + Wood + Muncy</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, <strong>GABP +8%</strong>, Score 92 ⚡7) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> HR (CIN vs Mikolas V76, GABP +8%, Score 87 ⚡7) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>James Wood</strong> HR (WSH vs Singer V70, Score 85 ⚡8) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>Max Muncy</strong> HR (LAD vs Houser, <strong>LAD +8% HR</strong>, Score 78 ⚡7) — Game 10 SF@LAD (10:10 ET)'
-         '<br><em>Two-game saturation — WAS@CIN slate-worst SP (V76) + LAD park boost. Day 46 HR mountain.</em>'),
-        ('☄️',
-         '<strong>4-Leg Hits Parlay: Wilson + Stewart + DLC + McNeil</strong>'
-         '<br>Leg 1: <strong>Jacob Wilson</strong> 1+H 71.3% (ATH vs Pallante V28, <strong>Sutter +29% HR / +18% Runs</strong>) — Game 1 STL@ATH (9:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> 1+H 68.9% (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>Elly De La Cruz</strong> 1+H 68.2% (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>Jeff McNeil</strong> 1+H 67.4% (ATH vs Pallante V28, Sutter +29%) — Game 1 STL@ATH (9:40 ET)'
-         '<br><em>4 of top-5 1+H% rates on slate at the two best parks (Sutter +29% HR + GABP +8%).</em>'),
-        ('🔥',
-         '<strong>4-Leg HRR Parlay: DLC + Stewart + Wood + Abrams Ov 0.5 HRR</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> Ov 0.5 HRR (CIN vs Mikolas V76, <strong>GABP +8%</strong>) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Sal Stewart</strong> Ov 0.5 HRR (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>James Wood</strong> Ov 0.5 HRR (WSH vs Singer V70) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 4: <strong>CJ Abrams</strong> Ov 0.5 HRR (WSH vs Singer V70) — Game 3 WAS@CIN (6:40 ET)'
-         '<br><em>Single-game double-stack — both teams’ SPs are top-2 most vulnerable on slate. Top 4 of HR Board rolled into HRR ladder.</em>'),
-        ('⚡',
-         '<strong>2-Leg HR Parlay #1: DLC + Wood</strong>'
-         '<br>Leg 1: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, <strong>GABP +8%</strong>, Score 92) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>James Wood</strong> HR (WSH vs Singer V70, Score 85 ⚡8) — Game 3 WAS@CIN (6:40 ET)'
-         '<br><em>Same-game opposite-dugout HR stack. The two most vulnerable SPs are facing each other. Highest-scoring HR pair on slate.</em>'),
-        ('💥',
-         '<strong>2-Leg HR Parlay #2: Stewart + Muncy</strong>'
-         '<br>Leg 1: <strong>Sal Stewart</strong> HR (CIN vs Mikolas V76, GABP +8%, Score 87) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 2: <strong>Max Muncy</strong> HR (LAD vs Houser, <strong>LAD +8% HR</strong>, Score 78 ⚡7) — Game 10 SF@LAD (10:10 ET)'
-         '<br><em>Different games. Both at slate’s only two HR-friendly parks (GABP + LAD, both +8% HR).</em>'),
-        ('🎯',
-         '<strong>4-Leg Alt K Parlay: Skenes + Wheeler + Warren + Peralta</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS) — Game 5 PHI@BOS (6:45 ET)'
-         '<br>Leg 3: <strong>Will Warren</strong> O 5+ K (SS 5.8 NYY @ BAL) — Game 8 NYY@BAL (6:35 ET)'
-         '<br>Leg 4: <strong>Freddy Peralta</strong> O 5+ K (SS 5.7 NYM vs DET) — Game 9 DET@NYM (7:10 ET)'
-         '<br><em>4 different games. All proj ≥5.0 → O5+ alt per user rule. Never alt &gt;5.</em>'),
-        ('⚾',
-         '<strong>2-Leg Alt K Combo: Skenes + Wheeler O 5+</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL, K9 elite) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Zack Wheeler</strong> O 5+ K (SS 6.6 @ BOS Fenway) — Game 5 PHI@BOS (6:45 ET)'
-         '<br><em>Different games. Day 46 slate-best K pair — both projections clear 6.5.</em>'),
-        ('🥶',
-         '<strong>NRFI Anchor: DET@NYM NRFI</strong>'
-         '<br>Leg 1: <strong>DET @ NYM NRFI</strong> — Flaherty (SS 5.5) + Peralta (SS 5.7) both K-friendly at <strong>Citi -14% HR / -15% Runs (slate-worst run park)</strong>. — Game 9 DET@NYM (7:10 ET)'
-         '<br><em>Single-leg conviction NRFI play — worst run-scoring environment on slate.</em>'),
-        ('📈',
-         '<strong>Free Conviction Pick: STL@ATH OVER (Sutter volcano)</strong>'
-         '<br>Leg 1: <strong>STL @ ATH OVER</strong> — <strong>Sutter Health Park +29% HR / +18% Runs (slate-best both)</strong>. Pallante V28 + Springs V21. Best run/HR environment on slate. — Game 1 (9:40 ET)'
-         '<br><em>Conviction total. The slate’s only +25% HR park is also the slate’s only +15% Runs park.</em>'),
-        ('🔥',
-         '<strong>3-Leg Value: Skenes O 5+ K + DLC HR + Wilson 1+H</strong>'
-         '<br>Leg 1: <strong>Paul Skenes</strong> O 5+ K (SS 6.9 vs COL) — Game 7 COL@PIT (6:40 ET)'
-         '<br>Leg 2: <strong>Elly De La Cruz</strong> HR (CIN vs Mikolas V76, GABP +8%) — Game 3 WAS@CIN (6:40 ET)'
-         '<br>Leg 3: <strong>Jacob Wilson</strong> 1+H 71.3% (ATH vs Pallante, <strong>Sutter +29%</strong>) — Game 1 STL@ATH (9:40 ET)'
-         '<br><em>3 different games. K + HR + Hit mix. Each leg at a park-boosted or slate-best environment.</em>'),
-    ]
-    blocks = []
-    for icon, body in rows:
-        blocks.append(f'  <div class="flag-row"><div class="icon">{icon}</div><div>{body}</div></div>')
-    return f'''<!-- PARLAYS -->
-<section id="parlays" class="collapsible">
-  <button class="game-header" aria-expanded="false">
-    <div class="game-header-text">
-      <div class="game-title">💣 Parlay Anchors</div>
-      <span class="game-tag">Tap to expand · 10 anchors · T0 legs · max 2× same player · alts ≤5 per parlay</span>
-    </div>
-    <span class="chevron">▾</span>
-  </button>
-  <div class="game-body"><div class="game-body-inner">
-  <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Rules: Anchor = T0 play. Min 2 different games. Same player max 2 legs. Alts ≤5 total per parlay. <strong>Never alt &gt;5.</strong></p>
-{chr(10).join(blocks)}
-  </div></div>
-</section>
-'''
+    return empty_parlay_section(
+        'parlays',
+        'Anchor',
+        'No qualifying K anchor yet',
+        'This board requires one tier-0 K anchor with at least five lenses and correlated same-game or vulnerable-pitcher satellites.',
+    )
 
 
 # ---- BUILD: CONVICTION BOARD ----
@@ -2009,19 +1908,9 @@ if PROJECTED_MODE:
         'sb-board':          with_projected_badge(build_sb_board(), "Stolen-base board rebuilt from live projection probabilities."),
         'doubles-board':     with_projected_badge(build_doubles_board(), "Extra-base board rebuilt from live doubles and park context."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
-        'combos-k':          with_projected_badge(build_combos_k(), "K combos rebuilt from projected starter rows."),
-        'combos-hrr':        projected_unavailable_section(
-            'combos-hrr',
-            'HRR Combos',
-            'Unavailable without workbook',
-            'The HRR combo board depends on full Sweet Spot and Dimers workbook context.',
-        ),
-        'parlays':           projected_unavailable_section(
-            'parlays',
-            'Parlay Builder',
-            'Unavailable without workbook',
-            'The full parlay builder is withheld in Projected Mode because several workbook-only signals are missing.',
-        ),
+        'combos-k':          build_combos_k(),
+        'combos-hrr':        build_combos_hrr(),
+        'parlays':           build_parlays(),
         'conviction':        projected_unavailable_section(
             'conviction',
             'Conviction Board',
