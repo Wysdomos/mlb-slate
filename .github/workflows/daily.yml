@@ -5,6 +5,7 @@ on:
     paths:
       - '**.xlsx'
   schedule:
+    - cron: '0 7 * * *'    # 3:00 AM ET - early build
     - cron: '30 10 * * *'   # 6:30 AM ET  - morning build
     - cron: '0 15 * * *'    # 11:00 AM ET - mid-morning line posts
     - cron: '0 20 * * *'    # 4:00 PM ET  - late lines + confirmed lineups
@@ -115,13 +116,24 @@ jobs:
       - name: Sync to HTML
         run: python3 sync.py
 
+      - name: Guard projected publish
+        id: projected_publish_guard
+        env:
+          DATA_FILE: day_data.json
+          PROJECTED_MIN_HR: '50'
+          PROJECTED_MIN_HITS: '50'
+        run: python3 tools/projected_publish_guard.py
+
       - name: Fetch compliance baseline
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
         run: git fetch origin +main:refs/remotes/origin/main
 
       - name: BPP public-output compliance
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
         run: python3 tools/check_bpp_compliance.py --base origin/main
 
       - name: Commit and push
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

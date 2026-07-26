@@ -1,17 +1,191 @@
 # SESSION STATUS - 2026-07-25 - Codex
 
-## 0. ARCHITECT REVIEW FIXES - 2026-07-25
-- Restored `slate_picks.json`, `slate_picks_7-24.json`, and `slate_picks_7-25.json` to their `origin/main` tree state. The 2026-07-24 and 2026-07-25 historical slate-pick files are no longer modified by Chapter F.
-- Removed the raw-value rename for future generation. `build_day46.py` now emits `calibration_tier` as a derived label (`plus`, `lean-plus`, `neutral`, `lean-minus`, `minus`) instead of writing the raw BPP matchup integer under another key.
-- Added committed compliance test `tools/check_bpp_compliance.py` and CI workflow `.github/workflows/ci.yml`. The test is value-aware for `slate_picks*.json`: renaming the old raw `bpp_matchup_advantage` vector to another key fails even when the forbidden key name is gone.
-- Added the compliance check to the daily workflow after HTML sync and before committing generated public outputs.
-- Updated `daily.yml` so `Rebuild Projected Mode data` has `continue-on-error: true` and the same `ALLOW_PROJECTED_MODE: '1'` gate as the Find/Extract steps.
-- Because workflow edits must be applied by the repo owner through the GitHub web UI, use the final YAML in `.github/workflows/daily.yml` from this branch. The relevant final block is:
+## 1. WHAT I DID
+- Branch: `codex/chapter-g-early-build` from `origin/main` after Chapter F PR #21 was merged as `eb82870 Add Chapter F Projected Mode (#21)`.
+- Changed stale workbook handling in `extract_xlsx.py`:
+  - With `ALLOW_PROJECTED_MODE=1`, a stale newest workbook is left untouched and treated like an absent workbook.
+  - With the flag unset, existing hard-fail behavior and messages are unchanged.
+  - A same-day workbook still extracts normally.
+- Added `tools/projected_publish_guard.py` for non-degenerate Projected Mode publishing:
+  - Workbook-backed builds are never guarded.
+  - Projected builds log slate date, HR rows, Hits rows, and thresholds.
+  - Projected builds below `PROJECTED_MIN_HR` or `PROJECTED_MIN_HITS` set `SKIP_PROJECTED_PUBLISH=1` and exit 0.
+- Updated `.github/workflows/daily.yml`:
+  - Added `0 7 * * *` early cron for 3:00 AM ET.
+  - Inserted the publish guard after `sync.py`.
+  - Skips compliance and commit/push when the guard marks a thin Projected Mode run.
+
+## 2. INTENTIONAL REQUIREMENT REVERSAL
+- Chapter F required stale workbooks to hard-fail even with Projected Mode enabled.
+- Chapter G deliberately reverses that owner-approved requirement: stale workbooks are now treated as absent only when `ALLOW_PROJECTED_MODE=1`.
+- Commit message must say this is owner-approved.
+
+## 3. RAW VERIFICATION OUTPUT
+
+a. Stale workbook present, `ALLOW_PROJECTED_MODE=1` -> projected marker written, exit 0, stale file untouched:
+```text
+ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py --which
+allow which exit=0
+__PROJECTED_MODE__
+stale workbook dated 2026-07-24 ignored; entering Projected Mode for 2026-07-25
+
+ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py day_data.json
+allow extract exit=0
+stale workbook dated 2026-07-24 ignored; entering Projected Mode for 2026-07-25
+Done. 14 total rows -> day_data.json
+projected 2026-07-25 0 0
+
+shasum -a 256 /tmp/chapterg-stale-allow/MLB_Slate_7-24-26.xlsx
+b1987229e0b1ecd570e0d2598ab72e8ae897afc6292f896ca123fbe78b23ed56
+```
+
+b. Stale workbook present, flag unset -> exit 1, messages unchanged:
+```text
+python3 extract_xlsx.py --which
+unset which exit=1
+ERROR: newest available slate file is dated 2026-07-24 but today (ET) is 2026-07-25 -- no fresh upload found. Refusing to build a stale slate.
+
+python3 extract_xlsx.py day_data.json
+unset extract exit=1
+ERROR: slate file is dated 2026-07-24 but today (ET) is 2026-07-25 -- refusing stale workbook.
+```
+
+c. Today's workbook present -> HR and Hits section diffs empty vs `origin/main`:
+```text
+python3 extract_xlsx.py MLB_Slate_7-25-26.xlsx day_data.json
+HR_Leaderboard: 270 rows
+Hit_Probabilities: 258 rows
+Done. 1508 total rows -> day_data.json
+
+origin/main hr-board 25735
+origin/main oo5-board 18954
+chapter-g hr-board 25735
+chapter-g oo5-board 18954
+
+diff -u /tmp/chapterg-main-hr.html /tmp/chapterg-current-hr.html
+exit 0, empty
+
+diff -u /tmp/chapterg-main-hits.html /tmp/chapterg-current-hits.html
+exit 0, empty
+```
+
+d. Simulated thin reconstruction (`HR=4`) -> no commit, exit 0, counts logged:
+```text
+GITHUB_ENV=/tmp/chapterg-guard/thin.env GITHUB_OUTPUT=/tmp/chapterg-guard/thin.out DATA_FILE=/tmp/chapterg-guard/thin.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
+[projected-guard] slate_date=2026-07-25 hr_rows=4 hits_rows=60 min_hr=50 min_hits=50
+[projected-guard] skipping commit/push: Projected Mode reconstruction is below non-degenerate publish thresholds
+thin guard exit=0
+SKIP_PROJECTED_PUBLISH=1
+skip_publish=1
+thin simulated commit step: skipped, workflow remains success
+```
+
+e. Simulated full reconstruction -> commits normally:
+```text
+GITHUB_ENV=/tmp/chapterg-guard/full.env GITHUB_OUTPUT=/tmp/chapterg-guard/full.out DATA_FILE=/tmp/chapterg-guard/full.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
+[projected-guard] slate_date=2026-07-25 hr_rows=51 hits_rows=50 min_hr=50 min_hits=50
+[projected-guard] projected reconstruction meets publish thresholds
+full guard exit=0
+SKIP_PROJECTED_PUBLISH=0
+skip_publish=0
+full simulated commit step: would run normally
+
+GITHUB_ENV=/tmp/chapterg-guard/workbook.env GITHUB_OUTPUT=/tmp/chapterg-guard/workbook.out DATA_FILE=/tmp/chapterg-guard/workbook.json PROJECTED_MIN_HR=50 PROJECTED_MIN_HITS=50 python3 tools/projected_publish_guard.py
+[projected-guard] workbook-backed build; publish guard not applied
+workbook guard exit=0
+workbook simulated commit step: would run normally
+```
+
+f. Syntax and compliance:
+```text
+python3 - <<'PY'
+import ast
+from pathlib import Path
+for path in [
+    'extract_xlsx.py',
+    'fetch_projected_mode.py',
+    'build.py',
+    'build_day46.py',
+    'sync.py',
+    'tools/check_bpp_compliance.py',
+    'tools/projected_publish_guard.py',
+]:
+    ast.parse(Path(path).read_text(encoding='utf-8'), filename=path)
+    print(f'ast OK {path}')
+PY
+ast OK extract_xlsx.py
+ast OK fetch_projected_mode.py
+ast OK build.py
+ast OK build_day46.py
+ast OK sync.py
+ast OK tools/check_bpp_compliance.py
+ast OK tools/projected_publish_guard.py
+
+python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py tools/check_bpp_compliance.py tools/projected_publish_guard.py
+exit 0
+
+python3 tools/check_bpp_compliance.py --base origin/main
+BPP compliance OK (0 changed JSON/HTML files checked against eb82870cec59)
+```
+
+Projected Mode measurement logging:
+```text
+fetch_projected_mode.py already prints the BPP call count and reconstructed HR/Hits rows in Projected Mode:
+[projected] rebuilt <slate-date>: HR=<count>, Hits=<count>, Savant=<count> batters
+[projected] calls/run BPP=<count>, MLB=<count>; ...
+Projected Mode BPP API calls this run: <count>
+
+tools/projected_publish_guard.py additionally logs slate_date, hr_rows, hits_rows, and thresholds before any commit/push decision, including skip cases.
+```
+
+## 4. EXACT FINAL DAILY.YML
 
 ```yaml
+name: Daily MLB Slate Build
+
+on:
+  push:
+    paths:
+      - '**.xlsx'
+  schedule:
+    - cron: '0 7 * * *'    # 3:00 AM ET - early build
+    - cron: '30 10 * * *'   # 6:30 AM ET  - morning build
+    - cron: '0 15 * * *'    # 11:00 AM ET - mid-morning line posts
+    - cron: '0 20 * * *'    # 4:00 PM ET  - late lines + confirmed lineups
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Find slate file
+        env:
+          ALLOW_PROJECTED_MODE: '1'
+        run: |
+          XLSX=$(python3 extract_xlsx.py --which)
+          if [ -z "$XLSX" ]; then echo "No xlsx found" && exit 1; fi
+          echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
+          echo "Using newest slate by date: $XLSX"
+
+      - name: Extract slate data
+        env:
+          ALLOW_PROJECTED_MODE: '1'
+        run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
 
       - name: Rebuild Projected Mode data
         timeout-minutes: 8
@@ -23,162 +197,158 @@
           STREAKS_OUT: streaks_live.json
         run: python3 fetch_projected_mode.py
 
+      - name: Fetch BallparkPal tab overrides
+        timeout-minutes: 6
+        continue-on-error: true
+        env:
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+        run: python3 fetch_bpp_tabs.py
+
+      - name: Fetch real K lines
+        timeout-minutes: 4
+        continue-on-error: true
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          K_PROPS_FILE: k_props.json
+          DATA_FILE: day_data.json
+        run: python3 fetch_props.py
+
+      - name: Fetch Phase 2 metrics
+        timeout-minutes: 8
+        continue-on-error: true
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          K_SAVANT_FILE: k_savant_data.json
+          DATA_FILE: day_data.json
+          BDL_MIN_GAP: '0.1'
+        run: python3 fetch_phase2.py
+
+      - name: Fetch BallparkPal projections
+        timeout-minutes: 5
+        continue-on-error: true
+        env:
+          BPP_API_KEY: ${{ secrets.BPP_API_KEY }}
+          DATA_FILE: day_data.json
+        run: python3 fetch_bpp.py
+
+      - name: Fetch live streaks
+        timeout-minutes: 6
+        continue-on-error: true
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          STREAKS_OUT: streaks_live.json
+          STREAK_DAYS: '10'
+          BDL_MIN_GAP: '0.2'
+        run: python3 fetch_streaks.py
+
+      - name: Build slate
+        env:
+          DATA_FILE: day_data.json
+          SECTIONS_FILE: built_sections.json
+          K_REPORT_FILE: k-report.html
+          K_PROPS_FILE: k_props.json
+          K_SAVANT_FILE: k_savant_data.json
+          BPP_SUMMARY_FILE: bpp_summary.json
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+          STREAKS_OUT: streaks_live.json
+          STREAK_DAYS: '10'
+        run: python3 build.py
+
       - name: Sync to HTML
         run: python3 sync.py
 
+      - name: Guard projected publish
+        id: projected_publish_guard
+        env:
+          DATA_FILE: day_data.json
+          PROJECTED_MIN_HR: '50'
+          PROJECTED_MIN_HITS: '50'
+        run: python3 tools/projected_publish_guard.py
+
       - name: Fetch compliance baseline
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
         run: git fetch origin +main:refs/remotes/origin/main
 
       - name: BPP public-output compliance
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
         run: python3 tools/check_bpp_compliance.py --base origin/main
+
+      - name: Commit and push
+        if: steps.projected_publish_guard.outputs.skip_publish != '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "mrwwright9@gmail.com"
+          git config user.name "Wysdomos"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
+          git add index.html k-report.html streaks.html day_data.json built_sections.json
+          git add scout.html 2>/dev/null || true
+          git add streaks_live.json 2>/dev/null || true
+          git add slate_picks*.json 2>/dev/null || true
+          git add k_props.json 2>/dev/null || true
+          git add k_savant_data.json 2>/dev/null || true
+          git add bpp_summary.json 2>/dev/null || true
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update: $XLSX_FILE"
+            # Generated files (index.html etc.) can't be line-merged with a parallel build,
+            # so merge the remote keeping OUR freshly-built versions, and retry the push.
+            pushed=0
+            for i in 1 2 3 4 5; do
+              git fetch origin main || true
+              git merge -X ours --no-edit origin/main || git merge --abort || true
+              if git push origin main; then pushed=1; echo "pushed on attempt $i"; break; fi
+              echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
+            done
+            [ "$pushed" = 1 ] || { echo "push failed after retries"; exit 1; }
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Telegram alert on failure
+        if: failure()
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="🚨 Daily Slate FAILED: ${{ github.workflow }} — https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Notify Firebase Auto-Healer on Failure
+        if: failure()
+        run: |
+          PAYLOAD=$(printf '{"repository":"%s","run_id":"%s","sha":"%s"}' \
+            "${{ github.repository }}" \
+            "${{ github.run_id }}" \
+            "${{ github.sha }}")
+          SIG=$(printf '%s' "$PAYLOAD" | openssl dgst -sha256 \
+            -hmac "${{ secrets.WEBHOOK_SECRET }}" | awk '{print $2}')
+          HTTP=$(curl -s -o /tmp/heal_resp.txt -w '%{http_code}' \
+            -X POST "${{ secrets.FIREBASE_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -H "X-Hub-Signature-256: sha256=$SIG" \
+            -d "$PAYLOAD")
+          echo "healer responded HTTP $HTTP"
+          cat /tmp/heal_resp.txt || true
+          if [ "$HTTP" -lt 200 ] || [ "$HTTP" -ge 300 ]; then
+            curl -s -X POST \
+              "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+              -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+              --data-urlencode text="⚠️ Auto-healer webhook returned HTTP $HTTP — the safety net may be down."
+          fi
 ```
-
-Review-fix verification:
-```text
-python3 tools/check_bpp_compliance.py --base origin/main
-BPP compliance OK (0 changed JSON/HTML files checked against 7cf48ada4454)
-
-python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py tools/check_bpp_compliance.py
-exit 0
-
-negative compliance test: renaming bpp_matchup_advantage to calibration_signal in slate_picks_7-25.json
-BPP compliance check failed:
-  - slate_picks_7-25.json: `calibration_signal` is byte-for-byte the old raw BPP matchup vector
-```
-
-## 1. WHAT I DID
-- Branch: `codex/chapter-f-projected-mode` off current `origin/main`.
-- Added Projected Mode for cleanly absent workbook days, gated by `ALLOW_PROJECTED_MODE=1`.
-- Preserved stale-workbook hard failure: wrong-date workbook still exits 1.
-- Added `fetch_projected_mode.py` to rebuild missed-upload data from:
-  - BallparkPal live games, park factors, matchups, projection averages, and projection probabilities.
-  - MLB Stats API schedule and handedness.
-  - Baseball Savant custom CSV for batter barrel rate and xwOBA.
-- Added Projected Mode rendering:
-  - Top-of-page disclosure banner.
-  - Scoped `.projected-mode` visual identity.
-  - Per-section Projected Mode badges on reconstructed boards.
-  - Honest unavailable cards for workbook-only Sweet Spot / Dimers / Zone surfaces.
-  - HR board uses Daily Slate derived score/tier, real BPP-derived HR probabilities, Savant barrel/xwOBA, real pitcher/park context, and `Zone` shown as `—`.
-- Added PR review artifact: `docs/projected-mode-sample.png`.
-- Superseded by architect review fix: committed pick JSON files are restored to `origin/main`, and future generation uses derived `calibration_tier`.
-
-## 2. RAW VERIFICATION OUTPUT
-
-Syntax gates:
-```text
-ast OK extract_xlsx.py
-ast OK fetch_projected_mode.py
-ast OK build.py
-ast OK build_day46.py
-ast OK sync.py
-
-python3 -m py_compile extract_xlsx.py fetch_projected_mode.py build.py build_day46.py sync.py -> exit 0
-```
-
-Upload-day regression, same real 2026-07-25 workbook and same BPP inputs:
-```text
-diff -u /tmp/chapterf-before-hr-board.html /tmp/chapterf-after-hr-board.html -> exit 0, empty
-diff -u /tmp/chapterf-before-oo5-board.html /tmp/chapterf-after-oo5-board.html -> exit 0, empty
-```
-
-Projected Mode absent-workbook gate:
-```text
-ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py day_data.json
-Projected Mode marker written for 2026-07-25 because no workbook was uploaded and ALLOW_PROJECTED_MODE=1.
-Done. 14 total rows -> day_data.json
-```
-
-Projected Mode live reconstruction:
-```text
-[projected] rebuilt 2026-07-25: HR=270, Hits=270, Savant=573 batters
-[projected] calls/run BPP=33, MLB=4; 3 runs/day BPP ~= 99; 4 runs/day BPP ~= 132; monthly budget 15000
-Projected Mode BPP API calls this run: 33
-```
-
-Projected Mode build/sync:
-```text
-Built 18 sections
-  hr-board: 17831 bytes
-  oo5-board: 13912 bytes
-build_editorial: skipped in Projected Mode
-build_scout: wrote Projected Mode unavailable page
-Done -- wrote 250,181 bytes to index.html
-```
-
-Projected Mode content checks:
-```text
-PROJECTED MODE banner present
-projected-section-badge present on reconstructed boards
-Unavailable without workbook cards present
-HR first 5 Zone cells are all —
-```
-
-BPP HR spot checks:
-```text
-Yordan Alvarez BPP HR percent 4.1 HTML 4.10% rank 1 score 98
-James Wood BPP HR percent 4.8 HTML 4.80% rank 3 score 94
-Tyler Locklear BPP HR percent 2 HTML 2.00% rank 4 score 92
-```
-
-Savant spot checks:
-```text
-1 Yordan Alvarez score 98 HR 4.10% Zone — Savant 19 .476 HTML 19.0% 0.476
-3 James Wood score 94 HR 4.80% Zone — Savant 21.9 .423 HTML 21.9% 0.423
-4 Tyler Locklear score 92 HR 2.00% Zone — Savant 23.1 .475 HTML 23.1% 0.475
-```
-
-Stale workbook hard-fail:
-```text
-ALLOW_PROJECTED_MODE=1 python3 extract_xlsx.py --which
-ERROR: newest available slate file is dated 2026-07-24 but today (ET) is 2026-07-25 -- no fresh upload found. Refusing to build a stale slate.
-exit 1
-```
-
-Absent workbook without flag:
-```text
-python3 extract_xlsx.py --which
-ERROR: No .xlsx file found.
-exit 1
-```
-
-Compliance grep:
-```text
-git ls-files '*.json' '*.html' | xargs rg -n "matchup_advantage|homeRunProbability|singleProbability|homeRunVsTypical|runsCreatedVsTypical|VsTypical|requestId|marketKey|asOf"
--> exit 1, no matches
-```
-
-Rendered sample:
-```text
-qlmanage -t -s 1440 -o /tmp/chapterf-projected /tmp/chapterf-projected/index.html
-* /tmp/chapterf-projected/index.html produced one thumbnail
-docs/projected-mode-sample.png written
-```
-
-## 3. WHERE I STOPPED AND WHY
-- Implementation and verification are complete on the feature branch.
-- Stopping after draft PR creation per request.
-
-## 4. SURPRISES AND DEVIATIONS
-- The in-app browser runtime was available, but no browser backend was listed, so the rendered sample was produced with macOS Quick Look (`qlmanage`) instead.
-- BPP `/matchups` probability fields are percent-point values, while `/projections/probabilities` uses normalized probabilities. The projected fetcher now treats those endpoint units separately.
-- Baseball Savant names do not always match BPP names exactly, but the board fills metrics by MLB player id where available, avoiding name-matching for actual reconstruction.
 
 ## 5. LOCAL STATE
-- Branch: `codex/chapter-f-projected-mode`.
-- Intended changed files:
+- Branch: `codex/chapter-g-early-build`.
+- Intended files:
   - `.github/workflows/daily.yml`
   - `extract_xlsx.py`
-  - `fetch_projected_mode.py`
-  - `build.py`
-  - `build_day46.py`
-  - `sync.py`
+  - `tools/projected_publish_guard.py`
   - `SESSION_STATUS.md`
-  - `docs/projected-mode-sample.png`
-  - `slate_picks.json`
-  - `slate_picks_7-24.json`
-  - `slate_picks_7-25.json`
-- Generated verification files are under `/tmp/chapterf-*`.
-
-## 6. OPEN QUESTIONS
-- Visual approval is pending on `docs/projected-mode-sample.png`.
+- Temporary verification files:
+  - `/tmp/chapterg-stale-allow`
+  - `/tmp/chapterg-stale-unset`
+  - `/tmp/chapterg-guard`
+  - `/tmp/chapterg-main-hr.html`
+  - `/tmp/chapterg-current-hr.html`
+  - `/tmp/chapterg-main-hits.html`
+  - `/tmp/chapterg-current-hits.html`
