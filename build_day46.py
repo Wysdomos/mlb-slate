@@ -4,8 +4,9 @@ Structure: Day 44 board depth + Day 45 canonical section labels.
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
-import json, re, os
+import html, json, re, os
 from datetime import datetime
+from parlay_rules import validate_parlay
 from shadow_chips import (
     blank_chip_tiers,
     chip_hall_a,
@@ -1736,12 +1737,170 @@ def empty_parlay_section(sec_id, title, tag, message):
 </section>
 '''
 
+def game_key_for_team(team):
+    team = tn(team)
+    for game in GAMES_RAW:
+        away = tn(game.get('AwayTeam'))
+        home = tn(game.get('HomeTeam'))
+        if team in (away, home):
+            return f'{away}@{home}'
+    return ''
+
+def park_runs_for_team(team):
+    park = PARK_BY_TEAM.get(tn(team))
+    return parse_pct(park.get('Runs %')) if park else 0
+
+def pitcher_bp(name):
+    return BP_PIT_BY_NAME.get(str(name or '').strip().lower())
+
+def pitcher_projection(name):
+    return SP_BY_NAME.get(str(name or '').strip().lower())
+
+def pitcher_outs_line(bp):
+    if not bp:
+        return None
+    outs = _sf(bp.get('Innings')) * 3
+    if outs >= 17:
+        return {'line': 'Ov 16.5 outs', 'win_at': 17, 'projection': outs}
+    if outs >= 15:
+        return {'line': 'Ov 14.5 outs', 'win_at': 15, 'projection': outs}
+    return None
+
+def pitcher_is_short_leash(name):
+    bp = pitcher_bp(name)
+    if not bp:
+        return True
+    innings = _sf(bp.get('Innings'))
+    qs = _sf(bp.get('QualityStart'))
+    return innings < 4.5 or (qs and qs < 0.15)
+
+def k_consensus_for_pitcher(sp):
+    name = sp.get('Pitcher', '')
+    kf = _sf(sp.get('K'))
+    bp = pitcher_bp(name)
+    bpp_val = _sf(bp.get('Strikeouts')) if bp else 0
+    outs_val = (_sf(bp.get('Innings')) * 3) if bp else 0
+    v = get_vuln_for_pitcher(name)
+    k9 = _sf(v.get('K9')) if v else 0
+    opp = tn(sp.get('Opp'))
+    opp_row = BP_TEAMS_BY_TEAM.get(opp) or BP_TEAMS_BY_TEAM.get((sp.get('Opp') or '').strip())
+    opp_k = _sf(opp_row.get('Strikeouts')) if opp_row else 0
+    bpp_api = bpp_entry(name)
+    bpp_api_k = _sf(bpp_api.get('proj_k')) if bpp_api else 0
+    votes = 0
+    if kf >= 5.5: votes += 1
+    if bpp_val >= 5.0: votes += 1
+    if k9 >= 9.0: votes += 1
+    if outs_val >= 17: votes += 1
+    if opp_k >= 9.0: votes += 1
+    if bpp_api_k >= 5.0: votes += 1
+    return votes
+
+def k_tier_for_projection(k_proj):
+    kf = _sf(k_proj)
+    if kf >= 5.5:
+        return 0
+    if kf >= 4.5:
+        return 1
+    if kf >= 4.0:
+        return 2
+    return 3
+
+def parlay_leg_html(leg):
+    name = html.escape(str(leg.get('name') or leg.get('game') or ''))
+    line = html.escape(str(leg.get('line') or ''))
+    detail = html.escape(str(leg.get('detail') or ''))
+    role = html.escape(str(leg.get('leg_role') or 'satellite').title())
+    parts = [f'<strong>{name}</strong> {line}', f'<span class="badge b-neutral">{role}</span>']
+    if detail:
+        parts.append(f'<small>{detail}</small>')
+    return ' '.join(parts)
+
+def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
+    if not parlays:
+        return empty_parlay_section(sec_id, title, tag, empty_message)
+    blocks = []
+    icons = ['1', '2', '3', '4', '5']
+    for idx, parlay in enumerate(parlays[:5]):
+        badge = html.escape(parlay.get('badge', 'correlated'))
+        note = html.escape(parlay.get('note', ''))
+        legs = '<br>'.join(f'Leg {i}: {parlay_leg_html(leg)}' for i, leg in enumerate(parlay['legs'], 1))
+        note_html = f'<br><em>{note}</em>' if note else ''
+        blocks.append(
+            f'  <div class="flag-row"><div class="icon">{icons[idx]}</div>'
+            f'<div>{legs}{note_html} <span class="badge b-tier1">{badge}</span></div></div>'
+        )
+    return f'''<!-- PARLAY CORRELATION -->
+<section id="{sec_id}" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">{tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">{intro}</p>
+{chr(10).join(blocks)}
+  </div></div>
+</section>
+'''
+
 def build_combos_k():
-    return empty_parlay_section(
+    parlays = []
+    for sp in sorted(SP_PROJ, key=lambda row: (-k_consensus_for_pitcher(row), -_sf(row.get('K')))):
+        name = sp.get('Pitcher', '')
+        kf = _sf(sp.get('K'))
+        votes = k_consensus_for_pitcher(sp)
+        tier = k_tier_for_projection(kf)
+        if votes < 4 or tier > 1 or pitcher_is_short_leash(name):
+            continue
+        bp = pitcher_bp(name)
+        outs = pitcher_outs_line(bp)
+        if not outs:
+            continue
+        k_line = k_alt_for(kf)
+        k_leg = {
+            'market': 'K',
+            'name': name,
+            'team': tn(sp.get('Team')),
+            'opp': tn(sp.get('Opp')),
+            'game': game_key_for_team(sp.get('Team')),
+            'line': k_line,
+            'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
+            'leg_role': 'anchor',
+            'confidence_rank': 1,
+            'detail': f'{votes}/6 lenses; projected {kf:.2f} K',
+        }
+        outs_leg = {
+            'market': 'OUTS',
+            'name': name,
+            'team': tn(sp.get('Team')),
+            'opp': tn(sp.get('Opp')),
+            'game': game_key_for_team(sp.get('Team')),
+            'line': outs['line'],
+            'win_at': outs['win_at'],
+            'leg_role': 'satellite',
+            'confidence_rank': 2,
+            'detail': f'projected {outs["projection"]:.1f} outs',
+        }
+        legs = [k_leg, outs_leg]
+        ok, reason = validate_parlay(legs, 'same_pitcher_k_outs', max_legs=3)
+        if not ok:
+            continue
+        parlays.append({
+            'correlation_type': 'same_pitcher_k_outs',
+            'badge': 'same pitcher K + outs',
+            'note': 'Deeper starts mean more batters faced, so strikeouts and outs move together.',
+            'legs': legs,
+        })
+    return render_parlay_board(
         'combos-k',
         'Strikeout Stack',
-        'No qualifying K plus outs correlation yet',
-        'This board only renders pitchers with at least four K lenses, tier 0-1 status, and an available outs-recorded leg.',
+        'Tap to expand · same-pitcher K plus outs · 2 legs default',
+        'Eligibility: at least four K lenses, tier 0-1, no short-leash flag, and a real projected outs leg. Alt K ladders stay capped at O 5+.',
+        parlays,
+        'No pitcher cleared the K lens, tier, short-leash, and outs-availability gates.',
     )
 
 
