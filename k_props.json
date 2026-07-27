@@ -37,8 +37,8 @@
  },
  "merrill kelly": {
   "line": 4.5,
-  "over_odds": 100,
-  "under_odds": -128,
+  "over_odds": 102,
+  "under_odds": -130,
   "vendor": "fanduel",
   "outs": {
    "line": 16.5,
@@ -49,8 +49,8 @@
  },
  "mitch keller": {
   "line": 3.5,
-  "over_odds": -170,
-  "under_odds": 132,
+  "over_odds": -166,
+  "under_odds": 130,
   "vendor": "fanduel",
   "outs": {
    "line": 15.5,
@@ -60,7 +60,7 @@
   }
  },
  "zack wheeler": {
-  "line": 3.5,
+  "line": 4.5,
   "over_odds": null,
   "under_odds": null,
   "vendor": "fanduel",
@@ -97,8 +97,8 @@
  },
  "keider montero": {
   "line": 4.5,
-  "over_odds": 100,
-  "under_odds": -128,
+  "over_odds": -104,
+  "under_odds": -122,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -141,13 +141,19 @@
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 12.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
   }
  },
  "andrew alvarez": {
-  "line": 1.5,
-  "over_odds": null,
-  "under_odds": null,
-  "vendor": "draftkings",
+  "line": 3.5,
+  "over_odds": 100,
+  "under_odds": -132,
+  "vendor": "betrivers",
   "hits_allowed": {
    "line": 5.5,
    "vendor": "draftkings",
@@ -219,18 +225,30 @@
    "vendor": "betmgm",
    "src": "oddsapi",
    "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 14.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
   }
  },
  "noah schultz": {
   "line": 4.5,
-  "over_odds": -106,
-  "under_odds": -120,
+  "over_odds": -122,
+  "under_odds": -104,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
    "vendor": "betmgm",
    "src": "oddsapi",
    "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 14.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
   }
  },
  "david peterson": {
@@ -238,6 +256,24 @@
   "over_odds": null,
   "under_odds": null,
   "vendor": "fanduel",
+  "hits_allowed": {
+   "line": 5.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 15.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
+ },
+ "matthew liberatore": {
+  "line": 4.5,
+  "over_odds": 126,
+  "under_odds": -161,
+  "vendor": "draftkings",
   "hits_allowed": {
    "line": 5.5,
    "vendor": "draftkings",
@@ -523,12 +559,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "cal raleigh": {
-   "line": 0.5,
-   "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "luke raley": {
    "line": 0.5,
    "vendor": "betmgm",
@@ -571,13 +601,13 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "jake burger": {
+  "evan carter": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "evan carter": {
+  "jake burger": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -1644,14 +1674,20 @@
    "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
+  },
+  "mitch garver": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
   }
  },
  "_meta": {
   "date": "2026-07-27",
   "source": "the-odds-api.com",
-  "events_queried": 1,
-  "credits_used_this_run": 1,
-  "remaining": 418,
+  "events_queried": 0,
+  "credits_used_this_run": 0,
+  "remaining": null,
   "reused_same_day": 7,
   "chapter_h_markets": {
    "date": "2026-07-27",
@@ -1663,9 +1699,9 @@
    ],
    "events_queried": 12,
    "request_count_this_run": 12,
-   "credits_used_this_run": 33,
-   "remaining": 385,
-   "reused_same_day": 250
+   "credits_used_this_run": 35,
+   "remaining": 350,
+   "reused_same_day": 249
   },
   "oddsapi_extra_market_request_count": 12
  }
