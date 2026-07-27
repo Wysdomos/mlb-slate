@@ -5,7 +5,13 @@ Writes: /home/user/workspace/built_sections_d46.json
 """
 import html, json, re, os
 from datetime import datetime
-from parlay_rules import FORBIDDEN_MARKETS, validate_board_people, validate_parlay
+from parlay_rules import (
+    BATTER_NESTED_MARKETS,
+    FORBIDDEN_MARKETS,
+    PITCHER_SIDE_MARKETS,
+    validate_board_people,
+    validate_parlay,
+)
 from shadow_chips import (
     blank_chip_tiers,
     chip_hall_a,
@@ -24,6 +30,12 @@ def _sf(v, default=0.0):
 DATA = json.load(open('/home/user/workspace/day46_data.json'))
 PROJECTED_MODE = DATA.get('_mode') == 'projected'
 PICK_SOURCE = 'projected' if PROJECTED_MODE else 'workbook'
+
+# Provisional Chapter H recommendation margins. Calibration will replace these.
+H_ALLOWED_MAIN_EDGE_MIN = 0.5
+H_ALLOWED_ALT_MARGIN_MIN = 1.5
+OUTS_MAIN_EDGE_MIN = 1.0
+OUTS_ALT_MARGIN_MIN = 2.0
 
 # ---- Build lookup indexes ----
 SP_PROJ = DATA['SP_Projections']  # new 15-pitcher sheet (Team, Pitcher, Opp, Inn, BF, R, H, HR, K, BB)
@@ -86,6 +98,16 @@ try:
 except Exception:
     BPP_SUMMARY = {}
 
+# Real book prop lines. Missing or stale files are non-fatal: boards still render
+# projections with no line-driven recommendation.
+try:
+    K_PROPS_FILE = os.environ.get('K_PROPS_FILE', 'k_props.json')
+    K_PROPS = json.load(open(K_PROPS_FILE, encoding='utf-8'))
+    if not isinstance(K_PROPS, dict):
+        K_PROPS = {}
+except Exception:
+    K_PROPS = {}
+
 # Structured pick records for For The Record (results-page backtest). Each builder appends.
 SLATE_PICKS = []
 
@@ -132,6 +154,38 @@ def bpp_entry(name):
     if not name: return {}
     v = BPP_SUMMARY.get(str(name).strip().lower(), {})
     return v if isinstance(v, dict) else {}
+
+def prop_entry_for(name):
+    if not name:
+        return {}
+    entry = K_PROPS.get(str(name).strip().lower(), {})
+    return entry if isinstance(entry, dict) else {}
+
+def pitcher_prop_line(name, market_key):
+    entry = prop_entry_for(name)
+    if market_key == 'K':
+        return _sf(entry.get('line'), None) if entry.get('line') is not None else None
+    nested = entry.get(market_key, {})
+    if isinstance(nested, dict) and nested.get('line') is not None:
+        return _sf(nested.get('line'), None)
+    return None
+
+def batter_prop_line(name, market_key):
+    market = K_PROPS.get(f'_batter_{market_key}', {})
+    if not isinstance(market, dict):
+        return None
+    entry = market.get(str(name or '').strip().lower(), {})
+    if isinstance(entry, dict) and entry.get('line') is not None:
+        return _sf(entry.get('line'), None)
+    return None
+
+def average_available(*values):
+    nums = []
+    for v in values:
+        n = _sf(v, None)
+        if n is not None:
+            nums.append(n)
+    return (sum(nums) / len(nums)) if nums else None
 
 def bpp_factor_chip(value, label):
     if value in (None, '', 'None'): return ''
@@ -450,6 +504,13 @@ def build_headlines():
 
 # ---- BUILD: PARK BOARD ----
 def build_park_board():
+    if not PARKS:
+        return empty_market_section(
+            'park-board',
+            '🏟 Park Factors Board',
+            'Park factors unavailable',
+            'Park_Factors returned no rows. Park-driven leans are omitted rather than approximated.',
+        )
     rows = []
     parks_sorted = sorted(PARKS, key=lambda p: -parse_pct(p.get('HR %')))
     for p in parks_sorted:
@@ -506,10 +567,10 @@ def build_park_board():
 
     return f'''<!-- PARK FACTORS BOARD -->
 <section id="park-board" class="collapsible">
-  <button class="game-header" aria-expanded="false">
+      <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">🏟 Park Factors Board</div>
-      <span class="game-tag">Tap to expand · 15 venues · stadium + day-of weather</span>
+      <span class="game-tag">Tap to expand · {len(PARKS)} venues · stadium + day-of weather</span>
     </div>
     <span class="chevron">▾</span>
   </button>
@@ -927,6 +988,7 @@ def build_k_board():
 
         # BPP (BP_Pitchers) — Strikeouts, Innings*3 = Outs, HitsAllowed, QualityStart, HomeRunsAllowed
         bp = BP_PIT_BY_NAME.get(name.lower())
+        short_leash = pitcher_is_short_leash(name)
         if bp:
             bpp_k = bp.get('Strikeouts') or 0
             bpp_kf = float(bpp_k) if bpp_k else 0
@@ -957,6 +1019,19 @@ def build_k_board():
             throws = bp.get('PitcherHand')
         else:
             bpp_k_disp = '—'; outs_s = '—'; hits_s = '—'; qs_s = '—'; hra_s = '—'; throws = None
+
+        hits_proj = pitcher_hits_projection(r, bp)
+        outs_proj = pitcher_outs_projection(r, bp)
+        hits_main_line = pitcher_prop_line(name, 'hits_allowed')
+        outs_main_line = pitcher_prop_line(name, 'outs')
+        hits_rec = recommendation_for_projection(
+            hits_proj, hits_main_line, 'H_ALLOWED', short_leash=short_leash,
+        )
+        outs_rec = recommendation_for_projection(
+            outs_proj, outs_main_line, 'OUTS', short_leash=short_leash,
+        )
+        hits_prop_s = pitcher_prop_cell(hits_proj, hits_main_line, hits_rec, 'H_ALLOWED')
+        outs_prop_s = pitcher_prop_cell(outs_proj, outs_main_line, outs_rec, 'OUTS')
 
         # Vuln + ERA (Sweet_Spot_Slate)
         v = get_vuln_for_pitcher(name)
@@ -1027,6 +1102,31 @@ def build_k_board():
             **chips,
         })
 
+        for market_key, rec, projection, label in (
+            ('OUTS_ALT', outs_rec, outs_proj, 'outs'),
+            ('H_ALLOWED_ALT', hits_rec, hits_proj, 'H allowed'),
+        ):
+            if not rec or not rec.get('alt_fires'):
+                continue
+            line_text = f'{rec["direction"]} {format_line_point(rec["alt_line"])} {label}'
+            SLATE_PICKS.append({
+                'market': market_key,
+                'pick': f'{name} {line_text}',
+                'name': name,
+                'pick_source': PICK_SOURCE,
+                'team': team,
+                'opp': opp,
+                'line': line_text,
+                'win_at': rec.get('alt_win_at'),
+                'projection': projection,
+                'main_line': rec.get('main_line'),
+                'direction': rec.get('direction'),
+                'alt_margin': rec.get('alt_margin'),
+                'consensus': votes,
+                'consensus_max': consensus_max,
+                **blank_chip_tiers(),
+            })
+
         rows.append((votes, kf,
             f'      <tr class="{tier_cls}">'
             f'<td>{tier_badge}</td>'
@@ -1036,8 +1136,8 @@ def build_k_board():
             f'<td>{_conv_cell(votes, consensus_max)}</td>'
             f'<td>{ss_k_disp}</td>'
             f'<td>{bpp_k_disp}</td>'
-            f'<td>{outs_s}</td>'
-            f'<td>{hits_s}</td>'
+            f'<td>{outs_prop_s}</td>'
+            f'<td>{hits_prop_s}</td>'
             f'<td>{era}</td>'
             f'<td>{qs_s}</td>'
             f'<td>{hra_s}</td>'
@@ -1065,12 +1165,12 @@ def build_k_board():
     </a>
     <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 K lenses agree: SS Ks≥5.5 · workbook BPP Ks≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9 · BPP API proj K≥5. 🔒 = 5–6. SS Ks from <strong>SP_Projections</strong>, workbook BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs</th><th>Hits</th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
+      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs<br><small>Proj · Line · Rec</small></th><th>Hits Allowed<br><small>Proj · Line · Rec</small></th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
 {table_body}
       </tbody>
     </table></div>
-    <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">🟢 Outs ≥17. 🔻 Outs &lt;14. 🔺 Hits ≥5.5. Green Hits ≤4.5. QS% ≥40% bold. HRA ≥0.85 caution.</p>
+    <p style="font-size:11px; color:var(--text-dim); margin-top:10px;">Outs and Hits Allowed projections blend SP_Projections with BP_Pitchers where both exist. Recommendations require a real main line and clear projection edge; short-leash starters show projections only. No alternate price is shown because alternate markets are not fetched.</p>
   </div></div>
 </section>
 '''
@@ -1108,6 +1208,25 @@ def projected_unavailable_section(sec_id, title, tag, reason):
     <div class="unavailable-card">
       <strong>Unavailable without workbook</strong>
       <p>{reason} Upload the workbook to populate this section with full Sweet Spot / Dimers detail.</p>
+    </div>
+  </div></div>
+</section>
+'''
+
+def empty_market_section(sec_id, title, tag, reason):
+    return f'''<!-- EMPTY MARKET SECTION -->
+<section id="{sec_id}" class="collapsible empty-market">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">{title}</div>
+      <span class="game-tag">Tap to expand · {tag}</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <div class="unavailable-card">
+      <strong>No qualifying rows</strong>
+      <p>{reason}</p>
     </div>
   </div></div>
 </section>
@@ -1194,6 +1313,138 @@ def build_projected_oo5_board():
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
+      </tbody>
+    </table></div>
+  </div></div>
+</section>
+'''
+
+def hit_prob_fraction(row, key):
+    value = row.get(key)
+    if value in (None, '', 'None'):
+        return 0.0
+    if isinstance(value, (int, float)):
+        number = float(value)
+    else:
+        text = str(value).replace('%', '').strip()
+        try:
+            number = float(text)
+        except (TypeError, ValueError):
+            return 0.0
+    return max(0.0, min(1.0, number / 100 if number > 1 else number))
+
+def two_plus_hits_key():
+    if not HIT:
+        return None
+    matches = sorted({key for row in HIT for key in row if str(key).strip() == '2+ Hits'})
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise RuntimeError("Hit_Probabilities is missing the required 2+ Hits column")
+    raise RuntimeError(f"Hit_Probabilities has ambiguous 2+ Hits columns: {matches}")
+
+def normalized_header(name):
+    return re.sub(r'[^a-z0-9]+', '', str(name or '').lower())
+
+def required_row_value(row, table_name, label, accepted_keys):
+    present = {normalized_header(key): key for key in row.keys()}
+    for key in accepted_keys:
+        actual = present.get(normalized_header(key))
+        if actual is not None:
+            return row.get(actual)
+    raise RuntimeError(
+        f"{table_name} is missing required {label} column; "
+        f"accepted spellings: {', '.join(accepted_keys)}"
+    )
+
+def total_bases_rows():
+    key_2h = two_plus_hits_key()
+    if not key_2h:
+        return []
+    rows = []
+    for hit in HIT:
+        name = _hit_full(hit)
+        if not name:
+            continue
+        bp = BP_BAT_BY_NAME.get(name.lower())
+        if not bp:
+            continue
+        one_hit = hit_prob_fraction(hit, '1+ Hit')
+        two_hits = hit_prob_fraction(hit, key_2h)
+        e_hits = one_hit + two_hits
+        home_runs = required_row_value(
+            bp,
+            'BP_Batters',
+            'home runs',
+            ('HomeRuns', 'HR'),
+        )
+        e_tb = e_hits + _sf(bp.get('Doubles')) + (3 * _sf(home_runs))
+        rows.append({
+            'name': name,
+            'team': tn(hit.get('Team') or bp.get('Team')),
+            'opp': tn(bp.get('Opponent') or hit.get('Opp')),
+            'matchup': hit.get('Matchup') or '',
+            'one_hit': one_hit,
+            'two_hits': two_hits,
+            'e_hits': e_hits,
+            'e_tb': e_tb,
+        })
+    rows.sort(key=lambda row: (-row['e_tb'], row['name']))
+    return rows
+
+def build_tb_board():
+    rows = total_bases_rows()[:30]
+    if not rows:
+        return empty_market_section(
+            'tb-board',
+            '📏 Total Bases Board',
+            'Total Bases unavailable',
+            'Hit probability and batter projection rows are required to derive Total Bases honestly.',
+        )
+    body = []
+    for idx, row in enumerate(rows, 1):
+        SLATE_PICKS.append({
+            'market': 'TB',
+            'pick': f'{row["name"]} Ov 1.5 TB',
+            'name': row['name'],
+            'pick_source': PICK_SOURCE,
+            'team': row['team'],
+            'opp': row['opp'],
+            'line': 'Ov 1.5',
+            'win_at': 2,
+            'projection': row['e_tb'],
+            'main_line': 1.5,
+            'direction': 'Over',
+            'alt_margin': None,
+            **blank_chip_tiers(),
+        })
+        body.append(
+            f'      <tr>'
+            f'<td>{idx}</td>'
+            f'<td><strong>{html.escape(row["name"])}</strong></td>'
+            f'<td>{html.escape(row["team"])}</td>'
+            f'<td>{html.escape(row["opp"])}</td>'
+            f'<td><strong>{row["e_tb"]:.2f}</strong></td>'
+            f'<td>{row["e_hits"]:.2f}</td>'
+            f'<td>Ov 1.5</td>'
+            f'<td><small>{html.escape(row["matchup"])}</small></td>'
+            f'</tr>'
+        )
+    return f'''<!-- TB BOARD -->
+<section id="tb-board" class="collapsible">
+  <button class="game-header" aria-expanded="false">
+    <div class="game-header-text">
+      <div class="game-title">📏 Total Bases Board</div>
+      <span class="game-tag">Tap to expand · Daily Slate derived score · Ov 1.5 TB</span>
+    </div>
+    <span class="chevron">▾</span>
+  </button>
+  <div class="game-body"><div class="game-body-inner">
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Daily Slate derived score</strong> estimates total-base volume from hit tail probabilities plus extra-base lift. It is a derived estimate, not a vendor projection. Phase 1: flat scoring, no tiers.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Opp</th><th>Daily Slate E_TB</th><th>E Hits</th><th>Line</th><th>Matchup</th></tr></thead>
+      <tbody>
+{chr(10).join(body)}
       </tbody>
     </table></div>
   </div></div>
@@ -1817,6 +2068,84 @@ def pitcher_is_short_leash(name):
     innings = _sf(bp.get('Innings'))
     qs = _sf(bp.get('QualityStart'))
     return innings < 4.5 or (qs and qs < 0.15)
+
+def pitcher_hits_projection(sp, bp):
+    return average_available(
+        sp.get('H') if sp else None,
+        bp.get('HitsAllowed') if bp else None,
+    )
+
+def pitcher_outs_projection(sp, bp):
+    return average_available(
+        _sf(sp.get('Inn'), None) * 3 if sp and _sf(sp.get('Inn'), None) is not None else None,
+        _sf(bp.get('Innings'), None) * 3 if bp and _sf(bp.get('Innings'), None) is not None else None,
+    )
+
+def line_win_at(point, direction):
+    if point is None:
+        return None
+    point = float(point)
+    if str(direction).lower() == 'under':
+        return int(point)
+    return int(point) + 1
+
+def format_line_point(point):
+    if point is None:
+        return '—'
+    return f'{float(point):.1f}'
+
+def recommendation_for_projection(projection, main_line, market_key, short_leash=False):
+    if projection is None or main_line is None or short_leash:
+        return None
+    projection = float(projection)
+    main_line = float(main_line)
+    edge = projection - main_line
+    if edge == 0:
+        return None
+    if market_key == 'H_ALLOWED':
+        min_edge = H_ALLOWED_MAIN_EDGE_MIN
+        alt_min = H_ALLOWED_ALT_MARGIN_MIN
+        step = 2.0
+    elif market_key == 'OUTS':
+        min_edge = OUTS_MAIN_EDGE_MIN
+        alt_min = OUTS_ALT_MARGIN_MIN
+        step = 2.0
+    else:
+        return None
+    if abs(edge) < min_edge:
+        return None
+    direction = 'Over' if edge > 0 else 'Under'
+    alt_line = main_line - step if direction == 'Over' else main_line + step
+    alt_margin = (projection - alt_line) if direction == 'Over' else (alt_line - projection)
+    alt_fires = alt_margin >= alt_min
+    return {
+        'direction': direction,
+        'main_line': main_line,
+        'main_edge': edge,
+        'alt_line': alt_line,
+        'alt_margin': alt_margin,
+        'alt_fires': alt_fires,
+        'win_at': line_win_at(main_line, direction),
+        'alt_win_at': line_win_at(alt_line, direction),
+    }
+
+def pitcher_prop_cell(projection, main_line, rec, market_key):
+    proj_s = format_line_point(projection)
+    line_s = format_line_point(main_line)
+    if not rec:
+        return (
+            f'<span>{proj_s}</span><br>'
+            f'<small>Line {line_s} · no play</small>'
+        )
+    unit = 'H' if market_key == 'H_ALLOWED' else 'outs'
+    alt = ''
+    if rec.get('alt_fires'):
+        alt = f'<br><small>Alt {rec["direction"]} {format_line_point(rec["alt_line"])} {unit}</small>'
+    return (
+        f'<span>{proj_s}</span><br>'
+        f'<strong>{rec["direction"]} {format_line_point(rec["main_line"])} {unit}</strong>'
+        f'{alt}'
+    )
 
 def k_consensus_for_pitcher(sp):
     name = sp.get('Pitcher', '')
@@ -2506,6 +2835,9 @@ def build_sp_vuln():
 '''
 
 # ---- ASSEMBLE ALL SECTIONS ----
+build_sb_board()       # Shadow market: emit picks, do not render board.
+build_doubles_board()  # Shadow market: emit picks, do not render board.
+
 if PROJECTED_MODE:
     SECTIONS = {
         'headlines':         build_projected_headlines(),
@@ -2520,10 +2852,9 @@ if PROJECTED_MODE:
         'k-board':           with_projected_badge(build_k_board(), "Starter strikeout board rebuilt from live pitcher projections."),
         'hr-board':          build_projected_hr_board(),
         'oo5-board':         build_projected_oo5_board(),
+        'tb-board':          with_projected_badge(build_tb_board(), "Total Bases board uses a Daily Slate derived estimate from live hit and batter projection inputs."),
         'totals-board':      with_projected_badge(build_totals_board(), "Totals rebuilt from live team run projections."),
         'nrfi-board':        with_projected_badge(build_nrfi_board(), "YRFI/NRFI rebuilt from live first-inning probability where available."),
-        'sb-board':          with_projected_badge(build_sb_board(), "Stolen-base board rebuilt from live projection probabilities."),
-        'doubles-board':     with_projected_badge(build_doubles_board(), "Extra-base board rebuilt from live doubles and park context."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
         'combos-k':          build_combos_k(),
         'combos-hrr':        build_combos_hrr(),
@@ -2546,10 +2877,9 @@ else:
         'k-board':           build_k_board(),
         'hr-board':          build_hr_board(),
         'oo5-board':         build_oo5_board(),
+        'tb-board':          build_tb_board(),
         'totals-board':      build_totals_board(),
         'nrfi-board':        build_nrfi_board(),
-        'sb-board':          build_sb_board(),
-        'doubles-board':     build_doubles_board(),
         'dfs-board':         build_dfs_board(),
         'combos-k':          build_combos_k(),
         'combos-hrr':        build_combos_hrr(),

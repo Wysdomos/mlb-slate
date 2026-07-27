@@ -30,6 +30,13 @@ def grade_pick(p, box):
     mkt = p.get('market')
     nm = G.norm(p['name']) if p.get('name') else ''
     win, got = None, '—'
+    def directional(actual):
+        direction = (p.get('direction') or 'Over').lower()
+        target = p.get('win_at')
+        if target is None:
+            return None
+        return actual <= target if direction == 'under' else actual >= target
+
     if mkt == 'HR':
         b = box.get('batters', {}).get(nm)
         if b is not None:
@@ -65,12 +72,19 @@ def grade_pick(p, box):
             win = b['sb'] >= 1; got = f"{b['sb']} SB"
         elif mkt == '2B' and b:
             win = b['d'] >= 1; got = f"{b['d']} 2B"
+        elif mkt == 'TB' and b:
+            tb = b['h'] + b['d'] + (2 * b.get('t', 0)) + (3 * b['hr'])
+            win = tb >= p.get('win_at', 99); got = f'{tb} TB'
         elif mkt == 'K' and pi:
             win = pi['k'] >= p.get('win_at', 99); got = f"{pi['k']} K"
         elif mkt == 'OUTS' and pi:
             win = pi['outs'] >= p.get('win_at', 99); got = f"{pi['outs']} outs"
         elif mkt == 'H_ALLOWED' and pi:
             win = pi['h'] >= p.get('win_at', 99); got = f"{pi['h']} H allowed"
+        elif mkt == 'OUTS_ALT' and pi:
+            win = directional(pi['outs']); got = f"{pi['outs']} outs"
+        elif mkt == 'H_ALLOWED_ALT' and pi:
+            win = directional(pi['h']); got = f"{pi['h']} H allowed"
         elif mkt == 'ER_ALLOWED' and pi:
             win = pi['er'] >= p.get('win_at', 99); got = f"{pi['er']} ER"
     return win, got
@@ -139,6 +153,10 @@ def main():
                 'correlation_type': p.get('correlation_type'),
                 'leg_role': p.get('leg_role'),
                 'conviction_rank': p.get('conviction_rank'),
+                'projection': p.get('projection'),
+                'main_line': p.get('main_line'),
+                'direction': p.get('direction'),
+                'alt_margin': p.get('alt_margin'),
             }
             for field in CHIP_FIELDS:
                 row[field] = p.get(field, None)

@@ -125,6 +125,42 @@ def replace_section(html, sec_id, new_content):
         return html, False
     return html[:m.start()] + new_content + '\n' + html[m.end():], True
 
+def insert_section_after(html, after_sec_id, new_content):
+    new_id = None
+    id_match = re.search(r'<section id="([^"]+)"', new_content)
+    if id_match:
+        new_id = id_match.group(1)
+    if f'<section id="{after_sec_id}"' not in html:
+        return html, False
+    if new_id and f'<section id="{new_id}"' in html:
+        return html, True
+    pattern = re.compile(
+        r'(<section id="' + re.escape(after_sec_id) + r'"[\s\S]*?</section>\s*\n?)',
+        re.MULTILINE
+    )
+    m = pattern.search(html)
+    if not m:
+        return html, False
+    return html[:m.end()] + new_content + '\n' + html[m.end():], True
+
+def ensure_board_link(html, sec_id, label, after_sec_id):
+    if f'href="#{sec_id}"' in html:
+        return html
+    anchor = f'        <a href="#{sec_id}"><span>{label}</span> <span class="arrow">›</span></a>\n'
+    pattern = re.compile(
+        r'(\s*<a href="#' + re.escape(after_sec_id) + r'"><span>[^<]*</span> <span class="arrow">›</span></a>\n?)'
+    )
+    return pattern.sub(r'\1' + anchor, html, count=1)
+
+def ensure_rail_chip(html, sec_id, emoji, label, after_sec_id):
+    if f"['{sec_id}'" in html:
+        return html
+    line = f"  ['{sec_id}',          '{emoji}', '{label}'],\n"
+    pattern = re.compile(
+        r"(\s*\['" + re.escape(after_sec_id) + r"',\s*'[^']*',\s*'[^']*'\],\n?)"
+    )
+    return pattern.sub(r'\1' + line, html, count=1)
+
 html = re.sub(r'<title>MLB Slate[^<]*</title>', f'<title>MLB Slate - {month_short} {day_of_mo} - Day {day_num}</title>', html)
 html = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="The Daily Slate -- {month_short} {day_of_mo} Day {day_num}">', html)
 html = re.sub(r'<meta name="twitter:title" content="[^"]*">', f'<meta name="twitter:title" content="The Daily Slate -- {month_short} {day_of_mo} Day {day_num}">', html)
@@ -546,17 +582,48 @@ def apply_projected_theme(html):
 SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
     'k-board', 'sp-vuln-board', 'hr-board', 'oo5-board',
-    'totals-board', 'nrfi-board', 'sb-board', 'doubles-board',
+    'tb-board', 'totals-board', 'nrfi-board',
     'dfs-board', 'combos-k', 'combos-hrr', 'parlays',
     'conviction', 'skip'
 ]
+RETIRED_SECTION_IDS = ('sb-board', 'doubles-board')
+
+def remove_section(html, sec_id):
+    pattern = re.compile(
+        r'(?:<!--[^>]*-->\s*)?<section id="' + re.escape(sec_id) + r'"[\s\S]*?</section>\s*\n?',
+        re.MULTILINE
+    )
+    return pattern.sub('', html)
+
+def remove_retired_nav(html, sec_id):
+    html = re.sub(
+        r'\s*<a href="#' + re.escape(sec_id) + r'"><span>[^<]*</span> <span class="arrow">›</span></a>\n?',
+        '\n',
+        html,
+    )
+    html = re.sub(
+        r"\s*\['" + re.escape(sec_id) + r"',\s*'[^']*',\s*'[^']*'\],\n?",
+        '\n',
+        html,
+    )
+    return html
 
 for sec_id in SECTION_ORDER:
     if sec_id not in SECTIONS:
         print(f"  No built section for #{sec_id} -- skipping")
         continue
     html, ok = replace_section(html, sec_id, SECTIONS[sec_id])
+    if not ok and sec_id == 'tb-board':
+        html, ok = insert_section_after(html, 'oo5-board', SECTIONS[sec_id])
     print(f"  {'OK' if ok else 'MISS'} #{sec_id}")
+
+html = ensure_board_link(html, 'tb-board', '📏 Total Bases Board', 'oo5-board')
+html = ensure_rail_chip(html, 'tb-board', '📏', 'TB', 'oo5-board')
+
+for sec_id in RETIRED_SECTION_IDS:
+    html = remove_section(html, sec_id)
+    html = remove_retired_nav(html, sec_id)
+    print(f"  retired #{sec_id}: removed rendered section and nav links")
 
 if 'sp-vuln-board' in SECTIONS and '<section id="sp-vuln-board"' not in html:
     pattern = re.compile(r'(<section id="k-board"[\s\S]*?</section>\s*\n)', re.MULTILINE)
