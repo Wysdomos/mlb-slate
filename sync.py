@@ -143,6 +143,15 @@ def insert_section_after(html, after_sec_id, new_content):
         return html, False
     return html[:m.end()] + new_content + '\n' + html[m.end():], True
 
+def insert_section_after_main(html, new_content):
+    id_match = re.search(r'<section id="([^"]+)"', new_content)
+    if id_match and f'<section id="{id_match.group(1)}"' in html:
+        return html, True
+    m = re.search(r'<main>\s*', html)
+    if not m:
+        return html, False
+    return html[:m.end()] + '\n' + new_content + '\n' + html[m.end():], True
+
 def ensure_board_link(html, sec_id, label, after_sec_id):
     if f'href="#{sec_id}"' in html:
         return html
@@ -586,6 +595,25 @@ SECTION_ORDER = [
     'dfs-board', 'combos-k', 'combos-hrr', 'parlays',
     'conviction', 'skip'
 ]
+SECTION_INSERT_AFTER = {
+    'headlines': None,
+    'park-board': 'headlines',
+    'games': 'park-board',
+    'matchup-spotlight': 'games',
+    'k-board': 'matchup-spotlight',
+    'sp-vuln-board': 'k-board',
+    'hr-board': 'sp-vuln-board',
+    'oo5-board': 'hr-board',
+    'tb-board': 'oo5-board',
+    'totals-board': 'tb-board',
+    'nrfi-board': 'totals-board',
+    'dfs-board': 'nrfi-board',
+    'combos-k': 'dfs-board',
+    'combos-hrr': 'combos-k',
+    'parlays': 'combos-hrr',
+    'conviction': 'parlays',
+    'skip': 'conviction',
+}
 RETIRED_SECTION_IDS = ('sb-board', 'doubles-board')
 
 def remove_section(html, sec_id):
@@ -613,8 +641,18 @@ for sec_id in SECTION_ORDER:
         print(f"  No built section for #{sec_id} -- skipping")
         continue
     html, ok = replace_section(html, sec_id, SECTIONS[sec_id])
-    if not ok and sec_id == 'tb-board':
-        html, ok = insert_section_after(html, 'oo5-board', SECTIONS[sec_id])
+    if not ok:
+        anchor = SECTION_INSERT_AFTER.get(sec_id)
+        if anchor is None:
+            html, ok = insert_section_after_main(html, SECTIONS[sec_id])
+            anchor_label = '<main>'
+        else:
+            html, ok = insert_section_after(html, anchor, SECTIONS[sec_id])
+            anchor_label = f'#{anchor}'
+        if ok:
+            print(f"::warning::sync.py restored missing section #{sec_id} after {anchor_label}")
+        else:
+            print(f"::warning::sync.py could not restore missing section #{sec_id}; insert anchor {anchor_label} was unavailable")
     print(f"  {'OK' if ok else 'MISS'} #{sec_id}")
 
 html = ensure_board_link(html, 'tb-board', '📏 Total Bases Board', 'oo5-board')
@@ -624,12 +662,6 @@ for sec_id in RETIRED_SECTION_IDS:
     html = remove_section(html, sec_id)
     html = remove_retired_nav(html, sec_id)
     print(f"  retired #{sec_id}: removed rendered section and nav links")
-
-if 'sp-vuln-board' in SECTIONS and '<section id="sp-vuln-board"' not in html:
-    pattern = re.compile(r'(<section id="k-board"[\s\S]*?</section>\s*\n)', re.MULTILINE)
-    m = pattern.search(html)
-    if m:
-        html = html[:m.end()] + SECTIONS['sp-vuln-board'] + '\n' + html[m.end():]
 
 html = apply_projected_theme(html)
 
