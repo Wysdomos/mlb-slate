@@ -1376,7 +1376,7 @@ def total_bases_rows():
             bp,
             'BP_Batters',
             'home runs',
-            ('HomeRuns', 'Home Runs'),
+            ('HomeRuns', 'HR'),
         )
         e_tb = e_hits + _sf(bp.get('Doubles')) + (3 * _sf(home_runs))
         rows.append({

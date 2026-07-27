@@ -234,15 +234,26 @@ Output was empty. No historical `slate_picks*.json` or `backtest/graded_picks.js
 ... Doubles, Triples, HomeRuns, RBIs, Runs, ...
 ```
 
-`build_day46.py` now reads batter HR projection through a normalized required accessor accepting both `HomeRuns` and `Home Runs`. If neither spelling is present, it raises instead of silently treating HR as `0`.
+`build_day46.py` now reads batter HR projection through a normalized required accessor accepting `HomeRuns` and `HR`. These normalize to distinct keys (`homeruns`, `hr`). If neither spelling is present, it raises instead of silently treating HR as `0`.
 
 Loud-failure check with both accepted HR spellings removed from a temporary `BP_Batters` copy:
 
 ```text
-RuntimeError: BP_Batters is missing required home runs column; accepted spellings: HomeRuns, Home Runs
+RuntimeError: BP_Batters is missing required home runs column; accepted spellings: HomeRuns, HR
 ```
 
 Workbook-mode E_TB hand checks after the accessor change:
+
+```text
+mode workbook
+Yordan Alvarez: 0.6377 + 0.3279 + 0.1920 + 3*0.2880 = 2.0216; emitted 2.0216
+Byron Buxton: 0.6125 + 0.2840 + 0.1910 + 3*0.2650 = 1.8825; emitted 1.8825
+Royce Lewis: 0.6216 + 0.2958 + 0.2250 + 3*0.2400 = 1.8624; emitted 1.8624
+```
+
+Follow-up correction: removed duplicate normalized accepted spelling `Home Runs`; accepted keys are now `HomeRuns` and `HR`.
+
+Workbook-mode E_TB checks after the accepted-key correction:
 
 ```text
 mode workbook
