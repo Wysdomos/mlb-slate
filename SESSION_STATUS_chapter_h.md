@@ -225,3 +225,28 @@ git diff --name-only -- 'slate_picks*.json' 'backtest/graded_picks.json'
 ```
 
 Output was empty. No historical `slate_picks*.json` or `backtest/graded_picks.json` file was modified.
+
+## Addendum — Total Bases HR Header Accessor
+
+`BP_Batters` workbook header checked directly from `MLB Slate 7-26-26.xlsx`:
+
+```text
+... Doubles, Triples, HomeRuns, RBIs, Runs, ...
+```
+
+`build_day46.py` now reads batter HR projection through a normalized required accessor accepting both `HomeRuns` and `Home Runs`. If neither spelling is present, it raises instead of silently treating HR as `0`.
+
+Loud-failure check with both accepted HR spellings removed from a temporary `BP_Batters` copy:
+
+```text
+RuntimeError: BP_Batters is missing required home runs column; accepted spellings: HomeRuns, Home Runs
+```
+
+Workbook-mode E_TB hand checks after the accessor change:
+
+```text
+mode workbook
+Yordan Alvarez: 0.6377 + 0.3279 + 0.1920 + 3*0.2880 = 2.0216; emitted 2.0216
+Byron Buxton: 0.6125 + 0.2840 + 0.1910 + 3*0.2650 = 1.8825; emitted 1.8825
+Royce Lewis: 0.6216 + 0.2958 + 0.2250 + 3*0.2400 = 1.8624; emitted 1.8624
+```

@@ -1343,6 +1343,20 @@ def two_plus_hits_key():
         raise RuntimeError("Hit_Probabilities is missing the required 2+ Hits column")
     raise RuntimeError(f"Hit_Probabilities has ambiguous 2+ Hits columns: {matches}")
 
+def normalized_header(name):
+    return re.sub(r'[^a-z0-9]+', '', str(name or '').lower())
+
+def required_row_value(row, table_name, label, accepted_keys):
+    present = {normalized_header(key): key for key in row.keys()}
+    for key in accepted_keys:
+        actual = present.get(normalized_header(key))
+        if actual is not None:
+            return row.get(actual)
+    raise RuntimeError(
+        f"{table_name} is missing required {label} column; "
+        f"accepted spellings: {', '.join(accepted_keys)}"
+    )
+
 def total_bases_rows():
     key_2h = two_plus_hits_key()
     if not key_2h:
@@ -1358,7 +1372,13 @@ def total_bases_rows():
         one_hit = hit_prob_fraction(hit, '1+ Hit')
         two_hits = hit_prob_fraction(hit, key_2h)
         e_hits = one_hit + two_hits
-        e_tb = e_hits + _sf(bp.get('Doubles')) + (3 * _sf(bp.get('HomeRuns')))
+        home_runs = required_row_value(
+            bp,
+            'BP_Batters',
+            'home runs',
+            ('HomeRuns', 'Home Runs'),
+        )
+        e_tb = e_hits + _sf(bp.get('Doubles')) + (3 * _sf(home_runs))
         rows.append({
             'name': name,
             'team': tn(hit.get('Team') or bp.get('Team')),
