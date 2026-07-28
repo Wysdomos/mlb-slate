@@ -164,12 +164,18 @@ button { font-family: inherit; }
   background: none; border: none; padding: 4px 0; cursor: pointer;
   color: var(--text);
 }
+.brand-refresh {
+  width: 44px; height: 44px; min-width: 44px; min-height: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin: 0 -8px 0 -4px; padding: 0;
+  background: none; border: 0; color: var(--text);
+  font-size: 17px; line-height: 1; cursor: pointer;
+}
 .brand .wordmark {
   font-family: var(--font-display);
   font-size: 23px; letter-spacing: 1.5px; line-height: 1;
 }
 .brand .wordmark em { font-style: normal; color: var(--accent); }
-.brand .ball { font-size: 15px; transform: translateY(-1px); }
 .bar-spacer { flex: 1; }
 .icon-btn {
   width: 38px; height: 38px; border-radius: 12px;
@@ -1321,25 +1327,21 @@ body.sheet-open #scroll-track{display:none;}
   padding: 10px 12px; border: 1px solid var(--tier0-border); border-radius: 12px;
   background: var(--header-bg); color: var(--text); box-shadow: var(--shadow);
   -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  cursor: pointer;
 }
 .stale-banner.show { display: flex; }
-.stale-banner button, .dock-btn.refresh-btn { min-width: 44px; min-height: 44px; }
-.stale-banner .refresh-now {
-  border: 1px solid var(--tier0-border); border-radius: 10px; background: var(--accent-soft);
-  color: var(--accent); font-weight: 900; padding: 0 12px; cursor: pointer;
-}
+.stale-banner button { min-width: 44px; min-height: 44px; }
 .stale-banner .stale-dismiss {
   width: 44px; border: 0; background: transparent; color: var(--text-dim); font-size: 20px; cursor: pointer;
 }
-.dock-btn.refresh-btn { flex: .8; max-width: 72px; }
 </style>
 
 </head>
 <body class="projected-mode"><!-- PROJECTED CHROME START --><div class="projected-mode-banner">⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small><div class="pm-withheld"><button type="button" class="pm-withheld-btn" id="pmWithheldBtn" aria-expanded="false" aria-controls="pmWithheldBody"><span class="pm-count">2</span><span>boards withheld today</span><span class="pm-caret" aria-hidden="true">&#9662;</span></button><div class="pm-withheld-body" id="pmWithheldBody"><ul><li>Matchup Spotlight</li><li>Pitcher's HR Risk Board</li></ul><p class="pm-withheld-note">These need the workbook. They are held back rather than estimated.</p></div></div></div><!-- PROJECTED CHROME END -->
 
 <header class="app-bar">
+  <button class="brand-refresh" id="brandRefresh" type="button" aria-label="Reload slate">⚾</button>
   <button class="brand" id="brandBtn" aria-label="The Daily Slate — back to top">
-    <span class="ball">⚾</span>
     <span class="wordmark">THE DAILY <em>SLATE</em></span>
   </button>
   <div class="bar-spacer"></div>
@@ -2527,7 +2529,7 @@ body.sheet-open #scroll-track{display:none;}
 <div id="scroll-track" aria-hidden="true"><div id="scroll-thumb"><div class="grip-line"></div><div class="grip-line"></div><div class="grip-line"></div></div></div>
 
 <!-- ============ Bottom dock ============ -->
-<div class="stale-banner" id="staleBanner" role="status" aria-live="polite"><span>New slate available — tap to refresh</span><button class="refresh-now" id="staleRefreshNow" type="button">Refresh</button><button class="stale-dismiss" id="staleDismiss" type="button" aria-label="Dismiss">×</button></div>
+<div class="stale-banner" id="staleBanner" role="status" aria-live="polite"><span>Updated slate — tap to reload</span><button class="stale-dismiss" id="staleDismiss" type="button" aria-label="Dismiss">×</button></div>
 <nav class="dock" aria-label="App actions">
   <button class="dock-btn" id="dockSearch"><span class="di">🔍</span><span class="dl">SEARCH</span></button>
   <button class="dock-btn" id="dockBoards"><span class="di">🗂</span><span class="dl">BOARDS</span></button>
@@ -2536,7 +2538,6 @@ body.sheet-open #scroll-track{display:none;}
   <a class="dock-btn" href="scout.html"><span class="di">⚡</span><span class="dl">SSJ</span></a>
   <button class="dock-btn" id="dockPicks"><span class="di">⭐</span><span class="dl">PICKS</span><span class="dock-badge hidden" id="picksCount">0</span></button>
   <button class="dock-btn" id="dockMore"><span class="di">⋯</span><span class="dl">MORE</span></button>
-  <button class="dock-btn refresh-btn" id="dockRefresh" type="button" aria-label="Refresh slate"><span class="di">↻</span><span class="dl">REFRESH</span></button>
 </nav>
 
 <div class="backdrop" id="backdrop"></div>
@@ -3514,13 +3515,24 @@ suggestForm.addEventListener('submit', function(e) {
   function refreshWithBust() {
     window.location.href = window.location.pathname + '?v=' + Date.now();
   }
-  var refreshBtn = document.getElementById('dockRefresh');
-  if (refreshBtn) refreshBtn.addEventListener('click', refreshWithBust);
+  var brandRefresh = document.getElementById('brandRefresh');
+  if (brandRefresh) {
+    brandRefresh.addEventListener('click', function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      refreshWithBust();
+    });
+  }
   var banner = document.getElementById('staleBanner');
-  var refreshNow = document.getElementById('staleRefreshNow');
   var dismiss = document.getElementById('staleDismiss');
-  if (refreshNow) refreshNow.addEventListener('click', refreshWithBust);
-  if (dismiss && banner) dismiss.addEventListener('click', function(){ banner.classList.remove('show'); });
+  if (banner) banner.addEventListener('click', function(event){
+    if (event.target && event.target.id === 'staleDismiss') return;
+    refreshWithBust();
+  });
+  if (dismiss && banner) dismiss.addEventListener('click', function(event){
+    event.stopPropagation();
+    banner.classList.remove('show');
+  });
   if (!currentStamp || !banner || !window.fetch) return;
   fetch('build-stamp.json?v=' + Date.now(), { cache: 'no-store' })
     .then(function(resp){ return resp.ok ? resp.json() : null; })
