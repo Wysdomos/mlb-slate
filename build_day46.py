@@ -2316,8 +2316,7 @@ def parlay_leg_html(leg):
     name = html.escape(str(leg.get('name') or leg.get('game') or ''))
     line = html.escape(str(leg.get('line') or ''))
     detail = html.escape(str(leg.get('detail') or ''))
-    role = html.escape(str(leg.get('leg_role') or 'satellite').title())
-    parts = [f'<strong>{name}</strong> {line}', f'<span class="badge b-neutral">{role}</span>']
+    parts = [f'<strong>{name}</strong> {line}']
     if detail:
         parts.append(f'<small>{detail}</small>')
     return ' '.join(parts)
