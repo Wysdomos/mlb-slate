@@ -38,8 +38,13 @@ OUTS_ALT_MARGIN_MIN = 2.0
 # Calibration will replace this starting +5 percentage-point/score penalty.
 CROSS_GAME_STRICTER_DELTA = 5.0
 K_ALT_MARGIN_MIN = OUTS_ALT_MARGIN_MIN
+# Chapter L funnel showed 0/32 starters reached three independent families and
+# 0 same-game pairs survived at two families; one family preserves same-game structure.
+TWO_WAY_K_MIN_FAMILIES = 1  # was 3
 DOUBLE_BARREL_HIT_MIN = 65.0
-CONTACT_HITS_ALLOWED_MIN = 5.5
+# Chapter L funnel showed Double Barrel collapsed at contact vulnerability.
+DOUBLE_BARREL_CONTACT_VULN_MIN = 50.0  # was 60.0
+CONTACT_HITS_ALLOWED_MIN = 5.0  # was 5.5
 YARD_SALE_DRIVER_MIN = 35.0
 
 # ---- Build lookup indexes ----
@@ -1304,6 +1309,14 @@ def build_projected_oo5_board():
         bp = BP_BAT_BY_NAME.get(nm.lower())
         bats = bp.get('BatterStand') if bp else None
         team = tn(r.get('Team'))
+        opp_team = tn(bp.get('Opponent', '')) if bp else ''
+        if not opp_team:
+            match = str(r.get('Matchup') or '')
+            if ' vs. ' in match:
+                parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                opp_team = parts[1] if team == parts[0] else (parts[0] if team == parts[1] else '')
+        hrr_pct = hrr_probability_for_hit_row(r, team, opp_team)
+        hrr_cell = hrr_cell_for_pct(hrr_pct)
         tier = 'row-tier0' if hp_val(r, '1+ Hit') >= 60 else ('row-tier1' if hp_val(r, '1+ Hit') >= 55 else '')
         rows.append(
             f'      <tr class="{tier}"><td>{i}</td>'
@@ -1312,6 +1325,7 @@ def build_projected_oo5_board():
             f'<td><strong>{r.get("1+ Hit","—")}</strong></td>'
             f'<td>{r.get("2+ Hits","—")}</td>'
             f'<td>{r.get("To Get RBI","—")}</td>'
+            f'<td>{hrr_cell}</td>'
             f'<td>{r.get("To Hit HR","—")}</td></tr>'
         )
     return f'''<!-- OO5 BOARD PROJECTED -->
@@ -1324,9 +1338,9 @@ def build_projected_oo5_board():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    {projected_badge("Hit, multi-hit, RBI, and HR columns reconstructed from live projection inputs.")}
+    {projected_badge("Hit, multi-hit, RBI, HRR, and HR columns reconstructed from live projection inputs.")}
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
       </tbody>
@@ -1627,25 +1641,9 @@ def build_oo5_board():
         match = r.get('Matchup','—')
 
         # ── HRR probability (H+R+RBI ≥ 1 combined) ──
-        h1_f       = _sf(str(h1).replace('%',''))
-        base_rbi_f = _sf(str(rbi).replace('%',''))
-        sp_r2      = SP_BY_TEAM.get(opp_team, {}) if opp_team else {}
-        era2       = _sf(sp_r2.get('ERA', 4.25))
-        park_r2    = _sf(str(PARK_BY_TEAM.get(team, {}).get('Runs %', '0')))
-        if h1_f > 0 and base_rbi_f > 0:
-            era_boost = max(0, (era2 - 4.25) * 1.5)
-            run_prob  = min(60, base_rbi_f * 0.8 + park_r2 * 0.3 + era_boost)
-            hrr_pct   = round(min(99, max(0,
-                (1 - (1-h1_f/100) * (1-run_prob/100) * (1-base_rbi_f/100)) * 100
-            )), 1)
-            if hrr_pct >= 82:
-                hrr_cell = f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
-            elif hrr_pct >= 75:
-                hrr_cell = f'<span style="color:var(--hot)">{hrr_pct}%</span>'
-            else:
-                hrr_cell = f'{hrr_pct}%'
-        else:
-            hrr_cell = '—'
+        hrr_pct = hrr_probability_for_hit_row(r, team, opp_team)
+        hrr_cell = hrr_cell_for_pct(hrr_pct)
+        park_r2 = park_runs_for_team(team)
         try: h1f = float(str(h1).replace('%',''))
         except (TypeError, ValueError): h1f = 0
         # ── Consensus: 5 independent lenses for a hit ──
@@ -1677,7 +1675,7 @@ def build_oo5_board():
             'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
             'consensus': votes, 'consensus_max': 6,
-            'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
+            'hrr_pct': hrr_pct,
             **blank_chip_tiers(),
         })
         batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
@@ -2257,6 +2255,27 @@ def hitter_hrr_projection(hit_row, team, opp_team):
     run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
     return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
 
+def hrr_probability_for_hit_row(hit_row, team, opp_team):
+    h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
+    rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
+    sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
+    era = _sf(sp.get('ERA', 4.25))
+    park_runs = park_runs_for_team(team)
+    if h1 <= 0 or rbi <= 0:
+        return None
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
+    return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
+
+def hrr_cell_for_pct(hrr_pct):
+    if hrr_pct is None:
+        return '—'
+    if hrr_pct >= 82:
+        return f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
+    if hrr_pct >= 75:
+        return f'<span style="color:var(--hot)">{hrr_pct}%</span>'
+    return f'{hrr_pct}%'
+
 def traffic_hitter_candidates():
     out = []
     for row in HIT:
@@ -2377,7 +2396,7 @@ def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
 
 def build_two_way_ks():
     pool = list(SP_PROJ)
-    lens_pool = [sp for sp in pool if k_independent_family_count(sp) >= 3]
+    lens_pool = [sp for sp in pool if k_independent_family_count(sp) >= TWO_WAY_K_MIN_FAMILIES]
     tier_pool = [sp for sp in lens_pool if k_tier_for_projection(sp.get('K')) <= 1]
     games = {}
     for sp in tier_pool:
@@ -2439,7 +2458,7 @@ def build_two_way_ks():
         })
     log_parlay_funnel('two-way-ks', [
         ('pool', len(pool)),
-        ('after lens>=3', len(lens_pool)),
+        (f'after lens>={TWO_WAY_K_MIN_FAMILIES}', len(lens_pool)),
         ('after tier 0-1', len(tier_pool)),
         ('after same-game pairing', len(same_game_pool)),
         ('after alt margin', len(alt_margin_pool)),
@@ -2449,7 +2468,7 @@ def build_two_way_ks():
         'two-way-ks',
         "Two-Way K's",
         'Tap to expand · same-game alt K pairs · independent K families',
-        'Eligibility: at least three independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line with enough alternate-line margin.',
+        f'Eligibility: at least {TWO_WAY_K_MIN_FAMILIES} independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line with enough alternate-line margin.',
         parlays,
         'No same-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
     )
@@ -2605,7 +2624,7 @@ def hit_candidate_rows(min_hit_pct=DOUBLE_BARREL_HIT_MIN, cross_game=False):
         sp = pitcher_projection(opp_sp) or {}
         bp_sp = pitcher_bp(opp_sp) or {}
         hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
-        if vuln_score < 60 and hits_proj < CONTACT_HITS_ALLOWED_MIN:
+        if vuln_score < DOUBLE_BARREL_CONTACT_VULN_MIN and hits_proj < CONTACT_HITS_ALLOWED_MIN:
             continue
         out.append({
             'name': name,
@@ -2648,7 +2667,7 @@ def build_double_barrel():
                 sp = pitcher_projection(opp_sp) or {}
                 bp_sp = pitcher_bp(opp_sp) or {}
                 hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
-                if vuln_score >= 60 or hits_proj >= CONTACT_HITS_ALLOWED_MIN:
+                if vuln_score >= DOUBLE_BARREL_CONTACT_VULN_MIN or hits_proj >= CONTACT_HITS_ALLOWED_MIN:
                     contact_pool.append(name)
     parlays = []
     grouped = {}
@@ -2799,7 +2818,16 @@ def build_cruise_control():
         seen.add(key)
         candidates.append((streak, leg))
     candidates.sort(key=lambda item: (-int(_sf(item[0].get('streak'))), seeded_streak_key(item[0]), item[1]['name']))
-    legs = [leg for _, leg in candidates[:3]]
+    legs = []
+    used_people = set()
+    for _, leg in candidates:
+        person = leg['name'].strip().lower()
+        if person in used_people:
+            continue
+        used_people.add(person)
+        legs.append(leg)
+        if len(legs) == 3:
+            break
     valid_count = 0
     if len(legs) >= 2:
         ok_probe, reason_probe = validate_parlay(legs, 'streak', max_legs=3)
