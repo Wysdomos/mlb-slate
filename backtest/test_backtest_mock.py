@@ -6,6 +6,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backtest.backfill_grades import grade_pick
 from backtest import calibration
+from parlay_rules import validate_parlay
 
 ok = True
 
@@ -116,6 +117,19 @@ run('report: cross-game split rendered', 'same_game=False' in report)
 run('report: small parlay buckets do not print rates', 'insufficient data -- keep accumulating' in report)
 lo, hi = calibration.wilson(12, 40)
 run('wilson CI sane for 12/40', 0.17 < lo < 0.20 and 0.44 < hi < 0.48)
+
+# --- parlay guards ----------------------------------------------------------
+ok_guard, reason_guard = validate_parlay([
+    {'market': 'HR', 'name': 'Power Bat', 'confidence_rank': 2},
+    {'market': 'HIT', 'name': 'Contact Bat', 'confidence_rank': 1},
+], 'traffic_jam')
+run('parlay guard: HR rejected outside Yard Sale',
+    ok_guard is False and 'Yard Sale' in reason_guard)
+ok_yard, reason_yard = validate_parlay([
+    {'market': 'HR', 'name': 'Power Bat A', 'confidence_rank': 1},
+    {'market': 'HR', 'name': 'Power Bat B', 'confidence_rank': 2},
+], 'yard_sale_same_game')
+run('parlay guard: Yard Sale HR exception remains active', ok_yard is True and reason_yard == 'ok')
 
 print('\n' + ('ALL TESTS PASSED' if ok else 'FAILURES PRESENT'))
 sys.exit(0 if ok else 1)
