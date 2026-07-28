@@ -200,7 +200,7 @@ def tn(t):
     t = str(t).strip()
     return TEAM_FIX.get(t, t)
 
-# Games for May 12 (BP_Games order — we'll sort by ET time below)
+# Games for the current slate (BP_Games order — we'll sort by ET time below)
 GAMES_RAW = DATA['BP_Games']
 
 # Game start times (ET) — pulled from Park_Factors 'Time' column
@@ -494,32 +494,36 @@ def format_danger_batter(s):
     return ' · '.join(parts)
 
 # ---- BUILD: HEADLINES ----
+def headline_footer_links():
+    projected_zone_note = (
+        '<div style="font-size:11px;color:var(--warn);margin-top:4px;">'
+        'Projected Mode: opens the workbook-only unavailable page.'
+        '</div>'
+        if PROJECTED_MODE else ''
+    )
+    return f'''
+  <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
+    <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
+  </div>
+  <div style="text-align:center;margin-top:14px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:10px;">
+    <a href="scout.html" style="color:#FFD700;font-weight:700;text-decoration:none;font-size:14px;">⚡ SSJ (The Zone) — Matchup Intelligence →</a>
+    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;">Zone scores · DANGER tags · platoon · projections · Fusion parlays</div>
+    {projected_zone_note}
+  </div>
+  <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
+'''
+
+# Headline content must stay derived from the current slate. The footer links are
+# static navigation and should survive future headline-content rebuilds.
 def build_headlines():
     cards = []
     parks_by_hr = sorted(PARKS, key=lambda p: parse_pct(p.get('HR %')), reverse=True)
     if parks_by_hr and parse_pct(parks_by_hr[0].get('HR %')) >= 10:
         park = parks_by_hr[0]
         cards.append((
-            'Top HR Park',
+            '🌋',
             f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> leads park HR context at "
             f"<strong>{html.escape(str(park.get('HR %','—')))}</strong> for "
-            f"{html.escape(str(park.get('Game','')))}."
-        ))
-    if parks_by_hr and parse_pct(parks_by_hr[-1].get('HR %')) <= -10:
-        park = parks_by_hr[-1]
-        cards.append((
-            'HR Fade Park',
-            f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> is the slate HR suppressor at "
-            f"<strong>{html.escape(str(park.get('HR %','—')))}</strong> for "
-            f"{html.escape(str(park.get('Game','')))}."
-        ))
-    parks_by_runs = sorted(PARKS, key=lambda p: parse_pct(p.get('Runs %')), reverse=True)
-    if parks_by_runs and parse_pct(parks_by_runs[0].get('Runs %')) >= 8:
-        park = parks_by_runs[0]
-        cards.append((
-            'Run Environment',
-            f"<strong>{html.escape(str(park.get('Venue','—')))}</strong> carries the top run context at "
-            f"<strong>{html.escape(str(park.get('Runs %','—')))}</strong> for "
             f"{html.escape(str(park.get('Game','')))}."
         ))
     vuln_rows = []
@@ -530,6 +534,30 @@ def build_headlines():
     vuln_rows.sort(key=lambda item: -item[0])
     if vuln_rows and vuln_rows[0][0] >= 50:
         score, sp, v = vuln_rows[0]
+        stack_team = tn(sp.get('Opp'))
+        stack_names = [
+            str(row.get('Batter') or row.get('Name') or '').strip()
+            for row in HR_LB[:50]
+            if tn(row.get('Team')) == stack_team and str(row.get('Batter') or row.get('Name') or '').strip()
+        ][:5]
+        names = ', '.join(html.escape(name) for name in stack_names)
+        stack_detail = f": {names}" if names else ''
+        cards.append((
+            '🔥',
+            f"<strong>{html.escape(stack_team or 'Opposing')} stack vs {html.escape(str(sp.get('Pitcher','—')))}</strong> "
+            f"draws the slate's top VulnScore at <strong>V{score:.0f}</strong>{stack_detail}."
+        ))
+    k_rows = sorted(SP_PROJ, key=lambda sp: -_sf(sp.get('K')))
+    if k_rows and _sf(k_rows[0].get('K')) >= 5.0:
+        sp = k_rows[0]
+        cards.append((
+            '⚡',
+            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> leads the K board at "
+            f"<strong>{_sf(sp.get('K')):.2f}</strong> projected strikeouts, mapped to "
+            f"<strong>{html.escape(k_alt_for(sp.get('K')))}</strong>."
+        ))
+    if vuln_rows and vuln_rows[0][0] >= 50:
+        score, sp, v = vuln_rows[0]
         reasons = []
         if _sf(sp.get('HR')) >= 0.8:
             reasons.append(f"{_sf(sp.get('HR')):.2f} HR/9")
@@ -537,47 +565,54 @@ def build_headlines():
             reasons.append(f"{_sf(sp.get('BB')):.2f} BB")
         reason = ' and '.join(reasons) if reasons else f"ERA {html.escape(str(v.get('ERA','—')))}"
         cards.append((
-            'Starter Vulnerability',
+            '🎯',
             f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> has the top VulnScore at "
             f"<strong>V{score:.0f}</strong>; board context shows {reason}."
         ))
-    k_rows = sorted(SP_PROJ, key=lambda sp: -_sf(sp.get('K')))
-    if k_rows and _sf(k_rows[0].get('K')) >= 5.0:
-        sp = k_rows[0]
+    fade_parks = [park for park in sorted(PARKS, key=lambda p: parse_pct(p.get('HR %'))) if parse_pct(park.get('HR %')) <= -10]
+    if fade_parks:
+        fade_text = ' / '.join(
+            f"{html.escape(str(park.get('Venue','Park')))} {html.escape(str(park.get('HR %','—')))}"
+            for park in fade_parks[:3]
+        )
         cards.append((
-            'Top K Projection',
-            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> leads the K board at "
-            f"<strong>{_sf(sp.get('K')):.2f}</strong> projected strikeouts, mapped to "
-            f"<strong>{html.escape(k_alt_for(sp.get('K')))}</strong>."
+            '🥶',
+            f"<strong>{fade_text}</strong> are the slate HR fade parks; downgrade HR props in those environments."
         ))
-    consensus_rows = sorted(SP_PROJ, key=lambda sp: (-k_consensus_for_pitcher(sp), -_sf(sp.get('K'))))
-    if consensus_rows and k_consensus_for_pitcher(consensus_rows[0]) >= 4:
-        sp = consensus_rows[0]
-        votes = k_consensus_for_pitcher(sp)
+    skip_items = []
+    for sp in sorted(SP_PROJ, key=lambda row: _sf(row.get('K'))):
+        kf = _sf(sp.get('K'))
+        if kf < 4.0:
+            skip_items.append(f"{html.escape(str(sp.get('Pitcher','')))} K {kf:.2f}")
+        elif pitcher_is_short_leash(sp.get('Pitcher')):
+            skip_items.append(f"{html.escape(str(sp.get('Pitcher','')))} short leash")
+        if len(skip_items) >= 4:
+            break
+    if skip_items:
         cards.append((
-            'K Consensus',
-            f"<strong>{html.escape(str(sp.get('Pitcher','—')))}</strong> leads K consensus at "
-            f"<strong>{votes}/6 lenses</strong> with a "
-            f"<strong>{_sf(sp.get('K')):.2f}</strong> strikeout projection."
+            '📋',
+            f"<strong>Skip arms / downgrades:</strong> {', '.join(skip_items)}. "
+            "These stay below the K board threshold or trip the short-leash rule."
         ))
     if not cards:
-        return empty_parlay_section(
-            'headlines',
-            'Slate Headlines',
-            'No slate-level flags cleared',
-            'No park, starter, K, or run-environment signal cleared its headline threshold.',
+        body = (
+            '<div class="flag-row"><div class="icon">📋</div><div>'
+            '<strong>No slate-level flags cleared.</strong> No park, starter, K, stack, fade, or skip signal cleared its headline threshold.'
+            '</div></div>'
         )
-    body = ''.join(
-        f'<div class="headline-card"><div class="hc-title">{title}</div><p>{text}</p></div>'
-        for title, text in cards[:6]
-    )
+    else:
+        body = ''.join(
+            f'<div class="flag-row"><div class="icon">{icon}</div><div>{text}</div></div>'
+            for icon, text in cards[:6]
+        )
     badge = (
         projected_badge("Top cards rebuilt from live sources; workbook-only signals are omitted.") + '\n'
         if PROJECTED_MODE else ''
     )
     return f'''<!-- HEADLINES -->
-<section id="headlines" class="headline-grid">
-{badge}{body}
+<section id="headlines">
+  <h2>📅 Slate Headlines + Flags</h2>
+{badge}{body}{headline_footer_links()}
 </section>
 '''
 
