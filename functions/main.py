@@ -22,6 +22,7 @@ import ast
 import base64
 import time
 import requests
+from archive_logs import extract_error_log
 from firebase_functions import https_fn, options
 from google import genai
 from log_retry import (
@@ -139,6 +140,19 @@ def gemini_generate(prompt: str, max_attempts: int = 3):
     ],
 )
 def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
+    try:
+        return _auto_heal_webhook_impl(req)
+    except Exception as e:
+        msg = (
+            f"⚠️ Healer caught unhandled {type(e).__name__}: {e}. "
+            "No action taken."
+        )
+        print(msg)
+        notify_mobile(msg)
+        return https_fn.Response(msg, status=200)
+
+
+def _auto_heal_webhook_impl(req: https_fn.Request) -> https_fn.Response:
 
     # ── STEP 1: AUTHENTICATE ─────────────────────────────────────
     if not verify_signature(req):
@@ -176,7 +190,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             msg = f"❌ Healer self-test FAILED: {type(e).__name__}: {e}"
             print(msg)
             notify_mobile(msg)
-            return https_fn.Response(msg, status=500)
+            return https_fn.Response(msg, status=200)
 
     headers = {
         "Authorization": f"Bearer {GITHUB_TOKEN}",
@@ -217,28 +231,41 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
         print(msg)
         notify_mobile(msg)
         return https_fn.Response(
-            f"Failed to fetch logs (HTTP {log_resp.status_code})", status=500
+            f"Failed to fetch logs (HTTP {log_resp.status_code})", status=200
         )
 
     try:
         log_zip   = zipfile.ZipFile(io.BytesIO(log_resp.content))
-        log_files = [f for f in log_zip.namelist() if f.endswith(".txt")]
-        log_files.sort(
-            key=lambda f: log_zip.getinfo(f).file_size, reverse=True
+        extracted = extract_error_log(
+            log_zip,
+            repo,
+            run_id,
+            headers,
+            get=requests.get,
         )
-        # Tail 8K chars — the traceback is always at the bottom
-        error_log = log_zip.read(log_files[0]).decode(
-            "utf-8", errors="replace"
-        )[-8000:]
+        if extracted.error_log is None:
+            print(f"Log archive namelist for run {run_id}: {extracted.names!r}")
+            msg = (
+                f"🔍 Healer log archive for run {run_id} contained no "
+                "readable step logs. No action taken."
+            )
+            print(msg)
+            notify_mobile(msg)
+            return https_fn.Response(msg, status=200)
+        print(
+            f"Selected log file for run {run_id}: {extracted.entry} "
+            f"({extracted.reason})"
+        )
+        error_log = extracted.error_log
     except Exception as e:
-        # A corrupt/unreadable log archive is a genuine malfunction, not a
-        # routine decline — say so plainly and keep the 500 + ⚠️.
+        # A corrupt/unreadable log archive is a genuine malfunction, but the
+        # safety net itself should not return 500.
         msg = (f"⚠️ Healer FAILED: log archive for run {run_id} was corrupt "
                f"or unreadable ({e}). This is a malfunction — needs a look.")
         print(msg)
         notify_mobile(msg)
         return https_fn.Response(
-            f"Error parsing log zip: {e}", status=500
+            f"Error parsing log zip: {e}", status=200
         )
 
     # ── STEP 4: DYNAMIC CONTEXT RETRIEVAL ────────────────────────
@@ -303,7 +330,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             f"⚠️ Auto-heal failed: Gemini API error for {failed_file}: {e}. "
             f"Manual intervention required."
         )
-        return https_fn.Response("Gemini API call failed.", status=500)
+        return https_fn.Response("Gemini API call failed.", status=200)
 
     # ── STEP 6: STRIP MARKDOWN + AST GUARDRAIL ───────────────────
     # Strip any ```python or ``` fences Gemini adds despite instructions
@@ -343,7 +370,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             f"⚠️ Auto-heal failed: could not create branch for {failed_file}. "
             f"GitHub status: {branch_resp.status_code}"
         )
-        return https_fn.Response("Branch creation failed.", status=500)
+        return https_fn.Response("Branch creation failed.", status=200)
 
     # ── STEP 8: PUSH FIXED FILE ──────────────────────────────────
     push_resp = requests.put(
@@ -364,7 +391,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             f"⚠️ Auto-heal failed: could not push fix for {failed_file}. "
             f"GitHub status: {push_resp.status_code}"
         )
-        return https_fn.Response("File push failed.", status=500)
+        return https_fn.Response("File push failed.", status=200)
 
     # ── STEP 9: OPEN PULL REQUEST ────────────────────────────────
     pr_resp = requests.post(
@@ -389,7 +416,7 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
             f"⚠️ Auto-heal: fix pushed for {failed_file} "
             f"but PR creation failed. Check GitHub manually."
         )
-        return https_fn.Response("PR creation failed.", status=500)
+        return https_fn.Response("PR creation failed.", status=200)
 
     notify_mobile(f"✅ Auto-fix PR ready for {failed_file}: {pr_url}")
     return https_fn.Response("Self-healing sequence complete.")
