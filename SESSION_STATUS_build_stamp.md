@@ -1,3 +1,128 @@
+# SESSION STATUS - Build Stamp Staging
+
+Branch: `codex/fix-build-stamp-staging`
+
+## Summary
+
+Fixed the daily push loop root cause:
+
+- `build-stamp.json` is now explicitly staged with the generated artifacts in `.github/workflows/daily.yml`.
+- The retry loop now stashes unstaged/untracked files before each merge retry, so a forgotten generated artifact cannot abort `git merge -X ours origin/main`.
+- A real merge abort now fails immediately with a GitHub `::error::` naming the blocking files instead of burning all five retries.
+
+No blanket `git add -A` was added.
+
+## Verification
+
+### a. Full daily build runs and pushes green
+
+Production `main` was not pushed from this feature branch. The commit/push loop was verified with a local bare `origin` simulation that exercises the same staging, merge, and push behavior.
+
+Relevant output:
+
+```text
+To /var/folders/vt/jgcq4b4s0qz5_xh9nt07jpkc0000gn/T/tmp.88whmAtWNJ/origin.git
+   061084b..e940b1d  main -> main
+pushed on attempt 1
+```
+
+### b. Dirty unstaged generated file no longer aborts merge
+
+Simulation deliberately dirtied a tracked generated file that is not in the explicit stage list: `extra-generated.json`.
+
+Output:
+
+```text
+::warning::Stashing unstaged/untracked files before merge retry so generated artifacts cannot abort the merge
+ M extra-generated.json
+Saved working directory and index state On main: daily-build-unstaged-before-merge-local
+To /var/folders/vt/jgcq4b4s0qz5_xh9nt07jpkc0000gn/T/tmp.88whmAtWNJ/origin.git
+   061084b..e940b1d  main -> main
+pushed on attempt 1
+```
+
+### c. Unresolvable merge fails fast naming file
+
+Simulation created a directory/file conflict. The loop exited on the first merge failure.
+
+Output:
+
+```text
+::error::Merge aborted during push retry; blocking file(s): conflict-path~origin_main
+CONFLICT (file/directory): directory in the way of conflict-path from origin/main; moving it to conflict-path~origin_main instead.
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+### d. build-stamp.json updates on main after success
+
+Simulation confirmed `build-stamp.json` reached the target `main`.
+
+```text
+build-stamp on main: runner stamp
+extra-generated on main: initial
+```
+
+`extra-generated.json` stayed unchanged on main, proving the dirty forgotten generated file was not accidentally committed.
+
+### e. No untracked or BPP-derived file newly staged
+
+Before adding this report, repo status showed only the workflow change:
+
+```text
+ M .github/workflows/daily.yml
+```
+
+### f. Compliance, ast.parse, py_compile
+
+```bash
+ruby -e "require 'yaml'; YAML.load_file('.github/workflows/daily.yml'); puts 'YAML OK'"
+```
+
+```text
+YAML OK
+```
+
+```bash
+bash -n /tmp/daily_commit_push_block.sh
+```
+
+```text
+OK
+```
+
+```bash
+python3 tools/check_bpp_compliance.py
+```
+
+```text
+BPP compliance OK (0 changed JSON/HTML files checked against fbfaffb76dbd)
+```
+
+```bash
+python3 -m py_compile sync.py build.py build_day46.py
+```
+
+```text
+OK
+```
+
+```bash
+python3 - <<'PY'
+import ast, pathlib
+for root in ['.', 'tools', 'backtest', 'functions']:
+    for path in pathlib.Path(root).glob('*.py'):
+        ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
+print('ast.parse OK')
+PY
+```
+
+```text
+ast.parse OK
+```
+
+## Exact Final YAML
+
+```yaml
 name: Daily MLB Slate Build
 
 on:
@@ -233,3 +358,4 @@ jobs:
               -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
               --data-urlencode text="⚠️ Auto-healer webhook returned HTTP $HTTP — the safety net may be down."
           fi
+```
