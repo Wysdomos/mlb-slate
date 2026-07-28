@@ -2,6 +2,8 @@
 
 Date run: 2026-07-25
 
+Findings reflect the BallparkPal API as of that date. Endpoint shapes and field availability may have changed since; re-run the pulls below before relying on any "cannot source" conclusion.
+
 Scope: discovery only. No Chapter D build code was written.
 
 ## Live Pull Evidence
