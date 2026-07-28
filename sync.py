@@ -513,6 +513,10 @@ PROJECTED_JS = '''
 
 
 def apply_projected_theme(html):
+    workbook_alignment_title = 'Alignment — Sweet Spot Tier Logic'
+    projected_alignment_title = 'Projected Mode Alignment'
+    workbook_alignment_tag = 'Tap to expand - tier thresholds + ' + f'{month_short} {day_of_mo} park notes'
+    projected_alignment_tag = 'Tap to expand - reconstructed board boundaries'
     html = re.sub(
         r'\n?/\* PROJECTED MODE CSS START \*/[\s\S]*?/\* PROJECTED MODE CSS END \*/\n?',
         '\n',
@@ -531,11 +535,13 @@ def apply_projected_theme(html):
     html = re.sub(r'\n?<div class="projected-mode-banner">[\s\S]*?</div>\s*', '\n', html)
     if not PROJECTED_MODE:
         html = re.sub(r'<body class="projected-mode">', '<body>', html, count=1)
+        html = html.replace(projected_alignment_title, workbook_alignment_title)
+        html = html.replace(projected_alignment_tag, workbook_alignment_tag)
         return html
     html = html.replace('</style>', PROJECTED_CSS + '\n</style>', 1)
     html = re.sub(r'<body(?: class="[^"]*")?>', '<body class="projected-mode">', html, count=1)
-    html = html.replace('Alignment — Sweet Spot Tier Logic', 'Projected Mode Alignment')
-    html = html.replace('Tap to expand - tier thresholds + ' + f'{month_short} {day_of_mo} park notes', 'Tap to expand - reconstructed board boundaries')
+    html = html.replace(workbook_alignment_title, projected_alignment_title)
+    html = html.replace(workbook_alignment_tag, projected_alignment_tag)
 
     # -- Pull the workbook-only placeholder sections out of the page, keeping
     #    their names for the aggregate disclosure. Only sections marked
