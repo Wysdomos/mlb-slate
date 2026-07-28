@@ -19,6 +19,9 @@ from typing import Callable, Dict, Iterable, List, Mapping, Optional, Tuple
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_STORE = os.path.join(HERE, "graded_picks.json")
 REPO = os.path.dirname(HERE)
+APPLIED_OFFSET_POINTS = 8.9
+APPLIED_GREEN_CUT = 73.0
+APPLIED_ORANGE_CUT = 70.0
 
 
 def norm_name(value: object) -> str:
@@ -180,11 +183,11 @@ def report(rows: List[dict]) -> str:
 
     lines.append("")
     lines.append("Old color cuts on calibrated offset values: green >=82, orange >=75")
-    for share in color_share(rows, lambda value: value - 8.881971830985904, 82.0, 75.0):
+    for share in color_share(rows, lambda value: value - APPLIED_OFFSET_POINTS, 82.0, 75.0):
         lines.append(f"- {share['label']}: n={share['n']} share={share['share']:.1%} actual={share['actual']:.1f}%")
     lines.append("")
     lines.append("Candidate color cuts on calibrated offset values: green >=73, orange >=70")
-    for share in color_share(rows, lambda value: value - 8.881971830985904, 73.0, 70.0):
+    for share in color_share(rows, lambda value: value - APPLIED_OFFSET_POINTS, APPLIED_GREEN_CUT, APPLIED_ORANGE_CUT):
         lines.append(f"- {share['label']}: n={share['n']} share={share['share']:.1%} actual={share['actual']:.1f}%")
     return "\n".join(lines)
 

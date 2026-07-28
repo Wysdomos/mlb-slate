@@ -49,6 +49,16 @@ DOUBLE_BARREL_CONTACT_VULN_MIN = 50.0  # was 60.0
 CONTACT_HITS_ALLOWED_MIN = 5.0  # was 5.5
 YARD_SALE_DRIVER_MIN = 35.0
 
+# HRR calibration fit on 2026-07-28 from 355 earlier-slate HRR rows.
+# Refit as graded HRR data accumulates; the underlying raw formula is unchanged.
+HRR_CALIBRATION_FIT_DATE = '2026-07-28'
+HRR_CALIBRATION_TRAIN_SAMPLE_N = 355
+HRR_CALIBRATION_OFFSET_POINTS = 8.9
+HRR_CALIBRATION_MIN_GRADED_ROWS = 100
+HRR_GREEN_CUT = 73.0
+HRR_ORANGE_CUT = 70.0
+_HRR_CALIBRATION_READY = None
+
 # ---- Build lookup indexes ----
 SP_PROJ = DATA['SP_Projections']  # new 15-pitcher sheet (Team, Pitcher, Opp, Inn, BF, R, H, HR, K, BB)
 SP_BY_TEAM = {r['Team'].strip(): r for r in SP_PROJ if r.get('Team')}
@@ -2245,7 +2255,37 @@ def k_tier_for_projection(k_proj):
         return 2
     return 3
 
-def hitter_hrr_projection(hit_row, team, opp_team):
+def hrr_calibration_ready():
+    global _HRR_CALIBRATION_READY
+    if _HRR_CALIBRATION_READY is not None:
+        return _HRR_CALIBRATION_READY
+    path = os.environ.get('GRADED_PICKS_FILE', 'backtest/graded_picks.json')
+    try:
+        with open(path, encoding='utf-8') as f:
+            store = json.load(f)
+        rows = [
+            row for row in store.get('graded', [])
+            if row.get('market') == 'HRR' and row.get('win') is not None
+        ]
+        _HRR_CALIBRATION_READY = len(rows) >= HRR_CALIBRATION_MIN_GRADED_ROWS
+        if not _HRR_CALIBRATION_READY:
+            print(
+                f'[hrr-calibration] warning: {path} has {len(rows)} graded HRR rows; '
+                f'need {HRR_CALIBRATION_MIN_GRADED_ROWS}. Using uncalibrated HRR output.'
+            )
+    except Exception as exc:
+        _HRR_CALIBRATION_READY = False
+        print(f'[hrr-calibration] warning: could not read {path}: {exc}. Using uncalibrated HRR output.')
+    return _HRR_CALIBRATION_READY
+
+def calibrate_hrr_pct(raw_pct):
+    if raw_pct is None:
+        return None
+    if not hrr_calibration_ready():
+        return raw_pct
+    return round(max(0, min(99, raw_pct - HRR_CALIBRATION_OFFSET_POINTS)), 1)
+
+def raw_hrr_probability_for_hit_row(hit_row, team, opp_team):
     h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
     rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
     sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
@@ -2257,24 +2297,18 @@ def hitter_hrr_projection(hit_row, team, opp_team):
     run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
     return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
 
+def hitter_hrr_projection(hit_row, team, opp_team):
+    return calibrate_hrr_pct(raw_hrr_probability_for_hit_row(hit_row, team, opp_team))
+
 def hrr_probability_for_hit_row(hit_row, team, opp_team):
-    h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
-    rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
-    sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
-    era = _sf(sp.get('ERA', 4.25))
-    park_runs = park_runs_for_team(team)
-    if h1 <= 0 or rbi <= 0:
-        return None
-    era_boost = max(0, (era - 4.25) * 1.5)
-    run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
-    return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
+    return calibrate_hrr_pct(raw_hrr_probability_for_hit_row(hit_row, team, opp_team))
 
 def hrr_cell_for_pct(hrr_pct):
     if hrr_pct is None:
         return '—'
-    if hrr_pct >= 82:
+    if hrr_pct >= HRR_GREEN_CUT:
         return f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
-    if hrr_pct >= 75:
+    if hrr_pct >= HRR_ORANGE_CUT:
         return f'<span style="color:var(--hot)">{hrr_pct}%</span>'
     return f'{hrr_pct}%'
 
