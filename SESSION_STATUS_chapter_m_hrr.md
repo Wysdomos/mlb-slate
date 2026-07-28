@@ -142,4 +142,32 @@ ast.parse OK
 
 ## Push / PR
 
-Pending final push output and draft PR URL.
+Draft PR: https://github.com/Wysdomos/mlb-slate/pull/38
+
+Initial push command:
+
+```bash
+git push -u origin codex/chapter-m-hrr
+```
+
+Push output:
+
+```text
+remote:
+remote: Create a pull request for 'codex/chapter-m-hrr' on GitHub by visiting:
+remote:      https://github.com/Wysdomos/mlb-slate/pull/new/codex/chapter-m-hrr
+remote:
+To https://github.com/Wysdomos/mlb-slate.git
+ * [new branch]      codex/chapter-m-hrr -> codex/chapter-m-hrr
+branch 'codex/chapter-m-hrr' set up to track 'origin/codex/chapter-m-hrr'.
+```
+
+Origin confirmation after push:
+
+```bash
+git ls-remote origin refs/heads/codex/chapter-m-hrr
+```
+
+```text
+73d1b11de4fb63b793658d07f4f5c2c7d8ae31d3	refs/heads/codex/chapter-m-hrr
+```
