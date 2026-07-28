@@ -2390,17 +2390,83 @@ def traffic_hitter_candidates():
             'game': game_key_for_team(team),
             'hrr_pct': hrr,
             'hit_pct': h1,
+            'hrr_tier_cls': parlay_tier_class_for_hrr_pct(hrr),
+            'hit_tier_cls': parlay_tier_class_for_hit_pct(h1),
         })
     return out
+
+def parlay_tier_class_for_k_projection(k_proj):
+    tier = k_tier_for_projection(k_proj)
+    if tier == 0:
+        return 'b-tier0'
+    if tier == 1:
+        return 'b-tier1'
+    if tier == 2:
+        return 'b-warn'
+    return ''
+
+def parlay_tier_class_for_hit_pct(hit_pct):
+    pct = _sf(hit_pct)
+    if pct >= 60:
+        return 'b-tier0'
+    if pct >= 55:
+        return 'b-tier1'
+    return ''
+
+def parlay_tier_class_for_hrr_pct(hrr_pct):
+    pct = _sf(hrr_pct)
+    if pct >= HRR_GREEN_CUT:
+        return 'b-tier0'
+    if pct >= HRR_ORANGE_CUT:
+        return 'b-tier1'
+    return ''
+
+def parlay_tier_class_for_vuln_score(vuln_score):
+    vv = _sf(vuln_score)
+    if vv >= 50:
+        return 'b-tier0'
+    if vv >= 32:
+        return 'b-tier1'
+    return ''
+
+def parlay_tier_class_for_yard_sale_driver(score):
+    # Yard Sale's established ranking is physical-driver score, not HR consensus.
+    sc = _sf(score)
+    if sc >= YARD_SALE_DRIVER_MIN + CROSS_GAME_STRICTER_DELTA:
+        return 'b-tier0'
+    if sc >= YARD_SALE_DRIVER_MIN:
+        return 'b-tier1'
+    return ''
+
+def parlay_tier_class_for_streak_len(streak_len):
+    # Streak boards use hot-streak emphasis; keep this as a fallback only.
+    streak = _sf(streak_len)
+    if streak >= 5:
+        return 'b-tier0'
+    if streak >= 3:
+        return 'b-tier1'
+    return ''
+
+PARLAY_LEG_STYLE_BY_CLASS = {
+    'b-tier0': 'background:var(--tier0-bg);border:1px solid var(--tier0-border);color:var(--tier0);',
+    'b-tier1': 'background:var(--tier1-bg);border:1px solid var(--tier1-border);color:var(--tier1);',
+    'b-warn': 'background:var(--warn-bg);border:1px solid rgba(255,166,61,.45);color:var(--warn);',
+    'b-bad': 'background:var(--bad-bg);border:1px solid var(--bad-border);color:var(--bad);',
+}
 
 def parlay_leg_html(leg):
     name = html.escape(str(leg.get('name') or leg.get('game') or ''))
     line = html.escape(str(leg.get('line') or ''))
     detail = html.escape(str(leg.get('detail') or ''))
+    tier_cls = str(leg.get('tier_cls') or '').strip()
+    style = (
+        'display:block;margin:5px 0;padding:7px 9px;border-radius:8px;'
+        + PARLAY_LEG_STYLE_BY_CLASS.get(tier_cls, 'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);')
+    )
     parts = [f'<strong>{name}</strong> {line}']
     if detail:
         parts.append(f'<small>{detail}</small>')
-    return ' '.join(parts)
+    return f'<span class="parlay-leg {html.escape(tier_cls)}" style="{style}">{" ".join(parts)}</span>'
 
 def slate_id_for_parlays():
     for row in DATA.get('BP_Games', []):
@@ -2529,6 +2595,7 @@ def build_two_way_ks():
                 'consensus_max': 4,
                 'leg_role': 'satellite',
                 'confidence_rank': idx,
+                'tier_cls': parlay_tier_class_for_k_projection(c['sp'].get('K')),
                 'detail': f'{direction.lower()} from projection {rec["projection"]:.2f} vs line {rec["main_line"]:.1f}; {c["families"]}/4 independent K families',
             })
         ok, reason = validate_parlay(legs, 'two_way_k', max_legs=3)
@@ -2574,6 +2641,7 @@ def build_two_way_ks():
                     'consensus_max': 4,
                     'leg_role': 'satellite',
                     'confidence_rank': idx,
+                    'tier_cls': parlay_tier_class_for_k_projection(c['sp'].get('K')),
                     'detail': f'{direction.lower()} cross-game; alt margin {rec["alt_margin"]:.2f} clears {cross_margin_min:.1f}; {c["families"]}/4 independent K families',
                 })
             ok, reason = validate_parlay(legs, 'two_way_k_cross_game', max_legs=3)
@@ -2647,6 +2715,7 @@ def build_traffic_jam():
                 'win_at': hits_line['win_at'],
                 'leg_role': 'satellite',
                 'confidence_rank': 3,
+                'tier_cls': parlay_tier_class_for_vuln_score(vuln_score),
                 'detail': f'projected {hits_line["projection"]:.2f} hits allowed',
             }
         elif runs_line and (era >= 4.5 or park_runs >= 5):
@@ -2661,6 +2730,7 @@ def build_traffic_jam():
                 'win_at': runs_line['win_at'],
                 'leg_role': 'satellite',
                 'confidence_rank': 3,
+                'tier_cls': parlay_tier_class_for_vuln_score(vuln_score),
                 'detail': f'projected {runs_line["projection"]:.2f} runs allowed; park runs {park_runs:+d}%',
             }
         if not structure:
@@ -2679,6 +2749,7 @@ def build_traffic_jam():
                 'win_at': 1,
                 'leg_role': 'satellite',
                 'confidence_rank': 1,
+                'tier_cls': hitter['hrr_tier_cls'],
                 'detail': f'{hitter["hrr_pct"]:.1f}% HRR proxy',
             })
         if pitcher_leg:
@@ -2696,6 +2767,7 @@ def build_traffic_jam():
                     'win_at': 1,
                     'leg_role': 'satellite',
                     'confidence_rank': 2,
+                    'tier_cls': extra['hit_tier_cls'],
                     'detail': f'{extra["hit_pct"]:.1f}% 1+ hit',
                 })
         ok, reason = validate_parlay(legs, structure, max_legs=3)
@@ -2823,6 +2895,7 @@ def build_double_barrel():
                 'win_at': 1,
                 'leg_role': 'satellite',
                 'confidence_rank': idx,
+                'tier_cls': parlay_tier_class_for_hit_pct(hitter['hit_pct']),
                 'detail': f'{hitter["hit_pct"]:.1f}% 1+ hit; contact vulnerability {hitter["vuln_score"]:.0f}',
             })
         ok, reason = validate_parlay(legs, 'double_barrel_same_game', max_legs=2)
@@ -2853,6 +2926,7 @@ def build_double_barrel():
                     'win_at': 1,
                     'leg_role': 'satellite',
                     'confidence_rank': idx,
+                    'tier_cls': parlay_tier_class_for_hit_pct(hitter['hit_pct']),
                     'detail': f'{hitter["hit_pct"]:.1f}% 1+ hit; cross-game threshold {DOUBLE_BARREL_HIT_MIN + CROSS_GAME_STRICTER_DELTA:.1f}%',
                 })
             ok, reason = validate_parlay(legs, 'double_barrel_cross_game', max_legs=2)
@@ -2907,25 +2981,31 @@ def cruise_leg_from_streak(streak):
         'game': game_key_for_team(team),
         'leg_role': 'satellite',
         'confidence_rank': 10 - min(streak_len, 9),
+        'tier_cls': parlay_tier_class_for_streak_len(streak_len),
         'detail': f'{streak_len}-game active streak',
     }
     if stype == 'HRR':
-        return {**base, 'market': 'HRR', 'line': 'Ov 0.5 HRR', 'win_at': 1}
+        hit_row = HIT_BY_NAME.get(name.lower()) or {}
+        hrr_pct = hitter_hrr_projection(hit_row, team, opp) if hit_row else None
+        return {**base, 'market': 'HRR', 'line': 'Ov 0.5 HRR', 'win_at': 1, 'tier_cls': parlay_tier_class_for_hrr_pct(hrr_pct) or base['tier_cls']}
     if stype == 'HIT':
-        return {**base, 'market': 'HIT', 'line': 'Ov 0.5 H', 'win_at': 1}
+        hit_row = HIT_BY_NAME.get(name.lower()) or {}
+        hit_pct = _sf(str(hit_row.get('1+ Hit', '')).replace('%', '')) if hit_row else 0
+        return {**base, 'market': 'HIT', 'line': 'Ov 0.5 H', 'win_at': 1, 'tier_cls': parlay_tier_class_for_hit_pct(hit_pct) or base['tier_cls']}
     if stype == 'K':
         sp = pitcher_projection(name)
         if not sp:
             return None
         kf = _sf(sp.get('K'))
         line = k_alt_for(kf)
-        return {**base, 'market': 'K', 'line': line, 'win_at': 5 if '5' in line else (4 if '3.5' in line else 3)}
+        return {**base, 'market': 'K', 'line': line, 'win_at': 5 if '5' in line else (4 if '3.5' in line else 3), 'tier_cls': parlay_tier_class_for_k_projection(kf) or base['tier_cls']}
     if stype == 'HAL':
         bp = pitcher_bp(name)
         line = pitcher_hits_allowed_line(bp)
         if not line:
             return None
-        return {**base, 'market': 'H_ALLOWED', 'line': line['line'], 'win_at': line['win_at']}
+        vuln = get_vuln_for_pitcher(name) or {}
+        return {**base, 'market': 'H_ALLOWED', 'line': line['line'], 'win_at': line['win_at'], 'tier_cls': parlay_tier_class_for_vuln_score(vuln.get('VulnScore')) or base['tier_cls']}
     return None
 
 def build_cruise_control():
@@ -3094,6 +3174,7 @@ def build_yard_sale():
                 'win_at': 1,
                 'leg_role': 'satellite',
                 'confidence_rank': idx,
+                'tier_cls': parlay_tier_class_for_yard_sale_driver(hitter['score']),
                 'detail': f'park HR {hitter["park_hr"]:+d}%; pitcher HR allowed {hitter["pitcher_hra"]:.2f}; HR projection {hitter["hr_proj"]:.2f}',
             })
         ok, reason = validate_parlay(legs, 'yard_sale_same_game', max_legs=2)
@@ -3124,6 +3205,7 @@ def build_yard_sale():
                     'win_at': 1,
                     'leg_role': 'satellite',
                     'confidence_rank': idx,
+                    'tier_cls': parlay_tier_class_for_yard_sale_driver(hitter['score']),
                     'detail': f'physical driver score {hitter["score"]:.1f}; cross-game threshold {YARD_SALE_DRIVER_MIN + CROSS_GAME_STRICTER_DELTA:.1f}',
                 })
             ok, reason = validate_parlay(legs, 'yard_sale_cross_game', max_legs=2)
