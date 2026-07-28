@@ -3,7 +3,7 @@
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
-import hashlib, html, json, re, os
+import hashlib, html, json, re, os, unicodedata
 from datetime import datetime
 from parlay_rules import (
     FORBIDDEN_MARKETS,
@@ -23,6 +23,11 @@ def _sf(v, default=0.0):
     """Safely convert any SP_PROJ numeric field to float — handles str, None, empty."""
     try: return float(v) if v not in (None, '', 'None') else default
     except (TypeError, ValueError): return default
+
+def player_key(value):
+    text = unicodedata.normalize('NFKD', str(value or '')).encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'\b(jr|sr|ii|iii|iv|v)\.?$', '', text.strip(), flags=re.I)
+    return re.sub(r'[^a-z0-9]+', ' ', text.lower()).strip()
 
 DATA = json.load(open('/home/user/workspace/day46_data.json'))
 PROJECTED_MODE = DATA.get('_mode') == 'projected'
@@ -95,13 +100,63 @@ for p in PARKS:
 HR_LB = DATA['HR_Leaderboard']
 SSA = DATA['Sweet_Spot_Analyzer']
 
+try:
+    HOT_STREAKS_FILE = os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json')
+    HOT_STREAKS = json.load(open(HOT_STREAKS_FILE, encoding='utf-8'))
+    if not isinstance(HOT_STREAKS, dict):
+        HOT_STREAKS = {}
+except Exception:
+    HOT_STREAKS = {}
+
 # Workbook Streaks tab (Batter, Hit Streak, HR Streak, ISO, wOBA, ...) — cross-reference form signal
 STREAKS = DATA.get('Streaks', [])
 STREAK_BY_NAME = {}
+STREAK_SOURCE_COUNTS = {'workbook': 0, 'live': 0, 'hot': 0}
 for r in STREAKS:
-    nm = (r.get('Batter') or '').strip().lower()
+    nm = player_key(r.get('Batter'))
     if nm and nm not in STREAK_BY_NAME:
         STREAK_BY_NAME[nm] = r
+        STREAK_SOURCE_COUNTS['workbook'] += 1
+try:
+    STREAKS_LIVE_FILE = os.environ.get('STREAKS_OUT', os.environ.get('STREAKS_LIVE_FILE', 'streaks_live.json'))
+    STREAKS_LIVE = json.load(open(STREAKS_LIVE_FILE, encoding='utf-8'))
+    if not isinstance(STREAKS_LIVE, dict):
+        STREAKS_LIVE = {}
+except Exception:
+    STREAKS_LIVE = {}
+for name, streak in STREAKS_LIVE.items():
+    if not isinstance(streak, dict):
+        continue
+    nm = player_key(name)
+    if not nm:
+        continue
+    row = STREAK_BY_NAME.setdefault(nm, {'Batter': name})
+    row['Hit Streak'] = max(_sf(row.get('Hit Streak')), _sf(streak.get('hitStreak')))
+    row['HR Streak'] = max(_sf(row.get('HR Streak')), _sf(streak.get('hrStreak')))
+    row['HRR Streak'] = max(_sf(row.get('HRR Streak')), _sf(streak.get('hrrStreak')))
+    STREAK_SOURCE_COUNTS['live'] += 1
+for streak in HOT_STREAKS.get('details', []) or []:
+    nm = player_key(streak.get('player'))
+    if not nm:
+        continue
+    row = STREAK_BY_NAME.setdefault(nm, {'Batter': streak.get('player')})
+    stype = str(streak.get('type') or '').upper()
+    if stype == 'HIT':
+        row['Hit Streak'] = max(_sf(row.get('Hit Streak')), _sf(streak.get('streak')))
+    elif stype == 'HRR':
+        row['HRR Streak'] = max(_sf(row.get('HRR Streak')), _sf(streak.get('streak')))
+    STREAK_SOURCE_COUNTS['hot'] += 1
+
+if not STREAK_BY_NAME:
+    print('::warning::build_day46.py streak lens has no data: workbook Streaks tab empty and live/hot streak files unavailable or empty')
+elif len(STREAK_BY_NAME) < 5 and len(HIT) >= 50:
+    print(f'::warning::build_day46.py streak lens has only {len(STREAK_BY_NAME)} matched batter(s); Hit consensus may be understated')
+else:
+    print(
+        f'[streaks] Hits-board streak lens loaded {len(STREAK_BY_NAME)} batter(s) '
+        f'(workbook={STREAK_SOURCE_COUNTS["workbook"]}, '
+        f'live={STREAK_SOURCE_COUNTS["live"]}, hot={STREAK_SOURCE_COUNTS["hot"]})'
+    )
 
 # BP_Teams projected team strikeouts (opp lineup K-proneness) — for K consensus
 BP_TEAMS_BY_TEAM = {}
@@ -129,14 +184,6 @@ try:
         K_PROPS = {}
 except Exception:
     K_PROPS = {}
-
-try:
-    HOT_STREAKS_FILE = os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json')
-    HOT_STREAKS = json.load(open(HOT_STREAKS_FILE, encoding='utf-8'))
-    if not isinstance(HOT_STREAKS, dict):
-        HOT_STREAKS = {}
-except Exception:
-    HOT_STREAKS = {}
 
 # Structured pick records for For The Record (results-page backtest). Each builder appends.
 SLATE_PICKS = []
@@ -1517,7 +1564,7 @@ def build_hr_board():
         v = get_vuln_for_pitcher(pit_name)
         vuln = v.get('VulnScore') if v else None
         # ── Streak cross-reference (workbook Streaks tab) ──
-        st = STREAK_BY_NAME.get(nm.lower())
+        st = STREAK_BY_NAME.get(player_key(nm))
         streak_fires = False; streak_chip = ''
         if st:
             hs = _sf(st.get('Hit Streak')); hrs = _sf(st.get('HR Streak'))
@@ -1635,7 +1682,7 @@ def build_oo5_board():
         bats = bp.get('BatterStand') if bp else None
         sim_hit = f'{_sf(bp.get("HitProbability"))*100:.0f}%' if (bp and bp.get("HitProbability") not in (None, "")) else '—'
         sim_h_raw = _sf(bp.get("HitProbability")) if bp else 0
-        st_h = STREAK_BY_NAME.get(nm.lower())
+        st_h = STREAK_BY_NAME.get(player_key(nm))
         hit_streak = _sf(st_h.get('Hit Streak')) if st_h else 0
         streak_chip = f' <span style="font-size:11px;color:var(--hot)">🔥H{int(hit_streak)}</span>' if hit_streak >= 5 else ''
         # Opp pitcher from BP_Batters Opponent
