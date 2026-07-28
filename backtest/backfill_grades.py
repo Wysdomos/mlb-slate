@@ -158,6 +158,7 @@ def main():
                 'main_line': p.get('main_line'),
                 'direction': p.get('direction'),
                 'alt_margin': p.get('alt_margin'),
+                'hrr_pct': p.get('hrr_pct'),
             }
             for field in CHIP_FIELDS:
                 row[field] = p.get(field, None)
