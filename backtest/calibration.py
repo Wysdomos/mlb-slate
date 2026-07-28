@@ -32,6 +32,7 @@ ALT_MARGIN_BANDS = [
     (2.0, 2.99, '2.0-2.99 alt margin'),
     (3.0, 99.0, '>=3.0 alt margin'),
 ]
+MIN_PARLAY_SAMPLE = 30
 
 
 def wilson(w, n, z=1.96):
@@ -53,6 +54,10 @@ def line(w, l, label):
     flag = ' ⚠ small n' if n < 30 else ''
     return (f'| {label} | {w}-{l} | {n} | **{w / n:.1%}** | '
             f'{lo:.0%}–{hi:.0%}{flag} |')
+
+
+def pct(value):
+    return f'{value:.1%}'
 
 
 def pick_source(row):
@@ -101,6 +106,114 @@ def append_same_game_buckets(md, rows):
         md.append(line(w, len(band) - w, str(value)))
 
 
+def collect_parlays(rows):
+    grouped = defaultdict(list)
+    for row in rows:
+        parlay_id = row.get('parlay_id')
+        if parlay_id:
+            grouped[parlay_id].append(row)
+
+    parlays = []
+    for parlay_id, legs in sorted(grouped.items()):
+        wins = [leg.get('win') for leg in legs]
+        if any(win is None for win in wins):
+            result = None
+        else:
+            result = all(bool(win) for win in wins)
+        correlation_types = {leg.get('correlation_type') for leg in legs if leg.get('correlation_type')}
+        same_game_values = {bool(leg.get('same_game')) for leg in legs if leg.get('same_game') is not None}
+        parlays.append({
+            'parlay_id': parlay_id,
+            'legs': legs,
+            'result': result,
+            'correlation_type': next(iter(correlation_types)) if len(correlation_types) == 1 else 'mixed',
+            'same_game': next(iter(same_game_values)) if len(same_game_values) == 1 else None,
+            'leg_count': len(legs),
+        })
+    return parlays
+
+
+def parlay_bucket_stats(parlays):
+    graded = [p for p in parlays if p['result'] is not None]
+    wins = sum(1 for p in graded if p['result'])
+    ungraded = len(parlays) - len(graded)
+    graded_legs = [leg for p in graded for leg in p['legs'] if leg.get('win') is not None]
+    leg_wins = sum(1 for leg in graded_legs if leg.get('win'))
+    leg_rate = (leg_wins / len(graded_legs)) if graded_legs else None
+
+    rates_by_market = {}
+    legs_by_market = defaultdict(list)
+    for leg in graded_legs:
+        legs_by_market[leg.get('market')].append(leg)
+    for market, legs in legs_by_market.items():
+        rates_by_market[market] = sum(1 for leg in legs if leg.get('win')) / len(legs)
+
+    expected_values = []
+    for parlay in graded:
+        product = 1.0
+        for leg in parlay['legs']:
+            market = leg.get('market')
+            product *= rates_by_market.get(market, leg_rate or 0.0)
+        expected_values.append(product)
+    expected = (sum(expected_values) / len(expected_values)) if expected_values else None
+    actual = (wins / len(graded)) if graded else None
+    lift = (actual - expected) if actual is not None and expected is not None else None
+    return {
+        'total': len(parlays),
+        'graded': len(graded),
+        'won': wins,
+        'ungraded': ungraded,
+        'leg_wins': leg_wins,
+        'leg_total': len(graded_legs),
+        'leg_rate': leg_rate,
+        'actual': actual,
+        'expected': expected,
+        'lift': lift,
+    }
+
+
+def parlay_scoreboard_line(label, parlays):
+    stats = parlay_bucket_stats(parlays)
+    leg_record = f"{stats['leg_wins']}-{stats['leg_total'] - stats['leg_wins']}"
+    if stats['graded'] < MIN_PARLAY_SAMPLE:
+        return (
+            f"| {label} | {stats['graded']} | {stats['won']} | {stats['ungraded']} | "
+            f"{leg_record} | insufficient data -- keep accumulating | – | – |"
+        )
+    return (
+        f"| {label} | {stats['graded']} | {stats['won']} | {stats['ungraded']} | "
+        f"{leg_record} ({pct(stats['leg_rate'])}) | {pct(stats['actual'])} | "
+        f"{pct(stats['expected'])} | {pct(stats['lift'])} |"
+    )
+
+
+def append_parlay_scoreboard(md, rows):
+    parlays = collect_parlays(rows)
+    md.append('\n## Parlay scoreboard\n')
+    md.append(
+        'Parlays are graded as full tickets: every leg must win. If any leg is '
+        'ungraded, the parlay is ungraded rather than a loss. Expected '
+        'independent rate is the average product of each graded parlay\'s '
+        'empirical leg-market hit rates inside the same bucket.\n'
+    )
+    if not parlays:
+        md.append('No parlay legs have been backfilled yet.\n')
+        return
+
+    for correlation_type in sorted({p['correlation_type'] for p in parlays}):
+        section = [p for p in parlays if p['correlation_type'] == correlation_type]
+        md.append(f'\n### {correlation_type}\n')
+        md.append('| Split | Parlays graded | Parlays won | Ungraded | Leg W-L | Parlay hit rate | Expected independent | Correlation lift |')
+        md.append('|---|---:|---:|---:|---:|---|---|---|')
+        md.append(parlay_scoreboard_line('all', section))
+        for value in (True, False):
+            split = [p for p in section if p['same_game'] is value]
+            md.append(parlay_scoreboard_line(f'same_game={value}', split))
+        for leg_count in (2, 3):
+            split = [p for p in section if p['leg_count'] == leg_count]
+            md.append(parlay_scoreboard_line(f'{leg_count} legs', split))
+
+
 def append_conviction_rank_buckets(md, rows):
     labeled = [g for g in rows if g.get('conviction_rank') is not None]
     md.append('\n## Conviction rank buckets\n')
@@ -139,11 +252,11 @@ def append_alt_margin_buckets(md, rows):
 
 
 def build(store, source_filter=None):
-    rows = [
+    all_rows = [
         g for g in store['graded']
-        if g['win'] is not None
-        and (source_filter is None or pick_source(g) == source_filter)
+        if source_filter is None or pick_source(g) == source_filter
     ]
+    rows = [g for g in all_rows if g['win'] is not None]
     dates = store.get('dates', {})
     md = []
     md.append('# The Daily Slate — Calibration Report')
@@ -171,7 +284,7 @@ def build(store, source_filter=None):
         md.append('| Bucket | W-L | n | Hit rate | 95% CI |')
         md.append('|---|---|---|---|---|')
         for lo, hi, label in BANDS:
-            band = [g for g in sub if lo <= g['consensus'] <= hi]
+            band = [g for g in sub if lo <= g.get('consensus', 0) <= hi]
             w = sum(1 for g in band if g['win'])
             md.append(line(w, len(band) - w, label))
         if mkt == 'K':
@@ -187,6 +300,7 @@ def build(store, source_filter=None):
     append_chip_buckets(md, rows)
     append_correlation_buckets(md, rows)
     append_same_game_buckets(md, rows)
+    append_parlay_scoreboard(md, all_rows)
     append_conviction_rank_buckets(md, rows)
     append_alt_margin_buckets(md, rows)
 

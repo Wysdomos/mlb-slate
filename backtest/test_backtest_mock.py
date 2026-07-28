@@ -72,13 +72,48 @@ for i in range(10):   # K O 4.5 small sample: 7W-3L
     graded.append({'date': '2026-06-16', 'market': 'K', 'name': f'k{i}',
                    'consensus': 4, 'consensus_max': 5, 'win': i < 7,
                    'win_at': 5, 'line': 'O 5+', 'got': ''})
+for i in range(30):   # traffic_jam: 12 parlay wins from 30 graded parlays
+    leg1_win = i < 20
+    leg2_win = i < 12 or 20 <= i < 26
+    for market, win in (('HIT', leg1_win), ('HRR', leg2_win)):
+        graded.append({'date': '2026-06-17', 'market': market, 'name': f'tj{i}-{market}',
+                       'consensus': 3, 'consensus_max': 4, 'win': win,
+                       'line': 'Ov 0.5', 'got': '', 'parlay_id': f'tj-{i}',
+                       'correlation_type': 'traffic_jam', 'leg_role': 'satellite',
+                       'same_game': True})
+graded.extend([
+    {'date': '2026-06-17', 'market': 'HIT', 'name': 'ung-hit',
+     'consensus': 3, 'consensus_max': 4, 'win': True, 'line': 'Ov 0.5',
+     'got': '', 'parlay_id': 'tj-ungraded', 'correlation_type': 'traffic_jam',
+     'leg_role': 'satellite', 'same_game': True},
+    {'date': '2026-06-17', 'market': 'HRR', 'name': 'ung-hrr',
+     'consensus': 3, 'consensus_max': 4, 'win': None, 'line': 'Ov 0.5',
+     'got': '—', 'parlay_id': 'tj-ungraded', 'correlation_type': 'traffic_jam',
+     'leg_role': 'satellite', 'same_game': True},
+])
+for i in range(2):   # small cross-game bucket
+    for market, win in (('HIT', True), ('HIT', i == 0)):
+        graded.append({'date': '2026-06-17', 'market': market, 'name': f'db{i}-{market}',
+                       'consensus': 3, 'consensus_max': 4, 'win': win,
+                       'line': 'Ov 0.5', 'got': '', 'parlay_id': f'db-{i}',
+                       'correlation_type': 'double_barrel_cross_game',
+                       'leg_role': 'satellite', 'same_game': False})
 store = {'graded': graded,
-         'dates': {'2026-06-15': {}, '2026-06-16': {}}}
+         'dates': {'2026-06-15': {}, '2026-06-16': {}, '2026-06-17': {}}}
 report = calibration.build(store)
 run('report: HR 30% bucket rendered', '**30.0%**' in report)
 run('report: K by-line section present', 'O 4.5' in report)
 run('report: small-n flag on K', '⚠ small n' in report)
 run('report: break-even table sane (-110 -> 52.4%)', '52.4%' in report)
+parlays = calibration.collect_parlays(graded)
+by_id = {p['parlay_id']: p for p in parlays}
+run('parlay: all legs must win', by_id['tj-0']['result'] is True and by_id['tj-12']['result'] is False)
+run('parlay: ungraded leg makes parlay ungraded', by_id['tj-ungraded']['result'] is None)
+run('report: parlay scoreboard present', '## Parlay scoreboard' in report)
+run('report: traffic_jam parlay rate rendered', '| all | 30 | 12 | 1 | 38-22 (63.3%) | 40.0% | 40.0% | 0.0% |' in report)
+run('report: same-game split rendered', 'same_game=True' in report)
+run('report: cross-game split rendered', 'same_game=False' in report)
+run('report: small parlay buckets do not print rates', 'insufficient data -- keep accumulating' in report)
 lo, hi = calibration.wilson(12, 40)
 run('wilson CI sane for 12/40', 0.17 < lo < 0.20 and 0.44 < hi < 0.48)
 

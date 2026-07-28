@@ -7,7 +7,12 @@
 | Market | W-L | n | Hit rate | 95% CI |
 |---|---|---|---|---|
 | K | 155-117 | 272 | **57.0%** | 51%–63% |
+| OUTS | – | – | – | – |
+| OUTS_ALT | – | – | – | – |
+| H_ALLOWED | – | – | – | – |
+| H_ALLOWED_ALT | – | – | – | – |
 | HR | 93-423 | 516 | **18.0%** | 15%–22% |
+| TB | – | – | – | – |
 | HIT | 299-188 | 487 | **61.4%** | 57%–66% |
 | HRR | 338-149 | 487 | **69.4%** | 65%–73% |
 | 2B | 35-172 | 207 | **16.9%** | 12%–23% |
@@ -84,6 +89,83 @@
 | 5-6 lenses | – | – | – | – |
 | 4 lenses | 3-2 | 5 | **60.0%** | 23%–88% ⚠ small n |
 | <=3 lenses | 72-67 | 139 | **51.8%** | 44%–60% |
+
+## Shadow chip candidates
+
+These buckets are shadow-only. Missing historical labels are ignored.
+
+
+### HR-A Avoidance Tax (`chip_hra`) -- insufficient data -- keep accumulating
+
+| Tier | W-L | n | Hit rate | 95% CI |
+|---|---|---|---|---|
+| EDGE+ | – | – | – | – |
+| EDGE | – | – | – | – |
+| NEUTRAL | – | – | – | – |
+| FADE | – | – | – | – |
+
+### HR-B Contextual Spike (`chip_hrb`) -- insufficient data -- keep accumulating
+
+| Tier | W-L | n | Hit rate | 95% CI |
+|---|---|---|---|---|
+| EDGE+ | – | – | – | – |
+| EDGE | – | – | – | – |
+| NEUTRAL | – | – | – | – |
+| FADE | – | – | – | – |
+
+### HIT-A Contact Floor (`chip_hit_a`) -- insufficient data -- keep accumulating
+
+| Tier | W-L | n | Hit rate | 95% CI |
+|---|---|---|---|---|
+| EDGE+ | – | – | – | – |
+| EDGE | – | – | – | – |
+| NEUTRAL | – | – | – | – |
+| FADE | – | – | – | – |
+
+### K-A Volume Cap Refiner (`chip_k_a`) -- insufficient data -- keep accumulating
+
+| Tier | W-L | n | Hit rate | 95% CI |
+|---|---|---|---|---|
+| EDGE+ | – | – | – | – |
+| EDGE | – | – | – | – |
+| NEUTRAL | – | – | – | – |
+| FADE | – | – | – | – |
+
+### HALLOWED-A Contact Quality Reversal (`chip_hall_a`) -- insufficient data -- keep accumulating
+
+| Tier | W-L | n | Hit rate | 95% CI |
+|---|---|---|---|---|
+| EDGE+ | – | – | – | – |
+| EDGE | – | – | – | – |
+| NEUTRAL | – | – | – | – |
+| FADE | – | – | – | – |
+
+## Parlay correlation buckets
+
+No parlay correlation labels have been backfilled yet.
+
+
+## Parlay same-game buckets
+
+No same-game parlay labels have been backfilled yet.
+
+
+## Parlay scoreboard
+
+Parlays are graded as full tickets: every leg must win. If any leg is ungraded, the parlay is ungraded rather than a loss. Expected independent rate is the average product of each graded parlay's empirical leg-market hit rates inside the same bucket.
+
+No parlay legs have been backfilled yet.
+
+
+## Conviction rank buckets
+
+No conviction ranks have been backfilled yet.
+
+
+## Pitcher alt margin buckets
+
+No pitcher alt margins have been backfilled yet.
+
 
 ## Break-even reference (for eyeballing edge)
 
