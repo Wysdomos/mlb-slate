@@ -494,11 +494,13 @@ def build_headlines():
         f'<div class="headline-card"><div class="hc-title">{title}</div><p>{text}</p></div>'
         for title, text in cards[:6]
     )
-    badge = projected_badge("Top cards rebuilt from live sources; workbook-only signals are omitted.") if PROJECTED_MODE else ''
+    badge = (
+        projected_badge("Top cards rebuilt from live sources; workbook-only signals are omitted.") + '\n'
+        if PROJECTED_MODE else ''
+    )
     return f'''<!-- HEADLINES -->
 <section id="headlines" class="headline-grid">
-  {badge}
-  {body}
+{badge}{body}
 </section>
 '''
 
@@ -957,7 +959,7 @@ def build_matchup_spotlight():
 </section>
 '''
 
-# ---- BUILD: K BOARD (Day 44 structure: Tier | Pitcher | B | Tm | SS Ks | BPP Ks | Outs | Hits | ERA | QS% | HRA | Vuln | Best Line | Note) ----
+# ---- BUILD: K BOARD ----
 def build_k_board():
     sp_sorted = sorted(SP_PROJ, key=lambda r: -(_sf(r.get('K'))))
     _top2 = [r.get('Pitcher','') for r in sp_sorted[:2] if r.get('Pitcher')]
@@ -982,9 +984,11 @@ def build_k_board():
         # Best Line (user K alt rule)
         best_line = k_alt_for(ss_k)
 
-        # SS Ks display color
+        # K projection display color. Chapter D now sources SP_Projections.K and
+        # BP_Pitchers.Strikeouts from the same BPP projection feed, so the board
+        # shows one projection column instead of duplicating the number.
         k_cls = 'good' if kf >= 5 else ('hot' if kf >= 4.5 else 'bad')
-        ss_k_disp = f'<strong style="color:var(--{k_cls})">{ss_k}</strong>' if ss_k is not None else '—'
+        k_proj_disp = f'<strong style="color:var(--{k_cls})">{ss_k}</strong>' if ss_k is not None else '—'
 
         # BPP (BP_Pitchers) — Strikeouts, Innings*3 = Outs, HitsAllowed, QualityStart, HomeRunsAllowed
         bp = BP_PIT_BY_NAME.get(name.lower())
@@ -1053,7 +1057,7 @@ def build_k_board():
         if kf >= 5.5: note_parts.append('K anchor')
         elif kf < 4.0: note_parts.append('fade Ks')
 
-        # ── Consensus: 5 independent strikeout lenses ──
+        # ── Consensus: thresholds preserved pending the K lens independence audit ──
         k9 = _sf(v.get('K9')) if v else 0
         opp_raw = (r.get('Opp','') or '').strip()
         opp_row = BP_TEAMS_BY_TEAM.get(opp) or BP_TEAMS_BY_TEAM.get(opp_raw)
@@ -1134,8 +1138,7 @@ def build_k_board():
             f'<td style="text-align:center">{hand_chip(throws,"throws")}</td>'
             f'<td>{team}</td>'
             f'<td>{_conv_cell(votes, consensus_max)}</td>'
-            f'<td>{ss_k_disp}</td>'
-            f'<td>{bpp_k_disp}</td>'
+            f'<td>{k_proj_disp}</td>'
             f'<td>{outs_prop_s}</td>'
             f'<td>{hits_prop_s}</td>'
             f'<td>{era}</td>'
@@ -1163,9 +1166,9 @@ def build_k_board():
       <span style="font-size:13px;font-weight:700;color:#3b82f6;">📋 View The Safe K Report</span>
       <span style="font-size:13px;color:#3b82f6;">Safe floors · Real lines · Full criteria →</span>
     </a>
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 K lenses agree: SS Ks≥5.5 · workbook BPP Ks≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9 · BPP API proj K≥5. 🔒 = 5–6. SS Ks from <strong>SP_Projections</strong>, workbook BPP Ks from <strong>BP_Pitchers</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 6 K lenses agree: Projection Ks≥5.5 · BP_Pitchers Strikeouts≥5 · K9≥9 · Outs≥17 · opp lineup K's≥9 · BPP API proj K≥5. 🔒 = 5–6. Projection Ks from <strong>SP_Projections</strong>. <strong>Tier:</strong> T0 ≥5.5 · T1 4.5–5.4 · T2 4.0–4.4 · SKIP &lt;4.0. <strong>Best Line:</strong> ≥5 → O 5+, 4.5–4.99 → O 3.5, &lt;4.5 → O 2.5.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>SS Ks</th><th>BPP Ks</th><th>Outs<br><small>Proj · Line · Rec</small></th><th>Hits Allowed<br><small>Proj · Line · Rec</small></th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
+      <thead><tr><th>Tier</th><th>Pitcher</th><th>B</th><th>Tm</th><th>Conv</th><th>Proj Ks</th><th>Outs<br><small>Proj · Line · Rec</small></th><th>Hits Allowed<br><small>Proj · Line · Rec</small></th><th>ERA</th><th>QS%</th><th>HRA</th><th>Vuln</th><th>Best Line</th><th>Note</th></tr></thead>
       <tbody>
 {table_body}
       </tbody>
