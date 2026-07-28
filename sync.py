@@ -599,17 +599,13 @@ STALE_CSS = '''
   padding: 10px 12px; border: 1px solid var(--tier0-border); border-radius: 12px;
   background: var(--header-bg); color: var(--text); box-shadow: var(--shadow);
   -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  cursor: pointer;
 }
 .stale-banner.show { display: flex; }
-.stale-banner button, .dock-btn.refresh-btn { min-width: 44px; min-height: 44px; }
-.stale-banner .refresh-now {
-  border: 1px solid var(--tier0-border); border-radius: 10px; background: var(--accent-soft);
-  color: var(--accent); font-weight: 900; padding: 0 12px; cursor: pointer;
-}
+.stale-banner button { min-width: 44px; min-height: 44px; }
 .stale-banner .stale-dismiss {
   width: 44px; border: 0; background: transparent; color: var(--text-dim); font-size: 20px; cursor: pointer;
 }
-.dock-btn.refresh-btn { flex: .8; max-width: 72px; }
 </style>
 '''
 
@@ -621,13 +617,24 @@ STALE_JS = '''
   function refreshWithBust() {
     window.location.href = window.location.pathname + '?v=' + Date.now();
   }
-  var refreshBtn = document.getElementById('dockRefresh');
-  if (refreshBtn) refreshBtn.addEventListener('click', refreshWithBust);
+  var brandRefresh = document.getElementById('brandRefresh');
+  if (brandRefresh) {
+    brandRefresh.addEventListener('click', function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      refreshWithBust();
+    });
+  }
   var banner = document.getElementById('staleBanner');
-  var refreshNow = document.getElementById('staleRefreshNow');
   var dismiss = document.getElementById('staleDismiss');
-  if (refreshNow) refreshNow.addEventListener('click', refreshWithBust);
-  if (dismiss && banner) dismiss.addEventListener('click', function(){ banner.classList.remove('show'); });
+  if (banner) banner.addEventListener('click', function(event){
+    if (event.target && event.target.id === 'staleDismiss') return;
+    refreshWithBust();
+  });
+  if (dismiss && banner) dismiss.addEventListener('click', function(event){
+    event.stopPropagation();
+    banner.classList.remove('show');
+  });
   if (!currentStamp || !banner || !window.fetch) return;
   fetch('build-stamp.json?v=' + Date.now(), { cache: 'no-store' })
     .then(function(resp){ return resp.ok ? resp.json() : null; })
@@ -649,8 +656,7 @@ def apply_cache_refresh(html):
 
     stale_banner = (
         '<div class="stale-banner" id="staleBanner" role="status" aria-live="polite">'
-        '<span>New slate available — tap to refresh</span>'
-        '<button class="refresh-now" id="staleRefreshNow" type="button">Refresh</button>'
+        '<span>Updated slate — tap to reload</span>'
         '<button class="stale-dismiss" id="staleDismiss" type="button" aria-label="Dismiss">×</button>'
         '</div>'
     )
@@ -658,13 +664,6 @@ def apply_cache_refresh(html):
     html = html.replace('<nav class="dock" aria-label="App actions">', stale_banner + '\n<nav class="dock" aria-label="App actions">', 1)
 
     html = re.sub(r'\s*<button class="dock-btn refresh-btn" id="dockRefresh"[\s\S]*?</button>\n?', '\n', html)
-    refresh_dock = '\n  <button class="dock-btn refresh-btn" id="dockRefresh" type="button" aria-label="Refresh slate"><span class="di">↻</span><span class="dl">REFRESH</span></button>'
-    html = re.sub(
-        r'(<nav class="dock" aria-label="App actions">[\s\S]*?)(\s*</nav>)',
-        r'\1' + refresh_dock + r'\2',
-        html,
-        count=1,
-    )
 
     html = re.sub(r'\s*<script id="cache-refresh-js">[\s\S]*?</script>\n?', '\n', html)
     return html.replace('</body>', STALE_JS + '\n</body>', 1)
