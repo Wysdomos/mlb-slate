@@ -24,7 +24,10 @@ import time
 import requests
 from firebase_functions import https_fn, options
 from google import genai
-from log_retry import fetch_github_log_archive
+from log_retry import (
+    LOG_FINALIZE_INITIAL_DELAY_SECONDS,
+    fetch_github_log_archive,
+)
 
 # ── ENVIRONMENT CONFIG ───────────────────────────────────────────
 # These must all be set as Firebase environment variables.
@@ -125,7 +128,7 @@ def gemini_generate(prompt: str, max_attempts: int = 3):
 
 # ── MAIN WEBHOOK HANDLER ─────────────────────────────────────────
 @https_fn.on_request(
-    timeout_sec=300,
+    timeout_sec=360,
     memory=options.MemoryOption.MB_512,
     secrets=[
         "GEMINI_API_KEY",
@@ -192,7 +195,9 @@ def auto_heal_webhook(req: https_fn.Request) -> https_fn.Response:
         get=requests.get,
         timeout_seconds=180,
         initial_delay=8,
+        finalize_delay=LOG_FINALIZE_INITIAL_DELAY_SECONDS,
         max_delay=45,
+        run_id=run_id,
     )
 
     if log_resp.status_code == 404:
