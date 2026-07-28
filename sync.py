@@ -5,13 +5,14 @@ Reads:   built_sections.json  (or SECTIONS_FILE env var)
 Updates: index.html            (or INDEX_FILE env var)
 """
 
-import json, re, os
+import html as html_lib, json, re, os
 from datetime import datetime, date, timezone
 from zoneinfo import ZoneInfo
 
 SECTIONS_FILE = os.environ.get('SECTIONS_FILE', 'built_sections.json')
 DATA_FILE     = os.environ.get('DATA_FILE',     'day_data.json')
 INDEX_FILE    = os.environ.get('INDEX_FILE',    'index.html')
+BUILD_STAMP_FILE = os.environ.get('BUILD_STAMP_FILE', 'build-stamp.json')
 
 OPENING_DAY = date(2026, 3, 28)
 
@@ -41,6 +42,7 @@ def get_slate_date():
             pass
     return date.today()
 
+BUILT_AT_UTC = datetime.now(timezone.utc).isoformat(timespec='seconds')
 slate_date  = get_slate_date()
 day_num     = (slate_date - OPENING_DAY).days + 1
 month_short = slate_date.strftime('%b')
@@ -48,6 +50,7 @@ day_of_mo   = slate_date.day
 weekday     = WEEKDAY_NAMES[slate_date.weekday()]
 game_count  = len(DATA.get('BP_Games', []))
 build_time  = datetime.now(ZoneInfo('America/New_York')).strftime('%-I:%M %p ET')
+BUILD_STAMP = f'{slate_date.isoformat()}|{"projected" if PROJECTED_MODE else "workbook"}|{BUILT_AT_UTC}'
 
 print(f"Slate: {month_short} {day_of_mo} - Day {day_num} - {weekday} - {game_count} games")
 
@@ -588,6 +591,84 @@ def apply_projected_theme(html):
     html = html.replace('<body class="projected-mode">', '<body class="projected-mode">' + banner, 1)
     return html.replace('</body>', PROJECTED_JS + '\n</body>', 1)
 
+STALE_CSS = '''
+<style id="cache-refresh-css">
+.stale-banner {
+  position: fixed; left: 12px; right: 12px; bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 12px);
+  z-index: 75; display: none; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px 12px; border: 1px solid var(--tier0-border); border-radius: 12px;
+  background: var(--header-bg); color: var(--text); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+}
+.stale-banner.show { display: flex; }
+.stale-banner button, .dock-btn.refresh-btn { min-width: 44px; min-height: 44px; }
+.stale-banner .refresh-now {
+  border: 1px solid var(--tier0-border); border-radius: 10px; background: var(--accent-soft);
+  color: var(--accent); font-weight: 900; padding: 0 12px; cursor: pointer;
+}
+.stale-banner .stale-dismiss {
+  width: 44px; border: 0; background: transparent; color: var(--text-dim); font-size: 20px; cursor: pointer;
+}
+.dock-btn.refresh-btn { flex: .8; max-width: 72px; }
+</style>
+'''
+
+STALE_JS = '''
+<script id="cache-refresh-js">
+(function(){
+  var stampMeta = document.querySelector('meta[name="daily-slate-build-stamp"]');
+  var currentStamp = stampMeta ? stampMeta.getAttribute('content') : '';
+  function refreshWithBust() {
+    window.location.href = window.location.pathname + '?v=' + Date.now();
+  }
+  var refreshBtn = document.getElementById('dockRefresh');
+  if (refreshBtn) refreshBtn.addEventListener('click', refreshWithBust);
+  var banner = document.getElementById('staleBanner');
+  var refreshNow = document.getElementById('staleRefreshNow');
+  var dismiss = document.getElementById('staleDismiss');
+  if (refreshNow) refreshNow.addEventListener('click', refreshWithBust);
+  if (dismiss && banner) dismiss.addEventListener('click', function(){ banner.classList.remove('show'); });
+  if (!currentStamp || !banner || !window.fetch) return;
+  fetch('build-stamp.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(function(resp){ return resp.ok ? resp.json() : null; })
+    .then(function(data){
+      if (data && data.stamp && data.stamp !== currentStamp) banner.classList.add('show');
+    })
+    .catch(function(){});
+})();
+</script>
+'''
+
+def apply_cache_refresh(html):
+    stamp_meta = f'<meta name="daily-slate-build-stamp" content="{html_lib.escape(BUILD_STAMP, quote=True)}">'
+    html = re.sub(r'\s*<meta name="daily-slate-build-stamp" content="[^"]*">\n?', '\n', html)
+    html = html.replace('</head>', stamp_meta + '\n</head>', 1)
+
+    html = re.sub(r'\s*<style id="cache-refresh-css">[\s\S]*?</style>\n?', '\n', html)
+    html = html.replace('</head>', STALE_CSS + '\n</head>', 1)
+
+    stale_banner = (
+        '<div class="stale-banner" id="staleBanner" role="status" aria-live="polite">'
+        '<span>New slate available — tap to refresh</span>'
+        '<button class="refresh-now" id="staleRefreshNow" type="button">Refresh</button>'
+        '<button class="stale-dismiss" id="staleDismiss" type="button" aria-label="Dismiss">×</button>'
+        '</div>'
+    )
+    html = re.sub(r'\s*<div class="stale-banner" id="staleBanner"[\s\S]*?</div>\n?', '\n', html)
+    html = html.replace('<nav class="dock" aria-label="App actions">', stale_banner + '\n<nav class="dock" aria-label="App actions">', 1)
+
+    html = re.sub(r'\s*<button class="dock-btn refresh-btn" id="dockRefresh"[\s\S]*?</button>\n?', '\n', html)
+    refresh_dock = '\n  <button class="dock-btn refresh-btn" id="dockRefresh" type="button" aria-label="Refresh slate"><span class="di">↻</span><span class="dl">REFRESH</span></button>'
+    html = re.sub(
+        r'(<nav class="dock" aria-label="App actions">[\s\S]*?)(\s*</nav>)',
+        r'\1' + refresh_dock + r'\2',
+        html,
+        count=1,
+    )
+
+    html = re.sub(r'\s*<script id="cache-refresh-js">[\s\S]*?</script>\n?', '\n', html)
+    return html.replace('</body>', STALE_JS + '\n</body>', 1)
+
 SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
     'k-board', 'sp-vuln-board', 'hr-board', 'oo5-board',
@@ -677,11 +758,21 @@ for sec_id in RETIRED_SECTION_IDS:
     print(f"  retired #{sec_id}: removed rendered section and nav links")
 
 html = apply_projected_theme(html)
+html = apply_cache_refresh(html)
 
 tmp = INDEX_FILE + '.tmp'
 with open(tmp, 'w', encoding='utf-8') as f:
     f.write(html)
 os.replace(tmp, INDEX_FILE)
 
+with open(BUILD_STAMP_FILE, 'w', encoding='utf-8') as f:
+    json.dump({
+        'stamp': BUILD_STAMP,
+        'slate_date': slate_date.isoformat(),
+        'mode': 'projected' if PROJECTED_MODE else 'workbook',
+        'built_at_utc': BUILT_AT_UTC,
+    }, f, ensure_ascii=False, indent=2)
+
 print(f"Done -- wrote {len(html):,} bytes to {INDEX_FILE}")
+print(f"Wrote build stamp -> {BUILD_STAMP_FILE}: {BUILD_STAMP}")
 print(f"Day {day_num} - {month_short} {day_of_mo} - {weekday} - {game_count} games")

@@ -38,8 +38,15 @@ OUTS_ALT_MARGIN_MIN = 2.0
 # Calibration will replace this starting +5 percentage-point/score penalty.
 CROSS_GAME_STRICTER_DELTA = 5.0
 K_ALT_MARGIN_MIN = OUTS_ALT_MARGIN_MIN
+# Chapter L review: one family is not enough consensus for the K backtest signal.
+TWO_WAY_K_MIN_FAMILIES = 2  # was 3
+# Cross-game K pairs do not share park/weather/lineup context, so they need
+# extra alternate-line margin. Calibration will replace this starting value.
+TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA = 0.5
 DOUBLE_BARREL_HIT_MIN = 65.0
-CONTACT_HITS_ALLOWED_MIN = 5.5
+# Chapter L funnel showed Double Barrel collapsed at contact vulnerability.
+DOUBLE_BARREL_CONTACT_VULN_MIN = 50.0  # was 60.0
+CONTACT_HITS_ALLOWED_MIN = 5.0  # was 5.5
 YARD_SALE_DRIVER_MIN = 35.0
 
 # ---- Build lookup indexes ----
@@ -1304,6 +1311,14 @@ def build_projected_oo5_board():
         bp = BP_BAT_BY_NAME.get(nm.lower())
         bats = bp.get('BatterStand') if bp else None
         team = tn(r.get('Team'))
+        opp_team = tn(bp.get('Opponent', '')) if bp else ''
+        if not opp_team:
+            match = str(r.get('Matchup') or '')
+            if ' vs. ' in match:
+                parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                opp_team = parts[1] if team == parts[0] else (parts[0] if team == parts[1] else '')
+        hrr_pct = hrr_probability_for_hit_row(r, team, opp_team)
+        hrr_cell = hrr_cell_for_pct(hrr_pct)
         tier = 'row-tier0' if hp_val(r, '1+ Hit') >= 60 else ('row-tier1' if hp_val(r, '1+ Hit') >= 55 else '')
         rows.append(
             f'      <tr class="{tier}"><td>{i}</td>'
@@ -1312,6 +1327,7 @@ def build_projected_oo5_board():
             f'<td><strong>{r.get("1+ Hit","—")}</strong></td>'
             f'<td>{r.get("2+ Hits","—")}</td>'
             f'<td>{r.get("To Get RBI","—")}</td>'
+            f'<td>{hrr_cell}</td>'
             f'<td>{r.get("To Hit HR","—")}</td></tr>'
         )
     return f'''<!-- OO5 BOARD PROJECTED -->
@@ -1324,9 +1340,9 @@ def build_projected_oo5_board():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    {projected_badge("Hit, multi-hit, RBI, and HR columns reconstructed from live projection inputs.")}
+    {projected_badge("Hit, multi-hit, RBI, HRR, and HR columns reconstructed from live projection inputs.")}
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HR</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>Matchup</th><th>1+ Hit</th><th>2+ Hits</th><th>RBI</th><th>HRR</th><th>HR</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
       </tbody>
@@ -1627,25 +1643,9 @@ def build_oo5_board():
         match = r.get('Matchup','—')
 
         # ── HRR probability (H+R+RBI ≥ 1 combined) ──
-        h1_f       = _sf(str(h1).replace('%',''))
-        base_rbi_f = _sf(str(rbi).replace('%',''))
-        sp_r2      = SP_BY_TEAM.get(opp_team, {}) if opp_team else {}
-        era2       = _sf(sp_r2.get('ERA', 4.25))
-        park_r2    = _sf(str(PARK_BY_TEAM.get(team, {}).get('Runs %', '0')))
-        if h1_f > 0 and base_rbi_f > 0:
-            era_boost = max(0, (era2 - 4.25) * 1.5)
-            run_prob  = min(60, base_rbi_f * 0.8 + park_r2 * 0.3 + era_boost)
-            hrr_pct   = round(min(99, max(0,
-                (1 - (1-h1_f/100) * (1-run_prob/100) * (1-base_rbi_f/100)) * 100
-            )), 1)
-            if hrr_pct >= 82:
-                hrr_cell = f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
-            elif hrr_pct >= 75:
-                hrr_cell = f'<span style="color:var(--hot)">{hrr_pct}%</span>'
-            else:
-                hrr_cell = f'{hrr_pct}%'
-        else:
-            hrr_cell = '—'
+        hrr_pct = hrr_probability_for_hit_row(r, team, opp_team)
+        hrr_cell = hrr_cell_for_pct(hrr_pct)
+        park_r2 = park_runs_for_team(team)
         try: h1f = float(str(h1).replace('%',''))
         except (TypeError, ValueError): h1f = 0
         # ── Consensus: 5 independent lenses for a hit ──
@@ -1677,7 +1677,7 @@ def build_oo5_board():
             'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
             'consensus': votes, 'consensus_max': 6,
-            'hrr_pct': (hrr_pct if hrr_cell != '—' else None),
+            'hrr_pct': hrr_pct,
             **blank_chip_tiers(),
         })
         batter_cell = f'<strong>{nm}</strong> {hand_chip(bats, "bats")}{streak_chip}'
@@ -2197,7 +2197,7 @@ def k_main_alt_recommendation(sp):
         return None
     direction = 'Over' if edge > 0 else 'Under'
     if direction == 'Over':
-        alt_line = min(main_line - 2.0, 4.5)
+        alt_line = max(2.5, min(main_line - 2.0, 4.5))
     else:
         alt_line = main_line + 2.0
     alt_margin = (projection - alt_line) if direction == 'Over' else (alt_line - projection)
@@ -2257,6 +2257,27 @@ def hitter_hrr_projection(hit_row, team, opp_team):
     run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
     return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
 
+def hrr_probability_for_hit_row(hit_row, team, opp_team):
+    h1 = _sf(str(hit_row.get('1+ Hit', '')).replace('%', ''))
+    rbi = _sf(str(hit_row.get('To Get RBI', '')).replace('%', ''))
+    sp = SP_BY_TEAM.get(tn(opp_team), {}) if opp_team else {}
+    era = _sf(sp.get('ERA', 4.25))
+    park_runs = park_runs_for_team(team)
+    if h1 <= 0 or rbi <= 0:
+        return None
+    era_boost = max(0, (era - 4.25) * 1.5)
+    run_prob = min(60, rbi * 0.8 + park_runs * 0.3 + era_boost)
+    return round(min(99, max(0, (1 - (1 - h1 / 100) * (1 - run_prob / 100) * (1 - rbi / 100)) * 100)), 1)
+
+def hrr_cell_for_pct(hrr_pct):
+    if hrr_pct is None:
+        return '—'
+    if hrr_pct >= 82:
+        return f'<strong style="color:var(--good)">{hrr_pct}%</strong>'
+    if hrr_pct >= 75:
+        return f'<span style="color:var(--hot)">{hrr_pct}%</span>'
+    return f'{hrr_pct}%'
+
 def traffic_hitter_candidates():
     out = []
     for row in HIT:
@@ -2307,6 +2328,9 @@ def slate_id_for_parlays():
         if raw:
             return raw.replace('-', '')
     return 'slate'
+
+def log_parlay_funnel(section, stages):
+    print(f'[{section}] ' + ' -> '.join(f'{name}={count}' for name, count in stages))
 
 def parlay_same_game(parlay):
     games = {str(leg.get('game') or '').strip() for leg in parlay.get('legs', [])}
@@ -2373,12 +2397,19 @@ def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
 '''
 
 def build_two_way_ks():
+    pool = list(SP_PROJ)
+    lens_pool = [sp for sp in pool if k_independent_family_count(sp) >= TWO_WAY_K_MIN_FAMILIES]
+    tier_pool = [sp for sp in lens_pool if k_tier_for_projection(sp.get('K')) <= 1]
+    games = {}
+    for sp in tier_pool:
+        games.setdefault(game_key_for_team(sp.get('Team')), []).append(sp)
+    same_game_pool = [sp for sp in tier_pool if len(games.get(game_key_for_team(sp.get('Team')), [])) >= 2]
     candidates = []
-    for sp in SP_PROJ:
+    for sp in tier_pool:
         name = sp.get('Pitcher', '')
         families = k_independent_family_count(sp)
         rec = k_main_alt_recommendation(sp)
-        if families < 3 or k_tier_for_projection(sp.get('K')) > 1 or not rec:
+        if not rec:
             continue
         candidates.append({
             'sp': sp,
@@ -2392,6 +2423,9 @@ def build_two_way_ks():
     by_game = {}
     for c in candidates:
         by_game.setdefault((c['game'], c['rec']['direction']), []).append(c)
+    same_game_alt_pool = [c for c in candidates if len(by_game.get((c['game'], c['rec']['direction']), [])) >= 2]
+    cross_margin_min = K_ALT_MARGIN_MIN + TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA
+    cross_game_pool = [c for c in candidates if c['rec']['alt_margin'] >= cross_margin_min]
     parlays = []
     for (game, direction), group in sorted(
         by_game.items(),
@@ -2426,20 +2460,80 @@ def build_two_way_ks():
             'note': 'Both starters share the same game environment and the same strikeout direction.',
             'legs': legs,
         })
+
+    used_cross_pairs = set()
+    by_direction = {}
+    for c in cross_game_pool:
+        by_direction.setdefault(c['rec']['direction'], []).append(c)
+    for direction, group in sorted(by_direction.items(), key=lambda item: item[0]):
+        group = sorted(group, key=lambda c: (-c['families'], -c['rec']['alt_margin'], c['game'], c['name']))
+        while len(parlays) < 5:
+            first = next((c for c in group if c['name'] not in used_cross_pairs), None)
+            if not first:
+                break
+            second = next((
+                c for c in group
+                if c['name'] not in used_cross_pairs
+                and c['name'] != first['name']
+                and c['game'] != first['game']
+            ), None)
+            if not second:
+                break
+            legs = []
+            for idx, c in enumerate((first, second), 1):
+                rec = c['rec']
+                legs.append({
+                    'market': 'K',
+                    'name': c['name'],
+                    'team': c['team'],
+                    'opp': c['opp'],
+                    'game': c['game'],
+                    'line': rec['line'],
+                    'win_at': rec['win_at'],
+                    'consensus': c['families'],
+                    'consensus_max': 4,
+                    'leg_role': 'satellite',
+                    'confidence_rank': idx,
+                    'detail': f'{direction.lower()} cross-game; alt margin {rec["alt_margin"]:.2f} clears {cross_margin_min:.1f}; {c["families"]}/4 independent K families',
+                })
+            ok, reason = validate_parlay(legs, 'two_way_k_cross_game', max_legs=3)
+            if not ok:
+                used_cross_pairs.add(first['name'])
+                continue
+            used_cross_pairs.update({first['name'], second['name']})
+            parlays.append({
+                'correlation_type': 'two_way_k_cross_game',
+                'badge': f'{direction} K cross-game',
+                'note': 'Cross-game K pair: no shared-game lift, so both legs clear the stricter alternate-line margin.',
+                'legs': legs,
+            })
+    log_parlay_funnel('two-way-ks', [
+        ('pool', len(pool)),
+        (f'after lens>={TWO_WAY_K_MIN_FAMILIES}', len(lens_pool)),
+        ('after tier 0-1', len(tier_pool)),
+        ('after same-game pairing', len(same_game_pool)),
+        ('after same-game alt margin', len(same_game_alt_pool)),
+        (f'after cross-game margin>={cross_margin_min:.1f}', len(cross_game_pool)),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'two-way-ks',
         "Two-Way K's",
-        'Tap to expand · same-game alt K pairs · independent K families',
-        'Eligibility: at least three independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line with enough alternate-line margin.',
+        'Tap to expand · same-game preferred · cross-game stricter · independent K families',
+        f'Eligibility: at least {TWO_WAY_K_MIN_FAMILIES} independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line. Cross-game pairs require +{TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA:.1f} extra alternate-line margin.',
         parlays,
-        'No same-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
+        'No same-game or stricter cross-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
     )
 
 def build_traffic_jam():
     grouped = {}
-    for hitter in traffic_hitter_candidates():
+    traffic_pool = traffic_hitter_candidates()
+    for hitter in traffic_pool:
         key = (hitter['team'], hitter['opp_sp'])
         grouped.setdefault(key, []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    structured_groups = 0
+    valid_groups = 0
     parlays = []
     for (team, opp_sp), hitters in sorted(
         grouped.items(),
@@ -2491,6 +2585,7 @@ def build_traffic_jam():
             }
         if not structure:
             continue
+        structured_groups += 1
 
         legs = []
         for hitter in hitters[:2]:
@@ -2526,6 +2621,7 @@ def build_traffic_jam():
         ok, reason = validate_parlay(legs, structure, max_legs=3)
         if not ok:
             continue
+        valid_groups += 1
         label = {
             'lineup_stack': 'Lineup Stack',
             'both_sides': 'Both Sides',
@@ -2537,6 +2633,13 @@ def build_traffic_jam():
             'note': f'{team} traffic correlated against {opp_sp}.',
             'legs': legs,
         })
+    log_parlay_funnel('traffic-jam', [
+        ('pool', len(traffic_pool)),
+        ('after same-lineup pairing', len(paired_groups)),
+        ('after structure match', structured_groups),
+        ('after validation', valid_groups),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'traffic-jam',
         'Traffic Jam',
@@ -2573,7 +2676,7 @@ def hit_candidate_rows(min_hit_pct=DOUBLE_BARREL_HIT_MIN, cross_game=False):
         sp = pitcher_projection(opp_sp) or {}
         bp_sp = pitcher_bp(opp_sp) or {}
         hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
-        if vuln_score < 60 and hits_proj < CONTACT_HITS_ALLOWED_MIN:
+        if vuln_score < DOUBLE_BARREL_CONTACT_VULN_MIN and hits_proj < CONTACT_HITS_ALLOWED_MIN:
             continue
         out.append({
             'name': name,
@@ -2589,10 +2692,41 @@ def hit_candidate_rows(min_hit_pct=DOUBLE_BARREL_HIT_MIN, cross_game=False):
     return out
 
 def build_double_barrel():
+    raw_pool = [_hit_full(row) for row in HIT if _hit_full(row)]
+    hit_pool = []
+    park_pool = []
+    contact_pool = []
+    for row in HIT:
+        name = _hit_full(row)
+        if not name:
+            continue
+        hit_pct = _sf(str(row.get('1+ Hit', '')).replace('%', ''))
+        if hit_pct >= DOUBLE_BARREL_HIT_MIN:
+            hit_pool.append(name)
+            team = tn(row.get('Team'))
+            bp = BP_BAT_BY_NAME.get(name.lower())
+            opp = tn(bp.get('Opponent')) if bp else ''
+            if not opp:
+                match = str(row.get('Matchup') or '')
+                if ' vs. ' in match:
+                    parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                    opp = parts[1] if team == parts[0] else (parts[0] if team == parts[1] else '')
+            opp_sp = opposing_pitcher_for_hitter(team, opp)
+            if park_runs_for_team(team) >= 0 and opp_sp:
+                park_pool.append(name)
+                vuln = get_vuln_for_pitcher(opp_sp)
+                vuln_score = _sf(vuln.get('VulnScore')) if vuln else 0
+                sp = pitcher_projection(opp_sp) or {}
+                bp_sp = pitcher_bp(opp_sp) or {}
+                hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
+                if vuln_score >= DOUBLE_BARREL_CONTACT_VULN_MIN or hits_proj >= CONTACT_HITS_ALLOWED_MIN:
+                    contact_pool.append(name)
     parlays = []
     grouped = {}
     for hitter in hit_candidate_rows():
         grouped.setdefault((hitter['team'], hitter['opp_sp']), []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    valid_groups = 0
     for (team, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['hit_pct'] for h in item[1])):
         hitters = sorted(hitters, key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['name']))
         if len(hitters) < 2:
@@ -2613,12 +2747,14 @@ def build_double_barrel():
             })
         ok, reason = validate_parlay(legs, 'double_barrel_same_game', max_legs=2)
         if ok:
+            valid_groups += 1
             parlays.append({
                 'correlation_type': 'double_barrel_same_game',
                 'badge': 'same lineup',
                 'note': f'{team} hit legs share the same opposing starter.',
                 'legs': legs,
             })
+    cross_emitted = 0
     if not parlays:
         cross = sorted(hit_candidate_rows(cross_game=True), key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['game'], h['name']))
         for first in cross:
@@ -2641,6 +2777,7 @@ def build_double_barrel():
                 })
             ok, reason = validate_parlay(legs, 'double_barrel_cross_game', max_legs=2)
             if ok:
+                cross_emitted += 1
                 parlays.append({
                     'correlation_type': 'double_barrel_cross_game',
                     'badge': 'cross-game stricter',
@@ -2648,6 +2785,15 @@ def build_double_barrel():
                     'legs': legs,
                 })
                 break
+    log_parlay_funnel('double-barrel', [
+        ('pool', len(raw_pool)),
+        (f'after hit>={DOUBLE_BARREL_HIT_MIN:.0f}', len(hit_pool)),
+        ('after park>=0+opp_sp', len(park_pool)),
+        ('after contact vuln', len(contact_pool)),
+        ('after same-lineup pairing', len(paired_groups)),
+        ('after validation', valid_groups + cross_emitted),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'double-barrel',
         'Double Barrel',
@@ -2704,8 +2850,14 @@ def cruise_leg_from_streak(streak):
 
 def build_cruise_control():
     details = HOT_STREAKS.get('details') if isinstance(HOT_STREAKS, dict) else None
+    details_key = isinstance(details, list)
     if not isinstance(details, list):
         details = []
+    streak_pool = [s for s in details if int(_sf(s.get('streak'))) >= 3]
+    market_pool = [
+        s for s in streak_pool
+        if str(s.get('type') or '').upper() not in ('HR', 'TWO', 'RBI', 'SB', '2B')
+    ]
     candidates = []
     seen = set()
     for streak in details:
@@ -2718,28 +2870,55 @@ def build_cruise_control():
         seen.add(key)
         candidates.append((streak, leg))
     candidates.sort(key=lambda item: (-int(_sf(item[0].get('streak'))), seeded_streak_key(item[0]), item[1]['name']))
-    legs = [leg for _, leg in candidates[:3]]
-    if len(legs) < 2:
+    parlays = []
+    used_board_people = set()
+    while len(parlays) < 5:
+        legs = []
+        local_people = set()
+        for _, leg in candidates:
+            person = leg['name'].strip().lower()
+            if person in used_board_people or person in local_people:
+                continue
+            local_people.add(person)
+            legs.append(leg)
+            if len(legs) == 3:
+                break
+        if len(legs) < 2:
+            break
+        ok_probe, reason_probe = validate_parlay(legs, 'streak', max_legs=3)
+        if not ok_probe:
+            for leg in legs[:1]:
+                used_board_people.add(leg['name'].strip().lower())
+            continue
+        used_board_people.update(leg['name'].strip().lower() for leg in legs)
+        parlays.append({
+            'correlation_type': 'streak',
+            'badge': 'streak',
+            'note': 'Tie-breaking is seeded on the slate date, so the section stays stable during one slate day.',
+            'legs': legs,
+        })
+    log_parlay_funnel('cruise-control', [
+        ('details_key', int(details_key)),
+        ('pool', len(details)),
+        ('after streak>=3', len(streak_pool)),
+        ('after supported non-HR market', len(market_pool)),
+        ('after leg build', len(candidates)),
+        ('after validation', len(parlays)),
+        ('emitted', len(parlays)),
+    ])
+    if not parlays:
         return empty_parlay_section(
             'cruise-control',
             'Cruise Control',
             'No qualifying streak stack',
             'Cruise Control needs at least two non-HR legs on active streaks of three or more games.',
         )
-    ok, reason = validate_parlay(legs, 'streak', max_legs=3)
-    if not ok:
-        return empty_parlay_section('cruise-control', 'Cruise Control', 'Streak stack rejected by guard', reason)
     return render_parlay_board(
         'cruise-control',
         'Cruise Control',
         'Tap to expand · stable same-date streak stack',
         'Every leg is tied to an active streak of at least three games. HR streaks are excluded from this section.',
-        [{
-            'correlation_type': 'streak',
-            'badge': 'streak',
-            'note': 'Tie-breaking is seeded on the slate date, so the section stays stable during one slate day.',
-            'legs': legs,
-        }],
+        parlays,
         'No non-HR streak stack cleared.',
     )
 
@@ -2803,10 +2982,22 @@ def yard_sale_candidates(cross_game=False):
     return out
 
 def build_yard_sale():
+    pool = [row for row in HR_LB if str(row.get('Batter') or row.get('Name') or '').strip()]
+    park_pool = []
+    for row in pool:
+        name = str(row.get('Batter') or row.get('Name') or '').strip()
+        bp = BP_BAT_BY_NAME.get(name.lower()) or {}
+        team = tn(row.get('Team') or bp.get('Team'))
+        opp = tn(bp.get('Opponent') or row.get('Opp'))
+        if park_hr_for_team(team) >= 8 and opposing_pitcher_for_hitter(team, opp):
+            park_pool.append(row)
+    driver_pool = yard_sale_candidates()
     parlays = []
     grouped = {}
-    for hitter in yard_sale_candidates():
+    for hitter in driver_pool:
         grouped.setdefault((hitter['game'], hitter['opp_sp']), []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    valid_groups = 0
     for (game, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['score'] for h in item[1])):
         hitters = sorted(hitters, key=lambda h: (-h['score'], -h['park_hr'], h['name']))
         if len(hitters) < 2:
@@ -2827,12 +3018,14 @@ def build_yard_sale():
             })
         ok, reason = validate_parlay(legs, 'yard_sale_same_game', max_legs=2)
         if ok:
+            valid_groups += 1
             parlays.append({
                 'correlation_type': 'yard_sale_same_game',
                 'badge': 'HR driver pair',
                 'note': f'Both HR legs share {game} and the same opposing starter.',
                 'legs': legs,
             })
+    cross_emitted = 0
     if not parlays:
         cross = sorted(yard_sale_candidates(cross_game=True), key=lambda h: (-h['score'], -h['park_hr'], h['game'], h['name']))
         for first in cross:
@@ -2855,6 +3048,7 @@ def build_yard_sale():
                 })
             ok, reason = validate_parlay(legs, 'yard_sale_cross_game', max_legs=2)
             if ok:
+                cross_emitted += 1
                 parlays.append({
                     'correlation_type': 'yard_sale_cross_game',
                     'badge': 'cross-game stricter',
@@ -2862,6 +3056,14 @@ def build_yard_sale():
                     'legs': legs,
                 })
                 break
+    log_parlay_funnel('yard-sale', [
+        ('pool', len(pool)),
+        ('after park>=8+opp_sp', len(park_pool)),
+        ('after driver threshold', len(driver_pool)),
+        ('after same-game pairing', len(paired_groups)),
+        ('after validation', valid_groups + cross_emitted),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'yard-sale',
         'Yard Sale',
