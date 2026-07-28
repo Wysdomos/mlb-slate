@@ -3,13 +3,10 @@
 Reads: /home/user/workspace/day46_data.json
 Writes: /home/user/workspace/built_sections_d46.json
 """
-import html, json, re, os
+import hashlib, html, json, re, os
 from datetime import datetime
 from parlay_rules import (
-    BATTER_NESTED_MARKETS,
     FORBIDDEN_MARKETS,
-    PITCHER_SIDE_MARKETS,
-    validate_board_people,
     validate_parlay,
 )
 from shadow_chips import (
@@ -36,6 +33,14 @@ H_ALLOWED_MAIN_EDGE_MIN = 0.5
 H_ALLOWED_ALT_MARGIN_MIN = 1.5
 OUTS_MAIN_EDGE_MIN = 1.0
 OUTS_ALT_MARGIN_MIN = 2.0
+
+# Cross-game parlays do not get same-park/pitcher/weather correlation lift.
+# Calibration will replace this starting +5 percentage-point/score penalty.
+CROSS_GAME_STRICTER_DELTA = 5.0
+K_ALT_MARGIN_MIN = OUTS_ALT_MARGIN_MIN
+DOUBLE_BARREL_HIT_MIN = 65.0
+CONTACT_HITS_ALLOWED_MIN = 5.5
+YARD_SALE_DRIVER_MIN = 35.0
 
 # ---- Build lookup indexes ----
 SP_PROJ = DATA['SP_Projections']  # new 15-pitcher sheet (Team, Pitcher, Opp, Inn, BF, R, H, HR, K, BB)
@@ -107,6 +112,14 @@ try:
         K_PROPS = {}
 except Exception:
     K_PROPS = {}
+
+try:
+    HOT_STREAKS_FILE = os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json')
+    HOT_STREAKS = json.load(open(HOT_STREAKS_FILE, encoding='utf-8'))
+    if not isinstance(HOT_STREAKS, dict):
+        HOT_STREAKS = {}
+except Exception:
+    HOT_STREAKS = {}
 
 # Structured pick records for For The Record (results-page backtest). Each builder appends.
 SLATE_PICKS = []
@@ -2150,6 +2163,56 @@ def pitcher_prop_cell(projection, main_line, rec, market_key):
         f'{alt}'
     )
 
+def opposing_pitcher_for_hitter(team, opp_team):
+    return SP_BY_TEAM.get(tn(opp_team), {}).get('Pitcher', '')
+
+def k_lens_families_for_pitcher(sp):
+    name = sp.get('Pitcher', '')
+    kf = _sf(sp.get('K'))
+    bp = pitcher_bp(name)
+    outs_val = (_sf(bp.get('Innings')) * 3) if bp else 0
+    v = get_vuln_for_pitcher(name)
+    k9 = _sf(v.get('K9')) if v else 0
+    opp = tn(sp.get('Opp'))
+    opp_row = BP_TEAMS_BY_TEAM.get(opp) or BP_TEAMS_BY_TEAM.get((sp.get('Opp') or '').strip())
+    opp_k = _sf(opp_row.get('Strikeouts')) if opp_row else 0
+    return {
+        'bpp_projection_averages_k': kf >= 5.5,
+        'pitcher_k9_skill': k9 >= 9.0,
+        'projected_outs_volume': outs_val >= 17,
+        'opponent_lineup_k_volume': opp_k >= 9.0,
+    }
+
+def k_independent_family_count(sp):
+    return sum(1 for active in k_lens_families_for_pitcher(sp).values() if active)
+
+def k_main_alt_recommendation(sp):
+    name = sp.get('Pitcher', '')
+    projection = _sf(sp.get('K'), None)
+    main_line = pitcher_prop_line(name, 'K')
+    if projection is None or main_line is None or pitcher_is_short_leash(name):
+        return None
+    edge = projection - main_line
+    if edge == 0:
+        return None
+    direction = 'Over' if edge > 0 else 'Under'
+    if direction == 'Over':
+        alt_line = min(main_line - 2.0, 4.5)
+    else:
+        alt_line = main_line + 2.0
+    alt_margin = (projection - alt_line) if direction == 'Over' else (alt_line - projection)
+    if alt_margin < K_ALT_MARGIN_MIN:
+        return None
+    return {
+        'direction': direction,
+        'main_line': main_line,
+        'alt_line': alt_line,
+        'alt_margin': alt_margin,
+        'win_at': line_win_at(alt_line, direction),
+        'projection': projection,
+        'line': f'{direction} {format_line_point(alt_line)} K',
+    }
+
 def k_consensus_for_pitcher(sp):
     name = sp.get('Pitcher', '')
     kf = _sf(sp.get('K'))
@@ -2245,10 +2308,16 @@ def slate_id_for_parlays():
             return raw.replace('-', '')
     return 'slate'
 
+def parlay_same_game(parlay):
+    games = {str(leg.get('game') or '').strip() for leg in parlay.get('legs', [])}
+    games.discard('')
+    return bool(games) and len(games) == 1
+
 def emit_parlay_legs(sec_id, parlays):
     for idx, parlay in enumerate(parlays[:5], 1):
         correlation_type = parlay.get('correlation_type', sec_id)
         parlay_id = f'{slate_id_for_parlays()}-{sec_id}-{idx}-{correlation_type}'
+        same_game = parlay_same_game(parlay)
         for leg in parlay['legs']:
             name = leg.get('name') or leg.get('game') or ''
             SLATE_PICKS.append({
@@ -2266,6 +2335,7 @@ def emit_parlay_legs(sec_id, parlays):
                 'parlay_id': parlay_id,
                 'correlation_type': correlation_type,
                 'leg_role': leg.get('leg_role', 'satellite'),
+                'same_game': same_game,
                 **blank_chip_tiers(),
             })
 
@@ -2280,9 +2350,11 @@ def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
         note = html.escape(parlay.get('note', ''))
         legs = '<br>'.join(f'Leg {i}: {parlay_leg_html(leg)}' for i, leg in enumerate(parlay['legs'], 1))
         note_html = f'<br><em>{note}</em>' if note else ''
+        same_game_tag = ' <span class="badge b-tier0">SAME GAME</span>' if parlay_same_game(parlay) else ''
         blocks.append(
             f'  <div class="flag-row"><div class="icon">{icons[idx]}</div>'
             f'<div>{legs}{note_html} <span class="badge b-tier1">{badge}</span></div></div>'
+            .replace(f'<span class="badge b-tier1">{badge}</span>', f'<span class="badge b-tier1">{badge}</span>{same_game_tag}')
         )
     return f'''<!-- PARLAY CORRELATION -->
 <section id="{sec_id}" class="collapsible">
@@ -2300,67 +2372,70 @@ def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
 </section>
 '''
 
-def build_combos_k():
-    parlays = []
-    for sp in sorted(SP_PROJ, key=lambda row: (-k_consensus_for_pitcher(row), -_sf(row.get('K')))):
+def build_two_way_ks():
+    candidates = []
+    for sp in SP_PROJ:
         name = sp.get('Pitcher', '')
-        kf = _sf(sp.get('K'))
-        votes = k_consensus_for_pitcher(sp)
-        tier = k_tier_for_projection(kf)
-        if votes < 4 or tier > 1 or pitcher_is_short_leash(name):
+        families = k_independent_family_count(sp)
+        rec = k_main_alt_recommendation(sp)
+        if families < 3 or k_tier_for_projection(sp.get('K')) > 1 or not rec:
             continue
-        bp = pitcher_bp(name)
-        outs = pitcher_outs_line(bp)
-        if not outs:
-            continue
-        k_line = k_alt_for(kf)
-        k_leg = {
-            'market': 'K',
+        candidates.append({
+            'sp': sp,
             'name': name,
             'team': tn(sp.get('Team')),
             'opp': tn(sp.get('Opp')),
             'game': game_key_for_team(sp.get('Team')),
-            'line': k_line,
-            'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
-            'consensus': votes,
-            'consensus_max': 6,
-            'leg_role': 'anchor',
-            'confidence_rank': 1,
-            'detail': f'{votes}/6 lenses; projected {kf:.2f} K',
-        }
-        outs_leg = {
-            'market': 'OUTS',
-            'name': name,
-            'team': tn(sp.get('Team')),
-            'opp': tn(sp.get('Opp')),
-            'game': game_key_for_team(sp.get('Team')),
-            'line': outs['line'],
-            'win_at': outs['win_at'],
-            'leg_role': 'satellite',
-            'confidence_rank': 2,
-            'detail': f'projected {outs["projection"]:.1f} outs',
-        }
-        legs = [k_leg, outs_leg]
-        ok, reason = validate_parlay(legs, 'same_pitcher_k_outs', max_legs=3)
+            'families': families,
+            'rec': rec,
+        })
+    by_game = {}
+    for c in candidates:
+        by_game.setdefault((c['game'], c['rec']['direction']), []).append(c)
+    parlays = []
+    for (game, direction), group in sorted(
+        by_game.items(),
+        key=lambda item: (-sum(g['families'] for g in item[1]), item[0][0], item[0][1]),
+    ):
+        if not game or len(group) < 2:
+            continue
+        group = sorted(group, key=lambda c: (-c['families'], -c['rec']['alt_margin'], c['name']))[:2]
+        legs = []
+        for idx, c in enumerate(group, 1):
+            rec = c['rec']
+            legs.append({
+                'market': 'K',
+                'name': c['name'],
+                'team': c['team'],
+                'opp': c['opp'],
+                'game': c['game'],
+                'line': rec['line'],
+                'win_at': rec['win_at'],
+                'consensus': c['families'],
+                'consensus_max': 4,
+                'leg_role': 'satellite',
+                'confidence_rank': idx,
+                'detail': f'{direction.lower()} from projection {rec["projection"]:.2f} vs line {rec["main_line"]:.1f}; {c["families"]}/4 independent K families',
+            })
+        ok, reason = validate_parlay(legs, 'two_way_k', max_legs=3)
         if not ok:
             continue
         parlays.append({
-            'correlation_type': 'same_pitcher_k_outs',
-            'badge': 'same pitcher K + outs',
-            'note': 'Deeper starts mean more batters faced, so strikeouts and outs move together.',
+            'correlation_type': 'two_way_k',
+            'badge': f'{direction} K pair',
+            'note': 'Both starters share the same game environment and the same strikeout direction.',
             'legs': legs,
         })
     return render_parlay_board(
-        'combos-k',
-        'Strikeout Stack',
-        'Tap to expand · same-pitcher K plus outs · 2 legs default',
-        'Eligibility: at least four K lenses, tier 0-1, no short-leash flag, and a real projected outs leg. Alt K ladders stay capped at O 5+.',
+        'two-way-ks',
+        "Two-Way K's",
+        'Tap to expand · same-game alt K pairs · independent K families',
+        'Eligibility: at least three independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line with enough alternate-line margin.',
         parlays,
-        'No pitcher cleared the K lens, tier, short-leash, and outs-availability gates.',
+        'No same-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
     )
 
-
-def build_combos_hrr():
+def build_traffic_jam():
     grouped = {}
     for hitter in traffic_hitter_candidates():
         key = (hitter['team'], hitter['opp_sp'])
@@ -2463,102 +2538,338 @@ def build_combos_hrr():
             'legs': legs,
         })
     return render_parlay_board(
-        'combos-hrr',
-        'Traffic Stack',
+        'traffic-jam',
+        'Traffic Jam',
         'Tap to expand · HRR traffic structures · no 2B or SB legs',
         'Eligibility: HRR proxy at least 78%, positive park Runs%, and one matching pitcher vulnerability reason. Hits-allowed and earned-runs legs are mutually exclusive.',
         parlays,
         'No lineup had two HRR legs with positive park run context and a matching pitcher vulnerability reason.',
     )
 
-
-def build_parlays():
-    anchors = []
-    for sp in SP_PROJ:
-        name = sp.get('Pitcher', '')
-        kf = _sf(sp.get('K'))
-        votes = k_consensus_for_pitcher(sp)
-        if k_tier_for_projection(kf) == 0 and votes >= 5 and not pitcher_is_short_leash(name):
-            anchors.append((votes, kf, sp))
-    anchors.sort(key=lambda item: (-item[0], -item[1]))
-    if not anchors:
-        return empty_parlay_section(
-            'parlays',
-            'Anchor',
-            'No qualifying K anchor yet',
-            'No pitcher cleared the tier-0, five-lens, no-short-leash anchor gate.',
-        )
-
-    votes, kf, anchor_sp = anchors[0]
-    anchor_name = anchor_sp.get('Pitcher', '')
-    anchor_game = game_key_for_team(anchor_sp.get('Team'))
-    k_line = k_alt_for(kf)
-    anchor_leg = {
-        'market': 'K',
-        'name': anchor_name,
-        'team': tn(anchor_sp.get('Team')),
-        'opp': tn(anchor_sp.get('Opp')),
-        'game': anchor_game,
-        'line': k_line,
-        'win_at': 5 if '5' in k_line else (4 if '3.5' in k_line else 3),
-        'consensus': votes,
-        'consensus_max': 6,
-        'leg_role': 'anchor',
-        'confidence_rank': 1,
-        'detail': f'tier 0; {votes}/6 lenses; projected {kf:.2f} K',
-    }
-    satellites = []
-    for hitter in sorted(traffic_hitter_candidates(), key=lambda h: (-h['hrr_pct'], -h['hit_pct'])):
-        if hitter['game'] != anchor_game:
+def hit_candidate_rows(min_hit_pct=DOUBLE_BARREL_HIT_MIN, cross_game=False):
+    out = []
+    threshold = min_hit_pct + (CROSS_GAME_STRICTER_DELTA if cross_game else 0)
+    for row in HIT:
+        name = _hit_full(row)
+        if not name:
             continue
-        satellites.append({
-            'market': 'HRR',
-            'name': hitter['name'],
-            'team': hitter['team'],
-            'opp': hitter['opp'],
-            'game': hitter['game'],
-            'line': 'Ov 0.5 HRR',
-            'win_at': 1,
-            'leg_role': 'satellite',
-            'confidence_rank': 2,
-            'detail': f'same game; {hitter["hrr_pct"]:.1f}% HRR proxy',
+        hit_pct = _sf(str(row.get('1+ Hit', '')).replace('%', ''))
+        if hit_pct < threshold:
+            continue
+        team = tn(row.get('Team'))
+        bp = BP_BAT_BY_NAME.get(name.lower())
+        opp = tn(bp.get('Opponent')) if bp else ''
+        if not opp:
+            match = str(row.get('Matchup') or '')
+            if ' vs. ' in match:
+                parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                opp = parts[1] if team == parts[0] else (parts[0] if team == parts[1] else '')
+        opp_sp = opposing_pitcher_for_hitter(team, opp)
+        park_runs = park_runs_for_team(team)
+        if park_runs < 0 or not opp_sp:
+            continue
+        vuln = get_vuln_for_pitcher(opp_sp)
+        vuln_score = _sf(vuln.get('VulnScore')) if vuln else 0
+        sp = pitcher_projection(opp_sp) or {}
+        bp_sp = pitcher_bp(opp_sp) or {}
+        hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
+        if vuln_score < 60 and hits_proj < CONTACT_HITS_ALLOWED_MIN:
+            continue
+        out.append({
+            'name': name,
+            'team': team,
+            'opp': opp,
+            'opp_sp': opp_sp,
+            'game': game_key_for_team(team),
+            'hit_pct': hit_pct,
+            'park_runs': park_runs,
+            'vuln_score': vuln_score,
+            'hits_proj': hits_proj,
         })
-        if len(satellites) == 2:
-            break
-    if not satellites:
-        return empty_parlay_section(
-            'parlays',
-            'Anchor',
-            'No correlated satellites for the K anchor',
-            'A tier-0 K anchor qualified, but no same-game or vulnerable-pitcher satellite passed the traffic gates.',
-        )
-    legs = [anchor_leg] + satellites[:2]
-    ok, reason = validate_parlay(legs, 'anchor', max_legs=3)
-    board_ok, board_reason = validate_board_people(legs, max_count=2)
-    if not ok or not board_ok:
-        return empty_parlay_section(
-            'parlays',
-            'Anchor',
-            'Anchor stack rejected by guard',
-            reason if not ok else board_reason,
-        )
-    vuln = get_vuln_for_pitcher(anchor_name)
-    danger = vuln.get('DangerBatter1') if vuln else ''
-    danger_note = f'DANGER: {danger}' if danger else 'DANGER label unavailable without Matchup Spotlight workbook context.'
+    return out
+
+def build_double_barrel():
+    parlays = []
+    grouped = {}
+    for hitter in hit_candidate_rows():
+        grouped.setdefault((hitter['team'], hitter['opp_sp']), []).append(hitter)
+    for (team, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['hit_pct'] for h in item[1])):
+        hitters = sorted(hitters, key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['name']))
+        if len(hitters) < 2:
+            continue
+        legs = []
+        for idx, hitter in enumerate(hitters[:2], 1):
+            legs.append({
+                'market': 'HIT',
+                'name': hitter['name'],
+                'team': hitter['team'],
+                'opp': hitter['opp'],
+                'game': hitter['game'],
+                'line': 'Ov 0.5 H',
+                'win_at': 1,
+                'leg_role': 'satellite',
+                'confidence_rank': idx,
+                'detail': f'{hitter["hit_pct"]:.1f}% 1+ hit; contact vulnerability {hitter["vuln_score"]:.0f}',
+            })
+        ok, reason = validate_parlay(legs, 'double_barrel_same_game', max_legs=2)
+        if ok:
+            parlays.append({
+                'correlation_type': 'double_barrel_same_game',
+                'badge': 'same lineup',
+                'note': f'{team} hit legs share the same opposing starter.',
+                'legs': legs,
+            })
+    if not parlays:
+        cross = sorted(hit_candidate_rows(cross_game=True), key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['game'], h['name']))
+        for first in cross:
+            second = next((h for h in cross if h['name'] != first['name'] and h['game'] != first['game']), None)
+            if not second:
+                continue
+            legs = []
+            for idx, hitter in enumerate((first, second), 1):
+                legs.append({
+                    'market': 'HIT',
+                    'name': hitter['name'],
+                    'team': hitter['team'],
+                    'opp': hitter['opp'],
+                    'game': hitter['game'],
+                    'line': 'Ov 0.5 H',
+                    'win_at': 1,
+                    'leg_role': 'satellite',
+                    'confidence_rank': idx,
+                    'detail': f'{hitter["hit_pct"]:.1f}% 1+ hit; cross-game threshold {DOUBLE_BARREL_HIT_MIN + CROSS_GAME_STRICTER_DELTA:.1f}%',
+                })
+            ok, reason = validate_parlay(legs, 'double_barrel_cross_game', max_legs=2)
+            if ok:
+                parlays.append({
+                    'correlation_type': 'double_barrel_cross_game',
+                    'badge': 'cross-game stricter',
+                    'note': 'Cross-game hit legs clear the stricter threshold because no shared-game lift exists.',
+                    'legs': legs,
+                })
+                break
     return render_parlay_board(
-        'parlays',
-        'Anchor',
-        'Tap to expand · one K anchor · correlated satellites only',
-        'Anchor must be a tier-0 K leg with at least five lenses. Satellites must be same-game or against the same vulnerable pitcher; no HR anchors are allowed.',
-        [{
-            'correlation_type': 'anchor',
-            'badge': 'K anchor',
-            'note': danger_note,
-            'legs': legs,
-        }],
-        'No tier-0, five-lens K anchor had valid correlated satellites.',
+        'double-barrel',
+        'Double Barrel',
+        'Tap to expand · exactly two 1+ hit legs',
+        f'Same-lineup pairs are preferred. Cross-game pairs must clear an added {CROSS_GAME_STRICTER_DELTA:.0f}-point threshold.',
+        parlays,
+        'No same-lineup or stricter cross-game 1+ hit pair cleared the contact, park, and vulnerability gates.',
     )
 
+def seeded_streak_key(item):
+    seed = f'{slate_id_for_parlays()}|{item.get("player","")}|{item.get("type","")}'
+    digest = hashlib.sha256(seed.encode('utf-8')).hexdigest()
+    return int(digest[:12], 16)
+
+def cruise_leg_from_streak(streak):
+    stype = str(streak.get('type') or '').upper()
+    if stype == 'HR':
+        return None
+    streak_len = int(_sf(streak.get('streak')))
+    if streak_len < 3:
+        return None
+    name = str(streak.get('player') or '').strip()
+    if not name:
+        return None
+    team = tn(streak.get('team'))
+    opp = tn(streak.get('opp'))
+    base = {
+        'name': name,
+        'team': team,
+        'opp': opp,
+        'game': game_key_for_team(team),
+        'leg_role': 'satellite',
+        'confidence_rank': 10 - min(streak_len, 9),
+        'detail': f'{streak_len}-game active streak',
+    }
+    if stype == 'HRR':
+        return {**base, 'market': 'HRR', 'line': 'Ov 0.5 HRR', 'win_at': 1}
+    if stype == 'HIT':
+        return {**base, 'market': 'HIT', 'line': 'Ov 0.5 H', 'win_at': 1}
+    if stype == 'K':
+        sp = pitcher_projection(name)
+        if not sp:
+            return None
+        kf = _sf(sp.get('K'))
+        line = k_alt_for(kf)
+        return {**base, 'market': 'K', 'line': line, 'win_at': 5 if '5' in line else (4 if '3.5' in line else 3)}
+    if stype == 'HAL':
+        bp = pitcher_bp(name)
+        line = pitcher_hits_allowed_line(bp)
+        if not line:
+            return None
+        return {**base, 'market': 'H_ALLOWED', 'line': line['line'], 'win_at': line['win_at']}
+    return None
+
+def build_cruise_control():
+    details = HOT_STREAKS.get('details') if isinstance(HOT_STREAKS, dict) else None
+    if not isinstance(details, list):
+        details = []
+    candidates = []
+    seen = set()
+    for streak in details:
+        leg = cruise_leg_from_streak(streak)
+        if not leg or leg['market'] in FORBIDDEN_MARKETS or leg['market'] == 'HR':
+            continue
+        key = (leg['name'].lower(), leg['market'])
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append((streak, leg))
+    candidates.sort(key=lambda item: (-int(_sf(item[0].get('streak'))), seeded_streak_key(item[0]), item[1]['name']))
+    legs = [leg for _, leg in candidates[:3]]
+    if len(legs) < 2:
+        return empty_parlay_section(
+            'cruise-control',
+            'Cruise Control',
+            'No qualifying streak stack',
+            'Cruise Control needs at least two non-HR legs on active streaks of three or more games.',
+        )
+    ok, reason = validate_parlay(legs, 'streak', max_legs=3)
+    if not ok:
+        return empty_parlay_section('cruise-control', 'Cruise Control', 'Streak stack rejected by guard', reason)
+    return render_parlay_board(
+        'cruise-control',
+        'Cruise Control',
+        'Tap to expand · stable same-date streak stack',
+        'Every leg is tied to an active streak of at least three games. HR streaks are excluded from this section.',
+        [{
+            'correlation_type': 'streak',
+            'badge': 'streak',
+            'note': 'Tie-breaking is seeded on the slate date, so the section stays stable during one slate day.',
+            'legs': legs,
+        }],
+        'No non-HR streak stack cleared.',
+    )
+
+def batter_hr_projection(name):
+    bp = BP_BAT_BY_NAME.get(str(name or '').strip().lower()) or {}
+    try:
+        return _sf(required_row_value(bp, 'BP_Batters', 'home runs', ('HomeRuns', 'Home Runs', 'HR')))
+    except Exception:
+        return 0
+
+def park_hr_for_team(team):
+    park = PARK_BY_TEAM.get(tn(team))
+    return parse_pct(park.get('HR %')) if park else 0
+
+def pitcher_hr_allowed_rate(name):
+    sp = pitcher_projection(name) or {}
+    bp = pitcher_bp(name) or {}
+    return average_available(sp.get('HR'), bp.get('HomeRunsAllowed')) or 0
+
+def handedness_bonus(batter_name, opp_sp):
+    bp = BP_BAT_BY_NAME.get(str(batter_name or '').strip().lower()) or {}
+    hitter_hand = str(bp.get('Bats') or bp.get('BatterHand') or '').strip().upper()
+    sp = pitcher_projection(opp_sp) or {}
+    pitcher_hand = str(sp.get('PitcherHand') or sp.get('Throws') or '').strip().upper()
+    if hitter_hand == 'S':
+        return 5.0
+    if hitter_hand and pitcher_hand and hitter_hand != pitcher_hand:
+        return 4.0
+    return 0.0
+
+def yard_sale_candidates(cross_game=False):
+    out = []
+    threshold = YARD_SALE_DRIVER_MIN + (CROSS_GAME_STRICTER_DELTA if cross_game else 0)
+    for row in HR_LB:
+        name = str(row.get('Batter') or row.get('Name') or '').strip()
+        if not name:
+            continue
+        bp = BP_BAT_BY_NAME.get(name.lower()) or {}
+        team = tn(row.get('Team') or bp.get('Team'))
+        opp = tn(bp.get('Opponent') or row.get('Opp'))
+        opp_sp = opposing_pitcher_for_hitter(team, opp)
+        park_hr = park_hr_for_team(team)
+        if park_hr < 8 or not opp_sp:
+            continue
+        hr_proj = batter_hr_projection(name)
+        pitcher_hra = pitcher_hr_allowed_rate(opp_sp)
+        score = park_hr + (pitcher_hra * 18.0) + (hr_proj * 85.0) + handedness_bonus(name, opp_sp)
+        if score < threshold:
+            continue
+        out.append({
+            'name': name,
+            'team': team,
+            'opp': opp,
+            'opp_sp': opp_sp,
+            'game': game_key_for_team(team),
+            'park_hr': park_hr,
+            'pitcher_hra': pitcher_hra,
+            'hr_proj': hr_proj,
+            'score': score,
+        })
+    return out
+
+def build_yard_sale():
+    parlays = []
+    grouped = {}
+    for hitter in yard_sale_candidates():
+        grouped.setdefault((hitter['game'], hitter['opp_sp']), []).append(hitter)
+    for (game, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['score'] for h in item[1])):
+        hitters = sorted(hitters, key=lambda h: (-h['score'], -h['park_hr'], h['name']))
+        if len(hitters) < 2:
+            continue
+        legs = []
+        for idx, hitter in enumerate(hitters[:2], 1):
+            legs.append({
+                'market': 'HR',
+                'name': hitter['name'],
+                'team': hitter['team'],
+                'opp': hitter['opp'],
+                'game': hitter['game'],
+                'line': 'Ov 0.5 HR',
+                'win_at': 1,
+                'leg_role': 'satellite',
+                'confidence_rank': idx,
+                'detail': f'park HR {hitter["park_hr"]:+d}%; pitcher HR allowed {hitter["pitcher_hra"]:.2f}; HR projection {hitter["hr_proj"]:.2f}',
+            })
+        ok, reason = validate_parlay(legs, 'yard_sale_same_game', max_legs=2)
+        if ok:
+            parlays.append({
+                'correlation_type': 'yard_sale_same_game',
+                'badge': 'HR driver pair',
+                'note': f'Both HR legs share {game} and the same opposing starter.',
+                'legs': legs,
+            })
+    if not parlays:
+        cross = sorted(yard_sale_candidates(cross_game=True), key=lambda h: (-h['score'], -h['park_hr'], h['game'], h['name']))
+        for first in cross:
+            second = next((h for h in cross if h['name'] != first['name'] and h['game'] != first['game']), None)
+            if not second:
+                continue
+            legs = []
+            for idx, hitter in enumerate((first, second), 1):
+                legs.append({
+                    'market': 'HR',
+                    'name': hitter['name'],
+                    'team': hitter['team'],
+                    'opp': hitter['opp'],
+                    'game': hitter['game'],
+                    'line': 'Ov 0.5 HR',
+                    'win_at': 1,
+                    'leg_role': 'satellite',
+                    'confidence_rank': idx,
+                    'detail': f'physical driver score {hitter["score"]:.1f}; cross-game threshold {YARD_SALE_DRIVER_MIN + CROSS_GAME_STRICTER_DELTA:.1f}',
+                })
+            ok, reason = validate_parlay(legs, 'yard_sale_cross_game', max_legs=2)
+            if ok:
+                parlays.append({
+                    'correlation_type': 'yard_sale_cross_game',
+                    'badge': 'cross-game stricter',
+                    'note': 'Cross-game HR legs clear the stricter physical-driver threshold.',
+                    'legs': legs,
+                })
+                break
+    return render_parlay_board(
+        'yard-sale',
+        'Yard Sale',
+        'Tap to expand · exactly two HR legs · physical drivers only',
+        f'Ranks by park HR context, pitcher HR-allowed profile, BPP HomeRuns projection, and handedness context. Cross-game pairs need +{CROSS_GAME_STRICTER_DELTA:.0f} more driver score.',
+        parlays,
+        'No same-game or stricter cross-game HR pair cleared the physical-driver gates.',
+    )
 
 # ---- BUILD: CONVICTION BOARD ----
 def conviction_empty():
@@ -2859,9 +3170,11 @@ if PROJECTED_MODE:
         'totals-board':      with_projected_badge(build_totals_board(), "Totals rebuilt from live team run projections."),
         'nrfi-board':        with_projected_badge(build_nrfi_board(), "YRFI/NRFI rebuilt from live first-inning probability where available."),
         'dfs-board':         with_projected_badge(build_dfs_board(), "DFS board rebuilt from live DK/FD point projections."),
-        'combos-k':          build_combos_k(),
-        'combos-hrr':        build_combos_hrr(),
-        'parlays':           build_parlays(),
+        'two-way-ks':        build_two_way_ks(),
+        'traffic-jam':       build_traffic_jam(),
+        'double-barrel':     build_double_barrel(),
+        'cruise-control':    build_cruise_control(),
+        'yard-sale':         build_yard_sale(),
         'conviction':        build_conviction(),
         'skip':              build_skip(),
         'sp-vuln-board':     projected_unavailable_section(
@@ -2884,9 +3197,11 @@ else:
         'totals-board':      build_totals_board(),
         'nrfi-board':        build_nrfi_board(),
         'dfs-board':         build_dfs_board(),
-        'combos-k':          build_combos_k(),
-        'combos-hrr':        build_combos_hrr(),
-        'parlays':           build_parlays(),
+        'two-way-ks':        build_two_way_ks(),
+        'traffic-jam':       build_traffic_jam(),
+        'double-barrel':     build_double_barrel(),
+        'cruise-control':    build_cruise_control(),
+        'yard-sale':         build_yard_sale(),
         'conviction':        build_conviction(),
         'skip':              build_skip(),
         'sp-vuln-board':     build_sp_vuln(),

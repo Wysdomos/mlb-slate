@@ -746,6 +746,17 @@ def build():
     hot_export = {
         'HR':  sorted({s['player'] for s in streaks if s.get('type') == 'HR'}),
         'all': sorted({s['player'] for s in streaks if s.get('type') in ('HR','HRR','HIT','TWO','RBI')}),
+        'details': [
+            {
+                'type': s.get('type'),
+                'player': s.get('player'),
+                'team': s.get('team'),
+                'opp': s.get('opp'),
+                'streak': s.get('streak'),
+            }
+            for s in streaks
+            if s.get('type') in ('HRR', 'HIT', 'K', 'HAL')
+        ],
     }
     hot_file = os.environ.get('HOT_STREAKS_FILE', 'hot_streaks.json')
     with open(hot_file, 'w', encoding='utf-8') as f:

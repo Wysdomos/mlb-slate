@@ -592,7 +592,8 @@ SECTION_ORDER = [
     'headlines', 'park-board', 'games', 'matchup-spotlight',
     'k-board', 'sp-vuln-board', 'hr-board', 'oo5-board',
     'tb-board', 'totals-board', 'nrfi-board',
-    'dfs-board', 'combos-k', 'combos-hrr', 'parlays',
+    'dfs-board', 'two-way-ks', 'traffic-jam', 'double-barrel',
+    'cruise-control', 'yard-sale',
     'conviction', 'skip'
 ]
 SECTION_INSERT_AFTER = {
@@ -608,13 +609,15 @@ SECTION_INSERT_AFTER = {
     'totals-board': 'tb-board',
     'nrfi-board': 'totals-board',
     'dfs-board': 'nrfi-board',
-    'combos-k': 'dfs-board',
-    'combos-hrr': 'combos-k',
-    'parlays': 'combos-hrr',
-    'conviction': 'parlays',
+    'two-way-ks': 'dfs-board',
+    'traffic-jam': 'two-way-ks',
+    'double-barrel': 'traffic-jam',
+    'cruise-control': 'double-barrel',
+    'yard-sale': 'cruise-control',
+    'conviction': 'yard-sale',
     'skip': 'conviction',
 }
-RETIRED_SECTION_IDS = ('sb-board', 'doubles-board')
+RETIRED_SECTION_IDS = ('sb-board', 'doubles-board', 'combos-k', 'combos-hrr', 'parlays')
 
 def remove_section(html, sec_id):
     pattern = re.compile(
@@ -657,6 +660,16 @@ for sec_id in SECTION_ORDER:
 
 html = ensure_board_link(html, 'tb-board', '📏 Total Bases Board', 'oo5-board')
 html = ensure_rail_chip(html, 'tb-board', '📏', 'TB', 'oo5-board')
+html = ensure_board_link(html, 'two-way-ks', "⚡ Two-Way K's", 'dfs-board')
+html = ensure_board_link(html, 'traffic-jam', '🚦 Traffic Jam', 'two-way-ks')
+html = ensure_board_link(html, 'double-barrel', '🎯 Double Barrel', 'traffic-jam')
+html = ensure_board_link(html, 'cruise-control', '🛳️ Cruise Control', 'double-barrel')
+html = ensure_board_link(html, 'yard-sale', '💣 Yard Sale', 'cruise-control')
+html = ensure_rail_chip(html, 'two-way-ks', '⚡', 'K2', 'dfs-board')
+html = ensure_rail_chip(html, 'traffic-jam', '🚦', 'Jam', 'two-way-ks')
+html = ensure_rail_chip(html, 'double-barrel', '🎯', 'Hit2', 'traffic-jam')
+html = ensure_rail_chip(html, 'cruise-control', '🛳️', 'Cruise', 'double-barrel')
+html = ensure_rail_chip(html, 'yard-sale', '💣', 'Yard', 'cruise-control')
 
 for sec_id in RETIRED_SECTION_IDS:
     html = remove_section(html, sec_id)

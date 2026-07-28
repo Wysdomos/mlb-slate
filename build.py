@@ -12,7 +12,12 @@ SECTIONS_FILE = os.environ.get('SECTIONS_FILE', 'built_sections.json')
 K_REPORT_FILE = os.environ.get('K_REPORT_FILE', 'k-report.html')
 STREAKS_FILE  = os.environ.get('STREAKS_FILE',  'streaks.html')
 
-# Step 1 — build_day46.py → built_sections.json
+# Step 1 — build_streaks.py → streaks.html + hot_streaks.json
+os.environ['DATA_FILE'] = DATA_FILE
+os.environ['STREAKS_FILE'] = STREAKS_FILE
+exec(compile(open('build_streaks.py', encoding='utf-8').read(), 'build_streaks.py', 'exec'))
+
+# Step 2 — build_day46.py → built_sections.json
 src = open('build_day46.py', encoding='utf-8').read()
 src = src.replace(
     "json.load(open('/home/user/workspace/day46_data.json'))",
@@ -25,14 +30,10 @@ src = src.replace(
 exec(compile(src, 'build_day46.py', 'exec'))
 PROJECTED_MODE = globals().get('PROJECTED_MODE', False)
 
-# Step 2 — build_streaks.py → streaks.html + hot_streaks.json (must precede editorial)
-os.environ['STREAKS_FILE'] = STREAKS_FILE
-exec(compile(open('build_streaks.py', encoding='utf-8').read(), 'build_streaks.py', 'exec'))
-
 if PROJECTED_MODE:
     print('build_editorial: skipped in Projected Mode')
 else:
-    # Step 3 — build_editorial.py → enhances built_sections.json (uses hot_streaks.json)
+    # Step 3 — build_editorial.py → enhances built_sections.json
     os.environ['DATA_FILE']     = DATA_FILE
     os.environ['SECTIONS_FILE'] = SECTIONS_FILE
     exec(compile(open('build_editorial.py', encoding='utf-8').read(), 'build_editorial.py', 'exec'))

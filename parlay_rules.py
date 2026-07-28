@@ -9,6 +9,10 @@ FORBIDDEN_MARKETS = {"2B", "SB"}
 PITCHER_SIDE_MARKETS = {"H_ALLOWED", "ER_ALLOWED"}
 BATTER_NESTED_MARKETS = {"HR", "TB", "HIT", "HRR"}
 
+# Yard Sale is an explicitly HR-only parlay product. The general HR guard stays
+# active everywhere else so HR legs cannot anchor or outrank safer legs.
+HR_TOP_MARKET_EXCEPTIONS = {"yard_sale_same_game", "yard_sale_cross_game"}
+
 
 def norm_name(value) -> str:
     return " ".join(str(value or "").strip().lower().split())
@@ -32,14 +36,18 @@ def validate_parlay(
         market = leg_market(leg)
         if market in FORBIDDEN_MARKETS:
             return False, f"{market} legs are not parlay material"
-        if market == "HR" and leg.get("leg_role") == "anchor":
+        if (
+            market == "HR"
+            and leg.get("leg_role") == "anchor"
+            and correlation_type not in HR_TOP_MARKET_EXCEPTIONS
+        ):
             return False, "HR cannot anchor a parlay"
 
     ranked = sorted(
         legs,
         key=lambda leg: float(leg.get("confidence_rank", 999) or 999),
     )
-    if ranked and leg_market(ranked[0]) == "HR":
+    if ranked and leg_market(ranked[0]) == "HR" and correlation_type not in HR_TOP_MARKET_EXCEPTIONS:
         return False, "HR cannot be the top-conviction leg"
 
     pitcher_sides = defaultdict(set)

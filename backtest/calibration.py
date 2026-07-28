@@ -87,6 +87,19 @@ def append_correlation_buckets(md, rows):
         w = sum(1 for g in band if g['win'])
         md.append(line(w, len(band) - w, correlation_type))
 
+def append_same_game_buckets(md, rows):
+    labeled = [g for g in rows if g.get('same_game') is not None]
+    md.append('\n## Parlay same-game buckets\n')
+    if not labeled:
+        md.append('No same-game parlay labels have been backfilled yet.\n')
+        return
+    md.append('| Same game | W-L | n | Hit rate | 95% CI |')
+    md.append('|---|---|---|---|---|')
+    for value in (True, False):
+        band = [g for g in labeled if bool(g.get('same_game')) is value]
+        w = sum(1 for g in band if g['win'])
+        md.append(line(w, len(band) - w, str(value)))
+
 
 def append_conviction_rank_buckets(md, rows):
     labeled = [g for g in rows if g.get('conviction_rank') is not None]
@@ -173,6 +186,7 @@ def build(store, source_filter=None):
 
     append_chip_buckets(md, rows)
     append_correlation_buckets(md, rows)
+    append_same_game_buckets(md, rows)
     append_conviction_rank_buckets(md, rows)
     append_alt_margin_buckets(md, rows)
 
