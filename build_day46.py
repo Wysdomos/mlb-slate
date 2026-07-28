@@ -2308,6 +2308,9 @@ def slate_id_for_parlays():
             return raw.replace('-', '')
     return 'slate'
 
+def log_parlay_funnel(section, stages):
+    print(f'[{section}] ' + ' -> '.join(f'{name}={count}' for name, count in stages))
+
 def parlay_same_game(parlay):
     games = {str(leg.get('game') or '').strip() for leg in parlay.get('legs', [])}
     games.discard('')
@@ -2373,12 +2376,19 @@ def render_parlay_board(sec_id, title, tag, intro, parlays, empty_message):
 '''
 
 def build_two_way_ks():
+    pool = list(SP_PROJ)
+    lens_pool = [sp for sp in pool if k_independent_family_count(sp) >= 3]
+    tier_pool = [sp for sp in lens_pool if k_tier_for_projection(sp.get('K')) <= 1]
+    games = {}
+    for sp in tier_pool:
+        games.setdefault(game_key_for_team(sp.get('Team')), []).append(sp)
+    same_game_pool = [sp for sp in tier_pool if len(games.get(game_key_for_team(sp.get('Team')), [])) >= 2]
     candidates = []
-    for sp in SP_PROJ:
+    for sp in same_game_pool:
         name = sp.get('Pitcher', '')
         families = k_independent_family_count(sp)
         rec = k_main_alt_recommendation(sp)
-        if families < 3 or k_tier_for_projection(sp.get('K')) > 1 or not rec:
+        if not rec:
             continue
         candidates.append({
             'sp': sp,
@@ -2392,6 +2402,7 @@ def build_two_way_ks():
     by_game = {}
     for c in candidates:
         by_game.setdefault((c['game'], c['rec']['direction']), []).append(c)
+    alt_margin_pool = [c for c in candidates if len(by_game.get((c['game'], c['rec']['direction']), [])) >= 2]
     parlays = []
     for (game, direction), group in sorted(
         by_game.items(),
@@ -2426,6 +2437,14 @@ def build_two_way_ks():
             'note': 'Both starters share the same game environment and the same strikeout direction.',
             'legs': legs,
         })
+    log_parlay_funnel('two-way-ks', [
+        ('pool', len(pool)),
+        ('after lens>=3', len(lens_pool)),
+        ('after tier 0-1', len(tier_pool)),
+        ('after same-game pairing', len(same_game_pool)),
+        ('after alt margin', len(alt_margin_pool)),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'two-way-ks',
         "Two-Way K's",
@@ -2437,9 +2456,13 @@ def build_two_way_ks():
 
 def build_traffic_jam():
     grouped = {}
-    for hitter in traffic_hitter_candidates():
+    traffic_pool = traffic_hitter_candidates()
+    for hitter in traffic_pool:
         key = (hitter['team'], hitter['opp_sp'])
         grouped.setdefault(key, []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    structured_groups = 0
+    valid_groups = 0
     parlays = []
     for (team, opp_sp), hitters in sorted(
         grouped.items(),
@@ -2491,6 +2514,7 @@ def build_traffic_jam():
             }
         if not structure:
             continue
+        structured_groups += 1
 
         legs = []
         for hitter in hitters[:2]:
@@ -2526,6 +2550,7 @@ def build_traffic_jam():
         ok, reason = validate_parlay(legs, structure, max_legs=3)
         if not ok:
             continue
+        valid_groups += 1
         label = {
             'lineup_stack': 'Lineup Stack',
             'both_sides': 'Both Sides',
@@ -2537,6 +2562,13 @@ def build_traffic_jam():
             'note': f'{team} traffic correlated against {opp_sp}.',
             'legs': legs,
         })
+    log_parlay_funnel('traffic-jam', [
+        ('pool', len(traffic_pool)),
+        ('after same-lineup pairing', len(paired_groups)),
+        ('after structure match', structured_groups),
+        ('after validation', valid_groups),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'traffic-jam',
         'Traffic Jam',
@@ -2589,10 +2621,41 @@ def hit_candidate_rows(min_hit_pct=DOUBLE_BARREL_HIT_MIN, cross_game=False):
     return out
 
 def build_double_barrel():
+    raw_pool = [_hit_full(row) for row in HIT if _hit_full(row)]
+    hit_pool = []
+    park_pool = []
+    contact_pool = []
+    for row in HIT:
+        name = _hit_full(row)
+        if not name:
+            continue
+        hit_pct = _sf(str(row.get('1+ Hit', '')).replace('%', ''))
+        if hit_pct >= DOUBLE_BARREL_HIT_MIN:
+            hit_pool.append(name)
+            team = tn(row.get('Team'))
+            bp = BP_BAT_BY_NAME.get(name.lower())
+            opp = tn(bp.get('Opponent')) if bp else ''
+            if not opp:
+                match = str(row.get('Matchup') or '')
+                if ' vs. ' in match:
+                    parts = [tn(part.strip()) for part in match.split(' vs. ', 1)]
+                    opp = parts[1] if team == parts[0] else (parts[0] if team == parts[1] else '')
+            opp_sp = opposing_pitcher_for_hitter(team, opp)
+            if park_runs_for_team(team) >= 0 and opp_sp:
+                park_pool.append(name)
+                vuln = get_vuln_for_pitcher(opp_sp)
+                vuln_score = _sf(vuln.get('VulnScore')) if vuln else 0
+                sp = pitcher_projection(opp_sp) or {}
+                bp_sp = pitcher_bp(opp_sp) or {}
+                hits_proj = pitcher_hits_projection(sp, bp_sp) or 0
+                if vuln_score >= 60 or hits_proj >= CONTACT_HITS_ALLOWED_MIN:
+                    contact_pool.append(name)
     parlays = []
     grouped = {}
     for hitter in hit_candidate_rows():
         grouped.setdefault((hitter['team'], hitter['opp_sp']), []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    valid_groups = 0
     for (team, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['hit_pct'] for h in item[1])):
         hitters = sorted(hitters, key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['name']))
         if len(hitters) < 2:
@@ -2613,12 +2676,14 @@ def build_double_barrel():
             })
         ok, reason = validate_parlay(legs, 'double_barrel_same_game', max_legs=2)
         if ok:
+            valid_groups += 1
             parlays.append({
                 'correlation_type': 'double_barrel_same_game',
                 'badge': 'same lineup',
                 'note': f'{team} hit legs share the same opposing starter.',
                 'legs': legs,
             })
+    cross_emitted = 0
     if not parlays:
         cross = sorted(hit_candidate_rows(cross_game=True), key=lambda h: (-h['hit_pct'], -h['vuln_score'], h['game'], h['name']))
         for first in cross:
@@ -2641,6 +2706,7 @@ def build_double_barrel():
                 })
             ok, reason = validate_parlay(legs, 'double_barrel_cross_game', max_legs=2)
             if ok:
+                cross_emitted += 1
                 parlays.append({
                     'correlation_type': 'double_barrel_cross_game',
                     'badge': 'cross-game stricter',
@@ -2648,6 +2714,15 @@ def build_double_barrel():
                     'legs': legs,
                 })
                 break
+    log_parlay_funnel('double-barrel', [
+        ('pool', len(raw_pool)),
+        (f'after hit>={DOUBLE_BARREL_HIT_MIN:.0f}', len(hit_pool)),
+        ('after park>=0+opp_sp', len(park_pool)),
+        ('after contact vuln', len(contact_pool)),
+        ('after same-lineup pairing', len(paired_groups)),
+        ('after validation', valid_groups + cross_emitted),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'double-barrel',
         'Double Barrel',
@@ -2704,8 +2779,14 @@ def cruise_leg_from_streak(streak):
 
 def build_cruise_control():
     details = HOT_STREAKS.get('details') if isinstance(HOT_STREAKS, dict) else None
+    details_key = isinstance(details, list)
     if not isinstance(details, list):
         details = []
+    streak_pool = [s for s in details if int(_sf(s.get('streak'))) >= 3]
+    market_pool = [
+        s for s in streak_pool
+        if str(s.get('type') or '').upper() not in ('HR', 'TWO', 'RBI', 'SB', '2B')
+    ]
     candidates = []
     seen = set()
     for streak in details:
@@ -2719,6 +2800,19 @@ def build_cruise_control():
         candidates.append((streak, leg))
     candidates.sort(key=lambda item: (-int(_sf(item[0].get('streak'))), seeded_streak_key(item[0]), item[1]['name']))
     legs = [leg for _, leg in candidates[:3]]
+    valid_count = 0
+    if len(legs) >= 2:
+        ok_probe, reason_probe = validate_parlay(legs, 'streak', max_legs=3)
+        valid_count = 1 if ok_probe else 0
+    log_parlay_funnel('cruise-control', [
+        ('details_key', int(details_key)),
+        ('pool', len(details)),
+        ('after streak>=3', len(streak_pool)),
+        ('after supported non-HR market', len(market_pool)),
+        ('after leg build', len(candidates)),
+        ('after validation', valid_count),
+        ('emitted', 1 if valid_count else 0),
+    ])
     if len(legs) < 2:
         return empty_parlay_section(
             'cruise-control',
@@ -2803,10 +2897,22 @@ def yard_sale_candidates(cross_game=False):
     return out
 
 def build_yard_sale():
+    pool = [row for row in HR_LB if str(row.get('Batter') or row.get('Name') or '').strip()]
+    park_pool = []
+    for row in pool:
+        name = str(row.get('Batter') or row.get('Name') or '').strip()
+        bp = BP_BAT_BY_NAME.get(name.lower()) or {}
+        team = tn(row.get('Team') or bp.get('Team'))
+        opp = tn(bp.get('Opponent') or row.get('Opp'))
+        if park_hr_for_team(team) >= 8 and opposing_pitcher_for_hitter(team, opp):
+            park_pool.append(row)
+    driver_pool = yard_sale_candidates()
     parlays = []
     grouped = {}
-    for hitter in yard_sale_candidates():
+    for hitter in driver_pool:
         grouped.setdefault((hitter['game'], hitter['opp_sp']), []).append(hitter)
+    paired_groups = {key: hitters for key, hitters in grouped.items() if len(hitters) >= 2}
+    valid_groups = 0
     for (game, opp_sp), hitters in sorted(grouped.items(), key=lambda item: -sum(h['score'] for h in item[1])):
         hitters = sorted(hitters, key=lambda h: (-h['score'], -h['park_hr'], h['name']))
         if len(hitters) < 2:
@@ -2827,12 +2933,14 @@ def build_yard_sale():
             })
         ok, reason = validate_parlay(legs, 'yard_sale_same_game', max_legs=2)
         if ok:
+            valid_groups += 1
             parlays.append({
                 'correlation_type': 'yard_sale_same_game',
                 'badge': 'HR driver pair',
                 'note': f'Both HR legs share {game} and the same opposing starter.',
                 'legs': legs,
             })
+    cross_emitted = 0
     if not parlays:
         cross = sorted(yard_sale_candidates(cross_game=True), key=lambda h: (-h['score'], -h['park_hr'], h['game'], h['name']))
         for first in cross:
@@ -2855,6 +2963,7 @@ def build_yard_sale():
                 })
             ok, reason = validate_parlay(legs, 'yard_sale_cross_game', max_legs=2)
             if ok:
+                cross_emitted += 1
                 parlays.append({
                     'correlation_type': 'yard_sale_cross_game',
                     'badge': 'cross-game stricter',
@@ -2862,6 +2971,14 @@ def build_yard_sale():
                     'legs': legs,
                 })
                 break
+    log_parlay_funnel('yard-sale', [
+        ('pool', len(pool)),
+        ('after park>=8+opp_sp', len(park_pool)),
+        ('after driver threshold', len(driver_pool)),
+        ('after same-game pairing', len(paired_groups)),
+        ('after validation', valid_groups + cross_emitted),
+        ('emitted', len(parlays)),
+    ])
     return render_parlay_board(
         'yard-sale',
         'Yard Sale',
