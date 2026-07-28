@@ -152,6 +152,7 @@ def main():
                 'parlay_id': p.get('parlay_id'),
                 'correlation_type': p.get('correlation_type'),
                 'leg_role': p.get('leg_role'),
+                'same_game': p.get('same_game'),
                 'conviction_rank': p.get('conviction_rank'),
                 'projection': p.get('projection'),
                 'main_line': p.get('main_line'),
