@@ -40,8 +40,11 @@ Collapse points:
 Threshold changes:
 
 ```text
-TWO_WAY_K_MIN_FAMILIES: 3 -> 1
-Reason: projected had 0/32 at three families; probe showed two families still produced zero same-game pairs, while one family preserved same-game structure and emitted.
+TWO_WAY_K_MIN_FAMILIES: 3 -> 2
+Reason: review correctly rejected one-family K pairs because that removes the consensus requirement. The funnel showed the two-family collapse happened at same-game pairing, so the fix keeps two families and adds a stricter cross-game variant.
+
+TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA: new +0.5
+Reason: cross-game K pairs do not share park/weather/lineup context, so they must clear the normal K alternate-line margin plus this extra named margin.
 
 DOUBLE_BARREL_CONTACT_VULN_MIN: 60.0 -> 50.0
 CONTACT_HITS_ALLOWED_MIN: 5.5 -> 5.0
@@ -51,8 +54,8 @@ Reason: projected had 100 hit-qualified hitters and 53 with nonnegative park/opp
 Bug fixed:
 
 ```text
-Cruise Control was selecting the top three streak legs by (player, market), which allowed the same player to appear twice and then fail validate_parlay().
-Fix: select at most one leg per player before validation.
+Cruise Control originally built only one parlay by construction: after filtering 115 eligible legs, `build_cruise_control()` selected only the first three legs and returned a one-item `parlays` list. The one-leg-per-player fix was necessary, but the remaining one-parlay cap was an assembly bug.
+Fix: greedily assemble up to five validated parlays from the eligible streak pool, with at most one leg per player inside each parlay.
 ```
 
 Runtime hot-streak verification:
@@ -60,7 +63,7 @@ Runtime hot-streak verification:
 ```text
 build.py runs build_streaks.py before build_day46.py.
 [streaks] ✓ Wrote hot_streaks.json — 4 HR streakers, 79 hot batters
-[cruise-control] details_key=1 -> pool=116 -> after streak>=3=116 -> after supported non-HR market=116 -> after leg build=115 -> after validation=1 -> emitted=1
+[cruise-control] details_key=1 -> pool=116 -> after streak>=3=116 -> after supported non-HR market=116 -> after leg build=115 -> after validation=5 -> emitted=5
 ```
 
 Note: current 7/28 data logs 79 hot batters, not 44. I did not alter the count; the file does carry `details`, and Cruise reads it successfully.
@@ -68,19 +71,20 @@ Note: current 7/28 data logs 79 hot batters, not 44. I did not alter the count; 
 Final projected build funnels:
 
 ```text
-[two-way-ks] pool=32 -> after lens>=1=15 -> after tier 0-1=15 -> after same-game pairing=5 -> after alt margin=2 -> emitted=1
+[two-way-ks] pool=32 -> after lens>=2=6 -> after tier 0-1=6 -> after same-game pairing=0 -> after same-game alt margin=0 -> after cross-game margin>=2.5=5 -> emitted=2
 [traffic-jam] pool=132 -> after same-lineup pairing=14 -> after structure match=5 -> after validation=5 -> emitted=5
 [double-barrel] pool=288 -> after hit>=65=100 -> after park>=0+opp_sp=53 -> after contact vuln=30 -> after same-lineup pairing=7 -> after validation=7 -> emitted=7
-[cruise-control] details_key=1 -> pool=116 -> after streak>=3=116 -> after supported non-HR market=116 -> after leg build=115 -> after validation=1 -> emitted=1
+[cruise-control] details_key=1 -> pool=116 -> after streak>=3=116 -> after supported non-HR market=116 -> after leg build=115 -> after validation=5 -> emitted=5
 [yard-sale] pool=288 -> after park>=8+opp_sp=144 -> after driver threshold=130 -> after same-game pairing=14 -> after validation=12 -> emitted=12
 ```
 
 Emission verification:
 
 ```text
-two-way-ks empty=False cards=1 pick legs=2
+two-way-ks empty=False cards=2 pick legs=4
 double-barrel empty=False cards=5 pick legs=10
-cruise-control empty=False cards=1 pick legs=3
+cruise-control empty=False cards=5 pick legs=15
+two_way_k_cross_game same_game values [False]
 ```
 
 ## 3. HRR Column

@@ -38,9 +38,11 @@ OUTS_ALT_MARGIN_MIN = 2.0
 # Calibration will replace this starting +5 percentage-point/score penalty.
 CROSS_GAME_STRICTER_DELTA = 5.0
 K_ALT_MARGIN_MIN = OUTS_ALT_MARGIN_MIN
-# Chapter L funnel showed 0/32 starters reached three independent families and
-# 0 same-game pairs survived at two families; one family preserves same-game structure.
-TWO_WAY_K_MIN_FAMILIES = 1  # was 3
+# Chapter L review: one family is not enough consensus for the K backtest signal.
+TWO_WAY_K_MIN_FAMILIES = 2  # was 3
+# Cross-game K pairs do not share park/weather/lineup context, so they need
+# extra alternate-line margin. Calibration will replace this starting value.
+TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA = 0.5
 DOUBLE_BARREL_HIT_MIN = 65.0
 # Chapter L funnel showed Double Barrel collapsed at contact vulnerability.
 DOUBLE_BARREL_CONTACT_VULN_MIN = 50.0  # was 60.0
@@ -2195,7 +2197,7 @@ def k_main_alt_recommendation(sp):
         return None
     direction = 'Over' if edge > 0 else 'Under'
     if direction == 'Over':
-        alt_line = min(main_line - 2.0, 4.5)
+        alt_line = max(2.5, min(main_line - 2.0, 4.5))
     else:
         alt_line = main_line + 2.0
     alt_margin = (projection - alt_line) if direction == 'Over' else (alt_line - projection)
@@ -2403,7 +2405,7 @@ def build_two_way_ks():
         games.setdefault(game_key_for_team(sp.get('Team')), []).append(sp)
     same_game_pool = [sp for sp in tier_pool if len(games.get(game_key_for_team(sp.get('Team')), [])) >= 2]
     candidates = []
-    for sp in same_game_pool:
+    for sp in tier_pool:
         name = sp.get('Pitcher', '')
         families = k_independent_family_count(sp)
         rec = k_main_alt_recommendation(sp)
@@ -2421,7 +2423,9 @@ def build_two_way_ks():
     by_game = {}
     for c in candidates:
         by_game.setdefault((c['game'], c['rec']['direction']), []).append(c)
-    alt_margin_pool = [c for c in candidates if len(by_game.get((c['game'], c['rec']['direction']), [])) >= 2]
+    same_game_alt_pool = [c for c in candidates if len(by_game.get((c['game'], c['rec']['direction']), [])) >= 2]
+    cross_margin_min = K_ALT_MARGIN_MIN + TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA
+    cross_game_pool = [c for c in candidates if c['rec']['alt_margin'] >= cross_margin_min]
     parlays = []
     for (game, direction), group in sorted(
         by_game.items(),
@@ -2456,21 +2460,69 @@ def build_two_way_ks():
             'note': 'Both starters share the same game environment and the same strikeout direction.',
             'legs': legs,
         })
+
+    used_cross_pairs = set()
+    by_direction = {}
+    for c in cross_game_pool:
+        by_direction.setdefault(c['rec']['direction'], []).append(c)
+    for direction, group in sorted(by_direction.items(), key=lambda item: item[0]):
+        group = sorted(group, key=lambda c: (-c['families'], -c['rec']['alt_margin'], c['game'], c['name']))
+        while len(parlays) < 5:
+            first = next((c for c in group if c['name'] not in used_cross_pairs), None)
+            if not first:
+                break
+            second = next((
+                c for c in group
+                if c['name'] not in used_cross_pairs
+                and c['name'] != first['name']
+                and c['game'] != first['game']
+            ), None)
+            if not second:
+                break
+            legs = []
+            for idx, c in enumerate((first, second), 1):
+                rec = c['rec']
+                legs.append({
+                    'market': 'K',
+                    'name': c['name'],
+                    'team': c['team'],
+                    'opp': c['opp'],
+                    'game': c['game'],
+                    'line': rec['line'],
+                    'win_at': rec['win_at'],
+                    'consensus': c['families'],
+                    'consensus_max': 4,
+                    'leg_role': 'satellite',
+                    'confidence_rank': idx,
+                    'detail': f'{direction.lower()} cross-game; alt margin {rec["alt_margin"]:.2f} clears {cross_margin_min:.1f}; {c["families"]}/4 independent K families',
+                })
+            ok, reason = validate_parlay(legs, 'two_way_k_cross_game', max_legs=3)
+            if not ok:
+                used_cross_pairs.add(first['name'])
+                continue
+            used_cross_pairs.update({first['name'], second['name']})
+            parlays.append({
+                'correlation_type': 'two_way_k_cross_game',
+                'badge': f'{direction} K cross-game',
+                'note': 'Cross-game K pair: no shared-game lift, so both legs clear the stricter alternate-line margin.',
+                'legs': legs,
+            })
     log_parlay_funnel('two-way-ks', [
         ('pool', len(pool)),
         (f'after lens>={TWO_WAY_K_MIN_FAMILIES}', len(lens_pool)),
         ('after tier 0-1', len(tier_pool)),
         ('after same-game pairing', len(same_game_pool)),
-        ('after alt margin', len(alt_margin_pool)),
+        ('after same-game alt margin', len(same_game_alt_pool)),
+        (f'after cross-game margin>={cross_margin_min:.1f}', len(cross_game_pool)),
         ('emitted', len(parlays)),
     ])
     return render_parlay_board(
         'two-way-ks',
         "Two-Way K's",
-        'Tap to expand · same-game alt K pairs · independent K families',
-        f'Eligibility: at least {TWO_WAY_K_MIN_FAMILIES} independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line with enough alternate-line margin.',
+        'Tap to expand · same-game preferred · cross-game stricter · independent K families',
+        f'Eligibility: at least {TWO_WAY_K_MIN_FAMILIES} independent K signal families, tier 0-1, no opener/short-leash flag, and a real main line. Cross-game pairs require +{TWO_WAY_K_CROSS_GAME_ALT_MARGIN_DELTA:.1f} extra alternate-line margin.',
         parlays,
-        'No same-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
+        'No same-game or stricter cross-game starter pair cleared the independent K-family, tier, line-direction, and alt-margin gates.',
     )
 
 def build_traffic_jam():
@@ -2818,50 +2870,55 @@ def build_cruise_control():
         seen.add(key)
         candidates.append((streak, leg))
     candidates.sort(key=lambda item: (-int(_sf(item[0].get('streak'))), seeded_streak_key(item[0]), item[1]['name']))
-    legs = []
-    used_people = set()
-    for _, leg in candidates:
-        person = leg['name'].strip().lower()
-        if person in used_people:
-            continue
-        used_people.add(person)
-        legs.append(leg)
-        if len(legs) == 3:
+    parlays = []
+    used_board_people = set()
+    while len(parlays) < 5:
+        legs = []
+        local_people = set()
+        for _, leg in candidates:
+            person = leg['name'].strip().lower()
+            if person in used_board_people or person in local_people:
+                continue
+            local_people.add(person)
+            legs.append(leg)
+            if len(legs) == 3:
+                break
+        if len(legs) < 2:
             break
-    valid_count = 0
-    if len(legs) >= 2:
         ok_probe, reason_probe = validate_parlay(legs, 'streak', max_legs=3)
-        valid_count = 1 if ok_probe else 0
+        if not ok_probe:
+            for leg in legs[:1]:
+                used_board_people.add(leg['name'].strip().lower())
+            continue
+        used_board_people.update(leg['name'].strip().lower() for leg in legs)
+        parlays.append({
+            'correlation_type': 'streak',
+            'badge': 'streak',
+            'note': 'Tie-breaking is seeded on the slate date, so the section stays stable during one slate day.',
+            'legs': legs,
+        })
     log_parlay_funnel('cruise-control', [
         ('details_key', int(details_key)),
         ('pool', len(details)),
         ('after streak>=3', len(streak_pool)),
         ('after supported non-HR market', len(market_pool)),
         ('after leg build', len(candidates)),
-        ('after validation', valid_count),
-        ('emitted', 1 if valid_count else 0),
+        ('after validation', len(parlays)),
+        ('emitted', len(parlays)),
     ])
-    if len(legs) < 2:
+    if not parlays:
         return empty_parlay_section(
             'cruise-control',
             'Cruise Control',
             'No qualifying streak stack',
             'Cruise Control needs at least two non-HR legs on active streaks of three or more games.',
         )
-    ok, reason = validate_parlay(legs, 'streak', max_legs=3)
-    if not ok:
-        return empty_parlay_section('cruise-control', 'Cruise Control', 'Streak stack rejected by guard', reason)
     return render_parlay_board(
         'cruise-control',
         'Cruise Control',
         'Tap to expand · stable same-date streak stack',
         'Every leg is tied to an active streak of at least three games. HR streaks are excluded from this section.',
-        [{
-            'correlation_type': 'streak',
-            'badge': 'streak',
-            'note': 'Tie-breaking is seeded on the slate date, so the section stays stable during one slate day.',
-            'legs': legs,
-        }],
+        parlays,
         'No non-HR streak stack cleared.',
     )
 
