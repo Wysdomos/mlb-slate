@@ -210,4 +210,32 @@ OK
 
 ## Push Confirmation
 
-Pending until branch is pushed.
+Draft PR: https://github.com/Wysdomos/mlb-slate/pull/43
+
+Push command:
+
+```bash
+git push -u origin codex/functions-deploy
+```
+
+Push output:
+
+```text
+remote:
+remote: Create a pull request for 'codex/functions-deploy' on GitHub by visiting:
+remote:      https://github.com/Wysdomos/mlb-slate/pull/new/codex/functions-deploy
+remote:
+To https://github.com/Wysdomos/mlb-slate.git
+ * [new branch]      codex/functions-deploy -> codex/functions-deploy
+branch 'codex/functions-deploy' set up to track 'origin/codex/functions-deploy'.
+```
+
+Origin confirmation:
+
+```bash
+git ls-remote origin refs/heads/codex/functions-deploy
+```
+
+```text
+f53c49abba2c7846dd074a044ef14883e6f91cf9	refs/heads/codex/functions-deploy
+```
