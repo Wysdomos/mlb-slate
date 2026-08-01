@@ -98,7 +98,7 @@
  "andrew abbott": {
   "line": 4.5,
   "over_odds": -166,
-  "under_odds": 130,
+  "under_odds": 128,
   "vendor": "fanduel"
  },
  "braxton ashcraft": {
@@ -127,8 +127,8 @@
  },
  "shane baz": {
   "line": 5.5,
-  "over_odds": 108,
-  "under_odds": -138,
+  "over_odds": 110,
+  "under_odds": -140,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 5.5,
@@ -217,14 +217,14 @@
  },
  "miles mikolas": {
   "line": 2.5,
-  "over_odds": -102,
-  "under_odds": -125,
+  "over_odds": 100,
+  "under_odds": -128,
   "vendor": "fanduel"
  },
  "reynaldo lopez": {
   "line": 4.5,
-  "over_odds": 122,
-  "under_odds": -156,
+  "over_odds": 124,
+  "under_odds": -158,
   "vendor": "fanduel",
   "outs": {
    "line": 15.5,
@@ -365,14 +365,32 @@
   "over_odds": -136,
   "under_odds": 106,
   "vendor": "fanduel",
-  "src": "oddsapi"
+  "src": "oddsapi",
+  "hits_allowed": {
+   "line": 4.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  }
  },
  "robert gasser": {
   "line": 4.5,
   "over_odds": -154,
   "under_odds": 120,
   "vendor": "fanduel",
-  "src": "oddsapi"
+  "src": "oddsapi",
+  "hits_allowed": {
+   "line": 4.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 16.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
  },
  "framber valdez": {
   "line": 4.5,
@@ -527,114 +545,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "a.j. ewing": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "francisco lindor": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "bo bichette": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "carson benge": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "luis robert": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jorge polanco": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jared young": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "marcus semien": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "francisco alvarez": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "otto lopez": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "heriberto hernandez": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "liam hicks": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "xavier edwards": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "javier sanoja": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "leo jimenez": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "kyle stowers": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "esteury ruiz": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "joe mack": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "randy arozarena": {
    "line": 1.5,
    "vendor": "draftkings",
@@ -743,183 +653,201 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "elly de la cruz": {
+  "fernando tatis jr.": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "sal stewart": {
+  "manny machado": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "jj bleday": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "eugenio suarez": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "nathaniel lowe": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "dane myers": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "noelvi marte": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jake mangum": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "nick gonzales": {
+  "ty france": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "bryan reynolds": {
+  "jackson merrill": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "esmerlyn valdez": {
+  "luis arraez": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "marcell ozuna": {
+  "heliot ramos": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "rafael devers": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jung hoo lee": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "a.j. ewing": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "francisco lindor": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "bo bichette": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "carson benge": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "luis robert": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "brandon lowe": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jared triolo": {
+  "jorge polanco": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "henry davis": {
+  "jared young": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "taylor ward": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "pete alonso": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "gunnar henderson": {
+  "marcus semien": {
    "line": 0.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "tyler o'neill": {
+  "francisco alvarez": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "coby mayo": {
+  "otto lopez": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "heriberto hernandez": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "liam hicks": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "xavier edwards": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "javier sanoja": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "leo jimenez": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "jeremiah jackson": {
+  "kyle stowers": {
    "line": 1.5,
-   "vendor": "betonlineag",
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "yohel pozo": {
+  "esteury ruiz": {
    "line": 0.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "trea turner": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "kyle schwarber": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "bryce harper": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "brandon marsh": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "alec bohm": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "bryson stott": {
+  "joe mack": {
    "line": 1.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "j.t. realmuto": {
+  "ceddanne rafaela": {
    "line": 1.5,
-   "vendor": "betonlineag",
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "justin crawford": {
-   "line": 0.5,
-   "vendor": "betonlineag",
+  "wilyer abreu": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "shohei ohtani": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "andy pages": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "freddie freeman": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "mookie betts": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tommy edman": {
+   "line": 1.5,
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1010,6 +938,102 @@
   "jake burger": {
    "line": 1.5,
    "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jake mccarthy": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "mickey moniak": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "hunter goodman": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tj rumfield": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "kyle karros": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "cole carrigg": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "willi castro": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "troy johnston": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "carter jensen": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "lane thomas": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jac caglianone": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "salvador perez": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "michael massey": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "nick loftin": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "isaac collins": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "josh rojas": {
+   "line": 1.5,
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1104,6 +1128,276 @@
    "market": "batter_total_bases"
   },
   "austin hedges": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "elly de la cruz": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "sal stewart": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jj bleday": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "eugenio suarez": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "nathaniel lowe": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "dane myers": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "noelvi marte": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jake mangum": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "nick gonzales": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "bryan reynolds": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "esmerlyn valdez": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "marcell ozuna": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "brandon lowe": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jared triolo": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "henry davis": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "pete crow-armstrong": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "seiya suzuki": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "alex bregman": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "carson kelly": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "michael busch": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "nico hoerner": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "ian happ": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "paul goldschmidt": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "ben rice": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "amed rosario": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jasson dominguez": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "trent grisham": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "anthony volpe": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jazz chisholm": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jose caballero": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "taylor ward": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "pete alonso": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "gunnar henderson": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tyler o'neill": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "coby mayo": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jeremiah jackson": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "yohel pozo": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "trea turner": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "kyle schwarber": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "bryce harper": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "brandon marsh": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "alec bohm": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "bryson stott": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "j.t. realmuto": {
+   "line": 1.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "justin crawford": {
    "line": 0.5,
    "vendor": "betonlineag",
    "src": "oddsapi",
@@ -1211,282 +1505,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "pete crow-armstrong": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "seiya suzuki": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "alex bregman": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "carson kelly": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "michael busch": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "nico hoerner": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "ian happ": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "paul goldschmidt": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "ben rice": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "amed rosario": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jasson dominguez": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "trent grisham": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "anthony volpe": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jazz chisholm": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jose caballero": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jake mccarthy": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "mickey moniak": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "hunter goodman": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "tj rumfield": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "kyle karros": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "cole carrigg": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "willi castro": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "troy johnston": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "carter jensen": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "lane thomas": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jac caglianone": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "salvador perez": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "michael massey": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "nick loftin": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "isaac collins": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "josh rojas": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "fernando tatis jr.": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "manny machado": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "ty france": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jackson merrill": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "luis arraez": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "heliot ramos": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "rafael devers": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "jung hoo lee": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "ceddanne rafaela": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "wilyer abreu": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "shohei ohtani": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "andy pages": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "freddie freeman": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "mookie betts": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "tommy edman": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "kevin mcgonigle": {
    "line": 1.5,
    "vendor": "draftkings",
@@ -1559,15 +1577,321 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
+  "henry bolte": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
   "jeff mcneil": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "henry bolte": {
+  "sam antonacci": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "munetaka murakami": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "colson montgomery": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "andrew benintendi": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "braden montgomery": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tristan peters": {
+   "line": 1.5,
+   "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tyler stephenson": {
+   "line": 1.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "leody taveras": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "tim tawa": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "ryan waldschmidt": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "dansby swanson": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "miguel amaya": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "ali sanchez": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "ezequiel tovar": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jake cronenworth": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "luis rengifo": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "gavin sheets": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "xander bogaerts": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "luis campusano": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "bryce eldridge": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "willy adames": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "drew cavanaugh": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "christian koss": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "masataka yoshida": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "willson contreras": {
+   "line": 1.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "caleb durbin": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jarren duran": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "andruw monasterio": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "anthony seigler": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "connor wong": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "kyle tucker": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "teoscar hernandez": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "zach neto": {
    "line": 1.5,
    "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "mike trout": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "vaughn grissom": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jorge soler": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "nolan schanuel": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jo adell": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "denzer guzman": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jose siri": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "travis d'arnaud": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "christian yelich": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jackson chourio": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "brice turang": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "william contreras": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jake bauers": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "garrett mitchell": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "cooper pratt": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "david hamilton": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "zach mckinstry": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "lawrence butler": {
+   "line": 0.5,
+   "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   }
@@ -1575,10 +1899,10 @@
  "_meta": {
   "date": "2026-08-01",
   "source": "the-odds-api.com",
-  "events_queried": 7,
-  "credits_used_this_run": 7,
-  "remaining": 493,
-  "reused_same_day": 0,
+  "events_queried": 1,
+  "credits_used_this_run": 1,
+  "remaining": 456,
+  "reused_same_day": 11,
   "chapter_h_markets": {
    "date": "2026-08-01",
    "source": "the-odds-api.com",
@@ -1589,9 +1913,9 @@
    ],
    "events_queried": 15,
    "request_count_this_run": 15,
-   "credits_used_this_run": 36,
-   "remaining": 457,
-   "reused_same_day": 0
+   "credits_used_this_run": 39,
+   "remaining": 417,
+   "reused_same_day": 231
   },
   "oddsapi_extra_market_request_count": 15
  }
