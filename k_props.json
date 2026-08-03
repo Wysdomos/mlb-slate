@@ -36,9 +36,9 @@
   }
  },
  "cam schlittler": {
-  "line": 3.5,
-  "over_odds": null,
-  "under_odds": null,
+  "line": 6.5,
+  "over_odds": -154,
+  "under_odds": 120,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -55,8 +55,8 @@
  },
  "michael mcgreevy": {
   "line": 4.5,
-  "over_odds": 126,
-  "under_odds": -162,
+  "over_odds": 124,
+  "under_odds": -160,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 5.5,
@@ -118,6 +118,12 @@
    "vendor": "betmgm",
    "src": "oddsapi",
    "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 15.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
   }
  },
  "logan webb": {
@@ -272,6 +278,25 @@
    "market": "pitcher_outs"
   }
  },
+ "justin wrobleski": {
+  "line": 5.5,
+  "over_odds": -125,
+  "under_odds": -102,
+  "vendor": "fanduel",
+  "src": "oddsapi",
+  "hits_allowed": {
+   "line": 5.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 18.5,
+   "vendor": "fanduel",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
+ },
  "_batter_total_bases": {
   "bryce eldridge": {
    "line": 1.5,
@@ -316,6 +341,12 @@
    "market": "batter_total_bases"
   },
   "drew gilbert": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "osleivis basabe": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -411,6 +442,12 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
+  "andres chaparro": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
   "jorbit vivas": {
    "line": 1.5,
    "vendor": "betrivers",
@@ -450,6 +487,12 @@
   "alec bohm": {
    "line": 1.5,
    "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "edmundo sosa": {
+   "line": 1.5,
+   "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -507,12 +550,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "blaze jordan": {
-   "line": 0.5,
-   "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "jimmy crooks": {
    "line": 0.5,
    "vendor": "betmgm",
@@ -531,15 +568,15 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "jasson dominguez": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "spencer jones": {
    "line": 1.5,
    "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jasson dominguez": {
+   "line": 1.5,
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -825,12 +862,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "brenton doyle": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "ezequiel tovar": {
    "line": 0.5,
    "vendor": "betmgm",
@@ -888,6 +919,12 @@
   "hunter feduccia": {
    "line": 0.5,
    "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "brenton doyle": {
+   "line": 1.5,
+   "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -984,6 +1021,12 @@
   "kyle tucker": {
    "line": 0.5,
    "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "dalton rushing": {
+   "line": 0.5,
+   "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1095,27 +1138,21 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "andres chaparro": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "edmundo sosa": {
-   "line": 1.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "dalton rushing": {
-   "line": 0.5,
-   "vendor": "betonlineag",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "osleivis basabe": {
+  "derek hill": {
    "line": 0.5,
    "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "jose fermin": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "enrique hernandez": {
+   "line": 1.5,
+   "vendor": "betrivers",
    "src": "oddsapi",
    "market": "batter_total_bases"
   }
@@ -1125,7 +1162,7 @@
   "source": "the-odds-api.com",
   "events_queried": 1,
   "credits_used_this_run": 1,
-  "remaining": 153,
+  "remaining": 128,
   "reused_same_day": 9,
   "chapter_h_markets": {
    "date": "2026-08-03",
@@ -1138,8 +1175,8 @@
    "events_queried": 8,
    "request_count_this_run": 8,
    "credits_used_this_run": 24,
-   "remaining": 129,
-   "reused_same_day": 164
+   "remaining": 104,
+   "reused_same_day": 169
   },
   "oddsapi_extra_market_request_count": 8
  }
