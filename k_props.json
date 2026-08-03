@@ -17,6 +17,24 @@
    "market": "pitcher_outs"
   }
  },
+ "andrew alvarez": {
+  "line": 4.5,
+  "over_odds": 112,
+  "under_odds": -142,
+  "vendor": "fanduel",
+  "hits_allowed": {
+   "line": 4.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 14.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
+ },
  "cam schlittler": {
   "line": 3.5,
   "over_odds": null,
@@ -37,8 +55,8 @@
  },
  "michael mcgreevy": {
   "line": 4.5,
-  "over_odds": 128,
-  "under_odds": -164,
+  "over_odds": 126,
+  "under_odds": -162,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 5.5,
@@ -255,25 +273,7 @@
   }
  },
  "_batter_total_bases": {
-  "luis arraez": {
-   "line": 1.5,
-   "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "heliot ramos": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "bryce eldridge": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "rafael devers": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
@@ -285,13 +285,19 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "willy adames": {
-   "line": 0.5,
-   "vendor": "betmgm",
+  "heliot ramos": {
+   "line": 1.5,
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "drew gilbert": {
+  "rafael devers": {
+   "line": 1.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "willy adames": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -304,6 +310,12 @@
    "market": "batter_total_bases"
   },
   "christian koss": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "drew gilbert": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -393,6 +405,12 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
+  "jacob young": {
+   "line": 0.5,
+   "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
   "jorbit vivas": {
    "line": 1.5,
    "vendor": "betrivers",
@@ -402,6 +420,12 @@
   "nasim nunez": {
    "line": 1.5,
    "vendor": "betrivers",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "luis arraez": {
+   "line": 1.5,
+   "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -429,19 +453,13 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "brandon marsh": {
-   "line": 1.5,
-   "vendor": "draftkings",
+  "bryan de la cruz": {
+   "line": 0.5,
+   "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
   "j.t. realmuto": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "bryson stott": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
@@ -1077,19 +1095,25 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "jacob young": {
+  "andres chaparro": {
    "line": 0.5,
-   "vendor": "betmgm",
+   "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "justin crawford": {
-   "line": 0.5,
-   "vendor": "betmgm",
+  "edmundo sosa": {
+   "line": 1.5,
+   "vendor": "betonlineag",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "bryan de la cruz": {
+  "dalton rushing": {
+   "line": 0.5,
+   "vendor": "betonlineag",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "osleivis basabe": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -1099,9 +1123,9 @@
  "_meta": {
   "date": "2026-08-03",
   "source": "the-odds-api.com",
-  "events_queried": 2,
-  "credits_used_this_run": 2,
-  "remaining": 178,
+  "events_queried": 1,
+  "credits_used_this_run": 1,
+  "remaining": 153,
   "reused_same_day": 9,
   "chapter_h_markets": {
    "date": "2026-08-03",
@@ -1114,8 +1138,8 @@
    "events_queried": 8,
    "request_count_this_run": 8,
    "credits_used_this_run": 24,
-   "remaining": 154,
-   "reused_same_day": 163
+   "remaining": 129,
+   "reused_same_day": 164
   },
   "oddsapi_extra_market_request_count": 8
  }
