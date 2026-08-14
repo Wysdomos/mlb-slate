@@ -1,18 +1,18 @@
 {
  "is_preview": false,
  "season_day": 80,
- "updated": "8-12 graded",
+ "updated": "8-13 graded",
  "season": {
   "w": 200,
-  "l": 1087
+  "l": 1095
  },
  "last7": {
-  "w": 11,
-  "l": 52
+  "w": 7,
+  "l": 54
  },
- "yesterday_date": "8-12",
+ "yesterday_date": "8-13",
  "yesterday": {
-  "w": 1,
+  "w": 0,
   "l": 8
  },
  "markets": [
@@ -20,7 +20,7 @@
    "key": "HR",
    "label": "HR",
    "icon": "🏆",
-   "w": 1,
+   "w": 0,
    "l": 8,
    "graded": true,
    "picks": 10
@@ -29,10 +29,10 @@
    "key": "K",
    "label": "K",
    "icon": "⚡",
-   "w": 12,
-   "l": 16,
+   "w": 13,
+   "l": 13,
    "graded": true,
-   "picks": 30
+   "picks": 26
   },
   {
    "key": "OUTS",
@@ -47,26 +47,26 @@
    "key": "HIT",
    "label": "Hits",
    "icon": "🎯",
-   "w": 8,
-   "l": 5,
+   "w": 10,
+   "l": 2,
    "graded": true,
-   "picks": 13
+   "picks": 12
   },
   {
    "key": "HRR",
    "label": "HRR",
    "icon": "💥",
-   "w": 21,
-   "l": 7,
+   "w": 13,
+   "l": 6,
    "graded": true,
-   "picks": 28
+   "picks": 19
   },
   {
    "key": "TB",
    "label": "Total Bases",
    "icon": "📏",
-   "w": 17,
-   "l": 13,
+   "w": 13,
+   "l": 17,
    "graded": true,
    "picks": 30
   },
@@ -74,8 +74,8 @@
    "key": "H_ALLOWED",
    "label": "Hits Allowed",
    "icon": "🚦",
-   "w": 1,
-   "l": 0,
+   "w": 0,
+   "l": 1,
    "graded": true,
    "picks": 1
   },
@@ -86,7 +86,7 @@
    "w": 0,
    "l": 0,
    "graded": false,
-   "picks": 1
+   "picks": 0
   },
   {
    "key": "H_ALLOWED_ALT",
@@ -110,26 +110,26 @@
    "key": "TOTAL",
    "label": "Totals",
    "icon": "📈",
-   "w": 11,
-   "l": 4,
+   "w": 6,
+   "l": 3,
    "graded": true,
-   "picks": 15
+   "picks": 9
   },
   {
    "key": "NRFI",
    "label": "NRFI",
    "icon": "🥶",
-   "w": 8,
-   "l": 6,
+   "w": 5,
+   "l": 3,
    "graded": true,
-   "picks": 14
+   "picks": 8
   },
   {
    "key": "SB",
    "label": "SB",
    "icon": "🏃",
-   "w": 2,
-   "l": 17,
+   "w": 3,
+   "l": 16,
    "graded": true,
    "picks": 20
   },
@@ -147,32 +147,14 @@
   "HR": {
    "label": "HR",
    "icon": "🏆",
-   "w": 1,
+   "w": 0,
    "l": 8,
    "graded": true,
    "picks": 10,
    "rows": [
     {
-     "wl": "w",
-     "name": "Dominic Canzone",
-     "line": "Ov 0.5 HR",
-     "consensus": 0,
-     "max": 1,
-     "got": "HR",
-     "detail": {}
-    },
-    {
      "wl": "l",
-     "name": "Junior Caminero",
-     "line": "Ov 0.5 HR",
-     "consensus": 0,
-     "max": 1,
-     "got": "0 HR",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Victor Mesa Jr.",
+     "name": "Ben Rice",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -190,7 +172,7 @@
     },
     {
      "wl": "l",
-     "name": "Tyler Soderstrom",
+     "name": "Julio Rodriguez",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -199,7 +181,7 @@
     },
     {
      "wl": "l",
-     "name": "Carlos Cortes",
+     "name": "Shohei Ohtani",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -208,7 +190,7 @@
     },
     {
      "wl": "l",
-     "name": "Ben Rice",
+     "name": "Andy Pages",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -217,7 +199,7 @@
     },
     {
      "wl": "l",
-     "name": "Matt Olson",
+     "name": "Jake Bauers",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -226,7 +208,16 @@
     },
     {
      "wl": "l",
-     "name": "Ronald Acuna Jr.",
+     "name": "Willson Contreras",
+     "line": "Ov 0.5 HR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 HR",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Wilyer Abreu",
      "line": "Ov 0.5 HR",
      "consensus": 0,
      "max": 1,
@@ -241,231 +232,233 @@
      "max": 1,
      "got": "—",
      "detail": {}
+    },
+    {
+     "wl": "p",
+     "name": "Brice Turang",
+     "line": "Ov 0.5 HR",
+     "consensus": 0,
+     "max": 1,
+     "got": "—",
+     "detail": {}
     }
    ]
   },
   "K": {
    "label": "K",
    "icon": "⚡",
-   "w": 12,
-   "l": 16,
+   "w": 13,
+   "l": 13,
    "graded": true,
-   "picks": 30,
+   "picks": 26,
    "rows": [
     {
      "wl": "w",
-     "name": "Zack Wheeler",
+     "name": "Cade Cavalli",
      "line": "O 5+",
-     "consensus": 3,
+     "consensus": 4,
      "max": 6,
-     "got": "5 K",
+     "got": "10 K",
      "detail": {
-      "actual": "6H · 4ER · 15 outs",
-      "proj": "proj 4.34H · 1.74R · None ERA"
+      "actual": "1H · 0ER · 24 outs",
+      "proj": "proj 5.55H · 2.42R · None ERA"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Cade Cavalli",
+     "line": "O 5+",
+     "consensus": 4,
+     "max": 6,
+     "got": "10 K",
+     "detail": {
+      "actual": "1H · 0ER · 24 outs"
      }
     },
     {
      "wl": "l",
-     "name": "Zebby Matthews",
+     "name": "Jacob deGrom",
      "line": "O 5+",
-     "consensus": 3,
+     "consensus": 4,
+     "max": 6,
+     "got": "3 K",
+     "detail": {
+      "actual": "6H · 2ER · 6 outs",
+      "proj": "proj 4.31H · 1.74R · None ERA"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Taj Bradley",
+     "line": "O 5+",
+     "consensus": 4,
+     "max": 6,
+     "got": "3 K",
+     "detail": {
+      "actual": "7H · 5ER · 12 outs",
+      "proj": "proj 4.92H · 2.11R · None ERA"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Payton Tolle",
+     "line": "O 5+",
+     "consensus": 4,
      "max": 6,
      "got": "4 K",
      "detail": {
-      "actual": "6H · 4ER · 15 outs",
-      "proj": "proj 5.36H · 2.73R · None ERA"
+      "actual": "2H · 0ER · 24 outs",
+      "proj": "proj 5.26H · 2.11R · None ERA"
      }
     },
     {
      "wl": "l",
-     "name": "Drew Rasmussen",
+     "name": "Max Fried",
      "line": "O 5+",
-     "consensus": 3,
+     "consensus": 4,
      "max": 6,
-     "got": "3 K",
+     "got": "4 K",
      "detail": {
-      "actual": "4H · 2ER · 15 outs",
-      "proj": "proj 4.52H · 2.0R · None ERA"
+      "actual": "5H · 1ER · 15 outs",
+      "proj": "proj 4.6H · 2.07R · None ERA"
      }
     },
     {
      "wl": "l",
-     "name": "Foster Griffin",
+     "name": "Jacob deGrom",
      "line": "O 5+",
-     "consensus": 3,
+     "consensus": 4,
      "max": 6,
      "got": "3 K",
      "detail": {
-      "actual": "4H · 1ER · 15 outs",
-      "proj": "proj 6.0H · 2.65R · None ERA"
+      "actual": "6H · 2ER · 6 outs"
      }
     },
     {
-     "wl": "w",
-     "name": "Bryce Miller",
+     "wl": "l",
+     "name": "Taj Bradley",
      "line": "O 5+",
-     "consensus": 2,
+     "consensus": 4,
      "max": 6,
-     "got": "5 K",
+     "got": "3 K",
      "detail": {
-      "actual": "8H · 5ER · 18 outs",
-      "proj": "proj 3.8H · 1.82R · None ERA"
+      "actual": "7H · 5ER · 12 outs"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Payton Tolle",
+     "line": "O 5+",
+     "consensus": 4,
+     "max": 6,
+     "got": "4 K",
+     "detail": {
+      "actual": "2H · 0ER · 24 outs"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Max Fried",
+     "line": "O 5+",
+     "consensus": 4,
+     "max": 6,
+     "got": "4 K",
+     "detail": {
+      "actual": "5H · 1ER · 15 outs"
      }
     },
     {
      "wl": "w",
-     "name": "Tyler Mahle",
+     "name": "Logan Gilbert",
+     "line": "O 5+",
+     "consensus": 3,
+     "max": 6,
+     "got": "7 K",
+     "detail": {
+      "actual": "4H · 0ER · 18 outs",
+      "proj": "proj 3.81H · 1.87R · None ERA"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Braxton Ashcraft",
+     "line": "O 5+",
+     "consensus": 3,
+     "max": 6,
+     "got": "10 K",
+     "detail": {
+      "actual": "3H · 1ER · 27 outs",
+      "proj": "proj 4.58H · 1.73R · None ERA"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Roki Sasaki",
+     "line": "O 5+",
+     "consensus": 3,
+     "max": 6,
+     "got": "2 K",
+     "detail": {
+      "actual": "4H · 2ER · 18 outs",
+      "proj": "proj 4.56H · 2.41R · None ERA"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Kevin Gausman",
      "line": "O 5+",
      "consensus": 2,
      "max": 6,
      "got": "7 K",
      "detail": {
-      "actual": "4H · 1ER · 18 outs",
-      "proj": "proj 4.71H · 2.31R · None ERA"
+      "actual": "7H · 6ER · 14 outs",
+      "proj": "proj 5.73H · 2.62R · None ERA"
      }
     },
     {
-     "wl": "l",
-     "name": "Merrill Kelly",
+     "wl": "w",
+     "name": "Aaron Nola",
      "line": "O 5+",
      "consensus": 2,
      "max": 6,
-     "got": "2 K",
+     "got": "9 K",
      "detail": {
-      "actual": "6H · 6ER · 15 outs",
-      "proj": "proj 5.53H · 2.6R · None ERA"
+      "actual": "5H · 1ER · 15 outs",
+      "proj": "proj 4.92H · 2.33R · None ERA"
      }
     },
     {
      "wl": "w",
-     "name": "Luis Castillo",
-     "line": "O 3.5",
-     "consensus": 1,
-     "max": 6,
-     "got": "10 K",
+     "name": "Taj Bradley",
+     "line": "Over 2.5 K",
+     "consensus": 2,
+     "max": 4,
+     "got": "3 K",
      "detail": {
-      "actual": "1H · 0ER · 21 outs",
-      "proj": "proj 5.35H · 2.56R · None ERA"
-     }
-    },
-    {
-     "wl": "l",
-     "name": "Shane Baz",
-     "line": "O 3.5",
-     "consensus": 1,
-     "max": 6,
-     "got": "2 K",
-     "detail": {
-      "actual": "9H · 5ER · 9 outs",
-      "proj": "proj 5.48H · 2.33R · None ERA"
+      "actual": "7H · 5ER · 12 outs"
      }
     },
     {
      "wl": "w",
-     "name": "Dustin May",
-     "line": "O 3.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "4H · 1ER · 21 outs",
-      "proj": "proj 4.9H · 2.39R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Kyle Leahy",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "6H · 1ER · 15 outs",
-      "proj": "proj 4.99H · 2.11R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "George Klassen",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "5 K",
-     "detail": {
-      "actual": "5H · 2ER · 18 outs",
-      "proj": "proj 4.1H · 2.29R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "David Peterson",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "9H · 3ER · 15 outs",
-      "proj": "proj 5.27H · 2.52R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Jackson Kent",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "3H · 3ER · 12 outs",
-      "proj": "proj 4.72H · 2.29R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Adrian Houser",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "5 K",
-     "detail": {
-      "actual": "2H · 0ER · 18 outs",
-      "proj": "proj 5.05H · 2.19R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Eric Lauer",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "4H · 1ER · 19 outs",
-      "proj": "proj 4.99H · 2.41R · None ERA"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Cal Quantrill",
-     "line": "O 2.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "6 K",
-     "detail": {
-      "actual": "4H · 1ER · 15 outs",
-      "proj": "proj 3.99H · 1.73R · None ERA"
-     }
-    },
-    {
-     "wl": "l",
-     "name": "Rhett Lowder",
-     "line": "O 3.5",
-     "consensus": 0,
-     "max": 6,
+     "name": "Payton Tolle",
+     "line": "Over 2.5 K",
+     "consensus": 2,
+     "max": 4,
      "got": "4 K",
      "detail": {
-      "actual": "7H · 2ER · 16 outs",
-      "proj": "proj 4.46H · 2.25R · None ERA"
+      "actual": "2H · 0ER · 24 outs"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Parker Messick",
+     "line": "O 3.5",
+     "consensus": 1,
+     "max": 6,
+     "got": "6 K",
+     "detail": {
+      "actual": "3H · 2ER · 17 outs",
+      "proj": "proj 4.62H · 1.9R · None ERA"
      }
     }
    ]
@@ -482,122 +475,113 @@
   "HIT": {
    "label": "Hits",
    "icon": "🎯",
-   "w": 8,
-   "l": 5,
+   "w": 10,
+   "l": 2,
    "graded": true,
-   "picks": 13,
+   "picks": 12,
    "rows": [
     {
      "wl": "w",
+     "name": "Chase DeLauter",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "C.J. Abrams",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Abimelec Ortiz",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Masataka Yoshida",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Ceddanne Rafaela",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Vladimir Guerrero Jr.",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Spencer Torkelson",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Sal Stewart",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Ceddanne Rafaela",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Josh Naylor",
+     "line": "Ov 0.5 H",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H",
+     "detail": {}
+    },
+    {
+     "wl": "l",
      "name": "Steven Kwan",
      "line": "Ov 0.5 H",
      "consensus": 0,
      "max": 1,
-     "got": "1 H",
+     "got": "0 H",
      "detail": {}
     },
     {
-     "wl": "w",
-     "name": "Jeremy Pena",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Yordan Alvarez",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
+     "wl": "l",
      "name": "Ernie Clement",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Alejandro Kirk",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Gleyber Torres",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "2 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Jac Caglianone",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Pete Alonso",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "2 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Jose Ramirez",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Michael Harris II",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Ozzie Albies",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Dillon Dingler",
-     "line": "Ov 0.5 H",
-     "consensus": 0,
-     "max": 1,
-     "got": "0 H",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Brandon Nimmo",
      "line": "Ov 0.5 H",
      "consensus": 0,
      "max": 1,
@@ -609,10 +593,10 @@
   "HRR": {
    "label": "HRR",
    "icon": "💥",
-   "w": 21,
-   "l": 7,
+   "w": 13,
+   "l": 6,
    "graded": true,
-   "picks": 28,
+   "picks": 19,
    "rows": [
     {
      "wl": "w",
@@ -620,53 +604,9 @@
      "line": "Ov 0.5 HRR",
      "consensus": 0,
      "max": 1,
-     "got": "3 H+R+RBI",
-     "detail": {
-      "actual": "2H · 1R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Jose Ramirez",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H+R+RBI",
-     "detail": {
-      "actual": "0H · 1R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Tyler Soderstrom",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H+R+RBI",
-     "detail": {
-      "actual": "1H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Steven Kwan",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
      "got": "2 H+R+RBI",
      "detail": {
-      "actual": "1H · 1R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Jordan Walker",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "3 H+R+RBI",
-     "detail": {
-      "actual": "1H · 1R · 1RBI"
+      "actual": "2H · 0R · 0RBI"
      }
     },
     {
@@ -675,86 +615,9 @@
      "line": "Ov 0.5 HRR",
      "consensus": 0,
      "max": 1,
-     "got": "1 H+R+RBI",
-     "detail": {
-      "actual": "1H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Alex Bregman",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "13 H+R+RBI",
-     "detail": {
-      "actual": "3H · 3R · 7RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Gabriel Moreno",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "3 H+R+RBI",
-     "detail": {
-      "actual": "2H · 0R · 1RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Carson Benge",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
      "got": "2 H+R+RBI",
      "detail": {
-      "actual": "2H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Jacob Young",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "2 H+R+RBI",
-     "detail": {
-      "actual": "2H · 0R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Corbin Carroll",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "5 H+R+RBI",
-     "detail": {
-      "actual": "2H · 2R · 1RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Donovan Walton",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "2 H+R+RBI",
-     "detail": {
-      "actual": "1H · 1R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Junior Caminero",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "5 H+R+RBI",
-     "detail": {
-      "actual": "2H · 2R · 1RBI"
+      "actual": "1H · 0R · 1RBI"
      }
     },
     {
@@ -763,47 +626,14 @@
      "line": "Ov 0.5 HRR",
      "consensus": 0,
      "max": 1,
-     "got": "3 H+R+RBI",
+     "got": "2 H+R+RBI",
      "detail": {
-      "actual": "2H · 1R · 0RBI"
+      "actual": "2H · 0R · 0RBI"
      }
     },
     {
      "wl": "w",
-     "name": "Jose Ramirez",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "1 H+R+RBI",
-     "detail": {
-      "actual": "0H · 1R · 0RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Jo Adell",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "4 H+R+RBI",
-     "detail": {
-      "actual": "1H · 1R · 2RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Angel Martinez",
-     "line": "Ov 0.5 HRR",
-     "consensus": 0,
-     "max": 1,
-     "got": "5 H+R+RBI",
-     "detail": {
-      "actual": "3H · 1R · 1RBI"
-     }
-    },
-    {
-     "wl": "w",
-     "name": "Steven Kwan",
+     "name": "Kevin McGonigle",
      "line": "Ov 0.5 HRR",
      "consensus": 0,
      "max": 1,
@@ -811,20 +641,174 @@
      "detail": {
       "actual": "1H · 1R · 0RBI"
      }
+    },
+    {
+     "wl": "w",
+     "name": "Vladimir Guerrero Jr.",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Trent Grisham",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Wade Meckler",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Griffin Conine",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Chase Meidroth",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "5 H+R+RBI",
+     "detail": {
+      "actual": "2H · 2R · 1RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Kaelen Culpepper",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "1 H+R+RBI",
+     "detail": {
+      "actual": "1H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Chase DeLauter",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "2 H+R+RBI",
+     "detail": {
+      "actual": "2H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Ceddanne Rafaela",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "4 H+R+RBI",
+     "detail": {
+      "actual": "2H · 2R · 0RBI"
+     }
+    },
+    {
+     "wl": "w",
+     "name": "Masataka Yoshida",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "4 H+R+RBI",
+     "detail": {
+      "actual": "2H · 1R · 1RBI"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Nathaniel Lowe",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 H+R+RBI",
+     "detail": {
+      "actual": "0H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Brooks Lee",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 H+R+RBI",
+     "detail": {
+      "actual": "0H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Nathaniel Lowe",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 H+R+RBI",
+     "detail": {
+      "actual": "0H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Jose Ramirez",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 H+R+RBI",
+     "detail": {
+      "actual": "0H · 0R · 0RBI"
+     }
+    },
+    {
+     "wl": "l",
+     "name": "Steven Kwan",
+     "line": "Ov 0.5 HRR",
+     "consensus": 0,
+     "max": 1,
+     "got": "0 H+R+RBI",
+     "detail": {
+      "actual": "0H · 0R · 0RBI"
+     }
     }
    ]
   },
   "TB": {
    "label": "Total Bases",
    "icon": "📏",
-   "w": 17,
-   "l": 13,
+   "w": 13,
+   "l": 17,
    "graded": true,
    "picks": 30,
    "rows": [
     {
      "wl": "w",
-     "name": "Junior Caminero",
+     "name": "Shohei Ohtani",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -833,7 +817,7 @@
     },
     {
      "wl": "w",
-     "name": "Shohei Ohtani",
+     "name": "Abimelec Ortiz",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -842,7 +826,16 @@
     },
     {
      "wl": "w",
-     "name": "Ronald Acuna Jr.",
+     "name": "Ceddanne Rafaela",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "2 TB",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Dylan Crews",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -851,7 +844,7 @@
     },
     {
      "wl": "w",
-     "name": "Pete Crow-Armstrong",
+     "name": "Chase DeLauter",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -860,7 +853,7 @@
     },
     {
      "wl": "w",
-     "name": "Seiya Suzuki",
+     "name": "Spencer Horwitz",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -869,47 +862,11 @@
     },
     {
      "wl": "w",
-     "name": "Drake Baldwin",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "3 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Corey Seager",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "7 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Pete Alonso",
+     "name": "Willson Contreras",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
      "got": "2 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Yandy Diaz",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "2 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Bobby Witt Jr.",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "3 TB",
      "detail": {}
     },
     {
@@ -918,48 +875,12 @@
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
-     "got": "2 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Dominic Canzone",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
      "got": "5 TB",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "Angel Martinez",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "5 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Julio Rodriguez",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "4 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Randy Arozarena",
-     "line": "Ov 1.5",
-     "consensus": 0,
-     "max": 6,
-     "got": "4 TB",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Tyler Soderstrom",
+     "name": "Daylen Lile",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -968,16 +889,79 @@
     },
     {
      "wl": "w",
-     "name": "Austin Riley",
+     "name": "Masataka Yoshida",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
-     "got": "7 TB",
+     "got": "2 TB",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Byron Buxton",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "2 TB",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Chase Meidroth",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "4 TB",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Tyler Stephenson",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "5 TB",
      "detail": {}
     },
     {
      "wl": "l",
-     "name": "Ozzie Albies",
+     "name": "C.J. Abrams",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "1 TB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Pete Crow-Armstrong",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "0 TB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Elly De La Cruz",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "1 TB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Nathaniel Lowe",
+     "line": "Ov 1.5",
+     "consensus": 0,
+     "max": 6,
+     "got": "0 TB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Seiya Suzuki",
      "line": "Ov 1.5",
      "consensus": 0,
      "max": 6,
@@ -989,20 +973,20 @@
   "H_ALLOWED": {
    "label": "Hits Allowed",
    "icon": "🚦",
-   "w": 1,
-   "l": 0,
+   "w": 0,
+   "l": 1,
    "graded": true,
    "picks": 1,
    "rows": [
     {
-     "wl": "w",
-     "name": "Framber Valdez",
-     "line": "Ov 5.5 H allowed",
+     "wl": "l",
+     "name": "Keider Montero",
+     "line": "Ov 4.5 H allowed",
      "consensus": 0,
      "max": 1,
-     "got": "6 H allowed",
+     "got": "3 H allowed",
      "detail": {
-      "actual": "6H · 4ER · 17 outs"
+      "actual": "3H · 0ER · 19 outs"
      }
     }
    ]
@@ -1013,18 +997,8 @@
    "w": 0,
    "l": 0,
    "graded": false,
-   "picks": 1,
-   "rows": [
-    {
-     "wl": "p",
-     "name": "Zach Thornton",
-     "line": "Ov 2.5 ER",
-     "consensus": 0,
-     "max": 1,
-     "got": "—",
-     "detail": {}
-    }
-   ]
+   "picks": 0,
+   "rows": []
   },
   "H_ALLOWED_ALT": {
    "label": "Hits Allowed Alt",
@@ -1047,10 +1021,10 @@
   "TOTAL": {
    "label": "Totals",
    "icon": "📈",
-   "w": 11,
-   "l": 4,
+   "w": 6,
+   "l": 3,
    "graded": true,
-   "picks": 15,
+   "picks": 9,
    "rows": [
     {
      "wl": "l",
@@ -1058,75 +1032,48 @@
      "line": "Under 8.5",
      "consensus": 4,
      "max": 4,
-     "got": "10 runs",
+     "got": "14 runs",
      "detail": {}
     },
     {
-     "wl": "w",
-     "name": "CLE@DET",
-     "line": "Over 8.5",
-     "consensus": 3,
-     "max": 4,
-     "got": "10 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
+     "wl": "l",
      "name": "CHC@WAS",
      "line": "Over 8.5",
      "consensus": 3,
      "max": 4,
-     "got": "18 runs",
+     "got": "7 runs",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "PHI@STL",
-     "line": "Under 8.5",
-     "consensus": 2,
-     "max": 4,
-     "got": "8 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "TB@ATH",
+     "name": "CIN@CHW",
      "line": "Over 8.5",
      "consensus": 2,
      "max": 4,
-     "got": "12 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "COL@ARI",
-     "line": "Over 8.5",
-     "consensus": 2,
-     "max": 4,
-     "got": "10 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "HOU@SF",
-     "line": "Under 8.5",
-     "consensus": 2,
-     "max": 4,
-     "got": "3 runs",
+     "got": "17 runs",
      "detail": {}
     },
     {
      "wl": "w",
      "name": "SEA@NYY",
-     "line": "Over 8.5",
+     "line": "Under 8.5",
      "consensus": 2,
      "max": 4,
-     "got": "15 runs",
+     "got": "1 runs",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "NYM@ATL",
+     "name": "TEX@LAA",
+     "line": "Under 8.5",
+     "consensus": 2,
+     "max": 4,
+     "got": "7 runs",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "MIL@LAD",
      "line": "Over 8.5",
      "consensus": 2,
      "max": 4,
@@ -1135,56 +1082,29 @@
     },
     {
      "wl": "w",
-     "name": "KC@LAD",
+     "name": "CLE@DET",
      "line": "Neutral 8.5",
-     "consensus": 2,
+     "consensus": 1,
      "max": 4,
-     "got": "6 runs",
+     "got": "3 runs",
      "detail": {}
     },
     {
-     "wl": "l",
-     "name": "MIL@SD",
-     "line": "Over 8.5",
-     "consensus": 2,
+     "wl": "w",
+     "name": "PHI@MIN",
+     "line": "Under 8.5",
+     "consensus": 1,
      "max": 4,
-     "got": "7 runs",
+     "got": "8 runs",
      "detail": {}
     },
     {
      "wl": "l",
      "name": "BOS@TOR",
-     "line": "Under 8.5",
-     "consensus": 2,
-     "max": 4,
-     "got": "10 runs",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "TEX@LAA",
-     "line": "Over 8.5",
-     "consensus": 2,
-     "max": 4,
-     "got": "7 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "BAL@MIN",
      "line": "Over 8.5",
      "consensus": 1,
      "max": 4,
-     "got": "12 runs",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "CIN@CHW",
-     "line": "Neutral 8.5",
-     "consensus": 0,
-     "max": 4,
-     "got": "5 runs",
+     "got": "7 runs",
      "detail": {}
     }
    ]
@@ -1192,14 +1112,14 @@
   "NRFI": {
    "label": "NRFI",
    "icon": "🥶",
-   "w": 8,
-   "l": 6,
+   "w": 5,
+   "l": 3,
    "graded": true,
-   "picks": 14,
+   "picks": 8,
    "rows": [
     {
      "wl": "w",
-     "name": "PHI@STL",
+     "name": "TEX@LAA",
      "line": "NRFI",
      "consensus": 4,
      "max": 4,
@@ -1207,12 +1127,12 @@
      "detail": {}
     },
     {
-     "wl": "w",
-     "name": "TB@ATH",
+     "wl": "l",
+     "name": "PHI@MIN",
      "line": "NRFI",
-     "consensus": 3,
+     "consensus": 4,
      "max": 4,
-     "got": "0 in 1st",
+     "got": "2 in 1st",
      "detail": {}
     },
     {
@@ -1226,7 +1146,7 @@
     },
     {
      "wl": "w",
-     "name": "BOS@TOR",
+     "name": "SEA@NYY",
      "line": "NRFI",
      "consensus": 3,
      "max": 4,
@@ -1234,82 +1154,28 @@
      "detail": {}
     },
     {
-     "wl": "w",
-     "name": "KC@LAD",
-     "line": "NRFI",
-     "consensus": 2,
-     "max": 4,
-     "got": "0 in 1st",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "TEX@LAA",
-     "line": "NRFI",
-     "consensus": 2,
-     "max": 4,
-     "got": "0 in 1st",
-     "detail": {}
-    },
-    {
      "wl": "l",
-     "name": "BAL@MIN",
+     "name": "BOS@TOR",
      "line": "NRFI",
-     "consensus": 2,
-     "max": 4,
-     "got": "2 in 1st",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "HOU@SF",
-     "line": "NRFI",
-     "consensus": 2,
+     "consensus": 3,
      "max": 4,
      "got": "1 in 1st",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "MIL@SD",
-     "line": "NRFI",
-     "consensus": 1,
-     "max": 4,
-     "got": "0 in 1st",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "COL@ARI",
-     "line": "NRFI",
-     "consensus": 1,
-     "max": 4,
-     "got": "1 in 1st",
-     "detail": {}
-    },
-    {
-     "wl": "l",
      "name": "CLE@DET",
      "line": "NRFI",
-     "consensus": 1,
+     "consensus": 2,
      "max": 4,
-     "got": "4 in 1st",
+     "got": "0 in 1st",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "SEA@NYY",
-     "line": "Neutral",
-     "consensus": 0,
-     "max": 4,
-     "got": "3 in 1st",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "NYM@ATL",
-     "line": "Neutral",
-     "consensus": 0,
+     "name": "MIL@LAD",
+     "line": "NRFI",
+     "consensus": 1,
      "max": 4,
      "got": "0 in 1st",
      "detail": {}
@@ -1317,10 +1183,10 @@
     {
      "wl": "l",
      "name": "CIN@CHW",
-     "line": "Neutral",
-     "consensus": 0,
+     "line": "NRFI",
+     "consensus": 1,
      "max": 4,
-     "got": "0 in 1st",
+     "got": "4 in 1st",
      "detail": {}
     }
    ]
@@ -1328,14 +1194,14 @@
   "SB": {
    "label": "SB",
    "icon": "🏃",
-   "w": 2,
-   "l": 17,
+   "w": 3,
+   "l": 16,
    "graded": true,
    "picks": 20,
    "rows": [
     {
      "wl": "w",
-     "name": "David Hamilton",
+     "name": "Dane Myers",
      "line": "Ov 0.5",
      "consensus": 2,
      "max": 3,
@@ -1344,7 +1210,7 @@
     },
     {
      "wl": "l",
-     "name": "Brice Turang",
+     "name": "Elly De La Cruz",
      "line": "Ov 0.5",
      "consensus": 2,
      "max": 3,
@@ -1353,7 +1219,7 @@
     },
     {
      "wl": "l",
-     "name": "Corbin Carroll",
+     "name": "David Hamilton",
      "line": "Ov 0.5",
      "consensus": 2,
      "max": 3,
@@ -1362,16 +1228,7 @@
     },
     {
      "wl": "l",
-     "name": "Brandon Lockridge",
-     "line": "Ov 0.5",
-     "consensus": 2,
-     "max": 3,
-     "got": "0 SB",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Wyatt Langford",
+     "name": "Garrett Mitchell",
      "line": "Ov 0.5",
      "consensus": 2,
      "max": 3,
@@ -1380,7 +1237,16 @@
     },
     {
      "wl": "w",
-     "name": "Tyler Tolbert",
+     "name": "Jose Caballero",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "1 SB",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Dylan Crews",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1389,7 +1255,7 @@
     },
     {
      "wl": "l",
-     "name": "Jake McCarthy",
+     "name": "Pete Crow-Armstrong",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1398,7 +1264,16 @@
     },
     {
      "wl": "l",
-     "name": "Elly De La Cruz",
+     "name": "Esteury Ruiz",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 SB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "C.J. Abrams",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1416,25 +1291,7 @@
     },
     {
      "wl": "l",
-     "name": "Pete Crow-Armstrong",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 SB",
-     "detail": {}
-    },
-    {
-     "wl": "l",
      "name": "Jake Mangum",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 SB",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Ronald Acuna Jr.",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1452,24 +1309,6 @@
     },
     {
      "wl": "l",
-     "name": "Bobby Witt Jr.",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 SB",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Nasim Nunez",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 SB",
-     "detail": {}
-    },
-    {
-     "wl": "l",
      "name": "Julio Rodriguez",
      "line": "Ov 0.5",
      "consensus": 1,
@@ -1479,7 +1318,7 @@
     },
     {
      "wl": "l",
-     "name": "Cole Carrigg",
+     "name": "Randy Arozarena",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1488,7 +1327,34 @@
     },
     {
      "wl": "l",
-     "name": "Bryson Stott",
+     "name": "Jakob Marsee",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 SB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Trea Turner",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 SB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Pedro Ramirez",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 SB",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Brenton Doyle",
      "line": "Ov 0.5",
      "consensus": 1,
      "max": 3,
@@ -1507,61 +1373,97 @@
    "rows": [
     {
      "wl": "l",
-     "name": "TJ Rumfield",
+     "name": "Spencer Horwitz",
      "line": "Ov 0.5",
-     "consensus": 2,
+     "consensus": 1,
      "max": 3,
      "got": "0 2B",
      "detail": {}
     },
     {
      "wl": "l",
-     "name": "Hunter Goodman",
+     "name": "Chase DeLauter",
      "line": "Ov 0.5",
-     "consensus": 2,
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Nathaniel Lowe",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Steven Kwan",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Angel Genao",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Austin Hedges",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "Brayan Rocchio",
+     "line": "Ov 0.5",
+     "consensus": 1,
+     "max": 3,
+     "got": "0 2B",
+     "detail": {}
+    },
+    {
+     "wl": "l",
+     "name": "C.J. Abrams",
+     "line": "Ov 0.5",
+     "consensus": 1,
      "max": 3,
      "got": "0 2B",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "Angel Martinez",
+     "name": "Shohei Ohtani",
      "line": "Ov 0.5",
-     "consensus": 1,
+     "consensus": 0,
+     "max": 3,
+     "got": "1 2B",
+     "detail": {}
+    },
+    {
+     "wl": "w",
+     "name": "Chase Meidroth",
+     "line": "Ov 0.5",
+     "consensus": 0,
      "max": 3,
      "got": "2 2B",
      "detail": {}
     },
     {
      "wl": "w",
-     "name": "Jeremy Pena",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "1 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Yandy Diaz",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Yordan Alvarez",
-     "line": "Ov 0.5",
-     "consensus": 1,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "w",
-     "name": "Pete Crow-Armstrong",
+     "name": "Willson Contreras",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1570,7 +1472,7 @@
     },
     {
      "wl": "l",
-     "name": "Brady House",
+     "name": "Ceddanne Rafaela",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1579,7 +1481,7 @@
     },
     {
      "wl": "l",
-     "name": "Drake Baldwin",
+     "name": "Nick Sogard",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1588,7 +1490,7 @@
     },
     {
      "wl": "l",
-     "name": "Ozzie Albies",
+     "name": "Masataka Yoshida",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1597,7 +1499,7 @@
     },
     {
      "wl": "l",
-     "name": "Michael Busch",
+     "name": "Andruw Monasterio",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1606,7 +1508,7 @@
     },
     {
      "wl": "l",
-     "name": "Pete Alonso",
+     "name": "Freddie Freeman",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1615,7 +1517,7 @@
     },
     {
      "wl": "l",
-     "name": "Trevor Larnach",
+     "name": "Caleb Durbin",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1624,43 +1526,7 @@
     },
     {
      "wl": "l",
-     "name": "Mauricio Dubon",
-     "line": "Ov 0.5",
-     "consensus": 0,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Seiya Suzuki",
-     "line": "Ov 0.5",
-     "consensus": 0,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Carson Kelly",
-     "line": "Ov 0.5",
-     "consensus": 0,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Jackson Holliday",
-     "line": "Ov 0.5",
-     "consensus": 0,
-     "max": 3,
-     "got": "0 2B",
-     "detail": {}
-    },
-    {
-     "wl": "l",
-     "name": "Michael Harris II",
+     "name": "Andy Pages",
      "line": "Ov 0.5",
      "consensus": 0,
      "max": 3,
@@ -1675,13 +1541,12 @@
   {
    "name": "0–1 lenses",
    "cls": "f",
-   "w": 1,
+   "w": 0,
    "l": 8
   }
  ],
  "hr_insight": "multi-lens bats homer above the field rate; zero-lens bats lag. Agreement is the edge — and it sharpens as more days are graded.",
  "trend": [
-  33,
   11,
   22,
   0,
@@ -1694,10 +1559,10 @@
   11,
   11,
   25,
-  11
+  11,
+  0
  ],
  "trend_labels": [
-  "7-30",
   "7-31",
   "8-1",
   "8-2",
@@ -1710,18 +1575,13 @@
   "8-9",
   "8-10",
   "8-11",
-  "8-12"
+  "8-12",
+  "8-13"
  ],
  "grades": [
   {
    "wl": "l",
-   "name": "Junior Caminero — 1+ HR",
-   "tag": "0/1 consensus · HR Board",
-   "got": "0 HR"
-  },
-  {
-   "wl": "l",
-   "name": "Victor Mesa Jr. — 1+ HR",
+   "name": "Ben Rice — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   },
@@ -1732,38 +1592,38 @@
    "got": "0 HR"
   },
   {
-   "wl": "w",
-   "name": "Dominic Canzone — 1+ HR",
-   "tag": "0/1 consensus · HR Board",
-   "got": "HR"
-  },
-  {
    "wl": "l",
-   "name": "Tyler Soderstrom — 1+ HR",
+   "name": "Julio Rodriguez — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   },
   {
    "wl": "l",
-   "name": "Carlos Cortes — 1+ HR",
+   "name": "Shohei Ohtani — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   },
   {
    "wl": "l",
-   "name": "Ben Rice — 1+ HR",
+   "name": "Andy Pages — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   },
   {
    "wl": "l",
-   "name": "Matt Olson — 1+ HR",
+   "name": "Jake Bauers — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   },
   {
    "wl": "l",
-   "name": "Ronald Acuna Jr. — 1+ HR",
+   "name": "Willson Contreras — 1+ HR",
+   "tag": "0/1 consensus · HR Board",
+   "got": "0 HR"
+  },
+  {
+   "wl": "l",
+   "name": "Wilyer Abreu — 1+ HR",
    "tag": "0/1 consensus · HR Board",
    "got": "0 HR"
   }
@@ -1957,6 +1817,11 @@
   {
    "date": "8-12",
    "hr_w": 1,
+   "hr_l": 8
+  },
+  {
+   "date": "8-13",
+   "hr_w": 0,
    "hr_l": 8
   }
  ]
