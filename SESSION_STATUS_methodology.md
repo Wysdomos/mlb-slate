@@ -152,3 +152,38 @@ same ids.
 - HR Prob band values not filled in — no source to fill them from without
   inventing numbers; see the judgment call above.
 - The 9 deferred Zone mentions left exactly as found, for PR 3.
+
+## Addendum — duplicate glossary rows removed; HR Prob column dropped
+
+Review caught a real miss in the first pass: the glossary already carried
+xwOBA and Barrel% rows a few lines below my insert, with different thresholds
+(`xwOBA ≥ .330 = T3 confirmer`; `Barrel% ≥ 8% = T3 confirmer; ≥12% = elite`).
+My two added rows (`12%+ strong / 15%+ elite`, `.350+ strong / .400+ elite`)
+were near-duplicates with conflicting numbers. I should have grepped the whole
+glossary before inserting, not just the block I was editing.
+
+Amendment commit, `index.html` plus the two re-shot alignment screenshots:
+
+- Deleted the two duplicate rows I added. The pre-existing xwOBA and Barrel%
+  rows are untouched; the new HR Prob row stays.
+- Removed the HR Prob column from the alignment table entirely — header and
+  the four dash cells — rather than leaving a column with no honest values.
+  The SKIP row carries a second, pre-existing dash under Best Line, so the
+  removal used full-row replacements to take only the third-column cell.
+
+Confirmations (pasted):
+
+```text
+applied 7: ['#1a delete dup Barrel% row', '#1b delete dup xwOBA row',
+            '#2 thead 7->6', '#2 T0 row', '#2 T1 row', '#2 T2 row', '#2 SKIP row']
+  T0/T1/T2/SKIP cells = 6/6/6/6   thead cells = 6
+  glossary rows: xwOBA=1 Barrel%=1 HR Prob=1
+  page-wide <td><strong> row counts: xwOBA=1 Barrel%=1
+
+rendered, 390px:  head = [Tier, Score, Vuln, Park, Best Line, Verdict]
+                  rows = [6, 6, 6, 6]   overflowX = False   (dark and light)
+```
+
+This supersedes the earlier (a)/(c) evidence where the glossary showed three
+new rows and the alignment table a 7th, dashed column. Zone re-grep is
+unaffected: still the same 9 deferred mentions, none of these edits touch them.

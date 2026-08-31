@@ -1834,8 +1834,6 @@ body.sheet-open #scroll-track{display:none;}
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Batter Quality Inputs</td></tr>
       <tr><td><strong>HR Prob</strong></td><td>BallparkPal per-game home run probability</td><td>Primary HR Board input. Model output, not a calibrated forward probability.</td></tr>
-      <tr><td><strong>Barrel%</strong></td><td>Baseball Savant barrel rate</td><td>Contact quality. 12%+ is strong, 15%+ elite.</td></tr>
-      <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Savant. .350+ strong, .400+ elite.</td></tr>
       <tr><td><strong>ELITE ISO</strong> / ISO .###</td><td>Isolated Power (slugging − batting avg)</td><td>HR floor: ≥ .250 required for T0/T1. Color: <strong style="color:var(--bad)">.280+ red</strong>, <span style="color:var(--hot)">.250–.279 hot</span>, <span style="color:var(--good)">.200–.249 good</span>.</td></tr>
       <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Quality-of-contact metric. ≥ .330 = T3 confirmer.</td></tr>
       <tr><td><strong>Barrel%</strong></td><td>Percentage of batted balls hit at "barrel" quality</td><td>Statcast. ≥ 8% = T3 confirmer; ≥12% = elite.</td></tr>
@@ -1919,12 +1917,12 @@ body.sheet-open #scroll-track{display:none;}
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table class="matrix-table">
-    <thead><tr><th>Tier</th><th>Score</th><th>HR Prob</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Tier</th><th>Score</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
     <tbody>
-      <tr><td><strong>T0</strong></td><td>≥75</td><td>—</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
-      <tr><td><strong>T1</strong></td><td>65–74</td><td>—</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
-      <tr><td><strong>T2</strong></td><td>50–64</td><td>—</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
-      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>—</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
+      <tr><td><strong>T0</strong></td><td>≥75</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
+      <tr><td><strong>T1</strong></td><td>65–74</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
+      <tr><td><strong>T2</strong></td><td>50–64</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
+      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
     </tbody>
   </table></div>
   <div class="tldr-box"><h4>Aug 31 Park Summary</h4><p><strong>12-game Monday card (Day 157).</strong> HR Volcano(s): <strong>Wrigley Field +47% HR</strong> (MIL @ CHC). HR Boosters: Great American Ball Park +17% (SD @ CIN), Truist Park +12% (SF @ ATL), Nationals Park +9% (MIA @ WSH), Daikin Park +7% (CHW @ HOU), Coors Field +7% (BAL @ COL). HR Suppressed: Globe Life Field -12% (ATH @ TEX) -- fade HR alts here.</p></div>
