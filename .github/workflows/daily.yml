@@ -5,11 +5,19 @@ on:
     paths:
       - '**.xlsx'
   schedule:
-    - cron: '0 7 * * *'    # 3:00 AM ET - early build
-    - cron: '30 10 * * *'   # 6:30 AM ET  - morning build
-    - cron: '0 15 * * *'    # 11:00 AM ET - mid-morning line posts
-    - cron: '0 20 * * *'    # 4:00 PM ET  - late lines + confirmed lineups
+    - cron: '0 7 * * *'
+    - cron: '0 13 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 19 * * *'
+    - cron: '0 21 * * *'
+    - cron: '0 23 * * *'
+    - cron: '0 1 * * *'
+    - cron: '0 3 * * *'
   workflow_dispatch:
+
+concurrency:
+  group: daily-build
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -21,6 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -34,15 +43,20 @@ jobs:
         env:
           ALLOW_PROJECTED_MODE: '1'
         run: |
-          XLSX=$(python3 extract_xlsx.py --which)
-          if [ -z "$XLSX" ]; then echo "No xlsx found" && exit 1; fi
+          XLSX=$(python3 extract_xlsx.py --which || echo "")
+          if [ -z "$XLSX" ]; then echo "No workbook - BPP-only build"; fi
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
           echo "Using newest slate by date: $XLSX"
 
       - name: Extract slate data
         env:
           ALLOW_PROJECTED_MODE: '1'
-        run: python3 extract_xlsx.py "$XLSX_FILE" day_data.json
+        run: |
+          if [ -z "$XLSX_FILE" ]; then
+            python3 extract_xlsx.py day_data.json
+          else
+            python3 extract_xlsx.py "$XLSX_FILE" day_data.json
+          fi
 
       - name: Rebuild Projected Mode data
         timeout-minutes: 8
