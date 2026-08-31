@@ -1287,9 +1287,10 @@ def _conv_cell(n, total=6):
     return f'<span style="color:var(--text-soft)">{n}/{total}</span>'
 
 def projected_badge(text):
+    # The span used to announce PROJECTED MODE; the mode is the normal state
+    # now, so only the per-section provenance text remains.
     return (
         '<div class="projected-section-badge">'
-        '<span>PROJECTED MODE</span>'
         f'<small>{text}</small>'
         '</div>'
     )
@@ -1365,12 +1366,12 @@ def build_projected_hr_board():
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">Top 50 HR Board</div>
-      <span class="game-tag">Tap to expand · Projected Mode · derived rankings + Savant contact metrics</span>
+      <span class="game-tag">Tap to expand · derived rankings + Savant contact metrics</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    {projected_badge("Score and tier are Daily Slate derived; Zone is unavailable and shown as a dash.")}
+    {projected_badge("Score and tier are Daily Slate derived from live BallparkPal and Savant inputs.")}
     <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Ranked by the Daily Slate projected HR score using live matchup probability, Baseball Savant barrel rate/xwOBA, park HR context, pitcher HR risk, and streak signal. This does not reproduce Sweet Spot grades or Zone.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>P Tm</th><th>Score</th><th>Tier</th><th>Zone</th><th>HR Prob</th><th>Barrel%</th><th>xwOBA</th><th>ERA</th><th>Park HR%</th></tr></thead>
@@ -1416,7 +1417,7 @@ def build_projected_oo5_board():
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
       <div class="game-title">Top 50 Hits Board</div>
-      <span class="game-tag">Tap to expand · Projected Mode · live hit probabilities</span>
+      <span class="game-tag">Tap to expand · live hit probabilities</span>
     </div>
     <span class="chevron">▾</span>
   </button>
