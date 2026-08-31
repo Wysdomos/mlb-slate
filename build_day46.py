@@ -70,7 +70,9 @@ SP_BY_TEAM = {r['Team'].strip(): r for r in SP_PROJ if r.get('Team')}
 SP_BY_NAME = {r['Pitcher'].strip().lower(): r for r in SP_PROJ if r.get('Pitcher')}
 
 SS = DATA['Sweet_Spot_Slate']  # pitcher vulnerability scores
-SS_BY_NAME = {r['Pitcher'].strip().lower(): r for r in SS if r.get('Pitcher') and r['Pitcher'] != 'TBD'}
+from build_vuln import vuln_by_name
+SS_BY_NAME = vuln_by_name(DATA)
+SS = list(SS_BY_NAME.values())
 
 BP_PIT = DATA['BP_Pitchers']
 BP_PIT_BY_NAME = {(r.get('FullName') or '').strip().lower(): r for r in BP_PIT}
@@ -451,15 +453,6 @@ def pitcher_throws(name):
     if p and p.get('PitcherHand'): return p.get('PitcherHand')
     return None
 
-def zone_for_batter(name):
-    """Lookup HR_Leaderboard Zone for a batter (returns '⚡N' or None)."""
-    if not name: return None
-    nm = str(name).strip().lower()
-    for r in HR_LB:
-        if (r.get('Batter') or '').strip().lower() == nm:
-            return r.get('Zone')
-    return None
-
 def parse_iso_danger(s):
     """Parse 'Name (ISO .###)' into (name, iso_str)."""
     if not s: return (None, None)
@@ -468,12 +461,10 @@ def parse_iso_danger(s):
     return (str(s).strip(), None)
 
 def format_danger_batter(s):
-    """Format a danger batter string with bat-hand chip + ISO color + Zone.
-    Input: 'JJ Bleday (ISO .381)'. Output: 'JJ Bleday 🔵L · ISO .381 · ⚡7'."""
+    """Format a danger batter string with bat-hand chip + ISO color."""
     name, iso = parse_iso_danger(s)
     if not name: return '—'
     bats = batter_bats(name)
-    zone = zone_for_batter(name)
     parts = [f'<strong>{name}</strong>']
     if bats: parts.append(hand_chip(bats, 'bats'))
     if iso:
@@ -485,12 +476,6 @@ def format_danger_batter(s):
         elif iso_f >= 0.200: iso_html = f'<span style="color:var(--good)">{iso_disp}</span>'
         else: iso_html = iso_disp
         parts.append(f'ISO {iso_html}')
-    if zone:
-        zn = int(''.join(c for c in str(zone) if c.isdigit()) or '0')
-        if zn >= 6:   z_html = f'<strong style="color:var(--good)">{zone}</strong>'
-        elif zn >= 4: z_html = f'<span style="color:var(--hot)">{zone}</span>'
-        else:          z_html = f'<span style="color:#64748b">{zone}</span>'
-        parts.append(z_html)
     return ' · '.join(parts)
 
 # ---- BUILD: HEADLINES ----
@@ -1357,7 +1342,7 @@ def build_projected_hr_board():
             f'<td>{i}</td><td>{batter}</td><td>{tn(r.get("Team"))}</td>'
             f'<td>{pitcher}</td><td>{r.get("Pitcher Team","—")}</td>'
             f'<td><strong>{r.get("Score","—")}</strong></td><td>{r.get("Grade","—")}</td>'
-            f'<td>{r.get("Zone","—")}</td><td>{r.get("HR","—")}</td>'
+            f'<td>{r.get("HR","—")}</td>'
             f'<td>{r.get("Barrel%","—")}</td><td>{r.get("xwOBA","—")}</td>'
             f'<td>{r.get("ERA","—")}</td><td>{r.get("Park","—")}</td></tr>'
         )
@@ -1372,9 +1357,9 @@ def build_projected_hr_board():
   </button>
   <div class="game-body"><div class="game-body-inner">
     {projected_badge("Score and tier are Daily Slate derived from live BallparkPal and Savant inputs.")}
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Ranked by the Daily Slate projected HR score using live matchup probability, Baseball Savant barrel rate/xwOBA, park HR context, pitcher HR risk, and streak signal. This does not reproduce Sweet Spot grades or Zone.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">Ranked by the Daily Slate projected HR score using live matchup probability, Baseball Savant barrel rate/xwOBA, park HR context, pitcher HR risk, and streak signal. This does not reproduce Sweet Spot grades.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>P Tm</th><th>Score</th><th>Tier</th><th>Zone</th><th>HR Prob</th><th>Barrel%</th><th>xwOBA</th><th>ERA</th><th>Park HR%</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>P Tm</th><th>Score</th><th>Tier</th><th>HR Prob</th><th>Barrel%</th><th>xwOBA</th><th>ERA</th><th>Park HR%</th></tr></thead>
       <tbody>
 {chr(10).join(rows)}
       </tbody>
@@ -1656,7 +1641,6 @@ def build_hr_board():
             f'<td>{_conv_cell(c["votes"], 7)}</td>'
             f'<td>{vuln_cell(c["vuln"])}</td>'
             f'<td><strong>{score}</strong></td>'
-            f'<td>{c["r"].get("Zone","—")}</td>'
             f'<td>{c["r"].get("Barrel%","—")}</td>'
             f'<td>{c["sim_hr"]}</td>'
             f'<td>{c["hr_pct"]}</td>'
@@ -1678,7 +1662,7 @@ def build_hr_board():
   <div class="game-body"><div class="game-body-inner">
     <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;"><strong>Consensus</strong> = how many of 7 independent lenses clear their line: Score≥70 · Sim HR%≥15 · HR%≥12 · Vuln≥50 · Park≥+10% · hot streak · BPP API proj HR≥0.15. 🔒 = 6–7. <strong>BPP Match</strong> is a new HR-board tag for calibration only; do not trust it over VulnScore until the HR inversion slice is backtested.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>Conv</th><th>Vuln</th><th>Score</th><th>Zone</th><th>Barrel%</th><th>Sim HR%</th><th>HR%</th><th>RBI%</th><th>Park HR%</th></tr></thead>
+      <thead><tr><th>#</th><th>Batter</th><th>Tm</th><th>vs Pitcher</th><th>Conv</th><th>Vuln</th><th>Score</th><th>Barrel%</th><th>Sim HR%</th><th>HR%</th><th>RBI%</th><th>Park HR%</th></tr></thead>
       <tbody>
 {table_body}
       </tbody>
@@ -3526,7 +3510,7 @@ def build_sp_vuln():
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
-    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">NEW: leverages <strong>SP_Projections HR + BB</strong> columns. Pitchers ranked by composite vulnerability (HR×2 + BB×0.5 − K×0.3). <strong>Vuln ≥50 = 🔥 HR-stack target</strong>; ≥32 = warm. Danger Batter shows handedness chip + ISO color + ⚡Zone from HR Board.</p>
+    <p style="font-size:13px; color:var(--text-soft); margin-bottom:10px;">NEW: leverages <strong>SP_Projections HR + BB</strong> columns. Pitchers ranked by composite vulnerability (HR×2 + BB×0.5 − K×0.3). <strong>Vuln ≥50 = 🔥 HR-stack target</strong>; ≥32 = warm. Danger Batter shows handedness chip + ISO color.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Pitcher</th><th>Tm</th><th>Opp</th><th>HR/9</th><th>BB</th><th>K</th><th>Vuln</th><th>Top Danger Batter</th></tr></thead>
       <tbody>
@@ -3546,12 +3530,7 @@ if PROJECTED_MODE:
         'headlines':         build_projected_headlines(),
         'park-board':        with_projected_badge(build_park_board(), "Park factors rebuilt from live park/weather context."),
         'games':             with_projected_badge(build_games(), "Game cards rebuilt from live team projections and public schedule data."),
-        'matchup-spotlight': projected_unavailable_section(
-            'matchup-spotlight',
-            'Matchup Spotlight',
-            'Unavailable without workbook',
-            'The Sweet Spot danger-batter grid is workbook-only and cannot be reconstructed honestly.',
-        ),
+        'matchup-spotlight': with_projected_badge(build_matchup_spotlight(), "Pitcher vulnerability and danger bats rebuilt from live BPP projections."),
         'k-board':           with_projected_badge(build_k_board(), "Starter strikeout board rebuilt from live pitcher projections."),
         'hr-board':          build_projected_hr_board(),
         'oo5-board':         build_projected_oo5_board(),
@@ -3566,12 +3545,7 @@ if PROJECTED_MODE:
         'yard-sale':         build_yard_sale(),
         'conviction':        build_conviction(),
         'skip':              build_skip(),
-        'sp-vuln-board':     projected_unavailable_section(
-            'sp-vuln-board',
-            "Pitcher's HR Risk Board",
-            'Unavailable without workbook',
-            'The Sweet Spot pitcher vulnerability and danger-batter columns have no clean Projected Mode source.',
-        ),
+        'sp-vuln-board':     with_projected_badge(build_sp_vuln(), "Pitcher vulnerability rebuilt from live BPP projections."),
     }
 else:
     SECTIONS = {
