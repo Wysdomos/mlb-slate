@@ -1665,7 +1665,7 @@ body.sheet-open #scroll-track{display:none;}
       <div class="icon">💎</div>
       <h3>Quality</h3>
       <p class="one-liner">How good the player is at <em>this</em> stat, right now. Power, K-rate, contact, recent form.</p>
-      <div class="key-num">Look for: <strong>Score 80+</strong>, <strong>ZONE ⚡5+</strong>, <strong>ISO .250+</strong></div>
+      <div class="key-num">Look for: <strong>Score 80+</strong>, <strong>Barrel 12%+</strong>, <strong>xwOBA .350+</strong></div>
     </div>
     <div class="factor-card">
       <div class="icon">🆚</div>
@@ -1791,7 +1791,6 @@ body.sheet-open #scroll-track{display:none;}
     <div class="key-item"><span class="sym">🔺</span><div><div class="label">🔺 Up</div><div class="meaning">Stat too high — bad for pitcher (Hits, HRA).</div></div></div>
     <div class="key-item"><span class="sym">🔻</span><div><div class="label">🔻 Down</div><div class="meaning">Stat too low — bad for pitcher (Outs, QS%).</div></div></div>
     <div class="key-item"><span class="sym">🌋</span><div><div class="label">🌋 Volcano</div><div class="meaning">Park HR% ≥ +25 — HR haven.</div></div></div>
-    <div class="key-item"><span class="sym">⚡</span><div><div class="label">⚡ Zone</div><div class="meaning">Batter heat zone, 1–9 scale.</div></div></div>
     <div class="key-item"><span class="sym">⭐</span><div><div class="label">⭐ Star</div><div class="meaning">Saved pick (Picks Drawer).</div></div></div>
     <div class="key-item"><span class="sym">📖</span><div><div class="label">📖 Glossary</div><div class="meaning">Tap floating icon to open.</div></div></div>
   </div>
@@ -1815,7 +1814,7 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>SKIP</strong></td><td>Do-not-play designation</td><td>Daily Skip List. Triggered by no projection, K&lt;3.5, park HR ≤ -17%, or vuln &lt; 35.</td></tr>
       <tr><td><strong>DOWNGRADE</strong></td><td>Play exists but lower confidence</td><td>Daily Skip List. Park HR -10 to -16%, or weather-suppressed environment.</td></tr>
       <tr><td><strong>ANCHOR</strong></td><td>T0 lead leg in a parlay</td><td>Parlay Anchors. Build other legs around the anchor.</td></tr>
-      <tr><td><strong>Score</strong> (0–100)</td><td>Sweet Spot composite HR score</td><td>Sweet Spot Analyzer. 80+ T0 row, 70+ T1 row, 60+ floor.</td></tr>
+      <tr><td><strong>Score</strong> (0–100)</td><td>Daily Slate composite HR score</td><td>BallparkPal + Savant. 80+ T0 row, 70+ T1 row, 60+ floor.</td></tr>
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Handedness Chips</td></tr>
       <tr><td><strong><span style="color:#3b82f6;font-weight:600">🔵L</span></strong> (bats / throws)</td><td>Left-handed batter (LHB) or pitcher (LHP)</td><td>Inline next to every player name across HR Board, Hits Board, Pitcher's HR Risk Board, Matchup Spotlight, per-game tables, conviction picks. Source: Player batting &amp; pitching data.</td></tr>
@@ -1823,9 +1822,8 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong><span style="color:#a855f7;font-weight:600">🟣S</span></strong> (bats)</td><td>Switch hitter — bats from both sides</td><td>Always has the platoon edge. Examples on Day 46 slate: Elly De La Cruz, Yandy Díaz.</td></tr>
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Pitcher Quality / Vulnerability</td></tr>
-      <tr><td><strong>SS</strong></td><td>Sweet Spot — internal HR/K projection model</td><td>Quality input. Drives K projections, ISO, Vuln Score.</td></tr>
       <tr><td><strong>BPP</strong></td><td>BallparkPal — Monte Carlo simulation model</td><td>Independent cross-check on HR%, K%, SB%, DK/FD points.</td></tr>
-      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>Sweet Spot. Display: <strong style="color:var(--bad)">V≥50 🔥</strong> = stack target (red bold). <span style="color:var(--hot)">V32–49</span> = warm. <span style="color:var(--text-dim)">V&lt;32</span> = safe (dim).</td></tr>
+      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>BallparkPal (ERA, HR/9, park HR factor, BB rate). Display: <strong style="color:var(--bad)">V≥50 🔥</strong> = stack target (red bold). <span style="color:var(--hot)">V32–49</span> = warm. <span style="color:var(--text-dim)">V&lt;32</span> = safe (dim).</td></tr>
       <tr><td><strong>🔥</strong> (flame emoji)</td><td>Vulnerable / stack target / hot environment</td><td>Auto-appended in Pitcher's HR Risk Board, HR Board, Hits Board when Vuln ≥ 50. Also in headlines flags and combos text.</td></tr>
       <tr><td><strong>Danger #1–3</strong></td><td>Pitcher's three biggest hitting threats today (ISO ranked)</td><td>Matchup Spotlight + Pitcher's HR Risk Board. Formatted as <em>Name · bat-chip · ISO color · ⚡Zone</em>.</td></tr>
       <tr><td><strong>QS%</strong></td><td>Quality Start probability (≥ 6 IP, ≤ 3 ER)</td><td>BPP. ≥ 40% bold; under 25% red flag.</td></tr>
@@ -1834,7 +1832,7 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>K9 / BB9</strong></td><td>Strikeouts / Walks per 9 IP</td><td>Standard. K9 ≥ 10 = elite; BB9 ≤ 2.0 = elite control.</td></tr>
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Batter Quality Inputs</td></tr>
-      <tr><td><strong>⚡ ZONE</strong> (1–10)</td><td>Sweet Spot batter heat zone vs today's pitcher</td><td>Sweet Spot scoring. ⚡7+ = premium. ⚡5–6 = solid. ⚡3 = T0/T1 floor. ⚡&lt;3 = SKIP.</td></tr>
+      <tr><td><strong>HR Prob</strong></td><td>BallparkPal per-game home run probability</td><td>Primary HR Board input. Model output, not a calibrated forward probability.</td></tr>
       <tr><td><strong>ELITE ISO</strong> / ISO .###</td><td>Isolated Power (slugging − batting avg)</td><td>HR floor: ≥ .250 required for T0/T1. Color: <strong style="color:var(--bad)">.280+ red</strong>, <span style="color:var(--hot)">.250–.279 hot</span>, <span style="color:var(--good)">.200–.249 good</span>.</td></tr>
       <tr><td><strong>xwOBA</strong></td><td>Expected weighted on-base average</td><td>Quality-of-contact metric. ≥ .330 = T3 confirmer.</td></tr>
       <tr><td><strong>Barrel%</strong></td><td>Percentage of batted balls hit at "barrel" quality</td><td>Statcast. ≥ 8% = T3 confirmer; ≥12% = elite.</td></tr>
@@ -1853,9 +1851,9 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>O / U</strong></td><td>Over / Under</td><td>Standard prop terminology.</td></tr>
       <tr><td><strong>Ov 0.5 / O 0.5</strong></td><td>Over 0.5 — ≥1 of stat</td><td>Default play for Hits, RBIs, HR, SB, HRR, 2B props.</td></tr>
       <tr><td><strong>Alt K / Best Line</strong></td><td>Alternate strikeout line</td><td><strong>User rule:</strong> SS ≥5 → O 5+; 4.5–4.99 → O 3.5; &lt;4.5 → O 2.5. <strong>Never alt &gt; 5.</strong></td></tr>
-      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>Dimers (market) or Projection model.</td></tr>
-      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥1 hit</td><td>Dimers hit probability model.</td></tr>
-      <tr><td><strong>2+ Hits %</strong></td><td>Probability of ≥2 hits</td><td>Dimers hit probability model.</td></tr>
+      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>BallparkPal projection model.</td></tr>
+      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥1 hit</td><td>BallparkPal hit probability model.</td></tr>
+      <tr><td><strong>2+ Hits %</strong></td><td>Probability of ≥2 hits</td><td>BallparkPal hit probability model.</td></tr>
       <tr><td><strong>HRR / H+R+RBI</strong></td><td>Hits + Runs + RBIs combined prop</td><td>PrizePicks/Underdog style. <strong>Always Ov 0.5</strong> per saved rule.</td></tr>
       <tr><td><strong>SB%</strong></td><td>Stolen Base probability</td><td>Projection model.</td></tr>
       <tr><td><strong>2B Proj</strong></td><td>Projected doubles for player</td><td>Doubles board. Adj by park 2B/3B%. ≥ 0.30 adj = lock tier.</td></tr>
@@ -1888,9 +1886,9 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>🏟</strong> Park Factors Board</td><td>All 15 venues, HR%/Runs%/2B-3B%</td><td>Park factors data.</td></tr>
       <tr><td><strong>🎮</strong> All 15 Game Write-Ups</td><td>Per-game breakdown</td><td>Pitcher tables + Top Bats + bullets.</td></tr>
       <tr><td><strong>🔦</strong> Matchup Spotlight</td><td>28-SP × 3-Danger-Batter grid</td><td>EDGE + Danger #1–3 with ISO.</td></tr>
-      <tr><td><strong>⚡</strong> Full K's Tier Board</td><td>K-prop tier table</td><td>Sweet Spot Ks + Model Ks, Outs, Hits, ERA, QS%, HRA, Vuln, Best Line.</td></tr>
+      <tr><td><strong>⚡</strong> Full K's Tier Board</td><td>K-prop tier table</td><td>Model Ks, Outs, Hits, ERA, QS%, HRA, Vuln, Best Line.</td></tr>
       <tr><td><strong>☢️</strong> Pitcher's HR Risk Board</td><td>Stack-target board</td><td>15 SPs ranked by HR×2 + BB×0.5 − K×0.3 composite.</td></tr>
-      <tr><td><strong>🏆</strong> Top 25 HR Board</td><td>HR scoring board top 25</td><td>Score + Zone + Barrel + Park.</td></tr>
+      <tr><td><strong>🏆</strong> Top 25 HR Board</td><td>HR scoring board top 25</td><td>Score + HR Prob + Barrel + Park.</td></tr>
       <tr><td><strong>☄️</strong> Top 50 Hits Board</td><td>Hit probability model sorted by 1+H%</td><td>Default Ov 0.5 hits play.</td></tr>
       <tr><td><strong>📈</strong> Game Totals &amp; F5 Board</td><td>15 games by projected total</td><td>OVER / UNDER leans.</td></tr>
       <tr><td><strong>🥶</strong> NRFI / YRFI Watch</td><td>First-inning runs leans</td><td>Combined starter HR/9 + K heuristic.</td></tr>
@@ -1918,12 +1916,12 @@ body.sheet-open #scroll-track{display:none;}
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table class="matrix-table">
-    <thead><tr><th>Tier</th><th>SS Score</th><th>⚡ Zone</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Tier</th><th>Score</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
     <tbody>
-      <tr><td><strong>T0</strong></td><td>≥75</td><td>≥7⚡</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
-      <tr><td><strong>T1</strong></td><td>65–74</td><td>5–6⚡</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
-      <tr><td><strong>T2</strong></td><td>50–64</td><td>3–4⚡</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
-      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;3</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
+      <tr><td><strong>T0</strong></td><td>≥75</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
+      <tr><td><strong>T1</strong></td><td>65–74</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
+      <tr><td><strong>T2</strong></td><td>50–64</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
+      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
     </tbody>
   </table></div>
   <div class="tldr-box"><h4>Aug 31 Park Summary</h4><p><strong>12-game Monday card (Day 157).</strong> HR Volcano(s): <strong>Wrigley Field +47% HR</strong> (MIL @ CHC). HR Boosters: Great American Ball Park +17% (SD @ CIN), Truist Park +12% (SF @ ATL), Nationals Park +9% (MIA @ WSH), Daikin Park +7% (CHW @ HOU), Coors Field +7% (BAL @ COL). HR Suppressed: Globe Life Field -12% (ATH @ TEX) -- fade HR alts here.</p></div>
