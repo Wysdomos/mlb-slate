@@ -1911,19 +1911,19 @@ body.sheet-open #scroll-track{display:none;}
 <section id="alignment" class="collapsible" data-no-picks>
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">📊 Projected Mode Alignment</div>
-      <span class="game-tag">Tap to expand - reconstructed board boundaries</span>
+      <div class="game-title">How to read a board</div>
+      <span class="game-tag">Tap to expand - tier thresholds + Aug 31 park notes</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table class="matrix-table">
-    <thead><tr><th>Tier</th><th>Score</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Tier</th><th>Score</th><th>Meaning</th><th>Typical use</th></tr></thead>
     <tbody>
-      <tr><td><strong>T0</strong></td><td>≥75</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
-      <tr><td><strong>T1</strong></td><td>65–74</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
-      <tr><td><strong>T2</strong></td><td>50–64</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
-      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
+      <tr><td><strong>T0</strong></td><td>&gt;=78</td><td>Strongest model score on the board</td><td>HR, TB 2+</td></tr>
+      <tr><td><strong>T1</strong></td><td>66-77</td><td>Solid score, secondary anchor</td><td>HR alt, 2+ TB</td></tr>
+      <tr><td><strong>T2</strong></td><td>54-65</td><td>Playable, lower conviction</td><td>1+ Hit, RBI alt</td></tr>
+      <tr><td><strong>T3</strong></td><td>&lt;54</td><td>Below the model's action threshold</td><td>--</td></tr>
     </tbody>
   </table></div>
   <div class="tldr-box"><h4>Aug 31 Park Summary</h4><p><strong>12-game Monday card (Day 157).</strong> HR Volcano(s): <strong>Wrigley Field +47% HR</strong> (MIL @ CHC). HR Boosters: Great American Ball Park +17% (SD @ CIN), Truist Park +12% (SF @ ATL), Nationals Park +9% (MIA @ WSH), Daikin Park +7% (CHW @ HOU), Coors Field +7% (BAL @ COL). HR Suppressed: Globe Life Field -12% (ATH @ TEX) -- fade HR alts here.</p></div>
@@ -1937,11 +1937,6 @@ body.sheet-open #scroll-track{display:none;}
 <div class="flag-row"><div class="icon">🌋</div><div><strong>Wrigley Field</strong> leads park HR context at <strong>+47%</strong> for MIL @ CHC.</div></div><div class="flag-row"><div class="icon">⚡</div><div><strong>Payton Tolle</strong> leads the K board at <strong>7.53</strong> projected strikeouts, mapped to <strong>O 5+</strong>.</div></div><div class="flag-row"><div class="icon">🥶</div><div><strong>Globe Life Field -12%</strong> are the slate HR fade parks; downgrade HR props in those environments.</div></div><div class="flag-row"><div class="icon">📋</div><div><strong>Skip arms / downgrades:</strong> Anthony Molina K 2.86, Will Dion K 3.01, Brandon Pfaadt K 3.06, Robert Stock K 3.17. These stay below the K board threshold or trip the short-leash rule.</div></div>
   <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
     <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
-  </div>
-  <div style="text-align:center;margin-top:14px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:10px;">
-    <a href="scout.html" style="color:#FFD700;font-weight:700;text-decoration:none;font-size:14px;">⚡ SSJ (The Zone) — Matchup Intelligence →</a>
-    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;">Zone scores · DANGER tags · platoon · projections · Fusion parlays</div>
-    <div style="font-size:11px;color:var(--warn);margin-top:4px;">Projected Mode: opens the workbook-only unavailable page.</div>
   </div>
   <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
 
@@ -2726,7 +2721,6 @@ body.sheet-open #scroll-track{display:none;}
   <button class="dock-btn" id="dockBoards"><span class="di">🗂</span><span class="dl">BOARDS</span></button>
   <a class="dock-btn" href="k-report.html"><span class="di">📰</span><span class="dl">K REPORT</span></a>
   <a class="dock-btn" href="streaks.html"><span class="di">🔥</span><span class="dl">STREAKS</span></a>
-  <a class="dock-btn" href="scout.html"><span class="di">⚡</span><span class="dl">SSJ</span></a>
   <button class="dock-btn" id="dockPicks"><span class="di">⭐</span><span class="dl">PICKS</span><span class="dock-badge hidden" id="picksCount">0</span></button>
   <button class="dock-btn" id="dockMore"><span class="di">⋯</span><span class="dl">MORE</span></button>
 </nav>
@@ -2835,7 +2829,6 @@ body.sheet-open #scroll-track{display:none;}
   <div class="sheet-head"><h3>⋯ MORE</h3><button class="sheet-close" data-close aria-label="Close">✕</button></div>
   <div class="sheet-body">
     <div class="more-list">
-      <a class="more-row" href="scout.html"><span class="mi">⚡</span> SSJ (The Zone) — Matchup Intelligence <span class="arrow">›</span></a>
       <a class="more-row" href="streaks.html"><span class="mi">🔥</span> Hot Streaks <span class="arrow">›</span></a>
       <a class="more-row" href="k-report.html"><span class="mi">📰</span> Safe K Report <span class="arrow">›</span></a>
       <a class="more-row" href="record.html"><span class="mi">💿</span> For The Record <span class="arrow">›</span></a>
