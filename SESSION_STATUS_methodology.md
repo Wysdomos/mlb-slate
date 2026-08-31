@@ -187,3 +187,45 @@ rendered, 390px:  head = [Tier, Score, Vuln, Park, Best Line, Verdict]
 This supersedes the earlier (a)/(c) evidence where the glossary showed three
 new rows and the alignment table a 7th, dashed column. Zone re-grep is
 unaffected: still the same 9 deferred mentions, none of these edits touch them.
+
+## Addendum 2 — stale vendor attributions corrected in the glossary
+
+Seven assert-guarded edits, `index.html` only, source/description text only —
+every threshold, number and tier label byte-identical (verified: `80+ T0 row,
+70+ T1 row, 60+ floor`, `V≥50 🔥`, `V32–49`, `V&lt;32` all intact):
+
+```text
+applied 7: ['Score row', 'SS row delete', 'Vuln row source', 'HR% row',
+            '1+ Hit % row', '2+ Hits % row', 'K board row']
+bytes 269,102 -> 268,971 (delta -131)
+```
+
+The Score row now reads "Daily Slate composite HR score / BallparkPal +
+Savant", the SS row is gone, Vuln is sourced to "BallparkPal (ERA, HR/9, park
+HR factor, BB rate)", the three probability rows to BallparkPal models, and
+the K board row drops "Sweet Spot Ks + ". The two hit rows shared an identical
+source cell, so both were anchored on their full row text.
+
+### The check, corrected against reality
+
+The dispatch expected zero "Sweet Spot"/"Dimers" hits outside the SSJ links at
+~1940/1941/2882. **Those links contain neither term** — they say "SSJ (The
+Zone)". The glossary and every other hand-maintained block are now clean; the
+actual remainder is four lines, none resolvable inside this dispatch:
+
+```text
+line 1608  banner        sync.py-generated, re-stamped every build; an
+                         index.html edit would silently revert on the next run
+line 1650  method-intro  same — the source string lives in sync.py (PR 3/4)
+line 2252  HR board      build_day46.py-generated section body ("does not
+           explainer     reproduce Sweet Spot grades or Zone") — PR 3
+line 2691  tip-jar       editorial: "…BallparkPal, Dimers, Sweet Spot data
+           pitch         feeds, hosting…" — a factual claim about what the
+                         owner pays for; whether Dimers/Sweet Spot are still
+                         paid feeds is an owner decision, not a find/replace
+```
+
+Reported rather than guessed, per the dispatch. The first three go away when
+PR 3/4 touch their generating .py files; the tip-jar line needs a one-word
+answer from the owner.
+

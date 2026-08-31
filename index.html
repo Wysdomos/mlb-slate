@@ -1814,7 +1814,7 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>SKIP</strong></td><td>Do-not-play designation</td><td>Daily Skip List. Triggered by no projection, K&lt;3.5, park HR ≤ -17%, or vuln &lt; 35.</td></tr>
       <tr><td><strong>DOWNGRADE</strong></td><td>Play exists but lower confidence</td><td>Daily Skip List. Park HR -10 to -16%, or weather-suppressed environment.</td></tr>
       <tr><td><strong>ANCHOR</strong></td><td>T0 lead leg in a parlay</td><td>Parlay Anchors. Build other legs around the anchor.</td></tr>
-      <tr><td><strong>Score</strong> (0–100)</td><td>Sweet Spot composite HR score</td><td>Sweet Spot Analyzer. 80+ T0 row, 70+ T1 row, 60+ floor.</td></tr>
+      <tr><td><strong>Score</strong> (0–100)</td><td>Daily Slate composite HR score</td><td>BallparkPal + Savant. 80+ T0 row, 70+ T1 row, 60+ floor.</td></tr>
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Handedness Chips</td></tr>
       <tr><td><strong><span style="color:#3b82f6;font-weight:600">🔵L</span></strong> (bats / throws)</td><td>Left-handed batter (LHB) or pitcher (LHP)</td><td>Inline next to every player name across HR Board, Hits Board, Pitcher's HR Risk Board, Matchup Spotlight, per-game tables, conviction picks. Source: Player batting &amp; pitching data.</td></tr>
@@ -1822,9 +1822,8 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong><span style="color:#a855f7;font-weight:600">🟣S</span></strong> (bats)</td><td>Switch hitter — bats from both sides</td><td>Always has the platoon edge. Examples on Day 46 slate: Elly De La Cruz, Yandy Díaz.</td></tr>
 
       <tr><td colspan="3" style="background:var(--glass); color:var(--text); padding:8px 10px; font-weight:700; font-size:12px; letter-spacing:0.5px; text-transform:uppercase;">Pitcher Quality / Vulnerability</td></tr>
-      <tr><td><strong>SS</strong></td><td>Sweet Spot — internal HR/K projection model</td><td>Quality input. Drives K projections, ISO, Vuln Score.</td></tr>
       <tr><td><strong>BPP</strong></td><td>BallparkPal — Monte Carlo simulation model</td><td>Independent cross-check on HR%, K%, SB%, DK/FD points.</td></tr>
-      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>Sweet Spot. Display: <strong style="color:var(--bad)">V≥50 🔥</strong> = stack target (red bold). <span style="color:var(--hot)">V32–49</span> = warm. <span style="color:var(--text-dim)">V&lt;32</span> = safe (dim).</td></tr>
+      <tr><td><strong>Vuln</strong> (V##)</td><td>Pitcher Vulnerability score 0–100</td><td>BallparkPal (ERA, HR/9, park HR factor, BB rate). Display: <strong style="color:var(--bad)">V≥50 🔥</strong> = stack target (red bold). <span style="color:var(--hot)">V32–49</span> = warm. <span style="color:var(--text-dim)">V&lt;32</span> = safe (dim).</td></tr>
       <tr><td><strong>🔥</strong> (flame emoji)</td><td>Vulnerable / stack target / hot environment</td><td>Auto-appended in Pitcher's HR Risk Board, HR Board, Hits Board when Vuln ≥ 50. Also in headlines flags and combos text.</td></tr>
       <tr><td><strong>Danger #1–3</strong></td><td>Pitcher's three biggest hitting threats today (ISO ranked)</td><td>Matchup Spotlight + Pitcher's HR Risk Board. Formatted as <em>Name · bat-chip · ISO color · ⚡Zone</em>.</td></tr>
       <tr><td><strong>QS%</strong></td><td>Quality Start probability (≥ 6 IP, ≤ 3 ER)</td><td>BPP. ≥ 40% bold; under 25% red flag.</td></tr>
@@ -1852,9 +1851,9 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>O / U</strong></td><td>Over / Under</td><td>Standard prop terminology.</td></tr>
       <tr><td><strong>Ov 0.5 / O 0.5</strong></td><td>Over 0.5 — ≥1 of stat</td><td>Default play for Hits, RBIs, HR, SB, HRR, 2B props.</td></tr>
       <tr><td><strong>Alt K / Best Line</strong></td><td>Alternate strikeout line</td><td><strong>User rule:</strong> SS ≥5 → O 5+; 4.5–4.99 → O 3.5; &lt;4.5 → O 2.5. <strong>Never alt &gt; 5.</strong></td></tr>
-      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>Dimers (market) or Projection model.</td></tr>
-      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥1 hit</td><td>Dimers hit probability model.</td></tr>
-      <tr><td><strong>2+ Hits %</strong></td><td>Probability of ≥2 hits</td><td>Dimers hit probability model.</td></tr>
+      <tr><td><strong>HR%</strong></td><td>Probability of a home run</td><td>BallparkPal projection model.</td></tr>
+      <tr><td><strong>1+ Hit %</strong></td><td>Probability of ≥1 hit</td><td>BallparkPal hit probability model.</td></tr>
+      <tr><td><strong>2+ Hits %</strong></td><td>Probability of ≥2 hits</td><td>BallparkPal hit probability model.</td></tr>
       <tr><td><strong>HRR / H+R+RBI</strong></td><td>Hits + Runs + RBIs combined prop</td><td>PrizePicks/Underdog style. <strong>Always Ov 0.5</strong> per saved rule.</td></tr>
       <tr><td><strong>SB%</strong></td><td>Stolen Base probability</td><td>Projection model.</td></tr>
       <tr><td><strong>2B Proj</strong></td><td>Projected doubles for player</td><td>Doubles board. Adj by park 2B/3B%. ≥ 0.30 adj = lock tier.</td></tr>
@@ -1887,7 +1886,7 @@ body.sheet-open #scroll-track{display:none;}
       <tr><td><strong>🏟</strong> Park Factors Board</td><td>All 15 venues, HR%/Runs%/2B-3B%</td><td>Park factors data.</td></tr>
       <tr><td><strong>🎮</strong> All 15 Game Write-Ups</td><td>Per-game breakdown</td><td>Pitcher tables + Top Bats + bullets.</td></tr>
       <tr><td><strong>🔦</strong> Matchup Spotlight</td><td>28-SP × 3-Danger-Batter grid</td><td>EDGE + Danger #1–3 with ISO.</td></tr>
-      <tr><td><strong>⚡</strong> Full K's Tier Board</td><td>K-prop tier table</td><td>Sweet Spot Ks + Model Ks, Outs, Hits, ERA, QS%, HRA, Vuln, Best Line.</td></tr>
+      <tr><td><strong>⚡</strong> Full K's Tier Board</td><td>K-prop tier table</td><td>Model Ks, Outs, Hits, ERA, QS%, HRA, Vuln, Best Line.</td></tr>
       <tr><td><strong>☢️</strong> Pitcher's HR Risk Board</td><td>Stack-target board</td><td>15 SPs ranked by HR×2 + BB×0.5 − K×0.3 composite.</td></tr>
       <tr><td><strong>🏆</strong> Top 25 HR Board</td><td>HR scoring board top 25</td><td>Score + HR Prob + Barrel + Park.</td></tr>
       <tr><td><strong>☄️</strong> Top 50 Hits Board</td><td>Hit probability model sorted by 1+H%</td><td>Default Ov 0.5 hits play.</td></tr>
