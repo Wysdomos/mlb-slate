@@ -439,8 +439,8 @@ def grade():
         'market_detail': market_detail,
         'k_buckets': [],  # filled when API grading runs
         'hr_buckets': hr_buckets,
-        'hr_insight': ('multi-lens bats homer above the field rate; zero-lens bats lag. '
-                       'Agreement is the edge — and it sharpens as more days are graded.'),
+        'hr_insight': ('not enough graded days yet to compare lens buckets; check back as '
+                       'the sample builds.'),
         'trend': trend, 'trend_labels': tlabels,
         'grades': grades, 'history': hist,
     }
