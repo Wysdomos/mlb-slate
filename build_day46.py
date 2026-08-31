@@ -70,7 +70,9 @@ SP_BY_TEAM = {r['Team'].strip(): r for r in SP_PROJ if r.get('Team')}
 SP_BY_NAME = {r['Pitcher'].strip().lower(): r for r in SP_PROJ if r.get('Pitcher')}
 
 SS = DATA['Sweet_Spot_Slate']  # pitcher vulnerability scores
-SS_BY_NAME = {r['Pitcher'].strip().lower(): r for r in SS if r.get('Pitcher') and r['Pitcher'] != 'TBD'}
+from build_vuln import vuln_by_name
+SS_BY_NAME = vuln_by_name(DATA)
+SS = list(SS_BY_NAME.values())
 
 BP_PIT = DATA['BP_Pitchers']
 BP_PIT_BY_NAME = {(r.get('FullName') or '').strip().lower(): r for r in BP_PIT}
@@ -3546,12 +3548,7 @@ if PROJECTED_MODE:
         'headlines':         build_projected_headlines(),
         'park-board':        with_projected_badge(build_park_board(), "Park factors rebuilt from live park/weather context."),
         'games':             with_projected_badge(build_games(), "Game cards rebuilt from live team projections and public schedule data."),
-        'matchup-spotlight': projected_unavailable_section(
-            'matchup-spotlight',
-            'Matchup Spotlight',
-            'Unavailable without workbook',
-            'The Sweet Spot danger-batter grid is workbook-only and cannot be reconstructed honestly.',
-        ),
+        'matchup-spotlight': with_projected_badge(build_matchup_spotlight(), "Pitcher vulnerability and danger bats rebuilt from live BPP projections."),
         'k-board':           with_projected_badge(build_k_board(), "Starter strikeout board rebuilt from live pitcher projections."),
         'hr-board':          build_projected_hr_board(),
         'oo5-board':         build_projected_oo5_board(),
@@ -3566,12 +3563,7 @@ if PROJECTED_MODE:
         'yard-sale':         build_yard_sale(),
         'conviction':        build_conviction(),
         'skip':              build_skip(),
-        'sp-vuln-board':     projected_unavailable_section(
-            'sp-vuln-board',
-            "Pitcher's HR Risk Board",
-            'Unavailable without workbook',
-            'The Sweet Spot pitcher vulnerability and danger-batter columns have no clean Projected Mode source.',
-        ),
+        'sp-vuln-board':     with_projected_badge(build_sp_vuln(), "Pitcher vulnerability rebuilt from live BPP projections."),
     }
 else:
     SECTIONS = {
