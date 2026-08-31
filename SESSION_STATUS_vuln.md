@@ -1,14 +1,15 @@
 # SESSION_STATUS_vuln.md
 
 Branch: `feat/vuln-from-bpp`
-Base: `origin/main` at `d8daa75`
+Base: `origin/main` at `f464a4f` after rebase over PR #49
 PR: not opened by Codex
 
 ## Commit SHAs
 
-- Commit 1, `build_vuln.py`: `47d31f6`
-- Commit 2, `build_day46.py` wiring: `f604cd9`
-- Commit 3, tests + report: this report commit; final SHA is self-referential and is confirmed by `git log` / final response after push
+- Commit 1, `build_vuln.py`: `d7b1943`
+- Commit 2, `build_day46.py` wiring: `9a0b43d`
+- Commit 3, tests + report: `7446aa7`
+- Commit 4, Zone column removal: appended after rebase; final SHA confirmed by `git log` / final response after push
 
 ## Summary
 
@@ -167,3 +168,81 @@ BPP compliance OK (0 changed JSON/HTML files checked against d8daa754bf4e)
 - Did not touch CSS tokens
 - Did not delete `MLB Slate 7-29-26.xlsx`
 - `get_vuln_for_pitcher()` and `vuln_cell()` unchanged
+
+## Rebase Over PR #49
+
+Command:
+
+```bash
+git fetch origin
+git rebase origin/main
+```
+
+Output:
+
+```text
+Rebasing (1/3)
+Rebasing (2/3)
+Rebasing (3/3)
+Successfully rebased and updated refs/heads/feat/vuln-from-bpp.
+```
+
+Diff shape after rebase:
+
+```bash
+git diff origin/main..HEAD --stat
+```
+
+Output:
+
+```text
+ SESSION_STATUS_vuln.md            |  169 ++++++
+ build_day46.py                    |   18 +-
+ build_vuln.py                     |  271 +++++++++
+ tests/fixtures/vuln_2026_07_29.py | 1188 +++++++++++++++++++++++++++++++++++++
+ tests/test_build_vuln.py          |  135 +++++
+ 5 files changed, 1768 insertions(+), 13 deletions(-)
+```
+
+`sync.py` PR #49 copy check:
+
+```text
+live-copy-present True
+old-projected-copy-absent True
+```
+
+No `sync.py`, `SESSION_STATUS_copy.md`, or `docs/projected-copy/*.png` files appear in this branch diff.
+
+## Commit 4: Zone Column Removal
+
+Removed the deferred HR-board Zone display from `build_day46.py`:
+
+- Deleted the projected HR board `Zone` column and cells
+- Deleted the workbook HR board `Zone` column and cells
+- Deleted the now-unused `zone_for_batter()` helper
+- Removed Zone chips from danger-batter formatting
+- Removed Zone wording from the SP vulnerability board copy
+
+Post-edit checks:
+
+```bash
+git grep -n "Zone\|zone" -- build_day46.py
+```
+
+Output: no matches.
+
+Temp build:
+
+```bash
+DATA_FILE=day_data.json SECTIONS_FILE=/tmp/vuln_zone_sections.json K_REPORT_FILE=/tmp/vuln_zone_k_report.html STREAKS_FILE=/tmp/vuln_zone_streaks.html HOT_STREAKS_FILE=/tmp/vuln_zone_hot_streaks.json python3 build.py
+```
+
+Output excerpt:
+
+```text
+Built 19 sections
+  hr-board: 17156 bytes
+  matchup-spotlight: 29879 bytes
+  sp-vuln-board: 11235 bytes
+Pipeline complete. Sections -> /tmp/vuln_zone_sections.json, K Report -> /tmp/vuln_zone_k_report.html, Streaks -> /tmp/vuln_zone_streaks.html
+```
