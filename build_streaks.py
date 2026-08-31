@@ -469,7 +469,6 @@ def render_html(streaks, today, slate_label=''):
 .page-fab:active{{transform:scale(0.92);}}
 .fab-home{{bottom:80px;background:rgba(30,40,60,.92);}}
 .fab-kreport{{bottom:138px;background:linear-gradient(135deg,#0a84ff,#0040dd);}}
-.fab-ssj{{bottom:196px;background:linear-gradient(135deg,#b8860b,#ffd700);}}
 .collapse-tag{{margin-left:auto;color:#4ade80;font-size:11px;font-weight:700;border:1px solid #4ade8055;background:#4ade8015;border-radius:6px;padding:2px 8px}}
 .collapse-tag::after{{content:"expand ▼"}}
 .streak-guide[open] .collapse-tag::after{{content:"collapse ▲"}}
@@ -598,7 +597,6 @@ function filter(type,btn){{
 <button class="theme-toggle-fab" id="themeToggle" aria-label="Toggle theme">🌙</button>
 <a class="page-fab fab-home" href="index.html" title="Daily Slate">⚾️</a>
 <a class="page-fab fab-kreport" href="k-report.html" title="Safe K Report">📰</a>
-<a class="page-fab" href="scout.html" title="SSJ The Zone" style="bottom:196px;background:linear-gradient(135deg,#b8860b,#ffd700);">⚡</a>
 </body>
 </html>'''
 

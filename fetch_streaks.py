@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-fetch_streaks.py  --  builds streaks.json for the SSJ (scout) page.
+fetch_streaks.py  --  builds streaks.json for streak analysis.
 
 Streak sources, in priority order:
   1. balldontlie MLB API   (/mlb/v1/games + /mlb/v1/stats)   [needs BDL_KEY]

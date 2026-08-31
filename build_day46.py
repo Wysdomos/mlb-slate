@@ -495,20 +495,9 @@ def format_danger_batter(s):
 
 # ---- BUILD: HEADLINES ----
 def headline_footer_links():
-    projected_zone_note = (
-        '<div style="font-size:11px;color:var(--warn);margin-top:4px;">'
-        'Projected Mode: opens the workbook-only unavailable page.'
-        '</div>'
-        if PROJECTED_MODE else ''
-    )
     return f'''
   <div style="text-align:center;margin-top:16px;padding:12px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;">
     <a href="streaks.html" style="color:#f87171;font-weight:700;text-decoration:none;font-size:14px;">🔥 See Today's Hot Streaks →</a>
-  </div>
-  <div style="text-align:center;margin-top:14px;padding:12px 14px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.18);border-radius:10px;">
-    <a href="scout.html" style="color:#FFD700;font-weight:700;text-decoration:none;font-size:14px;">⚡ SSJ (The Zone) — Matchup Intelligence →</a>
-    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;">Zone scores · DANGER tags · platoon · projections · Fusion parlays</div>
-    {projected_zone_note}
   </div>
   <div class="flag-row" style="margin-top:14px;"><div class="icon">💿</div><div><strong>For The Record — yesterday's calls, graded.</strong> Every HR, K, Hits and Totals pick scored against the official box score and bucketed by Consensus. Wins and losses both stay on the board. <a href="record.html" style="color:#35d6e8;font-weight:700;text-decoration:none;">See how they graded →</a></div></div>
 '''
