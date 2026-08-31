@@ -5,14 +5,15 @@ on:
     paths:
       - '**.xlsx'
   schedule:
-    - cron: '0 7 * * *'
-    - cron: '0 13 * * *'
-    - cron: '0 16 * * *'
-    - cron: '0 19 * * *'
-    - cron: '0 21 * * *'
-    - cron: '0 23 * * *'
-    - cron: '0 1 * * *'
-    - cron: '0 3 * * *'
+    # Cron times are UTC; Eastern Time labels shift one hour during DST.
+    - cron: '0 7 * * *'    # 3:00 AM ET - new slate, overnight grading
+    - cron: '0 13 * * *'   # 9:00 AM ET - BPP posts the day's sims
+    - cron: '0 16 * * *'   # 12:00 PM ET - day-game lineups
+    - cron: '0 19 * * *'   # 3:00 PM ET - early lineup window
+    - cron: '0 21 * * *'   # 5:00 PM ET - final pre-lock, 6:40/7:05 games
+    - cron: '0 23 * * *'   # 7:00 PM ET - early games lock
+    - cron: '0 1 * * *'    # 9:00 PM ET - West Coast 9:40 lineups
+    - cron: '0 3 * * *'    # 11:00 PM ET - last call
   workflow_dispatch:
 
 concurrency:
@@ -44,9 +45,12 @@ jobs:
           ALLOW_PROJECTED_MODE: '1'
         run: |
           XLSX=$(python3 extract_xlsx.py --which || echo "")
-          if [ -z "$XLSX" ]; then echo "No workbook - BPP-only build"; fi
+          if [ -z "$XLSX" ]; then
+            echo "No workbook - BPP-only build"
+          else
+            echo "Using newest slate by date: $XLSX"
+          fi
           echo "XLSX_FILE=$XLSX" >> $GITHUB_ENV
-          echo "Using newest slate by date: $XLSX"
 
       - name: Extract slate data
         env:
