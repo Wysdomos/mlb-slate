@@ -533,13 +533,12 @@ def apply_projected_theme(html):
         html,
     )
     html = re.sub(r'\n?<div class="projected-mode-banner">[\s\S]*?</div>\s*', '\n', html)
+    html = html.replace('</style>', PROJECTED_CSS + '\n</style>', 1)
+    html = re.sub(r'<body(?: class="[^"]*")?>', '<body class="projected-mode">', html, count=1)
     if not PROJECTED_MODE:
-        html = re.sub(r'<body class="projected-mode">', '<body>', html, count=1)
         html = html.replace(projected_alignment_title, workbook_alignment_title)
         html = html.replace(projected_alignment_tag, workbook_alignment_tag)
         return html
-    html = html.replace('</style>', PROJECTED_CSS + '\n</style>', 1)
-    html = re.sub(r'<body(?: class="[^"]*")?>', '<body class="projected-mode">', html, count=1)
     html = html.replace(workbook_alignment_title, projected_alignment_title)
     html = html.replace(workbook_alignment_tag, projected_alignment_tag)
 
