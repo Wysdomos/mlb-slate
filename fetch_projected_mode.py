@@ -645,12 +645,12 @@ def projected_hr_score(
 
 def projected_grade(score: int) -> str:
     if score >= 78:
-        return "PRIME"
+        return "T0"
     if score >= 66:
-        return "CORE"
+        return "T1"
     if score >= 54:
-        return "LIVE"
-    return "WATCH"
+        return "T2"
+    return "T3"
 
 
 def streak_label(row: Mapping[str, Any]) -> str:
