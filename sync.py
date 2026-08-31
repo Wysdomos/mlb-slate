@@ -86,11 +86,11 @@ def build_park_summary():
 def build_method_intro():
     if PROJECTED_MODE:
         return (
-            f'<strong>Projected Mode is active for Day {day_num} ({month_short} {day_of_mo}).</strong> '
-            'No workbook was uploaded, so the page is rebuilt from live BallparkPal projections, '
-            'MLB schedule data, live streaks, and Baseball Savant contact metrics. '
-            'Reconstructed boards carry a Projected Mode badge. Workbook-only Sweet Spot, Dimers, '
-            'Best Spots, and Zone signals are withheld rather than approximated.'
+            f'<strong>Day {day_num} ({month_short} {day_of_mo}).</strong> '
+            'Every board is built from live BallparkPal game simulations, '
+            'Baseball Savant contact metrics, and MLB Stats API schedule, '
+            'lineup, and streak data, and rebuilt several times a day as '
+            'lineups and weather firm up.'
         )
     parks = DATA.get('Park_Factors', [])
     ranked = sorted(parks, key=lambda p: parse_hr_pct(p.get('HR %')), reverse=True)
@@ -178,7 +178,7 @@ html = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="o
 html = re.sub(r'<meta name="twitter:title" content="[^"]*">', f'<meta name="twitter:title" content="The Daily Slate -- {month_short} {day_of_mo} Day {day_num}">', html)
 html = re.sub(r'<h1>\u26be[^<]*</h1>', f'<h1>\u26be {month_short} {day_of_mo} -- {weekday} Slate</h1>', html)
 subtitle = (
-    f'{game_count} Games - Day {day_num} - Projected Mode'
+    f'{game_count} Games - Day {day_num}'
     if PROJECTED_MODE
     else f'{game_count} Games - Day {day_num} - Sweet Spot + Park Factors'
 )
@@ -583,15 +583,17 @@ def apply_projected_theme(html):
         '</div>'
     ) if n else ''
 
+    # BPP is the normal data source now, so the page does not announce a mode.
+    # The withheld disclosure still rides inside the banner div so missing
+    # boards stay visible; with nothing withheld the div is dropped and only
+    # the CHROME markers remain -- the strip regex above depends on them.
     banner = (
         '<!-- PROJECTED CHROME START -->'
-        '<div class="projected-mode-banner">'
-        '⚡ PROJECTED MODE — no workbook uploaded. Boards are built from BallparkPal + Baseball Savant. '
-        'Rankings are model-derived; Sweet Spot / Dimers boards and some columns are unavailable today.'
-        '<small>Upload the workbook to restore the full slate and Zone/Sweet Spot surfaces.</small>'
-        + disclosure +
-        '</div>'
-        '<!-- PROJECTED CHROME END -->\n'
+        + (
+            '<div class="projected-mode-banner">' + disclosure + '</div>'
+            if disclosure else ''
+        )
+        + '<!-- PROJECTED CHROME END -->\n'
     )
     html = html.replace('<body class="projected-mode">', '<body class="projected-mode">' + banner, 1)
     return html.replace('</body>', PROJECTED_JS + '\n</body>', 1)
