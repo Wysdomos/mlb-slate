@@ -1911,19 +1911,19 @@ body.sheet-open #scroll-track{display:none;}
 <section id="alignment" class="collapsible" data-no-picks>
   <button class="game-header" aria-expanded="false">
     <div class="game-header-text">
-      <div class="game-title">📊 Projected Mode Alignment</div>
-      <span class="game-tag">Tap to expand - reconstructed board boundaries</span>
+      <div class="game-title">How to read a board</div>
+      <span class="game-tag">Tap to expand - tier thresholds + Aug 31 park notes</span>
     </div>
     <span class="chevron">▾</span>
   </button>
   <div class="game-body"><div class="game-body-inner">
   <div class="table-wrap"><table class="matrix-table">
-    <thead><tr><th>Tier</th><th>Score</th><th>Vuln</th><th>Park</th><th>Best Line</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Tier</th><th>Score</th><th>Meaning</th><th>Typical use</th></tr></thead>
     <tbody>
-      <tr><td><strong>T0</strong></td><td>≥75</td><td>≥60</td><td>≥0</td><td>HR · TB 2+ · SB combo</td><td class="verdict v-play">ANCHOR — max unit</td></tr>
-      <tr><td><strong>T1</strong></td><td>65–74</td><td>45–69</td><td>≥-5%</td><td>HR alt · 2+ TB</td><td class="verdict v-play">PLAY — standard unit</td></tr>
-      <tr><td><strong>T2</strong></td><td>50–64</td><td>35–49</td><td>any</td><td>1+ Hit · RBI alt</td><td class="verdict v-value">VALUE — half unit</td></tr>
-      <tr><td><strong>SKIP</strong></td><td>&lt;50</td><td>&lt;35</td><td>≤-15%</td><td>—</td><td class="verdict v-skip">PASS — park kills edge</td></tr>
+      <tr><td><strong>T0</strong></td><td>&gt;=78</td><td>Strongest model score on the board</td><td>HR, TB 2+</td></tr>
+      <tr><td><strong>T1</strong></td><td>66-77</td><td>Solid score, secondary anchor</td><td>HR alt, 2+ TB</td></tr>
+      <tr><td><strong>T2</strong></td><td>54-65</td><td>Playable, lower conviction</td><td>1+ Hit, RBI alt</td></tr>
+      <tr><td><strong>T3</strong></td><td>&lt;54</td><td>Below the model's action threshold</td><td>--</td></tr>
     </tbody>
   </table></div>
   <div class="tldr-box"><h4>Aug 31 Park Summary</h4><p><strong>12-game Monday card (Day 157).</strong> HR Volcano(s): <strong>Wrigley Field +47% HR</strong> (MIL @ CHC). HR Boosters: Great American Ball Park +17% (SD @ CIN), Truist Park +12% (SF @ ATL), Nationals Park +9% (MIA @ WSH), Daikin Park +7% (CHW @ HOU), Coors Field +7% (BAL @ COL). HR Suppressed: Globe Life Field -12% (ATH @ TEX) -- fade HR alts here.</p></div>
