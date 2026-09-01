@@ -3,15 +3,15 @@ name: Backfill Grades (one-shot)
 # TEMPORARY branch-only runner for the feat/backfill-grading work: the build
 # sandbox has no route to statsapi.mlb.com, so the backfill executes here,
 # where the network is open (see backtest/backfill_grades.py docstring).
-# Manual dispatch only. Commits ONLY backtest/graded_picks.json back to the
-# branch it ran on. Removed again before the branch is finished.
+# Triggered by pushing backtest/BACKFILL_DATES to this branch (dispatch by
+# filename 404s for workflows that exist only on a non-default branch).
+# Commits ONLY backtest/graded_picks.json back to the branch it ran on.
+# Removed again before the branch is finished.
 
 on:
-  workflow_dispatch:
-    inputs:
-      dates:
-        description: 'ISO dates to backfill (space-separated); blank = every ungraded committed slate'
-        required: false
+  push:
+    branches: [feat/backfill-grading]
+    paths: ['backtest/BACKFILL_DATES']
 
 permissions:
   contents: write
@@ -42,12 +42,17 @@ jobs:
       - name: Backfill graded outcomes
         env:
           BDL_KEY: ${{ secrets.BDL_KEY }}
-        run: python3 backtest/backfill_grades.py ${{ github.event.inputs.dates }}
+        run: |
+          DATES=$(grep -v '^#' backtest/BACKFILL_DATES | tr '\n' ' ')
+          echo "dates from backtest/BACKFILL_DATES: [$DATES]"
+          python3 backtest/backfill_grades.py $DATES
 
       - name: Idempotency re-run (same dates)
         env:
           BDL_KEY: ${{ secrets.BDL_KEY }}
-        run: python3 backtest/backfill_grades.py ${{ github.event.inputs.dates }}
+        run: |
+          DATES=$(grep -v '^#' backtest/BACKFILL_DATES | tr '\n' ' ')
+          python3 backtest/backfill_grades.py $DATES
 
       - name: Commit graded_picks.json
         run: |
@@ -55,7 +60,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add backtest/graded_picks.json
           git diff --staged --quiet && echo "no changes" && exit 0
-          git commit -m "Backfill graded outcomes (${{ github.event.inputs.dates || 'all ungraded dates' }})"
+          git commit -m "Backfill graded outcomes (run ${{ github.run_id }})"
           pushed=0
           for i in 1 2 3 4 5; do
             git fetch origin ${{ github.ref_name }} || true
