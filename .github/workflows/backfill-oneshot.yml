@@ -1,0 +1,59 @@
+name: Backfill Grades (one-shot)
+
+# TEMPORARY branch-only runner for the feat/grading-features work: the build
+# sandbox has no route to statsapi.mlb.com, so the re-backfill executes here,
+# where the network is open (see backtest/backfill_grades.py docstring).
+# Triggered by pushing backtest/BACKFILL_DATES to this branch. Resets the
+# store first so every date regrades with the widened feature schema, then
+# commits ONLY backtest/graded_picks.json back to the branch it ran on.
+# Removed again before the branch is finished.
+
+on:
+  push:
+    branches: [feat/grading-features]
+    paths: ['backtest/BACKFILL_DATES']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-oneshot
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Reset the store (full regrade with the widened schema)
+        run: rm -f backtest/graded_picks.json
+
+      - name: Backfill graded outcomes
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+        run: python3 backtest/backfill_grades.py
+
+      - name: Idempotency re-run
+        env:
+          BDL_KEY: ${{ secrets.BDL_KEY }}
+        run: python3 backtest/backfill_grades.py
+
+      - name: Commit graded_picks.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backtest/graded_picks.json
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m "Re-backfill graded outcomes with feature schema (run ${{ github.run_id }})"
+          pushed=0
+          for i in 1 2 3 4 5; do
+            git fetch origin ${{ github.ref_name }} || true
+            git merge -X ours --no-edit origin/${{ github.ref_name }} || git merge --abort || true
+            if git push origin ${{ github.ref_name }}; then pushed=1; echo "pushed on attempt $i"; break; fi
+            echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
+          done
+          [ "$pushed" = 1 ] || { echo "push failed after retries"; exit 1; }
