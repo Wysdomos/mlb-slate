@@ -7,8 +7,9 @@ so backfilled grades match what the live site would have shown.
 Output: backtest/graded_picks.json  {"graded": [row...], "dates": {...}}
 Resumable: dates already present are skipped (delete the file to regrade).
 
-Usage (from repo root):  python3 backtest/backfill_grades.py
-Env: BDL_KEY optional (balldontlie primary, MLB Stats API fallback).
+Usage (from repo root):  python3 backtest/backfill_grades.py [YYYY-MM-DD ...]
+With date arguments, only those slate dates are processed.
+Env: BDL_KEY optional (MLB Stats API primary, balldontlie fallback).
 """
 import json
 import glob
@@ -95,16 +96,19 @@ def pick_source(p):
 
 
 def fetch_box(date_iso):
-    box = {}
-    if BDL_KEY:
-        box = G.fetch_bdl(date_iso, BDL_KEY)
-        if not box.get('batters') and not box.get('pitchers'):
-            print('  balldontlie empty -- falling back to MLB Stats API')
-            box = G.fetch_box_results(date_iso)
-    else:
-        box = G.fetch_box_results(date_iso)
+    # statsapi first: free, keyless, 100% coverage. balldontlie only when
+    # statsapi returns no players -- BDL's partial-data failure mode
+    # (HTTP 200, missing games) must never silently become the labels.
+    # Both fetchers catch their own exceptions and return {} on failure,
+    # so emptiness IS the failure signal; nothing here can raise.
+    box = G.fetch_box_results(date_iso)
     if not isinstance(box, dict):
         box = {}
+    if not box.get('batters') and not box.get('pitchers') and BDL_KEY:
+        print('  MLB Stats API empty -- falling back to balldontlie')
+        box = G.fetch_bdl(date_iso, BDL_KEY)
+        if not isinstance(box, dict):
+            box = {}
     for k in ('batters', 'pitchers', 'totals', 'first_inning'):
         box.setdefault(k, {})
     games = G.fetch_games(date_iso)
@@ -113,7 +117,7 @@ def fetch_box(date_iso):
     return box
 
 
-def main():
+def main(only_dates=None):
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     store = {'graded': [], 'dates': {}}
     if os.path.exists(OUT):
@@ -123,18 +127,44 @@ def main():
 
     files = sorted(glob.glob(os.path.join(repo, 'slate_picks_*.json')))
     print(f'{len(files)} slate files · {len(done)} date(s) already backfilled')
+    matched = set()
     for path in files:
         with open(path, encoding='utf-8') as f:
             payload = json.load(f)
         date_iso = payload.get('slate_date')
         picks = payload.get('picks', [])
-        if not date_iso or date_iso in done:
+        if not date_iso:
+            continue
+        if only_dates:
+            if date_iso not in only_dates:
+                continue
+            matched.add(date_iso)
+        if date_iso in done:
+            if only_dates:
+                print(f'-- {date_iso}: already backfilled -- skipped (delete '
+                      'the date from "dates" in graded_picks.json to regrade)')
             continue
         print(f'-- {date_iso}: {len(picks)} picks')
         box = fetch_box(date_iso)
         if not box['batters'] and not box['pitchers'] and not box['totals']:
             print('   no box data returned -- skipping (rerun later)')
             continue
+        # Idempotency is per DATE: a date recorded in store['dates'] is skipped
+        # above, and (re)grading a date replaces its rows wholesale, so the same
+        # date can never append twice. A (date, market, name, line) row key
+        # cannot be used instead -- that tuple legitimately repeats inside a
+        # slate (doubleheaders; parlay legs sharing a board pick's market/name/
+        # line), so dropping "duplicates" would silently lose real rows.
+        kept = [r for r in store['graded'] if r.get('date') != date_iso]
+        if len(kept) != len(store['graded']):
+            if not box['batters'] and not box['pitchers']:
+                # Degraded fetch (game-level totals only): replacing would
+                # overwrite existing player-prop grades with nulls. Keep them.
+                print(f'   {date_iso} has existing rows but no player data '
+                      'returned -- keeping them (rerun later)')
+                continue
+            print(f'   replacing {len(store["graded"]) - len(kept)} existing rows for {date_iso}')
+        store['graded'] = kept
         n_graded = 0
         for p in picks:
             win, got = grade_pick(p, box)
@@ -168,12 +198,19 @@ def main():
         print(f'   graded {n_graded}/{len(picks)}')
         time.sleep(1)   # be polite to statsapi between dates
 
-    with open(OUT, 'w', encoding='utf-8') as f:
+    if only_dates:
+        for miss in sorted(only_dates - matched):
+            print(f'!! no committed slate file has slate_date {miss} '
+                  '(dates are ISO YYYY-MM-DD) -- nothing done for it')
+
+    tmp = OUT + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(store, f)
+    os.replace(tmp, OUT)   # atomic: a crash mid-write can never truncate OUT
     total = len(store['graded'])
     gradable = sum(1 for g in store['graded'] if g['win'] is not None)
     print(f'\nwrote {OUT}: {total} rows, {gradable} gradable, {len(store["dates"])} dates')
 
 
 if __name__ == '__main__':
-    main()
+    main(only_dates=set(sys.argv[1:]) or None)
