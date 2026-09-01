@@ -97,24 +97,18 @@ def pick_source(p):
 
 def fetch_box(date_iso):
     # statsapi first: free, keyless, 100% coverage. balldontlie only when
-    # statsapi crashes or returns no players -- BDL's partial-data failure
-    # mode (HTTP 200, missing games) must never silently become the labels.
-    try:
-        box = G.fetch_box_results(date_iso)
-    except Exception as e:
-        print(f'  MLB Stats API crashed: {e}')
-        box = {}
+    # statsapi returns no players -- BDL's partial-data failure mode
+    # (HTTP 200, missing games) must never silently become the labels.
+    # Both fetchers catch their own exceptions and return {} on failure,
+    # so emptiness IS the failure signal; nothing here can raise.
+    box = G.fetch_box_results(date_iso)
     if not isinstance(box, dict):
         box = {}
     if not box.get('batters') and not box.get('pitchers') and BDL_KEY:
         print('  MLB Stats API empty -- falling back to balldontlie')
-        try:
-            box = G.fetch_bdl(date_iso, BDL_KEY)
-        except Exception as e:
-            print(f'  balldontlie crashed: {e}')
+        box = G.fetch_bdl(date_iso, BDL_KEY)
+        if not isinstance(box, dict):
             box = {}
-    if not isinstance(box, dict):
-        box = {}
     for k in ('batters', 'pitchers', 'totals', 'first_inning'):
         box.setdefault(k, {})
     games = G.fetch_games(date_iso)
@@ -133,14 +127,22 @@ def main(only_dates=None):
 
     files = sorted(glob.glob(os.path.join(repo, 'slate_picks_*.json')))
     print(f'{len(files)} slate files · {len(done)} date(s) already backfilled')
+    matched = set()
     for path in files:
         with open(path, encoding='utf-8') as f:
             payload = json.load(f)
         date_iso = payload.get('slate_date')
         picks = payload.get('picks', [])
-        if not date_iso or date_iso in done:
+        if not date_iso:
             continue
-        if only_dates and date_iso not in only_dates:
+        if only_dates:
+            if date_iso not in only_dates:
+                continue
+            matched.add(date_iso)
+        if date_iso in done:
+            if only_dates:
+                print(f'-- {date_iso}: already backfilled -- skipped (delete '
+                      'the date from "dates" in graded_picks.json to regrade)')
             continue
         print(f'-- {date_iso}: {len(picks)} picks')
         box = fetch_box(date_iso)
@@ -155,6 +157,12 @@ def main(only_dates=None):
         # line), so dropping "duplicates" would silently lose real rows.
         kept = [r for r in store['graded'] if r.get('date') != date_iso]
         if len(kept) != len(store['graded']):
+            if not box['batters'] and not box['pitchers']:
+                # Degraded fetch (game-level totals only): replacing would
+                # overwrite existing player-prop grades with nulls. Keep them.
+                print(f'   {date_iso} has existing rows but no player data '
+                      'returned -- keeping them (rerun later)')
+                continue
             print(f'   replacing {len(store["graded"]) - len(kept)} existing rows for {date_iso}')
         store['graded'] = kept
         n_graded = 0
@@ -190,8 +198,15 @@ def main(only_dates=None):
         print(f'   graded {n_graded}/{len(picks)}')
         time.sleep(1)   # be polite to statsapi between dates
 
-    with open(OUT, 'w', encoding='utf-8') as f:
+    if only_dates:
+        for miss in sorted(only_dates - matched):
+            print(f'!! no committed slate file has slate_date {miss} '
+                  '(dates are ISO YYYY-MM-DD) -- nothing done for it')
+
+    tmp = OUT + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(store, f)
+    os.replace(tmp, OUT)   # atomic: a crash mid-write can never truncate OUT
     total = len(store['graded'])
     gradable = sum(1 for g in store['graded'] if g['win'] is not None)
     print(f'\nwrote {OUT}: {total} rows, {gradable} gradable, {len(store["dates"])} dates')

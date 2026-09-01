@@ -302,3 +302,54 @@ per AGENTS.md rule 2 — missing result is null, never a loss.
   `delete-the-date` + re-run today; acceptable for now, worth a flag later.
 - `chip_hall_a` (dead) and the unreachable `EDGE` tier are calibration
   questions for the architect, not code fixes here.
+
+## Addendum — adversarial review pass, five confirmed findings, four fixed
+
+Before the final push, a 10-agent review (five dimension reviewers over the
+branch diff, one adversarial refuter per finding) confirmed five minor
+findings and refuted none. Dispositions:
+
+1. **CLI date args were silently ignored** when bogus, wrong-format (`6-15`
+   instead of ISO), or already graded — the run exited 0 looking successful.
+   Fixed: an explicit already-graded date now prints
+   `already backfilled -- skipped (delete the date from "dates" ... to regrade)`,
+   and any CLI date matching no committed slate prints
+   `!! no committed slate file has slate_date <arg> (dates are ISO YYYY-MM-DD)`.
+2. **The wholesale-replace path could destroy good grades**: regrading a date
+   on a day statsapi returned no players (while `fetch_games` still returned
+   totals) replaced fully-graded rows with `win: null` rows and re-marked the
+   date done. Fixed: the replace now requires player data in the fresh box;
+   otherwise existing rows are kept, the date stays un-done, and the nightly
+   retries it. Verified: the degraded-regrade scenario now keeps all 232
+   non-null wins for `2026-07-17`; the healthy-regrade path still replaces
+   245 rows wholesale and re-marks the date.
+3. **Dead try/except in `fetch_box()`**: both underlying fetchers catch their
+   own exceptions and return `{}`, so the `crashed` handlers could never fire
+   and their promised log lines could never appear. Fixed: handlers removed;
+   the comment now states that emptiness is the failure signal. The matching
+   try/except in `grade_results.py` is deliberately kept — the dispatch
+   prescribed mirroring `fetch_streaks.py main()`, and there it is harmless
+   insurance around a function whose internals may drift.
+4. **Non-atomic final write**: a crash mid-`json.dump` could commit a
+   truncated `graded_picks.json` via the non-fatal nightly step, silently
+   disabling the append until manually repaired. Fixed: write to
+   `graded_picks.json.tmp` then `os.replace` (atomic on the same filesystem).
+5. **This report undercounted the diff**: "net branch diff touches exactly"
+   four files — it is five, including `SESSION_STATUS_backfill.md` itself
+   (and this addendum's fixes make `backtest/backfill_grades.py` differ from
+   what commits `c9da5ad`..`dd13102` alone contained). Corrected here rather
+   than by editing the sections above, per the report standard.
+
+Re-verified after the fixes:
+
+```text
+ast.parse OK: backtest/backfill_grades.py    py_compile exit 0
+scenario A degraded regrade : rows kept, non-null wins 232 -> 232, date left un-done
+scenario B explicit done date: visible skip line printed, store unchanged
+scenario C bogus CLI dates   : loud !! warning per arg, store unchanged
+scenario D atomic write      : no .tmp residue; healthy regrade still replaces 245
+```
+
+The store itself (`12077 rows, 11486 gradable, 56 dates`) is untouched by
+this addendum's fixes; the data-integrity and dispatch-compliance reviewers
+returned no findings against it.
