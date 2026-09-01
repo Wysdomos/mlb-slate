@@ -261,18 +261,30 @@ def grade():
     if not iso_date:
         iso_date = payload.get('slate_date')
     api_date = to_iso(date, iso_date)            # full date for the API
-    src = 'balldontlie' if BDL_KEY else 'MLB Stats API'
+    # statsapi first: free, keyless, 100% coverage. balldontlie only when
+    # statsapi crashes or returns no players -- BDL's signature failure is
+    # partial data (HTTP 200, missing games) accepted silently, which turns
+    # into wrong win/loss labels downstream. Mirrors fetch_streaks.py main().
+    box, src = {}, 'none'
+    if api_date:
+        try:
+            box = fetch_box_results(api_date)
+        except Exception as e:
+            print('MLB Stats API crashed (non-fatal):', e)
+            box = {}
+        if isinstance(box, dict) and (box.get('batters') or box.get('pitchers')):
+            src = 'MLB Stats API'
+        elif BDL_KEY:
+            print('MLB Stats API returned no players — falling back to balldontlie')
+            try:
+                box = fetch_bdl(api_date, BDL_KEY)
+            except Exception as e:
+                print('balldontlie crashed (non-fatal):', e)
+                box = {}
+            if isinstance(box, dict) and (box.get('batters') or box.get('pitchers')):
+                src = 'balldontlie'
     print(f'Grading {date} (API date {api_date}, source {src}): {len(picks)} picks from {picks_path}, '
           f'{len(homers)} homers from {xlsx or "no workbook"}')
-    box = {}
-    if api_date:
-        if BDL_KEY:
-            box = fetch_bdl(api_date, BDL_KEY)
-            if not box.get('batters') and not box.get('pitchers'):
-                print('balldontlie returned no players — falling back to MLB Stats API')
-                box = fetch_box_results(api_date)
-        else:
-            box = fetch_box_results(api_date)
     if not isinstance(box, dict):
         box = {}
     for k in ('batters', 'pitchers', 'totals', 'first_inning'):
