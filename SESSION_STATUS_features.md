@@ -230,3 +230,48 @@ changed files vs origin/main: SESSION_STATUS_features.md, backtest/backfill_grad
   absent from new rows. That decision (and whether the 5th/6th HR lens,
   the score tiers, and the 'plus' matchup tier survive their inversions)
   belongs to the architect.
+
+## Addendum — adversarial review pass: one factual correction, two clarifications
+
+A 15-agent review (five dimension reviewers, one adversarial refuter per
+finding) confirmed the board classification clean — all 12 labels verified
+against their rendering surfaces, no missed emitters, the diff pure — and
+caught three real report/comment defects, corrected here per the report
+standard (the sections above stand as written; this addendum supersedes):
+
+1. **"Zero existing labels flipped" was false — it is eleven recoveries and
+   ONE flip.** A keyed row-level diff against the base store shows 12 label
+   changes: 11 null→graded (+8W/+3L — nine of them one 2026-06-18 game
+   BDL had missed entirely, plus Dylan Cease `10 K` and Pete Crow-Armstrong
+   `1 SB` on 6-21), and one true flip:
+
+   ```text
+   2026-06-21  K  David Peterson  O 2.5:  win=true got='5 K'  ->  win=false got='3 K'
+   ```
+
+   The July run graded that date with balldontlie as primary; the regrade
+   used MLB Stats API. The two sources disagree on Peterson's strikeout
+   count, and statsapi — full coverage, keyless, now the primary by B1's
+   design — says 3 K. This flip is a live specimen of exactly the failure
+   class B1's priority swap exists to stop, and the corrected label is the
+   statsapi one. The per-market delta table above is unaffected (its
+   figures were nets all along: K +0W/+1L = Cease +1W, Peterson -1W+1L).
+
+2. **The n in two section headers was the field-coverage count, not the
+   graded count.** Sections 2 and 4 say `n=1150`; 1,150 is the number of HR
+   rows carrying score/park_hr, of which **1,088** are graded (62 are
+   win=null) — the buckets beneath (84+321+560+123 and 156+196+259+477)
+   sum to 1,088 and every bucket figure reproduces exactly. Only the
+   headline n was mislabeled.
+
+3. **The `FEATURE_FIELDS` comment oversold `board_rank`.** It said the
+   daily builder "already writes" the listed fields; no emitter writes
+   `board_rank` anywhere (0 of 12,077 rows). The comment now says the field
+   is reserved and null until an emitter exists. (`board` likewise starts
+   at 0 coverage and populates from the first post-B1b build — disclosed in
+   the sections above and confirmed by the reviewers as expected cold-start
+   behavior, not a defect.)
+
+Re-verified after the fixes: `ast.parse` + `py_compile` clean on
+`backtest/backfill_grades.py`; the store itself is untouched by this
+addendum (still `12077 rows, 11497 gradable, 56 dates`).

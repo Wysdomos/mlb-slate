@@ -24,9 +24,12 @@ from shadow_chips import CHIP_FIELDS
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'graded_picks.json')
 BDL_KEY = os.environ.get('BDL_KEY', '')
 
-# Ranking features the daily builder already writes on picks. Carried through
-# grading verbatim so calibration can segment by them; absent on the source
-# pick -> null in the graded row. Never invented here.
+# Ranking features carried through grading verbatim so calibration can
+# segment by them; absent on the source pick -> null in the graded row,
+# never invented here. Most are fields the daily builder already writes;
+# 'board' starts populating with the first slate built after the B1b
+# discriminator landed, and 'board_rank' is reserved -- no emitter writes
+# it yet, so it is null everywhere until one does.
 FEATURE_FIELDS = (
     'score', 'sim_hr', 'to_hit_hr', 'park_hr', 'bpp_api_hr',
     'calibration_tier', 'board', 'board_rank', 'team', 'opp', 'game',
