@@ -117,7 +117,7 @@ jobs:
           cp -R "$PUBLISH_SRC"/. "$PREVIEW_PATH"/
 
           stage_preview_outputs() {
-            git add -A "$PREVIEW_PATH"
+            git add -A -- "$PREVIEW_PATH" 2>/dev/null || true
           }
 
           clean_unstaged_before_merge() {
@@ -211,7 +211,7 @@ jobs:
           git rm -r --ignore-unmatch "$PREVIEW_PATH"
 
           stage_preview_outputs() {
-            git add -A "$PREVIEW_PATH"
+            git add -A -- "$PREVIEW_PATH" 2>/dev/null || true
           }
 
           clean_unstaged_before_merge() {
