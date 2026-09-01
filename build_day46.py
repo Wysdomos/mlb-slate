@@ -1176,6 +1176,7 @@ def build_k_board():
         chips['chip_hall_a'] = pitcher_chip_hall(name, opp)
         SLATE_PICKS.append({
             'market': 'K', 'pick': f'{name} {best_line}', 'name': name,
+            'board': 'k_board',
             'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': best_line, 'win_at': win_at,
             'consensus': votes, 'consensus_max': consensus_max,
@@ -1202,6 +1203,7 @@ def build_k_board():
             SLATE_PICKS.append({
                 'market': market_key,
                 'pick': f'{name} {line_text}',
+                'board': 'k_board',
                 'name': name,
                 'pick_source': PICK_SOURCE,
                 'team': team,
@@ -1505,6 +1507,7 @@ def build_tb_board():
         SLATE_PICKS.append({
             'market': 'TB',
             'pick': f'{row["name"]} Ov 1.5 TB',
+            'board': 'tb_board',
             'name': row['name'],
             'pick_source': PICK_SOURCE,
             'team': row['team'],
@@ -1617,6 +1620,7 @@ def build_hr_board():
         )
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{c["nm"]} Ov 0.5 HR', 'name': c['nm'], 'team': c['team'],
+            'board': 'hr_board',
             'pick_source': PICK_SOURCE,
             'pitcher': c['pit_name'], 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': c['votes'], 'consensus_max': 7,
@@ -1732,6 +1736,7 @@ def build_oo5_board():
         )
         SLATE_PICKS.append({
             'market': 'HIT', 'pick': f'{nm} Ov 0.5 H', 'name': nm, 'team': team,
+            'board': 'hits_board',
             'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'consensus': votes, 'consensus_max': 6,
             'h1_pct': h1, 'sim_hit': sim_hit,
@@ -1740,6 +1745,7 @@ def build_oo5_board():
         })
         SLATE_PICKS.append({
             'market': 'HRR', 'pick': f'{nm} Ov 0.5 HRR', 'name': nm, 'team': team,
+            'board': 'hits_board',
             'pick_source': PICK_SOURCE,
             'line': 'Ov 0.5', 'win_at': 1, 'win_stat': 'H+R+RBI',
             'consensus': votes, 'consensus_max': 6,
@@ -1823,6 +1829,7 @@ def build_totals_board():
         else:              lean_dir, conf, lean = 'Neutral', max(over, under), '<span class="badge b-neutral">Neutral</span>'
         SLATE_PICKS.append({
             'market': 'TOTAL', 'pick': f'{away}@{home} {lean_dir} 8.5', 'game': f'{away}@{home}',
+            'board': 'totals',
             'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'ref_line': 8.5, 'consensus': conf, 'consensus_max': 4,
             'proj_total': round(total, 2), 'p_over_8_5': round(p_over, 3), 'f5': round(f5, 2),
@@ -1880,6 +1887,7 @@ def build_nrfi_board():
         yrfi_disp = f'{yrfi*100:.0f}%' if yrfi else '—'
         SLATE_PICKS.append({
             'market': 'NRFI', 'pick': f'{away}@{home} {lean_dir}', 'game': f'{away}@{home}',
+            'board': 'nrfi',
             'pick_source': PICK_SOURCE,
             'lean': lean_dir, 'consensus': conf, 'consensus_max': 4,
             'yrfi_prob': round(yrfi, 3) if yrfi else None,
@@ -1932,6 +1940,7 @@ def build_sb_board():
         sb_pct = f'{sbp*100:.1f}%'
         SLATE_PICKS.append({
             'market': 'SB', 'pick': f'{r["FullName"]} Ov 0.5 SB', 'name': r['FullName'],
+            'board': 'sb_board',
             'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': votes, 'consensus_max': 3,
@@ -1990,6 +1999,7 @@ def build_doubles_board():
         tier = 'row-tier0' if votes >= 3 else ('row-tier1' if votes == 2 else '')
         SLATE_PICKS.append({
             'market': '2B', 'pick': f'{r["FullName"]} Ov 0.5 2B', 'name': r['FullName'],
+            'board': 'doubles_board',
             'pick_source': PICK_SOURCE,
             'team': team, 'opp': opp, 'line': 'Ov 0.5', 'win_at': 1,
             'consensus': votes, 'consensus_max': 3,
@@ -2502,6 +2512,7 @@ def emit_parlay_legs(sec_id, parlays):
             SLATE_PICKS.append({
                 'market': leg.get('market'),
                 'pick': f'{name} {leg.get("line", "")}'.strip(),
+                'board': sec_id,
                 'name': name,
                 'pick_source': PICK_SOURCE,
                 'team': leg.get('team'),
@@ -3352,6 +3363,7 @@ def emit_conviction_picks(items):
         SLATE_PICKS.append({
             'market': item['market'],
             'pick': f"{item['name']} {item['line']}",
+            'board': 'conviction',
             'name': item['name'],
             'team': item.get('team', ''),
             'opp': item.get('opp', ''),
