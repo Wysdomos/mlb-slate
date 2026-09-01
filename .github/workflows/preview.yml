@@ -1,0 +1,257 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-preview:
+    if: github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Compute preview path
+        run: |
+          SAFE_BRANCH="$(printf '%s' "${{ github.event.pull_request.head.ref }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          if [ -z "$SAFE_BRANCH" ]; then
+            echo "::error::Sanitized preview branch name is empty"
+            exit 1
+          fi
+          echo "SAFE_BRANCH=$SAFE_BRANCH" >> "$GITHUB_ENV"
+          echo "PREVIEW_PATH=preview/$SAFE_BRANCH" >> "$GITHUB_ENV"
+          echo "PREVIEW_URL=https://wysdomos.github.io/mlb-slate/preview/$SAFE_BRANCH/" >> "$GITHUB_ENV"
+
+      - name: Build preview without BPP
+        run: |
+          git fetch origin main
+          if ! git cat-file -e origin/main:day_data.json; then
+            echo "::error::origin/main:day_data.json is unavailable; preview builds must not fetch BPP"
+            exit 1
+          fi
+
+          PREVIEW_WORK="$RUNNER_TEMP/pr-preview-source"
+          PREVIEW_OUT="$RUNNER_TEMP/pr-preview-output"
+          mkdir -p "$PREVIEW_WORK" "$PREVIEW_OUT"
+          rsync -a --delete --exclude '.git' ./ "$PREVIEW_WORK"/
+          git show origin/main:day_data.json > "$PREVIEW_OUT/day_data.json"
+          cp "$PREVIEW_WORK/index.html" "$PREVIEW_OUT/index.html"
+          cp "$PREVIEW_WORK/record.html" "$PREVIEW_OUT/record.html"
+
+          cd "$PREVIEW_WORK"
+          DATA_FILE="$PREVIEW_OUT/day_data.json" \
+          SECTIONS_FILE="$PREVIEW_OUT/built_sections.json" \
+          K_REPORT_FILE="$PREVIEW_OUT/k-report.html" \
+          STREAKS_FILE="$PREVIEW_OUT/streaks.html" \
+          HOT_STREAKS_FILE="$PREVIEW_OUT/hot_streaks.json" \
+          PICKS_FILE="$PREVIEW_OUT/slate_picks.json" \
+          K_PROPS_FILE="$PREVIEW_WORK/k_props.json" \
+          K_SAVANT_FILE="$PREVIEW_WORK/k_savant_data.json" \
+          BPP_SUMMARY_FILE="$PREVIEW_WORK/bpp_summary.json" \
+          STREAKS_OUT="$PREVIEW_WORK/streaks_live.json" \
+          python3 build.py
+
+          DATA_FILE="$PREVIEW_OUT/day_data.json" \
+          SECTIONS_FILE="$PREVIEW_OUT/built_sections.json" \
+          INDEX_FILE="$PREVIEW_OUT/index.html" \
+          BUILD_STAMP_FILE="$PREVIEW_OUT/build-stamp.json" \
+          python3 sync.py
+
+          for page in index.html k-report.html streaks.html record.html build-stamp.json; do
+            if [ ! -f "$PREVIEW_OUT/$page" ]; then
+              echo "::error::Preview build did not produce $page"
+              exit 1
+            fi
+          done
+          echo "PREVIEW_OUT=$PREVIEW_OUT" >> "$GITHUB_ENV"
+
+      - name: Publish preview to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "mrwwright9@gmail.com"
+          git config user.name "Wysdomos"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
+
+          PUBLISH_SRC="$RUNNER_TEMP/pr-preview-publish"
+          mkdir -p "$PUBLISH_SRC"
+          cp "$PREVIEW_OUT/index.html" "$PUBLISH_SRC/index.html"
+          cp "$PREVIEW_OUT/k-report.html" "$PUBLISH_SRC/k-report.html"
+          cp "$PREVIEW_OUT/streaks.html" "$PUBLISH_SRC/streaks.html"
+          cp "$PREVIEW_OUT/record.html" "$PUBLISH_SRC/record.html"
+          cp "$PREVIEW_OUT/build-stamp.json" "$PUBLISH_SRC/build-stamp.json"
+          for asset in apple-touch-icon.png icon.svg icon-192.png icon-512.png manifest.webmanifest qr-paypal.png qr-venmo.png; do
+            if [ -f "$asset" ]; then cp "$asset" "$PUBLISH_SRC/$asset"; fi
+          done
+
+          git fetch origin main
+          git switch -C preview-publish origin/main
+          case "$PREVIEW_PATH" in
+            preview/*) ;;
+            *) echo "::error::Refusing to publish outside preview/: $PREVIEW_PATH"; exit 1 ;;
+          esac
+
+          rm -rf "$PREVIEW_PATH"
+          mkdir -p "$PREVIEW_PATH"
+          cp -R "$PUBLISH_SRC"/. "$PREVIEW_PATH"/
+
+          stage_preview_outputs() {
+            git add -A "$PREVIEW_PATH"
+          }
+
+          clean_unstaged_before_merge() {
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "::warning::Stashing unstaged/untracked files before merge retry"
+              git status --short
+              git stash push --include-untracked --keep-index -m "preview-build-unstaged-before-merge-${GITHUB_RUN_ID:-local}" >/tmp/preview-build-stash.log
+              cat /tmp/preview-build-stash.log
+            fi
+          }
+
+          fail_fast_merge_abort() {
+            merge_log="$1"
+            conflicts="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            if [ -z "$conflicts" ]; then
+              conflicts="$(git status --porcelain | sed 's/^...//' | tr '\n' ' ')"
+            fi
+            echo "::error::Merge aborted during preview push retry; blocking file(s): ${conflicts:-unknown}"
+            cat "$merge_log"
+            git merge --abort 2>/dev/null || true
+            exit 1
+          }
+
+          stage_preview_outputs
+          if git diff --staged --quiet; then
+            echo "No preview changes to commit"
+            exit 0
+          fi
+          git commit -m "Preview deploy: ${{ github.event.pull_request.head.ref }}"
+
+          pushed=0
+          for i in 1 2 3 4 5; do
+            git fetch origin main || true
+            clean_unstaged_before_merge
+            merge_log="$(mktemp)"
+            if ! git merge -X ours --no-edit origin/main >"$merge_log" 2>&1; then
+              fail_fast_merge_abort "$merge_log"
+            fi
+            stage_preview_outputs
+            if git push origin HEAD:main; then pushed=1; echo "pushed on attempt $i"; break; fi
+            echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
+          done
+          [ "$pushed" = 1 ] || { echo "::error::preview push failed after retries"; exit 1; }
+
+      - name: Comment preview URL
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          marker="<!-- mlb-slate-pr-preview -->"
+          body="$marker
+          Preview URL: $PREVIEW_URL"
+          existing="$(gh api "repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" --jq ".[] | select(.user.type == \"Bot\" and (.body | contains(\"$marker\"))) | .id" | head -n 1)"
+          if [ -n "$existing" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$existing" -X PATCH -f body="$body" >/dev/null
+          else
+            gh pr comment "${{ github.event.number }}" --body "$body"
+          fi
+
+  cleanup-preview:
+    if: github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Compute preview path
+        run: |
+          SAFE_BRANCH="$(printf '%s' "${{ github.event.pull_request.head.ref }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          if [ -z "$SAFE_BRANCH" ]; then
+            echo "::error::Sanitized preview branch name is empty"
+            exit 1
+          fi
+          echo "PREVIEW_PATH=preview/$SAFE_BRANCH" >> "$GITHUB_ENV"
+
+      - name: Delete preview from main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.email "mrwwright9@gmail.com"
+          git config user.name "Wysdomos"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/Wysdomos/mlb-slate.git"
+          case "$PREVIEW_PATH" in
+            preview/*) ;;
+            *) echo "::error::Refusing to delete outside preview/: $PREVIEW_PATH"; exit 1 ;;
+          esac
+
+          git rm -r --ignore-unmatch "$PREVIEW_PATH"
+
+          stage_preview_outputs() {
+            git add -A "$PREVIEW_PATH"
+          }
+
+          clean_unstaged_before_merge() {
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "::warning::Stashing unstaged/untracked files before merge retry"
+              git status --short
+              git stash push --include-untracked --keep-index -m "preview-cleanup-unstaged-before-merge-${GITHUB_RUN_ID:-local}" >/tmp/preview-cleanup-stash.log
+              cat /tmp/preview-cleanup-stash.log
+            fi
+          }
+
+          fail_fast_merge_abort() {
+            merge_log="$1"
+            conflicts="$(git diff --name-only --diff-filter=U | tr '\n' ' ')"
+            if [ -z "$conflicts" ]; then
+              conflicts="$(git status --porcelain | sed 's/^...//' | tr '\n' ' ')"
+            fi
+            echo "::error::Merge aborted during preview cleanup retry; blocking file(s): ${conflicts:-unknown}"
+            cat "$merge_log"
+            git merge --abort 2>/dev/null || true
+            exit 1
+          }
+
+          stage_preview_outputs
+          if git diff --staged --quiet; then
+            echo "No preview directory to remove"
+            exit 0
+          fi
+          git commit -m "Preview cleanup: ${{ github.event.pull_request.head.ref }}"
+
+          pushed=0
+          for i in 1 2 3 4 5; do
+            git fetch origin main || true
+            clean_unstaged_before_merge
+            merge_log="$(mktemp)"
+            if ! git merge -X ours --no-edit origin/main >"$merge_log" 2>&1; then
+              fail_fast_merge_abort "$merge_log"
+            fi
+            stage_preview_outputs
+            if git push origin HEAD:main; then pushed=1; echo "pushed on attempt $i"; break; fi
+            echo "push rejected, retrying ($i)"; sleep $((RANDOM % 4 + 2))
+          done
+          [ "$pushed" = 1 ] || { echo "::error::preview cleanup push failed after retries"; exit 1; }
