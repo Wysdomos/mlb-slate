@@ -7,8 +7,9 @@ so backfilled grades match what the live site would have shown.
 Output: backtest/graded_picks.json  {"graded": [row...], "dates": {...}}
 Resumable: dates already present are skipped (delete the file to regrade).
 
-Usage (from repo root):  python3 backtest/backfill_grades.py
-Env: BDL_KEY optional (balldontlie primary, MLB Stats API fallback).
+Usage (from repo root):  python3 backtest/backfill_grades.py [YYYY-MM-DD ...]
+With date arguments, only those slate dates are processed.
+Env: BDL_KEY optional (MLB Stats API primary, balldontlie fallback).
 """
 import json
 import glob
@@ -95,14 +96,23 @@ def pick_source(p):
 
 
 def fetch_box(date_iso):
-    box = {}
-    if BDL_KEY:
-        box = G.fetch_bdl(date_iso, BDL_KEY)
-        if not box.get('batters') and not box.get('pitchers'):
-            print('  balldontlie empty -- falling back to MLB Stats API')
-            box = G.fetch_box_results(date_iso)
-    else:
+    # statsapi first: free, keyless, 100% coverage. balldontlie only when
+    # statsapi crashes or returns no players -- BDL's partial-data failure
+    # mode (HTTP 200, missing games) must never silently become the labels.
+    try:
         box = G.fetch_box_results(date_iso)
+    except Exception as e:
+        print(f'  MLB Stats API crashed: {e}')
+        box = {}
+    if not isinstance(box, dict):
+        box = {}
+    if not box.get('batters') and not box.get('pitchers') and BDL_KEY:
+        print('  MLB Stats API empty -- falling back to balldontlie')
+        try:
+            box = G.fetch_bdl(date_iso, BDL_KEY)
+        except Exception as e:
+            print(f'  balldontlie crashed: {e}')
+            box = {}
     if not isinstance(box, dict):
         box = {}
     for k in ('batters', 'pitchers', 'totals', 'first_inning'):
@@ -113,7 +123,7 @@ def fetch_box(date_iso):
     return box
 
 
-def main():
+def main(only_dates=None):
     repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     store = {'graded': [], 'dates': {}}
     if os.path.exists(OUT):
@@ -130,11 +140,23 @@ def main():
         picks = payload.get('picks', [])
         if not date_iso or date_iso in done:
             continue
+        if only_dates and date_iso not in only_dates:
+            continue
         print(f'-- {date_iso}: {len(picks)} picks')
         box = fetch_box(date_iso)
         if not box['batters'] and not box['pitchers'] and not box['totals']:
             print('   no box data returned -- skipping (rerun later)')
             continue
+        # Idempotency is per DATE: a date recorded in store['dates'] is skipped
+        # above, and (re)grading a date replaces its rows wholesale, so the same
+        # date can never append twice. A (date, market, name, line) row key
+        # cannot be used instead -- that tuple legitimately repeats inside a
+        # slate (doubleheaders; parlay legs sharing a board pick's market/name/
+        # line), so dropping "duplicates" would silently lose real rows.
+        kept = [r for r in store['graded'] if r.get('date') != date_iso]
+        if len(kept) != len(store['graded']):
+            print(f'   replacing {len(store["graded"]) - len(kept)} existing rows for {date_iso}')
+        store['graded'] = kept
         n_graded = 0
         for p in picks:
             win, got = grade_pick(p, box)
@@ -176,4 +198,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(only_dates=set(sys.argv[1:]) or None)
