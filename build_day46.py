@@ -1328,9 +1328,76 @@ def build_projected_headlines():
     return build_headlines()
 
 def build_projected_hr_board():
+    # ── Consensus: the workbook board's lenses and thresholds, minus one.
+    # The reconstructed 'To Hit HR' column is player_probs['hr'] with a
+    # fallback to the same matchup HR probability that feeds the sim lens
+    # (fetch_projected_mode.build_hit_rows), and on real projected slates it
+    # resolves byte-identical to BP_Batters HomeRunProbability for every
+    # board row (50/50 on 9-01) -- counting it would double-vote one signal
+    # at a second threshold. It is excluded, not substituted; the value is
+    # still emitted as to_hit_hr for calibration.
+    # A lens counts toward consensus_max only when its backing dataset
+    # loaded for this build: bpp_summary.json exists only after the daily
+    # fetch phase, so a fetch-less build runs 5-lens while the daily
+    # pipeline runs all 6. A lens that cannot see a player does not vote.
+    lens_live = (
+        True,                    # 1 score       -- HR_LB carries Score by construction
+        bool(BP_BAT_BY_NAME),    # 2 sim_raw     -- BP_Batters HomeRunProbability
+        bool(SS_BY_NAME),        # 3 VulnScore   -- build_vuln (BPP fallback)
+        bool(PARK_BY_TEAM),      # 4 park_hr     -- Park_Factors
+        bool(STREAK_BY_NAME),    # 5 streak      -- live/hot/workbook streaks
+        bool(BPP_SUMMARY),       # 6 bpp_proj_hr -- fetch-phase bpp_summary.json
+    )
+    consensus_max = sum(lens_live)
     rows = []
     for i, r in enumerate(HR_LB[:50], 1):
         score = _sf(r.get('Score'))
+        nm = r.get('Batter', '')
+        team = tn(r.get('Team'))
+        park = PARK_BY_TEAM.get(team)
+        park_hr = parse_pct(park.get('HR %')) if park else 0
+        bp_b = BP_BAT_BY_NAME.get(nm.lower())
+        sim_raw = _sf(bp_b.get('HomeRunProbability')) if bp_b else 0
+        sim_hr = f'{sim_raw*100:.1f}%' if (bp_b and bp_b.get('HomeRunProbability') not in (None, '')) else '—'
+        hr_row = HIT_BY_NAME.get(nm.lower())
+        hr_pct = hr_row.get('To Hit HR', '—') if hr_row else '—'
+        pit_name = r.get('Pitcher', '') or ''
+        v = get_vuln_for_pitcher(pit_name)
+        vuln = v.get('VulnScore') if v else None
+        bpp_api = bpp_entry(nm)
+        bpp_proj_hr = _sf(bpp_api.get('proj_hr')) if bpp_api else 0
+        bpp_match_adv = bpp_api.get('matchup_advantage') if bpp_api else None
+        st = STREAK_BY_NAME.get(player_key(nm))
+        streak_fires = bool(st and (_sf(st.get('HR Streak')) >= 1 or _sf(st.get('Hit Streak')) >= 5))
+        votes = 0
+        if lens_live[0] and score >= 70: votes += 1
+        if lens_live[1] and sim_raw >= 0.15: votes += 1
+        if lens_live[2] and vuln is not None and _sf(vuln) >= 50: votes += 1
+        if lens_live[3] and park_hr >= 10: votes += 1
+        if lens_live[4] and streak_fires: votes += 1
+        if lens_live[5] and bpp_proj_hr >= 0.15: votes += 1
+        chips = blank_chip_tiers()
+        chips['chip_hra'] = chip_hr_a(
+            bpp_pct(nm, 'hr_prob'),
+            bpp_pct(nm, 'walk_prob'),
+            bpp_pct(nm, 'matchup_advantage'),
+        )
+        # chip_hr_b is NOT computed here: its consensus bands (<=2 EDGE+,
+        # 5-6 FADE) are defined on the workbook board's 7-lens scale, and
+        # feeding them this board's 5/6-lens votes would label unanimous
+        # rows FADE. Out-of-domain input -> the chip stays None; the frozen
+        # formula in shadow_chips.py is untouched.
+        SLATE_PICKS.append({
+            'market': 'HR', 'pick': f'{nm} Ov 0.5 HR', 'name': nm, 'team': team,
+            'board': 'hr_board',
+            'pick_source': PICK_SOURCE,
+            'pitcher': pit_name, 'line': 'Ov 0.5', 'win_at': 1,
+            'consensus': votes, 'consensus_max': consensus_max,
+            'score': score, 'sim_hr': sim_hr, 'to_hit_hr': hr_pct, 'park_hr': park_hr,
+            'bpp_api_hr': round(bpp_proj_hr, 2) if bpp_proj_hr else None,
+            'calibration_tier': bpp_matchup_tier(bpp_match_adv),
+            **chips,
+        })
         if score >= 78: tier = 'row-tier0'
         elif score >= 66: tier = 'row-tier1'
         else: tier = ''
