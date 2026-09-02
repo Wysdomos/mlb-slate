@@ -30,6 +30,20 @@ src = src.replace(
 exec(compile(src, 'build_day46.py', 'exec'))
 PROJECTED_MODE = globals().get('PROJECTED_MODE', False)
 
+# Step 2b -- build_kalshi_matches.py -> kalshi_matches.json + Kalshi price
+# fields on the slate_picks rows. Kalshi must never break the slate build:
+# the script always exits 0 on its own failures, and anything unexpected
+# (including its argparse/SystemExit plumbing) is caught here, logged, and
+# the pipeline continues.
+try:
+    exec(compile(open('build_kalshi_matches.py', encoding='utf-8').read(),
+                 'build_kalshi_matches.py', 'exec'))
+except SystemExit as _kalshi_exit:
+    if _kalshi_exit.code not in (0, None):
+        print(f'build_kalshi_matches exited non-fatally with code {_kalshi_exit.code}')
+except Exception as _kalshi_exc:
+    print(f'build_kalshi_matches failed non-fatally: {type(_kalshi_exc).__name__}: {_kalshi_exc}')
+
 if PROJECTED_MODE:
     print('build_editorial: skipped in Projected Mode')
 else:
