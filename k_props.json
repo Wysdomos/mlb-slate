@@ -1,9 +1,9 @@
 {
  "grant holmes": {
-  "line": 2.5,
-  "over_odds": null,
-  "under_odds": null,
-  "vendor": "fanduel",
+  "line": 4.5,
+  "over_odds": 135,
+  "under_odds": -185,
+  "vendor": "betmgm",
   "hits_allowed": {
    "line": 4.5,
    "vendor": "draftkings",
@@ -18,7 +18,7 @@
   }
  },
  "cody bradford": {
-  "line": 2.5,
+  "line": 4.5,
   "over_odds": null,
   "under_odds": null,
   "vendor": "fanduel",
@@ -37,8 +37,8 @@
  },
  "jacob lopez": {
   "line": 5.5,
-  "over_odds": -106,
-  "under_odds": -120,
+  "over_odds": null,
+  "under_odds": null,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -54,9 +54,9 @@
   }
  },
  "tomoyuki sugano": {
-  "line": 3.5,
-  "over_odds": -102,
-  "under_odds": -125,
+  "line": 2.5,
+  "over_odds": null,
+  "under_odds": null,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 6.5,
@@ -72,9 +72,9 @@
   }
  },
  "trevor rogers": {
-  "line": 5.5,
-  "over_odds": 104,
-  "under_odds": -132,
+  "line": 2.5,
+  "over_odds": null,
+  "under_odds": null,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 5.5,
@@ -91,8 +91,8 @@
  },
  "andrew painter": {
   "line": 3.5,
-  "over_odds": -142,
-  "under_odds": 112,
+  "over_odds": -160,
+  "under_odds": 124,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -109,8 +109,8 @@
  },
  "patrick sandoval": {
   "line": 5.5,
-  "over_odds": 110,
-  "under_odds": -140,
+  "over_odds": 124,
+  "under_odds": -158,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -205,8 +205,8 @@
  },
  "dylan cease": {
   "line": 6.5,
-  "over_odds": 102,
-  "under_odds": -130,
+  "over_odds": 100,
+  "under_odds": -128,
   "vendor": "fanduel",
   "hits_allowed": {
    "line": 4.5,
@@ -347,42 +347,6 @@
    "market": "pitcher_outs"
   }
  },
- "casey mize": {
-  "line": 2.5,
-  "over_odds": null,
-  "under_odds": null,
-  "vendor": "fanduel",
-  "hits_allowed": {
-   "line": 4.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "pitcher_hits_allowed"
-  },
-  "outs": {
-   "line": 15.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "pitcher_outs"
-  }
- },
- "brandon williamson": {
-  "line": 2.5,
-  "over_odds": null,
-  "under_odds": null,
-  "vendor": "fanduel",
-  "hits_allowed": {
-   "line": 4.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "pitcher_hits_allowed"
-  },
-  "outs": {
-   "line": 12.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "pitcher_outs"
-  }
- },
  "davis martin": {
   "line": 3.5,
   "over_odds": -120,
@@ -443,6 +407,34 @@
   "src": "oddsapi",
   "outs": {
    "line": 18.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
+ },
+ "casey mize": {
+  "hits_allowed": {
+   "line": 4.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 15.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_outs"
+  }
+ },
+ "brandon williamson": {
+  "hits_allowed": {
+   "line": 4.5,
+   "vendor": "draftkings",
+   "src": "oddsapi",
+   "market": "pitcher_hits_allowed"
+  },
+  "outs": {
+   "line": 12.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "pitcher_outs"
@@ -1115,13 +1107,13 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "dylan beavers": {
+  "coby mayo": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "coby mayo": {
+  "dylan beavers": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
@@ -1139,13 +1131,7 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "willi castro": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "cole carrigg": {
+  "connor norby": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
@@ -1163,7 +1149,7 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "connor norby": {
+  "cole carrigg": {
    "line": 1.5,
    "vendor": "draftkings",
    "src": "oddsapi",
@@ -1172,12 +1158,6 @@
   "jordan beck": {
    "line": 0.5,
    "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "mickey moniak": {
-   "line": 1.5,
-   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1553,12 +1533,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "cal raleigh": {
-   "line": 0.5,
-   "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "josh naylor": {
    "line": 1.5,
    "vendor": "draftkings",
@@ -1589,9 +1563,9 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "geraldo perdomo": {
-   "line": 1.5,
-   "vendor": "draftkings",
+  "lars nootbaar": {
+   "line": 0.5,
+   "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1607,15 +1581,9 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "ketel marte": {
+  "geraldo perdomo": {
    "line": 1.5,
    "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "lars nootbaar": {
-   "line": 0.5,
-   "vendor": "betmgm",
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
@@ -1626,12 +1594,6 @@
    "market": "batter_total_bases"
   },
   "tim tawa": {
-   "line": 0.5,
-   "vendor": "betmgm",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
-  "ryan waldschmidt": {
    "line": 0.5,
    "vendor": "betmgm",
    "src": "oddsapi",
@@ -1661,12 +1623,6 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "alec bohm": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "bryson stott": {
    "line": 1.5,
    "vendor": "draftkings",
@@ -1679,15 +1635,15 @@
    "src": "oddsapi",
    "market": "batter_total_bases"
   },
-  "j.t. realmuto": {
-   "line": 1.5,
-   "vendor": "draftkings",
-   "src": "oddsapi",
-   "market": "batter_total_bases"
-  },
   "justin crawford": {
    "line": 1.5,
    "vendor": "betmgm",
+   "src": "oddsapi",
+   "market": "batter_total_bases"
+  },
+  "j.t. realmuto": {
+   "line": 1.5,
+   "vendor": "draftkings",
    "src": "oddsapi",
    "market": "batter_total_bases"
   }
@@ -1711,7 +1667,7 @@
    "request_count_this_run": 0,
    "credits_used_this_run": 0,
    "remaining": 58,
-   "reused_same_day": 254
+   "reused_same_day": 248
   },
   "oddsapi_extra_market_request_count": 0
  }
