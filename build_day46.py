@@ -1389,6 +1389,7 @@ def build_projected_hr_board():
         # formula in shadow_chips.py is untouched.
         SLATE_PICKS.append({
             'market': 'HR', 'pick': f'{nm} Ov 0.5 HR', 'name': nm, 'team': team,
+            'opp': tn(r.get('Pitcher Team')),
             'board': 'hr_board',
             'pick_source': PICK_SOURCE,
             'pitcher': pit_name, 'line': 'Ov 0.5', 'win_at': 1,

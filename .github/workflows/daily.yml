@@ -129,6 +129,26 @@ jobs:
           BDL_MIN_GAP: '0.2'
         run: python3 fetch_streaks.py
 
+      # Kalshi is a public no-vig exchange: its price IS a probability, logged
+      # at pick time for model-vs-market. It must NEVER break the slate build
+      # (same failure policy as the other fetchers: continue-on-error + the
+      # script itself always exits 0). The caps bound pages-per-listing,
+      # orderbook calls, pacing, and timeout; total requests still scale with
+      # slate size (one market listing per slate event per series -- measured
+      # 156 on a 15-game slate, ~1 gap-paced minute). A true ceiling needs a
+      # per-series fetch redesign in services/kalshi_client (flagged for K3b).
+      - name: Fetch Kalshi markets
+        timeout-minutes: 4
+        continue-on-error: true
+        env:
+          DATA_FILE: day_data.json
+          KALSHI_MARKETS_FILE: kalshi_markets.json
+          KALSHI_MAX_MARKET_PAGES: '2'
+          KALSHI_MAX_ORDERBOOK_CALLS: '20'
+          KALSHI_MIN_REQUEST_GAP: '0.35'
+          KALSHI_TIMEOUT: '10'
+        run: python3 fetch_kalshi.py
+
       - name: Build slate
         env:
           DATA_FILE: day_data.json
@@ -178,6 +198,8 @@ jobs:
             git add k_props.json 2>/dev/null || true
             git add k_savant_data.json 2>/dev/null || true
             git add bpp_summary.json 2>/dev/null || true
+            git add kalshi_markets.json 2>/dev/null || true
+            git add kalshi_matches.json 2>/dev/null || true
           }
 
           clean_unstaged_before_merge() {

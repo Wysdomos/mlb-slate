@@ -34,6 +34,10 @@ FEATURE_FIELDS = (
     'score', 'sim_hr', 'to_hit_hr', 'park_hr', 'bpp_api_hr',
     'calibration_tier', 'board', 'board_rank', 'team', 'opp', 'game',
     'pitcher',
+    # Kalshi quote at pick time (K3a): a no-vig exchange price is a
+    # probability, so these give model-vs-market on every graded pick.
+    'kalshi_ticker', 'kalshi_side', 'kalshi_price', 'kalshi_state',
+    'kalshi_quote_ts', 'ask_source', 'fee_band',
 )
 
 
