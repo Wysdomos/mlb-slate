@@ -132,8 +132,11 @@ jobs:
       # Kalshi is a public no-vig exchange: its price IS a probability, logged
       # at pick time for model-vs-market. It must NEVER break the slate build
       # (same failure policy as the other fetchers: continue-on-error + the
-      # script itself always exits 0). The caps bound the request budget --
-      # 8 builds/day makes an unbounded fetch ~1,000 calls/day.
+      # script itself always exits 0). The caps bound pages-per-listing,
+      # orderbook calls, pacing, and timeout; total requests still scale with
+      # slate size (one market listing per slate event per series -- measured
+      # 156 on a 15-game slate, ~1 gap-paced minute). A true ceiling needs a
+      # per-series fetch redesign in services/kalshi_client (flagged for K3b).
       - name: Fetch Kalshi markets
         timeout-minutes: 4
         continue-on-error: true

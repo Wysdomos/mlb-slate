@@ -40,64 +40,139 @@ KALSHI_PICK_FIELDS = (
 )
 
 
-def annotate_slate_picks(slate_picks_path: str | Path, matches: list[Any]) -> int:
+def annotate_slate_picks(
+    slate_picks_path: str | Path,
+    matches: "list[Any] | None",
+    *,
+    default_quote_ts: "str | None" = None,
+) -> tuple[int, int]:
     """Write Kalshi quote fields onto the pick rows the matches came from.
 
-    Candidates are built positionally from slate["picks"] and
-    build_match_snapshot preserves that order, so matches[i] belongs to
-    picks[i] -- no id join, no collision risk. Every pick gets all
-    KALSHI_PICK_FIELDS (null default). A matched market contributes
-    ticker/side/state/quote_ts; the price and its ask_source/fee_band are
-    copied ONLY from an OPEN_TRADABLE quote, so a stale, settled, or
-    unopened price is never logged as if it were live. Nothing is ever
-    fabricated. Returns the number of rows that received a live price.
+    Two layers, so the day's captured prices survive the 8x-daily rebuild:
+
+    1. Carry-forward: build_day46 regenerates slate_picks fresh every build,
+       which would null every previously captured price by the final (post-
+       game) rebuild -- exactly the rows the 5AM grader reads. So any prior
+       row in the dated archive holding a real kalshi_price is carried onto
+       the matching new pick first (keyed join; duplicate keys consume
+       first-match, mirroring the row multiset). This layer runs even when
+       today's fetch failed (matches=None), so a bad Kalshi hour cannot
+       erase the morning's quotes.
+    2. Fresh quotes: candidates are built positionally from slate["picks"]
+       and build_match_snapshot preserves that order, so matches[i] belongs
+       to picks[i]. A matched market refreshes ticker/side/state; the price
+       with its ask_source/fee_band/quote_ts is (over)written ONLY from an
+       OPEN_TRADABLE quote -- a stale, settled, or unopened price is never
+       logged as live, and a settled state never erases the price captured
+       while the market was live. quote_ts falls back to the market
+       snapshot's generated_at (the matcher's own quote_ts source is not
+       serialized by the fetcher). Nothing is ever fabricated.
+
+    Returns (fresh_priced, carried_forward).
     """
     try:
         slate = load_json(slate_picks_path)
     except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError) as exc:
         print(f"Kalshi annotate skipped non-fatally: {type(exc).__name__}: {exc}")
-        return 0
+        return 0, 0
     picks = slate.get("picks") or []
-    if len(picks) != len(matches):
-        print(
-            "Kalshi annotate skipped non-fatally: "
-            f"{len(matches)} matches vs {len(picks)} picks -- refusing a positional join"
-        )
-        return 0
-    priced = 0
-    for pick, match in zip(picks, matches):
-        if not isinstance(pick, dict) or not isinstance(match, dict):
+    dated = _dated_path(Path(slate_picks_path), slate)
+    # In-pipeline, build.py snapshots the pre-rebuild dated archive to
+    # KALSHI_PRIOR_FILE before build_day46 overwrites it; standalone runs
+    # fall back to the dated archive itself.
+    prior_path = Path(os.environ.get("KALSHI_PRIOR_FILE", ".kalshi_prior_picks.json"))
+    if prior_path.exists():
+        prior = _prior_priced_rows(prior_path)
+    elif dated is not None and dated.exists():
+        prior = _prior_priced_rows(dated)
+    else:
+        prior = {}
+    carried = 0
+    for pick in picks:
+        if not isinstance(pick, dict):
             continue
         for field in KALSHI_PICK_FIELDS:
             pick[field] = None
-        if not match.get("kalshi_ticker"):
-            continue
-        pick["kalshi_ticker"] = match.get("kalshi_ticker")
-        pick["kalshi_side"] = match.get("kalshi_side")
-        pick["kalshi_state"] = match.get("tradable_state")
-        pick["kalshi_quote_ts"] = match.get("quote_ts")
-        if match.get("tradable_state") == TradableState.OPEN_TRADABLE.value:
-            pick["kalshi_price"] = match.get("buy_price")
-            pick["ask_source"] = match.get("ask_source")
-            pick["fee_band"] = match.get("fee_band")
-            if pick["kalshi_price"] is not None:
+        stack = prior.get(_pick_key(pick))
+        if stack:
+            pick.update(stack.pop(0))
+            carried += 1
+    priced = 0
+    if matches is None:
+        pass  # fetch failed today: carry-forward only
+    elif len(picks) != len(matches):
+        print(
+            "Kalshi fresh-quote join refused non-fatally: "
+            f"{len(matches)} matches vs {len(picks)} picks (carried fields kept)"
+        )
+    else:
+        for pick, match in zip(picks, matches):
+            if not isinstance(pick, dict) or not isinstance(match, dict):
+                continue
+            if not match.get("kalshi_ticker"):
+                continue  # unmatched today; carried fields (if any) stay
+            pick["kalshi_ticker"] = match.get("kalshi_ticker")
+            pick["kalshi_side"] = match.get("kalshi_side")
+            pick["kalshi_state"] = match.get("tradable_state")
+            if (
+                match.get("tradable_state") == TradableState.OPEN_TRADABLE.value
+                and match.get("buy_price") is not None
+            ):
+                pick["kalshi_price"] = match.get("buy_price")
+                pick["ask_source"] = match.get("ask_source")
+                pick["fee_band"] = match.get("fee_band")
+                pick["kalshi_quote_ts"] = match.get("quote_ts") or default_quote_ts
                 priced += 1
-    _write_slate_picks(Path(slate_picks_path), slate)
-    return priced
+    _write_slate_picks(Path(slate_picks_path), slate, dated)
+    return priced, carried
 
 
-def _write_slate_picks(path: Path, slate: dict[str, Any]) -> None:
-    # Same serialization build_day46.py uses for these files.
-    with path.open("w", encoding="utf-8") as fh:
-        json.dump(slate, fh, ensure_ascii=False, indent=1)
+def _pick_key(pick: "dict[str, Any]") -> tuple[str, ...]:
+    return (
+        str(pick.get("market") or ""),
+        str(pick.get("name") or pick.get("game") or pick.get("pick") or ""),
+        str(pick.get("line") or ""),
+        str(pick.get("board") or ""),
+        str(pick.get("parlay_id") or ""),
+        str(pick.get("leg_role") or ""),
+    )
+
+
+def _prior_priced_rows(path: Path) -> "dict[tuple[str, ...], list[dict[str, Any]]]":
+    try:
+        prior = load_json(path)
+    except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError):
+        return {}
+    out: dict[tuple[str, ...], list[dict[str, Any]]] = {}
+    for row in prior.get("picks") or []:
+        if isinstance(row, dict) and row.get("kalshi_price") is not None:
+            out.setdefault(_pick_key(row), []).append(
+                {field: row.get(field) for field in KALSHI_PICK_FIELDS}
+            )
+    return out
+
+
+def _dated_path(path: Path, slate: "dict[str, Any]") -> "Path | None":
     iso = str(slate.get("slate_date") or "")
     m = re.match(r"^(\d{4})-(\d{2})-(\d{2})$", iso)
     if not m:
-        return
-    dated = path.with_name(f"slate_picks_{int(m.group(2))}-{int(m.group(3))}.json")
-    if dated.exists():  # keep the dated archive the grader reads in sync
-        with dated.open("w", encoding="utf-8") as fh:
-            json.dump(slate, fh, ensure_ascii=False, indent=1)
+        return None
+    return path.with_name(f"slate_picks_{int(m.group(2))}-{int(m.group(3))}.json")
+
+
+def _write_slate_picks(path: Path, slate: "dict[str, Any]", dated: "Path | None") -> None:
+    # Same serialization build_day46.py uses; atomic so a mid-dump crash can
+    # never leave a truncated file for the commit step to pick up.
+    _atomic_dump(path, slate)
+    if dated is not None and dated.exists():  # keep the grader's archive in sync
+        _atomic_dump(dated, slate)
+
+
+def _atomic_dump(path: Path, payload: "dict[str, Any]") -> None:
+    tmp = path.with_name(path.name + ".tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -108,7 +183,14 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Match slate picks to Kalshi markets.")
-    parser.add_argument("--slate-picks", default=os.environ.get("SLATE_PICKS_FILE", "slate_picks.json"))
+    parser.add_argument(
+        "--slate-picks",
+        # build_day46 writes the picks under PICKS_FILE (preview.yml sets it);
+        # honor it so we always annotate the picks this build just wrote.
+        default=os.environ.get("SLATE_PICKS_FILE")
+        or os.environ.get("PICKS_FILE")
+        or "slate_picks.json",
+    )
     parser.add_argument("--day-data", default=os.environ.get("DATA_FILE", "day_data.json"))
     parser.add_argument("--kalshi-markets", default=os.environ.get("KALSHI_MARKETS_FILE", "kalshi_markets.json"))
     parser.add_argument("--output", default=os.environ.get("KALSHI_MATCHES_FILE", DEFAULT_OUTPUT))
@@ -130,7 +212,21 @@ def main() -> int:
     except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError) as exc:
         payload = _failure_payload(slate_date, f"missing or unreadable kalshi_markets.json: {type(exc).__name__}: {exc}")
         write_json(output, payload)
-        print(f"Kalshi match skipped non-fatally: {payload['fetch_error']}")
+        _, carried = annotate_slate_picks(args.slate_picks, None)
+        print(f"Kalshi match skipped non-fatally: {payload['fetch_error']} (carried {carried} prior price(s))")
+        return 0
+
+    # A same-slate_date snapshot left behind by a failed fetch would pass the
+    # matcher's date gate with quote ages frozen at fetch time -- hours-old
+    # asks would be logged as live. Gate on the snapshot's own age instead.
+    max_age = int(os.environ.get("KALSHI_SNAPSHOT_MAX_AGE", "1800"))
+    age = _snapshot_age_seconds(kalshi_snapshot)
+    if age is None or age > max_age:
+        shown = "unknown" if age is None else f"{age:.0f}s"
+        payload = _failure_payload(slate_date, f"stale kalshi_markets.json snapshot (age {shown} > {max_age}s)")
+        write_json(output, payload)
+        _, carried = annotate_slate_picks(args.slate_picks, None)
+        print(f"Kalshi match skipped non-fatally: {payload['fetch_error']} (carried {carried} prior price(s))")
         return 0
 
     payload = build_match_snapshot(
@@ -159,11 +255,32 @@ def main() -> int:
             print("  exact strike missing:")
             for row in missing:
                 print(f"    {row['slate_id']}: available={row['available_strikes']}")
-        priced = annotate_slate_picks(args.slate_picks, payload.get("matches") or [])
-        print(f"Kalshi price fields written: {priced} pick(s) carry a live OPEN_TRADABLE price")
+        priced, carried = annotate_slate_picks(
+            args.slate_picks,
+            payload.get("matches") or [],
+            default_quote_ts=str(kalshi_snapshot.get("generated_at") or "") or None,
+        )
+        print(
+            f"Kalshi price fields written: {priced} fresh OPEN_TRADABLE price(s), "
+            f"{carried} carried forward from earlier builds"
+        )
     else:
-        print(f"Kalshi match skipped non-fatally: {payload.get('fetch_error')}")
+        _, carried = annotate_slate_picks(args.slate_picks, None)
+        print(f"Kalshi match skipped non-fatally: {payload.get('fetch_error')} (carried {carried} prior price(s))")
     return 0
+
+
+def _snapshot_age_seconds(snapshot: "dict[str, Any]") -> "float | None":
+    from datetime import datetime, timezone
+
+    raw = str(snapshot.get("generated_at") or "")
+    if not raw:
+        return None
+    try:
+        ts = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (datetime.now(timezone.utc) - ts).total_seconds()
 
 
 def _slate_date(candidates: list[dict[str, Any]]) -> str:
