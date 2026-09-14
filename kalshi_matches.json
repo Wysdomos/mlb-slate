@@ -2,14 +2,14 @@
   "counts": {
     "ambiguous": 0,
     "live": 0,
-    "matched": 157,
+    "matched": 158,
     "no_quote": 0,
-    "not_listed": 72,
-    "tbd": 3
+    "not_listed": 71,
+    "tbd": 0
   },
   "fetch_error": null,
   "fetch_ok": true,
-  "generated_at": "2026-09-13T22:55:57Z",
+  "generated_at": "2026-09-14T00:41:22Z",
   "matches": [
     {
       "ambiguous_survivors": null,
@@ -1426,7 +1426,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -1456,7 +1456,7 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131505KCBOS",
       "url_kind": "direct"
     },
@@ -1505,19 +1505,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         4.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26SEP131605SEAATH-ATHJLOPEZ57-5",
       "match_confidence": 100,
@@ -1542,7 +1542,7 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -1720,19 +1720,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         4.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26SEP131505KCBOS",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26SEP131505KCBOS-KCNCAMERON65-5",
       "match_confidence": 100,
@@ -1757,7 +1757,7 @@
       "slate_signal": {
         "consensus": 3
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131505KCBOS",
       "url_kind": "direct"
     },
@@ -1769,8 +1769,8 @@
       ],
       "buy_price": null,
       "display": {
-        "age_label": "Aging",
-        "badge": "UNOPENED",
+        "age_label": "Stale",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -1800,7 +1800,7 @@
       "slate_signal": {
         "consensus": 3
       },
-      "tradable_state": "LISTED_UNOPENED",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131610TEXAZ",
       "url_kind": "direct"
     },
@@ -1892,19 +1892,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         3.5
       ],
-      "buy_price": 0.68,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 68c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26SEP131920SDSF",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26SEP131920SDSF-SDNPIVETTA27-4",
       "match_confidence": 100,
@@ -1935,19 +1935,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         2.5
       ],
-      "buy_price": 0.86,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 86c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26SEP131920SDSF",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26SEP131920SDSF-SFLWEBB62-3",
       "match_confidence": 100,
@@ -2414,8 +2414,8 @@
       ],
       "buy_price": null,
       "display": {
-        "age_label": "Aging",
-        "badge": "UNOPENED",
+        "age_label": "Stale",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -2445,7 +2445,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "LISTED_UNOPENED",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131610TEXAZ",
       "url_kind": "direct"
     },
@@ -2501,7 +2501,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -2531,7 +2531,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -2785,19 +2785,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEAMARROYO96-1",
       "match_confidence": 100,
@@ -2820,9 +2820,9 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 4
+        "consensus": 3
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -2957,19 +2957,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.04,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEADCANZONE8-1",
       "match_confidence": 100,
@@ -2992,27 +2992,27 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 6
+        "consensus": 5
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.05,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 5c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEACRALEIGH29-1",
       "match_confidence": 100,
@@ -3037,7 +3037,7 @@
       "slate_signal": {
         "consensus": 5
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -3765,6 +3765,49 @@
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26SEP131610TEXAZ",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26SEP131610TEXAZ-TEXCSEAGER5-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-09-13_TEX@AZ_COREY_SEAGER_TEX_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 2
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131610TEXAZ",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131335PHIATL",
       "fee_band": null,
       "kalshi_side": "yes",
@@ -3890,7 +3933,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -3920,25 +3963,25 @@
       "slate_signal": {
         "consensus": 6
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.04,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEAJRODRGUEZ44-1",
       "match_confidence": 100,
@@ -3961,27 +4004,27 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 4
+        "consensus": 5
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.05,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 5c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131505KCBOS",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131505KCBOS-BOSWCONTRERAS40-1",
       "match_confidence": 100,
@@ -4006,7 +4049,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131505KCBOS",
       "url_kind": "direct"
     },
@@ -4141,19 +4184,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.03,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 3c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131505KCBOS",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131505KCBOS-KCBWITT7-1",
       "match_confidence": 100,
@@ -4178,51 +4221,8 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131505KCBOS",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": null,
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": null,
-      "display": {
-        "age_label": "Aging",
-        "badge": "UNOPENED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26SEP131610TEXAZ",
-      "fee_band": null,
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26SEP131610TEXAZ-TEXCSEAGER5-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-09-13_TEX@AZ_COREY_SEAGER_TEX_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "LISTED_UNOPENED",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131610TEXAZ",
       "url_kind": "direct"
     },
     {
@@ -4508,19 +4508,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131505KCBOS",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131505KCBOS-KCJCAGLIANONE14-1",
       "match_confidence": 100,
@@ -4545,7 +4545,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131505KCBOS",
       "url_kind": "direct"
     },
@@ -4684,11 +4684,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.13,
+      "buy_price": 0.07,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 13c"
+        "price_label": "PRE_FEE 7c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131920SDSF",
@@ -4723,19 +4723,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.2,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 20c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131605SEAATH-SEACRALEIGH29-2",
       "match_confidence": 100,
@@ -4760,7 +4760,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -4902,7 +4902,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -4932,7 +4932,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -5024,19 +5024,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.06,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 6c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131605SEAATH-ATHHBOLTE33-2",
       "match_confidence": 100,
@@ -5061,25 +5061,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.26,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 26c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131605SEAATH",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131605SEAATH-SEAJRODRGUEZ44-2",
       "match_confidence": 100,
@@ -5104,7 +5104,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -5160,7 +5160,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -5190,7 +5190,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -5289,7 +5289,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -5319,25 +5319,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.46,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 46c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131920SDSF",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131920SDSF-SDFTATIS23-2",
       "match_confidence": 100,
@@ -5752,7 +5752,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -5782,7 +5782,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -5907,19 +5907,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.25,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 25c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131605SEAATH-ATHJMCNEIL22-2",
       "match_confidence": 100,
@@ -5944,25 +5944,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.44,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 44c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26SEP131920SDSF",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26SEP131920SDSF-SDJMERRILL3-2",
       "match_confidence": 100,
@@ -6400,7 +6400,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -6430,7 +6430,7 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtotal/pro-baseball-total-runs/KXMLBTOTAL-26SEP131335KCBOS",
       "url_kind": "direct"
     },
@@ -6443,7 +6443,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -6473,7 +6473,7 @@
       "slate_signal": {
         "consensus": 3
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtotal/pro-baseball-total-runs/KXMLBTOTAL-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7077,7 +7077,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -7107,7 +7107,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7120,7 +7120,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -7150,7 +7150,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7262,7 +7262,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -7292,7 +7292,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7305,7 +7305,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -7335,7 +7335,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7414,7 +7414,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -7444,7 +7444,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7457,7 +7457,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -7487,7 +7487,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7619,7 +7619,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -7649,7 +7649,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7705,7 +7705,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -7735,7 +7735,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7748,7 +7748,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -7778,7 +7778,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -7996,6 +7996,49 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26SEP131920SDSF",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26SEP131920SDSF-SDFTATIS23-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-09-13_SD@SF_FERNANDO_TATIS_SD_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131920SDSF",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
         "badge": "SETTLED",
         "price_label": "No executable quote"
       },
@@ -8162,51 +8205,18 @@
     {
       "ambiguous_survivors": null,
       "ask_source": null,
-      "available_strikes": [],
-      "buy_price": null,
-      "display": {
-        "age_label": "Quote age unknown",
-        "badge": "NOT LISTED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": null,
-      "fee_band": null,
-      "kalshi_side": null,
-      "kalshi_ticker": null,
-      "match_confidence": 0,
-      "match_gates_passed": [],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "not_applicable",
-      "quote_ts": null,
-      "reason": "no_kalshi_series",
-      "series_ticker": null,
-      "settlement_note": null,
-      "slate_id": "2026-09-13_BAL@TOR_TREVOR_ROGERS_BAL_H_ALLOWED_OVER_4_5",
-      "slate_market": "h_allowed",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "NOT_LISTED",
-      "url": null,
-      "url_kind": "none"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.05,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 5c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEACRALEIGH29-1",
       "match_confidence": 100,
@@ -8231,25 +8241,25 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.04,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-SEAJRODRGUEZ44-1",
       "match_confidence": 100,
@@ -8274,7 +8284,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -8459,7 +8469,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -8489,25 +8499,25 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.03,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 3c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26SEP131605SEAATH-ATHHBOLTE33-1",
       "match_confidence": 100,
@@ -8532,7 +8542,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -8717,7 +8727,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -8747,7 +8757,7 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131505KCBOS",
       "url_kind": "direct"
     },
@@ -8796,19 +8806,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         4.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26SEP131605SEAATH",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26SEP131605SEAATH-ATHJLOPEZ57-5",
       "match_confidence": 100,
@@ -8833,7 +8843,7 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -8932,7 +8942,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -8962,7 +8972,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -8975,7 +8985,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -9005,7 +9015,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -9018,7 +9028,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -9048,7 +9058,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -9061,7 +9071,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -9091,7 +9101,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     },
@@ -9104,7 +9114,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": true,
@@ -9134,7 +9144,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26SEP131605SEAATH",
       "url_kind": "direct"
     }
