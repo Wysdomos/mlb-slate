@@ -2,14 +2,14 @@
   "counts": {
     "ambiguous": 0,
     "live": 0,
-    "matched": 107,
+    "matched": 112,
     "no_quote": 0,
     "not_listed": 50,
     "tbd": 0
   },
   "fetch_error": null,
   "fetch_ok": true,
-  "generated_at": "2026-10-08T00:39:10Z",
+  "generated_at": "2026-10-08T02:22:31Z",
   "matches": [
     {
       "ambiguous_survivors": null,
@@ -1340,7 +1340,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -1370,25 +1370,25 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         3.5
       ],
-      "buy_price": 0.68,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 68c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26OCT072000TBNYY-NYYMFRIED54-4",
       "match_confidence": 100,
@@ -1426,7 +1426,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -1456,7 +1456,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -1466,11 +1466,11 @@
       "available_strikes": [
         2.5
       ],
-      "buy_price": 0.49,
+      "buy_price": 0.33,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 49c"
+        "price_label": "PRE_FEE 33c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26OCT072200MILSD",
@@ -1509,11 +1509,11 @@
       "available_strikes": [
         2.5
       ],
-      "buy_price": 0.55,
+      "buy_price": 0.49,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 55c"
+        "price_label": "PRE_FEE 49c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26OCT072200MILSD",
@@ -1548,19 +1548,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         2.5
       ],
-      "buy_price": 0.66,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 66c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBKS-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBKS-26OCT072000TBNYY-TBNMARTINEZ28-3",
       "match_confidence": 100,
@@ -1661,11 +1661,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.17,
+      "buy_price": 0.08,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 17c"
+        "price_label": "PRE_FEE 8c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -1700,19 +1700,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.06,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 6c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADSOHTANI17-1",
       "match_confidence": 100,
@@ -1737,128 +1737,9 @@
       "slate_signal": {
         "consensus": 3
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.05,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 5c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADWSMITH16-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_WILL_SMITH_LAD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 3
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.06,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 6c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMOLSON28-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_MATT_OLSON_ATL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 3
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": null,
-      "available_strikes": [],
-      "buy_price": null,
-      "display": {
-        "age_label": "Quote age unknown",
-        "badge": "NOT LISTED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": null,
-      "fee_band": null,
-      "kalshi_side": null,
-      "kalshi_ticker": null,
-      "match_confidence": 0,
-      "match_gates_passed": [],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": "not_listed",
-      "series_ticker": "KXMLBHR",
-      "settlement_note": null,
-      "slate_id": "2026-10-07_LAD@ATL_MAX_MUNCY_LAD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 3
-      },
-      "tradable_state": "NOT_LISTED",
-      "url": null,
-      "url_kind": "none"
     },
     {
       "ambiguous_survivors": null,
@@ -1897,10 +1778,96 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 2
+        "consensus": 3
       },
       "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADWSMITH16-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_WILL_SMITH_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 3
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMOLSON28-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_MATT_OLSON_ATL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 3
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
@@ -1909,11 +1876,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.14,
+      "buy_price": 0.04,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 14c"
+        "price_label": "PRE_FEE 4c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -1948,19 +1915,52 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
+      "available_strikes": [],
+      "buy_price": null,
+      "display": {
+        "age_label": "Quote age unknown",
+        "badge": "NOT LISTED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": null,
+      "fee_band": null,
+      "kalshi_side": null,
+      "kalshi_ticker": null,
+      "match_confidence": 0,
+      "match_gates_passed": [],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": "not_listed",
+      "series_ticker": "KXMLBHR",
+      "settlement_note": null,
+      "slate_id": "2026-10-07_LAD@ATL_MAX_MUNCY_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 4
+      },
+      "tradable_state": "NOT_LISTED",
+      "url": null,
+      "url_kind": "none"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.02,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 2c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLRACUNA13-1",
       "match_confidence": 100,
@@ -1985,7 +1985,7 @@
       "slate_signal": {
         "consensus": 3
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -1995,54 +1995,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.04,
+      "buy_price": 0.05,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLDBALDWIN30-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_DRAKE_BALDWIN_ATL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.14,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 14c"
+        "price_label": "PRE_FEE 5c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2077,15 +2034,58 @@
     },
     {
       "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLDBALDWIN30-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_DRAKE_BALDWIN_ATL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 1
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
       "ask_source": "reported_only",
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.13,
+      "buy_price": 0.05,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 13c"
+        "price_label": "PRE_FEE 5c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2124,11 +2124,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.19,
+      "buy_price": 0.14,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 19c"
+        "price_label": "PRE_FEE 14c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072200MILSD",
@@ -2163,19 +2163,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADFFREEMAN5-1",
       "match_confidence": 100,
@@ -2198,9 +2198,9 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 1
+        "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -2249,92 +2249,6 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.15,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 15c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072200MILSD",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDJMERRILL3-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_MIL@SD_JACKSON_MERRILL_SD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 2
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.03,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 3c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMHARRIS23-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_MICHAEL_HARRIS_ATL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
       "ask_source": null,
       "available_strikes": [
         0.5
@@ -2370,7 +2284,7 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 0
+        "consensus": 1
       },
       "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
@@ -2382,11 +2296,97 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.15,
+      "buy_price": 0.1,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 15c"
+        "price_label": "PRE_FEE 10c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072200MILSD",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDJMERRILL3-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_MIL@SD_JACKSON_MERRILL_SD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 2
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMHARRIS23-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_MICHAEL_HARRIS_ATL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 1
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "reported_only",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.06,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 6c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2425,11 +2425,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.08,
+      "buy_price": 0.03,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 8c"
+        "price_label": "PRE_FEE 3c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2464,19 +2464,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.04,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADTHERNANDEZ37-1",
       "match_confidence": 100,
@@ -2501,7 +2501,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -2540,62 +2540,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.02,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 2c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADAPAGES44-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_ANDY_PAGES_LAD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.04,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 4c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLARILEY27-1",
       "match_confidence": 100,
@@ -2620,7 +2577,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -2630,11 +2587,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.13,
+      "buy_price": 0.05,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 13c"
+        "price_label": "PRE_FEE 5c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2673,11 +2630,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.16,
+      "buy_price": 0.11,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 16c"
+        "price_label": "PRE_FEE 11c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072200MILSD",
@@ -2712,21 +2669,21 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADMBETTS50-1",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADAPAGES44-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -2743,57 +2700,14 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_MOOKIE_BETTS_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_LAD@ATL_ANDY_PAGES_LAD_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.12,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 12c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072200MILSD",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-MILWCONTRERAS24-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_MIL@SD_WILLIAM_CONTRERAS_MIL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 2
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
       "url_kind": "direct"
     },
     {
@@ -2802,11 +2716,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.08,
+      "buy_price": 0.06,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 8c"
+        "price_label": "PRE_FEE 6c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072200MILSD",
@@ -2841,15 +2755,177 @@
     },
     {
       "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADMBETTS50-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_MOOKIE_BETTS_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
       "ask_source": "reported_only",
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.11,
+      "buy_price": 0.09,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 11c"
+        "price_label": "PRE_FEE 9c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072200MILSD",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-MILWCONTRERAS24-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_MIL@SD_WILLIAM_CONTRERAS_MIL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 2
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CWSKTEEL8-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_KYLE_TEEL_CHW_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 2
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [],
+      "buy_price": null,
+      "display": {
+        "age_label": "Quote age unknown",
+        "badge": "NOT LISTED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": null,
+      "fee_band": null,
+      "kalshi_side": null,
+      "kalshi_ticker": null,
+      "match_confidence": 0,
+      "match_gates_passed": [],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": "not_listed",
+      "series_ticker": "KXMLBHR",
+      "settlement_note": null,
+      "slate_id": "2026-10-07_CLE@CHW_RANDAL_GRICHUK_CHW_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 2
+      },
+      "tradable_state": "NOT_LISTED",
+      "url": null,
+      "url_kind": "none"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "reported_only",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.04,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 4c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2884,21 +2960,21 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.02,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 2c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADKTUCKER23-1",
+      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CLEJADELL7-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -2915,14 +2991,57 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_KYLE_TUCKER_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_CLE@CHW_JO_ADELL_CLE_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 0
+        "consensus": 2
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "agree",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.12,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 12c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072200MILSD",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDMMACHADO13-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_MIL@SD_MANNY_MACHADO_SD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 1
       },
       "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
       "url_kind": "direct"
     },
     {
@@ -2931,11 +3050,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.06,
+      "buy_price": 0.03,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 6c"
+        "price_label": "PRE_FEE 3c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -2970,21 +3089,21 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.01,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADEHERNNDEZ8-1",
+      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CWSCMONTGOMERY12-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -3001,14 +3120,14 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_ENRIQUE_HERNANDEZ_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_CLE@CHW_COLSON_MONTGOMERY_CHW_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
         "consensus": 1
       },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
       "url_kind": "direct"
     },
     {
@@ -3017,11 +3136,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.08,
+      "buy_price": 0.03,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 8c"
+        "price_label": "PRE_FEE 3c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -3067,10 +3186,10 @@
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
       "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CWSKTEEL8-1",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADKTUCKER23-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -3087,91 +3206,15 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_CLE@CHW_KYLE_TEEL_CHW_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_LAD@ATL_KYLE_TUCKER_LAD_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 1
+        "consensus": 0
       },
       "tradable_state": "SETTLED",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
       "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "agree",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.16,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 16c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072200MILSD",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDMMACHADO13-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_MIL@SD_MANNY_MACHADO_SD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": null,
-      "available_strikes": [],
-      "buy_price": null,
-      "display": {
-        "age_label": "Quote age unknown",
-        "badge": "NOT LISTED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": null,
-      "fee_band": null,
-      "kalshi_side": null,
-      "kalshi_ticker": null,
-      "match_confidence": 0,
-      "match_gates_passed": [],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": "not_listed",
-      "series_ticker": "KXMLBHR",
-      "settlement_note": null,
-      "slate_id": "2026-10-07_CLE@CHW_RANDAL_GRICHUK_CHW_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "NOT_LISTED",
-      "url": null,
-      "url_kind": "none"
     },
     {
       "ambiguous_survivors": null,
@@ -3179,11 +3222,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.09,
+      "buy_price": 0.08,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 9c"
+        "price_label": "PRE_FEE 8c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072200MILSD",
@@ -3218,15 +3261,58 @@
     },
     {
       "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-LADEHERNNDEZ8-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_ENRIQUE_HERNANDEZ_LAD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
       "ask_source": "agree",
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.1,
+      "buy_price": 0.12,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 10c"
+        "price_label": "PRE_FEE 12c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072200MILSD",
@@ -3250,350 +3336,6 @@
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
       "slate_id": "2026-10-07_MIL@SD_LUIS_CAMPUSANO_SD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.06,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 6c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072000TBNYY",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-TBRVILADE26-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_TB@NYY_RYAN_VILADE_TB_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072000TBNYY",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.03,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 3c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLSMURPHY12-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_SEAN_MURPHY_ATL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "agree",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.12,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 12c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072200MILSD",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDTFRANCE4-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_MIL@SD_TY_FRANCE_SD_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": null,
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": null,
-      "display": {
-        "age_label": "Stale",
-        "badge": "SETTLED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
-      "fee_band": null,
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CLEJADELL7-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_CLE@CHW_JO_ADELL_CLE_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 1
-      },
-      "tradable_state": "SETTLED",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.01,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 1c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071800LADATL",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMYASTRZEMSKI18-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_LAD@ATL_MIKE_YASTRZEMSKI_ATL_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": null,
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": null,
-      "display": {
-        "age_label": "Stale",
-        "badge": "SETTLED",
-        "price_label": "No executable quote"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
-      "fee_band": null,
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CWSCMONTGOMERY12-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_CLE@CHW_COLSON_MONTGOMERY_CHW_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "SETTLED",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "reported_only",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.07,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 7c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072000TBNYY",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-NYYJCABALLERO72-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_TB@NYY_JOSE_CABALLERO_NYY_BATTER_HOME_RUNS_OVER_0_5",
-      "slate_market": "batter_home_runs",
-      "slate_side": "over",
-      "slate_signal": {
-        "consensus": 0
-      },
-      "tradable_state": "STALE",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072000TBNYY",
-      "url_kind": "direct"
-    },
-    {
-      "ambiguous_survivors": null,
-      "ask_source": "agree",
-      "available_strikes": [
-        0.5
-      ],
-      "buy_price": 0.1,
-      "display": {
-        "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 10c"
-      },
-      "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT072200MILSD",
-      "fee_band": "extreme",
-      "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-MILCYELICH22-1",
-      "match_confidence": 100,
-      "match_gates_passed": [
-        "sport",
-        "date",
-        "game",
-        "family",
-        "player",
-        "threshold",
-        "side"
-      ],
-      "price_basis": "PRE_FEE",
-      "probability_kind": "model_probability_unvalidated",
-      "quote_ts": null,
-      "reason": null,
-      "series_ticker": "KXMLBHR",
-      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_MIL@SD_CHRISTIAN_YELICH_MIL_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
@@ -3640,7 +3382,7 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 0
+        "consensus": 1
       },
       "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
@@ -3648,21 +3390,21 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.09,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 9c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-NYYAVOLPE11-1",
+      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-TBRVILADE26-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -3679,7 +3421,7 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_TB@NYY_ANTHONY_VOLPE_NYY_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_TB@NYY_RYAN_VILADE_TB_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
@@ -3687,6 +3429,49 @@
       },
       "tradable_state": "STALE",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072000TBNYY",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "agree",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.11,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 11c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072200MILSD",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-SDTFRANCE4-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_MIL@SD_TY_FRANCE_SD_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
       "url_kind": "direct"
     },
     {
@@ -3702,10 +3487,10 @@
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
-      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
       "fee_band": null,
       "kalshi_side": "yes",
-      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CLEPBAILEY16-1",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLMYASTRZEMSKI18-1",
       "match_confidence": 100,
       "match_gates_passed": [
         "sport",
@@ -3722,14 +3507,143 @@
       "reason": null,
       "series_ticker": "KXMLBHR",
       "settlement_note": "Market references the originally scheduled game datetime for settlement.",
-      "slate_id": "2026-10-07_CLE@CHW_PATRICK_BAILEY_CLE_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_id": "2026-10-07_LAD@ATL_MIKE_YASTRZEMSKI_ATL_BATTER_HOME_RUNS_OVER_0_5",
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
         "consensus": 0
       },
       "tradable_state": "SETTLED",
-      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071800LADATL",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071800LADATL-ATLSMURPHY12-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_LAD@ATL_SEAN_MURPHY_ATL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "agree",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.07,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 7c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072200MILSD",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072200MILSD-MILCYELICH22-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_MIL@SD_CHRISTIAN_YELICH_MIL_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072200MILSD",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "reported_only",
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": 0.04,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 4c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072000TBNYY",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-NYYJCABALLERO72-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_TB@NYY_JOSE_CABALLERO_NYY_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072000TBNYY",
       "url_kind": "direct"
     },
     {
@@ -3769,7 +3683,50 @@
       "slate_market": "batter_home_runs",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 0
+        "consensus": 1
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT071600CLECWS-CLEPBAILEY16-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_PATRICK_BAILEY_CLE_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 1
       },
       "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT071600CLECWS",
@@ -3779,13 +3736,56 @@
       "ambiguous_survivors": null,
       "ask_source": "reported_only",
       "available_strikes": [
-        1.5
+        0.5
       ],
-      "buy_price": 0.33,
+      "buy_price": 0.04,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 33c"
+        "price_label": "PRE_FEE 4c"
+      },
+      "edge_allowed": false,
+      "event_ticker": "KXMLBHR-26OCT072000TBNYY",
+      "fee_band": "extreme",
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHR-26OCT072000TBNYY-NYYAVOLPE11-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "model_probability_unvalidated",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_TB@NYY_ANTHONY_VOLPE_NYY_BATTER_HOME_RUNS_OVER_0_5",
+      "slate_market": "batter_home_runs",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "STALE",
+      "url": "https://kalshi.com/markets/kxmlbhr/pro-baseball-home-runs/KXMLBHR-26OCT072000TBNYY",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": "reported_only",
+      "available_strikes": [
+        1.5
+      ],
+      "buy_price": 0.28,
+      "display": {
+        "age_label": "Stale",
+        "badge": "STALE",
+        "price_label": "PRE_FEE 28c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
@@ -3820,19 +3820,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.11,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 11c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-LADSOHTANI17-2",
       "match_confidence": 100,
@@ -3857,7 +3857,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -3867,15 +3867,15 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.27,
+      "buy_price": 0.23,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 27c"
+        "price_label": "PRE_FEE 23c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": "extreme",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT072000TBNYY-TBJCAMINERO13-2",
       "match_confidence": 100,
@@ -3953,11 +3953,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.38,
+      "buy_price": 0.55,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 38c"
+        "price_label": "PRE_FEE 55c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072200MILSD",
@@ -3999,7 +3999,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -4029,7 +4029,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -4072,11 +4072,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.56,
+      "buy_price": 0.28,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 56c"
+        "price_label": "PRE_FEE 28c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
@@ -4115,11 +4115,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.43,
+      "buy_price": 0.37,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 43c"
+        "price_label": "PRE_FEE 37c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072200MILSD",
@@ -4154,19 +4154,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.4,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 40c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-LADWSMITH16-2",
       "match_confidence": 100,
@@ -4191,7 +4191,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -4201,15 +4201,15 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.29,
+      "buy_price": 0.16,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 29c"
+        "price_label": "PRE_FEE 16c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": "extreme",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT072000TBNYY-NYYTGRISHAM12-2",
       "match_confidence": 100,
@@ -4240,19 +4240,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.13,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 13c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-ATLMOLSON28-2",
       "match_confidence": 100,
@@ -4277,7 +4277,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -4326,19 +4326,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.14,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 14c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-ATLRACUNA13-2",
       "match_confidence": 100,
@@ -4363,25 +4363,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.15,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 15c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-LADMBETTS50-2",
       "match_confidence": 100,
@@ -4406,25 +4406,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.15,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 15c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-LADFFREEMAN5-2",
       "match_confidence": 100,
@@ -4449,7 +4449,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -4459,11 +4459,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.39,
+      "buy_price": 0.55,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 39c"
+        "price_label": "PRE_FEE 55c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072200MILSD",
@@ -4502,11 +4502,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.39,
+      "buy_price": 0.27,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 39c"
+        "price_label": "PRE_FEE 27c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072200MILSD",
@@ -4545,15 +4545,15 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.42,
+      "buy_price": 0.08,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 42c"
+        "price_label": "PRE_FEE 8c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": "extreme",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT072000TBNYY-NYYAWELLS28-2",
       "match_confidence": 100,
@@ -4631,15 +4631,15 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.26,
+      "buy_price": 0.09,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 26c"
+        "price_label": "PRE_FEE 9c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": "extreme",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT072000TBNYY-NYYCBELLINGER35-2",
       "match_confidence": 100,
@@ -4670,19 +4670,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.1,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 10c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-ATLDBALDWIN30-2",
       "match_confidence": 100,
@@ -4707,25 +4707,25 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.49,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 49c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT072000TBNYY-NYYGLOMBARD96-2",
       "match_confidence": 100,
@@ -4760,11 +4760,11 @@
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.45,
+      "buy_price": 0.32,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 45c"
+        "price_label": "PRE_FEE 32c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT072200MILSD",
@@ -4885,19 +4885,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         1.5
       ],
-      "buy_price": 0.22,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 22c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTB-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTB-26OCT071800LADATL-LADTHERNANDEZ37-2",
       "match_confidence": 100,
@@ -4922,7 +4922,7 @@
       "slate_signal": {
         "consensus": null
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtb/pro-baseball-total-bases/KXMLBTB-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -5092,7 +5092,7 @@
       "slate_market": "game_total",
       "slate_side": "over",
       "slate_signal": {
-        "consensus": 2
+        "consensus": 3
       },
       "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtotal/pro-baseball-total-runs/KXMLBTOTAL-26OCT071600CLECWS",
@@ -5100,19 +5100,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         8.5
       ],
-      "buy_price": 0.09,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 9c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBTOTAL-26OCT071800LADATL",
-      "fee_band": "extreme",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBTOTAL-26OCT071800LADATL-9",
       "match_confidence": 100,
@@ -5137,7 +5137,7 @@
       "slate_signal": {
         "consensus": 2
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbtotal/pro-baseball-total-runs/KXMLBTOTAL-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -5365,15 +5365,15 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.75,
+      "buy_price": 0.68,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 75c"
+        "price_label": "PRE_FEE 68c"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072200MILSD",
-      "fee_band": "extreme",
+      "fee_band": "mid",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHRR-26OCT072200MILSD-SDFTATIS23-1",
       "match_confidence": 100,
@@ -5494,15 +5494,15 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.75,
+      "buy_price": 0.65,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 75c"
+        "price_label": "PRE_FEE 65c"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072200MILSD",
-      "fee_band": "extreme",
+      "fee_band": "mid",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHRR-26OCT072200MILSD-MILJCHOURIO11-1",
       "match_confidence": 100,
@@ -5540,7 +5540,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -5570,7 +5570,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -5580,11 +5580,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.61,
+      "buy_price": 0.63,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 61c"
+        "price_label": "PRE_FEE 63c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHIT-26OCT072200MILSD",
@@ -5619,19 +5619,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.53,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 53c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHIT-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHIT-26OCT072000TBNYY-TBJDELUCA21-1",
       "match_confidence": 100,
@@ -5705,19 +5705,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.65,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 65c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHRR-26OCT072000TBNYY-NYYBRICE22-1",
       "match_confidence": 100,
@@ -5752,11 +5752,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.61,
+      "buy_price": 0.67,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 61c"
+        "price_label": "PRE_FEE 67c"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072200MILSD",
@@ -5795,15 +5795,15 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.5,
+      "buy_price": 0.2,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 50c"
+        "price_label": "PRE_FEE 20c"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": "extreme",
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHRR-26OCT072000TBNYY-TBLHICKS34-1",
       "match_confidence": 100,
@@ -5834,19 +5834,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.44,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
-        "price_label": "PRE_FEE 44c"
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHIT-26OCT071800LADATL",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHIT-26OCT071800LADATL-LADWSMITH16-1",
       "match_confidence": 100,
@@ -5871,25 +5871,25 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26OCT071800LADATL",
       "url_kind": "direct"
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.59,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 59c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHIT-26OCT072000TBNYY",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHIT-26OCT072000TBNYY-NYYSJONES78-1",
       "match_confidence": 100,
@@ -5963,19 +5963,19 @@
     },
     {
       "ambiguous_survivors": null,
-      "ask_source": "reported_only",
+      "ask_source": null,
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.71,
+      "buy_price": null,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 71c"
+        "price_label": "No executable quote"
       },
       "edge_allowed": true,
       "event_ticker": "KXMLBHRR-26OCT072200MILSD",
-      "fee_band": "mid",
+      "fee_band": null,
       "kalshi_side": "yes",
       "kalshi_ticker": "KXMLBHRR-26OCT072200MILSD-SDJMERRILL3-1",
       "match_confidence": 100,
@@ -6010,11 +6010,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.17,
+      "buy_price": 0.08,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 17c"
+        "price_label": "PRE_FEE 8c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -6053,11 +6053,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.13,
+      "buy_price": 0.05,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 13c"
+        "price_label": "PRE_FEE 5c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
@@ -6099,7 +6099,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -6129,8 +6129,223 @@
       "slate_signal": {
         "consensus": 4
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbks/pro-baseball-strikeouts/KXMLBKS-26OCT071800LADATL",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26OCT071600CLECWS-CLEJADELL7-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_JO_ADELL_CLE_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26OCT071600CLECWS-CLECDELAUTER24-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_CHASE_DELAUTER_CLE_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26OCT071600CLECWS-CLEAMARTNEZ1-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_ANGEL_MARTINEZ_CLE_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26OCT071600CLECWS-CLESKWAN38-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_STEVEN_KWAN_CLE_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26OCT071600CLECWS",
+      "url_kind": "direct"
+    },
+    {
+      "ambiguous_survivors": null,
+      "ask_source": null,
+      "available_strikes": [
+        0.5
+      ],
+      "buy_price": null,
+      "display": {
+        "age_label": "Stale",
+        "badge": "SETTLED",
+        "price_label": "No executable quote"
+      },
+      "edge_allowed": true,
+      "event_ticker": "KXMLBHRR-26OCT071600CLECWS",
+      "fee_band": null,
+      "kalshi_side": "yes",
+      "kalshi_ticker": "KXMLBHRR-26OCT071600CLECWS-CLEJRAMREZ11-1",
+      "match_confidence": 100,
+      "match_gates_passed": [
+        "sport",
+        "date",
+        "game",
+        "family",
+        "player",
+        "threshold",
+        "side"
+      ],
+      "price_basis": "PRE_FEE",
+      "probability_kind": "calibrated_probability",
+      "quote_ts": null,
+      "reason": null,
+      "series_ticker": "KXMLBHRR",
+      "settlement_note": "Market references the originally scheduled game datetime for settlement.",
+      "slate_id": "2026-10-07_CLE@CHW_JOSE_RAMIREZ_CLE_BATTER_HRR_OVER_0_5",
+      "slate_market": "batter_hrr",
+      "slate_side": "over",
+      "slate_signal": {
+        "consensus": 0
+      },
+      "tradable_state": "SETTLED",
+      "url": "https://kalshi.com/markets/kxmlbhrr/pro-baseball-hits-runs-rbis/KXMLBHRR-26OCT071600CLECWS",
       "url_kind": "direct"
     },
     {
@@ -6185,7 +6400,7 @@
       "buy_price": null,
       "display": {
         "age_label": "Stale",
-        "badge": "STALE",
+        "badge": "SETTLED",
         "price_label": "No executable quote"
       },
       "edge_allowed": false,
@@ -6215,7 +6430,7 @@
       "slate_signal": {
         "consensus": 0
       },
-      "tradable_state": "STALE",
+      "tradable_state": "SETTLED",
       "url": "https://kalshi.com/markets/kxmlbhit/pro-baseball-hits/KXMLBHIT-26OCT071800LADATL",
       "url_kind": "direct"
     },
@@ -6225,11 +6440,11 @@
       "available_strikes": [
         0.5
       ],
-      "buy_price": 0.17,
+      "buy_price": 0.08,
       "display": {
         "age_label": "Stale",
         "badge": "STALE",
-        "price_label": "PRE_FEE 17c"
+        "price_label": "PRE_FEE 8c"
       },
       "edge_allowed": false,
       "event_ticker": "KXMLBHR-26OCT072000TBNYY",
